@@ -1,19 +1,25 @@
 {
-  "name": "a",
+  "name": "alpha-health-clinic-project",
   "version": "1.0.0",
-  "description": "",
+  "description": "ESSE é um Readme",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlineReis/ALPHA-HEALTH-CLINIC-PROJECT.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "express": "^5.2.1"
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AlineReis/ALPHA-HEALTH-CLINIC-PROJECT/issues"
   },
-  "devDependencies": {
-    "@types/express": "^5.0.6"
+  "homepage": "https://github.com/AlineReis/ALPHA-HEALTH-CLINIC-PROJECT#readme",
+  "dependencies": {
+    "tsc": "^2.0.4",
+    "typescript": "^5.9.3"
   }
 }
