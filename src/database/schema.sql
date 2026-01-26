@@ -132,8 +132,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     updated_at TEXT,
     FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE RESTRICT,
     FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE RESTRICT,
-    FOREIGN KEY (cancelled_by) REFERENCES users(id) ON DELETE SET NULL,
-    CHECK (date >= date('now')) -- Impede agendamentos no passado
+    FOREIGN KEY (cancelled_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- =============================================================================

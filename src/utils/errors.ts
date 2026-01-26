@@ -36,3 +36,12 @@ export class ForbiddenError extends AppError {
     super(message);
   }
 }
+
+export class NotFoundError extends AppError {
+  public statusCode = 404;
+  public code = "NOT_FOUND_ERROR";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
