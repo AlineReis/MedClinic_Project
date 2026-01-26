@@ -1,24 +1,24 @@
-import { UserRepository } from '../repository/user.repository.js';
-import { ProfessionalRepository } from '../repository/professional.repository.js';
-import { AvailabilityRepository } from '../repository/availability.repository.js';
-import { UserService } from './user.service.js'; 
-import { User } from '../models/user.js';
-import { ProfessionalDetails, Availability } from '../models/professional.model.js';
-import * as Validators from '../utils/validators.js';
+import type { IUserRepository } from '@repositories/iuser.repository.js';
 import bcrypt from 'bcrypt';
-
-const userRepo = new UserRepository();
-const profRepo = new ProfessionalRepository();
-const availRepo = new AvailabilityRepository();
+import { Availability, ProfessionalDetails } from '../models/professional.model.js';
+import { User } from '../models/user.js';
+import { AvailabilityRepository } from '../repository/availability.repository.js';
+import { ProfessionalRepository } from '../repository/professional.repository.js';
+import * as Validators from '../utils/validators.js';
 
 export class ProfessionalService {
-  
+  constructor(
+    private readonly usersRepository: IUserRepository,
+    private readonly professionalRepository: ProfessionalRepository,
+    private readonly availabilityRepository: AvailabilityRepository
+  ){}
+
   async register(
-    userData: User, 
+    userData: User,
     detailsData: ProfessionalDetails,
     availabilities: Availability[] = []
   ): Promise<any> {
-    
+
     if (userData.cpf && !Validators.isValidCpfLogic(userData.cpf)) {
       throw new Error('Invalid CPF');
     }
@@ -26,7 +26,7 @@ export class ProfessionalService {
        throw new Error('Registration number (CRM/CRP) is required');
     }
 
-    const existing = await userRepo.findByEmail(userData.email);
+    const existing = await this.usersRepository.findByEmail(userData.email);
     if (existing) throw new Error('Email already in use');
 
     const defaultPassword = process.env.DEFAULT_PROFESSIONAL_PASSWORD || 'Mudar123';
@@ -35,18 +35,18 @@ export class ProfessionalService {
     let userId: number | null = null;
 
     try {
-      userId = await userRepo.createHealthProfessional({
+      userId = await this.usersRepository.createHealthProfessional({
         ...userData,
         password: hashedPassword
       });
 
-      await profRepo.create({
+      await this.professionalRepository.create({
         ...detailsData,
         user_id: userId
       });
 
       for (const slot of availabilities) {
-        await availRepo.create({
+        await this.availabilityRepository.create({
           ...slot,
           professional_id: userId
         });
@@ -57,13 +57,13 @@ export class ProfessionalService {
     } catch (error) {
        console.error('Registration failed, rolling back...', error);
        if (userId) {
-         await userRepo.delete(userId);
+         await this.usersRepository.delete(userId);
        }
        throw error;
     }
   }
 
   async listBySpecialty(specialty: string) {
-    return await profRepo.findBySpecialty(specialty);
+    return await this.professionalRepository.findBySpecialty(specialty);
   }
 }
