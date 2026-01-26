@@ -18,6 +18,14 @@ export class ValidationError extends AppError {
     super(message, field);
   }
 }
+export class ConflictError extends AppError {
+  public statusCode = 409;
+  public code = "CONFLICT_ERROR";
+
+  constructor(message: string, field?: string) {
+    super(message, field);
+  }
+}
 
 export class AuthError extends AppError {
   public statusCode = 401;

@@ -65,20 +65,26 @@ export class UserRepository {
     const sql = `SELECT * FROM users WHERE email = ?`;
     return await database.queryOne<User>(sql, [email]);
   }
+
   async findById(id: number): Promise<User | null> {
     const sql = `SELECT * FROM users WHERE id = ?`;
     return await database.queryOne<User>(sql, [id]);
   }
+
   async findByCpf(cpf: string): Promise<User | null> {
     const cleanCpf = sanitizeCpf(cpf);
     const sql = `SELECT * FROM users WHERE cpf = ?`;
     return await database.queryOne<User>(sql, [cleanCpf]);
   }
 
-  //busca os usuários de uma clínica específica
+  async delete(id: number): Promise<void> {
+    const sql = `DELETE FROM users WHERE id = ?`;
+    await database.run(sql, [id]);
+  }
+
+  //busca os usuários de uma clínica específica (from backend-main)
   async findByClinicId(clinicId: number): Promise<User[]> {
     const sql = `SELECT * FROM users WHERE clinic_id = ? ORDER BY id ASC`;
     return await database.query<User>(sql, [clinicId]);
   }
-
 }
