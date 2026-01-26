@@ -1,15 +1,10 @@
-import { Router } from "express"
-import { UserController } from "../controller/user.controller.js"
+import { Router } from "express";
+import authRoutes from "./auth.routes.js";
 
-const router = Router()
+const router = Router();
 
-// USER
-router.use(UserController.login)
+// clinic_id tá hard coded no lugar de :clinic_id porque ainda não tem um jeito de registrar clínicas
+// e assim é possível já iniciar a aplicação e registrar
+router.use("/api/v1/clinic_id", authRoutes);
 
-// DOCTOR
-router.use()
-
-// PATIENT
-router.use()
-
-export default router
+export default router;
