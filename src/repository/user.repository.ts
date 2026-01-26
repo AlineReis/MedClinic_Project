@@ -6,8 +6,11 @@ import {
   type UserWithDetails,
 } from "../models/user.js";
 import { sanitizeCpf } from "../utils/validators.js";
+import type { IUserRepository } from "@repositories/iuser.repository.js";
 
-export class UserRepository {
+
+
+export class UserRepository implements IUserRepository {
   async createPatient(userData: User): Promise<number> {
     const sql = `
       INSERT INTO users (name, email, password, role, cpf, phone, created_at)
@@ -118,5 +121,75 @@ export class UserRepository {
   async findByClinicId(clinicId: number): Promise<User[]> {
     const sql = `SELECT * FROM users WHERE clinic_id = ? ORDER BY id ASC`;
     return await database.query<User>(sql, [clinicId]);
+  }
+
+  async listByClinicIdPaginated(
+    clinicId: number,
+    filters: {
+      role?: string;
+      search?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<{
+    items: User[];
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  }> {
+    const page =
+      Number.isFinite(filters.page) && (filters.page as number) > 0
+        ? (filters.page as number)
+        : 1;
+
+    const pageSizeRaw =
+      Number.isFinite(filters.pageSize) && (filters.pageSize as number) > 0
+        ? (filters.pageSize as number)
+        : 10;
+
+    const pageSize = Math.min(pageSizeRaw, 50);
+    const offset = (page - 1) * pageSize;
+
+    const where: string[] = ["clinic_id = ?"];
+    const params: unknown[] = [clinicId];
+
+    if (filters.role) {
+      where.push("role = ?");
+      params.push(filters.role);
+    }
+
+    if (filters.search && filters.search.trim()) {
+      where.push("name LIKE ?");
+      params.push(`%${filters.search.trim()}%`);
+    }
+
+    const whereSql = `WHERE ${where.join(" AND ")}`;
+
+    const countSql = `SELECT COUNT(*) as total FROM users ${whereSql}`;
+    const countRow = await database.queryOne<{ total: number }>(countSql, params);
+    const total = Number(countRow?.total ?? 0);
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    const itemsSql = `
+      SELECT * FROM users
+      ${whereSql}
+      ORDER BY id ASC
+      LIMIT ? OFFSET ?
+    `;
+
+    const items = await database.query<User>(itemsSql, [
+      ...params,
+      pageSize,
+      offset,
+    ]);
+
+    return {
+      items,
+      page,
+      pageSize,
+      total,
+      totalPages,
+    };
   }
 }

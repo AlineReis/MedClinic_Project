@@ -24,6 +24,12 @@ type RequesterUser = {
 type ListUsersByClinicInput = {
   clinicId: number;
   requester?: RequesterUser;
+  filters?: {
+    role?: string;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+  };
 };
 
 export type GetUserInput = {
@@ -56,7 +62,7 @@ export class UserService {
 
     const newUserId = await this.userRepository.createPatient({
       ...userData,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     const user = await this.userRepository.findById(newUserId);
@@ -68,7 +74,10 @@ export class UserService {
     return { user: userWithoutPassword as User, token };
   }
 
-  async login(email: string, passwordRaw: string): Promise<{ user: User; token: string }> {
+  async login(
+    email: string,
+    passwordRaw: string,
+  ): Promise<{ user: User; token: string }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new AuthError("Invalid email or password");
     if (!user.password) throw new AuthError("Invalid email or password");
@@ -105,16 +114,16 @@ export class UserService {
       throw new NotFoundError("Usuário não encontrado");
     }
 
-    const { password, ...userWithoutPassword } = user
+    const { password, ...userWithoutPassword } = user;
 
     return userWithoutPassword;
   }
 
   // --- Clinic Logic (Incoming from backend-main) ---
-
   public listUsersByClinic = async ({
     clinicId,
     requester,
+    filters,
   }: ListUsersByClinicInput) => {
     if (!Number.isFinite(clinicId) || clinicId <= 0) {
       throw new ValidationError("clinic_id inválido");
@@ -124,14 +133,18 @@ export class UserService {
       throw new AuthError("User not authenticated");
     }
 
-    const allowedRoles = ["clinic_admin", "receptionist", "system_admin"] as const;
+    const allowedRoles = [
+      "clinic_admin",
+      "receptionist",
+      "system_admin",
+    ] as const;
     const isRoleAllowed = allowedRoles.includes(requester.role as any);
 
     if (!isRoleAllowed) {
       throw new AuthError("Forbidden");
     }
 
-    //system_admin pode acessar qualquer clínica
+    // system_admin pode acessar qualquer clínica
     if (requester.role !== "system_admin") {
       if (!requester.clinic_id) {
         throw new AuthError("Forbidden");
@@ -141,16 +154,22 @@ export class UserService {
       }
     }
 
-    const users = await this.userRepository.findByClinicId(clinicId);
+    const result = await this.userRepository.listByClinicIdPaginated(
+      clinicId,
+      filters ?? {},
+    );
 
-    return users.map((u: any) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      role: u.role,
-      clinic_id: u.clinic_id,
-      created_at: u.created_at,
-      updated_at: u.updated_at,
-    }));
+    return {
+      ...result,
+      items: result.items.map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        clinic_id: u.clinic_id,
+        created_at: u.created_at,
+        updated_at: u.updated_at,
+      })),
+    };
   };
 }
