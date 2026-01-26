@@ -4,11 +4,11 @@ import Utils from './utils/validators';
 import Modal from './components/Modal';
 import Toast from './components/Toast';
 import Form from './components/Form';
-import { User, Appointment } from './types/api';
+import type { User, Appointment } from './types';
 
 /**
  * MedClinic - Sistema de Gerenciamento de Clínicas Médicas
- * Frontend JavaScript - Versão 1.0
+ * Frontend TypeScript - Versão 1.0
  */
 
 // ========================================
@@ -19,11 +19,11 @@ interface AppStateInterface {
     currentUser: User | null;
     currentPage: string;
     appointments: Appointment[];
-    patients: any[];
-    doctors: any[];
+    patients: User[];
+    doctors: User[];
     users: User[];
-    medicalRecords: any[];
-    exams: any[];
+    medicalRecords: unknown[];
+    exams: unknown[];
 }
 
 const AppState: AppStateInterface = {

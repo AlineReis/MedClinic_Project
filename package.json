@@ -1,41 +1,23 @@
 {
-  "name": "a",
+  "name": "medclinic-frontend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "MedClinic - Sistema de Gerenciamento de Clínicas (Frontend)",
+  "type": "module",
   "scripts": {
-    "dev": "tsx watch src/app.ts",
-    "dev:frontend": "vite frontend_src",
-    "build": "tsc",
-    "build:frontend": "vite build frontend_src",
-    "start": "node dist/app.js",
-    "test": "jest",
-    "seed": "tsx src/seed.ts",
-    "db:init": "tsx -e \"import { database } from './src/config/database.js'; database.initialize().then(() => console.log('Done')).catch(console.error);\"",
-    "db:seed": "tsx src/seed.ts",
-    "db:reset": "tsx -e \"import fs from 'fs'; const dbPath = './database/medclinic.db'; if(fs.existsSync(dbPath)) { fs.unlinkSync(dbPath); console.log('Database deleted'); } else { console.log('No database to delete'); }\""
+    "dev": "vite frontend_src",
+    "build": "vite build frontend_src",
+    "preview": "vite preview frontend_src"
   },
-  "keywords": [],
+  "keywords": [
+    "medclinic",
+    "frontend",
+    "spa",
+    "typescript"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
-    "sqlite3": "^5.1.7"
-  },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.11",
-    "@types/jsonwebtoken": "^9.0.5",
-    "@types/node": "^20.11.5",
-    "@types/sqlite3": "^3.1.11",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.1",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3",
-    "vite": "^7.3.1"
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
   }
 }

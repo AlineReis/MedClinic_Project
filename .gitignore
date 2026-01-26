@@ -1,19 +1,30 @@
+# Dependencies
 node_modules/
+
+# Build output
+frontend_src/dist/
+
+# Environment variables
 .env
-# System & Tools
-.antigravity/
+.env.local
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# Legacy/Build
-js/
-dist/
+# OS
+.DS_Store
+Thumbs.db
 
-# Logs & Temp
+# Logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Documentation
+# Documentation files (not needed in repo)
 *.pdf
 *.txt
+# Assistente e Tarefas
+.antigravity/
+tasks.md
