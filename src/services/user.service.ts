@@ -20,8 +20,8 @@ type ListUsersByClinicInput = {
 export class UserService {
   private userRepo: UserRepository;
 
-  constructor() {
-    this.userRepo = new UserRepository();
+  constructor(userRepo?: UserRepository) {
+    this.userRepo = userRepo || new UserRepository();
   }
 
   // --- Auth & Registration Logic (My Branch) ---
@@ -46,7 +46,7 @@ export class UserService {
 
     const user = await this.userRepo.findById(newUserId);
     if (!user) throw new Error('Error retrieving created user');
-    
+
     const { password, ...userWithoutPassword } = user;
     const token = this.generateToken(user);
 
