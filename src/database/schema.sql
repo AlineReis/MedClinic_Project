@@ -35,6 +35,34 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TEXT
 );
 
+-- Trigger: Valida campos obrigatorios para roles especificas
+-- RN: Pacientes e Profissionais DEVEM ter CPF.
+-- RN: Pacientes DEVEM ter Telefone.
+CREATE TRIGGER IF NOT EXISTS trg_users_validate_role_requirements
+BEFORE INSERT ON users
+BEGIN
+    SELECT
+        CASE
+            WHEN (NEW.role IN ('patient', 'health_professional', 'receptionist') AND NEW.cpf IS NULL) THEN
+                RAISE(ABORT, 'CPF is required for this user role')
+            WHEN (NEW.role = 'patient' AND NEW.phone IS NULL) THEN
+                RAISE(ABORT, 'Phone number is required for patients')
+        END;
+END;
+
+-- Mesma validacao para UPDATE
+CREATE TRIGGER IF NOT EXISTS trg_users_validate_role_requirements_update
+BEFORE UPDATE ON users
+BEGIN
+    SELECT
+        CASE
+            WHEN (NEW.role IN ('patient', 'health_professional', 'receptionist') AND NEW.cpf IS NULL) THEN
+                RAISE(ABORT, 'CPF is required for this user role')
+            WHEN (NEW.role = 'patient' AND NEW.phone IS NULL) THEN
+                RAISE(ABORT, 'Phone number is required for patients')
+        END;
+END;
+
 -- -----------------------------------------------------------------------------
 -- Tabela: professional_details
 -- Proposito: Estende a tabela users com informacoes especificas de
@@ -132,9 +160,20 @@ CREATE TABLE IF NOT EXISTS appointments (
     updated_at TEXT,
     FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE RESTRICT,
     FOREIGN KEY (professional_id) REFERENCES users(id) ON DELETE RESTRICT,
-    FOREIGN KEY (cancelled_by) REFERENCES users(id) ON DELETE SET NULL,
-    CHECK (date >= date('now')) -- Impede agendamentos no passado
+    FOREIGN KEY (cancelled_by) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- Trigger: Garante que agendamentos so podem ser criados para datas futuras
+-- Substitui CHECK (date >= date('now')) para permitir updates antigos
+CREATE TRIGGER IF NOT EXISTS trg_appointments_insert_date_check
+BEFORE INSERT ON appointments
+BEGIN
+    SELECT
+        CASE
+            WHEN NEW.date < date('now') THEN
+                RAISE(ABORT, 'Appointments cannot be scheduled in the past')
+        END;
+END;
 
 -- =============================================================================
 -- BLOCO 3: EXAMES E PRESCRICOES

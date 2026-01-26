@@ -1,3 +1,36 @@
+import type { NextFunction, Request, Response } from "express";
+import type { UserService } from "../services/user.service.js";
+import { ValidationError } from "../utils/errors.js";
+
 export class UserController {
-  public static login() {}
+  constructor(private userService: UserService) {}
+
+  /**
+   * GET /api/v1/:clinic_id/users
+   * Lista os usuários de uma clínica específica
+   */
+  public listByClinic = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const clinicId = Number(req.params.clinic_id);
+
+      if (!Number.isFinite(clinicId) || clinicId <= 0) {
+        throw new ValidationError("clinic_id inválido");
+      }
+
+      // req.user vem do authMiddleware (igual no AuthController.getProfile)
+      const requester = req.user;
+
+      const users = await this.userService.listUsersByClinic({
+        clinicId,
+        requester,
+      });
+
+      return res.status(200).json({
+        success: true,
+        users,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  };
 }
