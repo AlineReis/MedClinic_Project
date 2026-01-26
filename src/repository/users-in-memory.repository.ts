@@ -1,4 +1,5 @@
-import type { CreateUserPayload, User } from "@models/user.js";
+import type { ProfessionalDetails } from "@models/professional.model.js";
+import type { CreateUserPayload, User, UserWithDetails } from "@models/user.js";
 import type { IUserRepository } from "./iuser.repository.js";
 
 export class InMemoryUserRepository implements IUserRepository {
@@ -30,14 +31,34 @@ export class InMemoryUserRepository implements IUserRepository {
     throw new Error("Method not implemented.");
   }
   findById(id: number): Promise<User | null> {
-    return this.users.find(user => user.id === id);
+    return this.users.find((user) => user.id === id);
   }
   findByCpf(cpf: string): Promise<User | null> {
-    return this.users.find(user => user.cpf === cpf);
+    return this.users.find((user) => user.cpf === cpf);
   }
 
   public async findByEmail(email: string) {
-    return this.users.find(user => user.email === email) ?? null;
+    return this.users.find((user) => user.email === email) ?? null;
+  }
+
+  async findProfessionalDetailsByUserId(
+    userId: number,
+  ): Promise<ProfessionalDetails | null> {
+    const user = this.users.find((u) => u.id === userId);
+    return user?.professional_details || null;
+  }
+
+  async findByClinicId(clinicId: number): Promise<User[]> {
+    return this.users.filter((user) => user.clinicId === clinicId);
+  }
+
+  async findWithDetailsById(userId: number): Promise<UserWithDetails | null> {
+    const user = this.users.find((u) => u.id === userId);
+    return user ? (user as UserWithDetails) : null;
+  }
+
+  async delete(id: number): Promise<void> {
+    this.users = this.users.filter((user) => user.id !== id);
   }
 
   // Método auxiliar para gerar IDs e datas, mantendo o padrão do banco
