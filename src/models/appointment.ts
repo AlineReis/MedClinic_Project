@@ -17,3 +17,26 @@ export interface Appointment {
     created_at?: string;
     updated_at?: string;
 }
+
+export interface AppointmentFilters {
+    status?: string;
+    professional_id?: number;
+    patient_id?: number;
+    date?: string;     // Data exata
+    startDate?: string; // Intervalo inicio (opcional, bom ter)
+    endDate?: string;   // Intervalo fim (opcional, bom ter)
+    upcoming?: boolean; // Se true, filtra date >= hoje
+}
+
+export interface PaginationParams {
+    page: number;
+    pageSize: number;
+}
+
+export interface PaginatedResult<T> {
+    total: number;
+    data: T[];
+    page: number;
+    pageSize: number;
+    totalPages: number;
+}
