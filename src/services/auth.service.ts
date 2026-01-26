@@ -1,8 +1,8 @@
-import type { AuthResult, CreateUserPayload } from "@models/user.js";
-import type { UserRepository } from "@repositories/user.repository.js";
+import type { AuthResult, CreateUserPayload } from "../models/user.js";
+import type { UserRepository } from "../repository/user.repository.js";
 
-import { ValidationError } from "utils/errors.js";
-import { SecurityUtils } from "utils/security.js";
+import { ValidationError } from "../utils/errors.js";
+import { SecurityUtils } from "../utils/security.js";
 import {
   getPasswordMissingRequirements,
   isValidCpfFormat,
@@ -10,7 +10,7 @@ import {
   isValidPhone,
   isValidRole,
   sanitizeCpf,
-} from "utils/validators.js";
+} from "../utils/validators.js";
 
 export class AuthService {
   constructor(private readonly userRepository: UserRepository) {}
