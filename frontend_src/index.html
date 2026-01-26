@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Sistema de Gerenciamento de Clínica Médica - Plataforma profissional para gestão de consultas e pacientes">
+    <title>MedClinic | Sistema de Gerenciamento</title>
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="pulse-ring"></div>
+            <div class="loading-text">MedClinic</div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-background">
+            <div class="login-gradient"></div>
+            <div class="login-pattern"></div>
+        </div>
+
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <div class="logo-icon">
+                        <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 2L16 30M2 16L30 16" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" />
+                            <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <h1 class="login-title">MedClinic</h1>
+                </div>
+                <p class="login-subtitle">Sistema de Gerenciamento Médico</p>
+            </div>
+
+            <form class="login-form" id="loginForm" novalidate>
+                <div class="form-group">
+                    <label for="loginEmail" class="form-label">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        <span>Email</span>
+                    </label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="seu@email.com"
+                        autocomplete="email" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword" class="form-label">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>Senha</span>
+                    </label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••"
+                            autocomplete="current-password" required />
+                        <button type="button" class="password-toggle" aria-label="Mostrar/Ocultar senha">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="rememberMe" />
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Lembrar-me</span>
+                    </label>
+                    <a href="#" class="forgot-password" tabindex="-1">Esqueci minha senha</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <span>Entrar</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+                <div class="login-error" id="loginError" role="alert"></div>
+            </form>
+
+            <div class="login-footer">
+                <div class="test-users-info">
+                    <button type="button" class="show-test-users" id="showTestUsers">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                        <span>Ver usuários de teste</span>
+                    </button>
+                    <div class="test-users-dropdown" id="testUsersDropdown" style="display: none;">
+                        <button type="button" class="test-user-item" data-email="admin@medclinic.dev"
+                            data-password="Admin@123">
+                            <strong>Admin Sistema:</strong> admin@medclinic.dev / Admin@123
+                        </button>
+                        <!-- Gestor removido pois não existe no seed inicial -->
+                        <button type="button" class="test-user-item" data-email="joao@medclinic.com"
+                            data-password="Medico@123">
+                            <strong>Médico:</strong> joao@medclinic.com / Medico@123
+                        </button>
+                        <button type="button" class="test-user-item" data-email="recepcao@medclinic.com"
+                            data-password="Recep@123">
+                            <strong>Recepcionista:</strong> recepcao@medclinic.com / Recep@123
+                        </button>
+                        <button type="button" class="test-user-item" data-email="maria@paciente.com"
+                            data-password="Paciente@123">
+                            <strong>Paciente:</strong> maria@paciente.com / Paciente@123
+                        </button>
+                    </div>
+                </div>
+                <p class="login-footer-text">© 2026 MedClinic. Desenvolvido com ❤️</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer" style="display: none;">
+
+        <div class="app-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3ZM10 17H8V13H10V17ZM16 17H14V10H16V17ZM13 17H11V7H13V17Z" />
+                    </svg>
+                    <span class="logo-text">MedClinic</span>
+                </div>
+
+                <nav class="main-nav">
+                    <a href="#" class="nav-link active" data-page="home">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Início
+                    </a>
+                    <a href="#" class="nav-link" data-page="appointments"
+                        data-require-role="admin,medico,paciente,recepcionista,clinic_admin">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Agenda
+                    </a>
+                    <a href="#" class="nav-link" data-page="patients" data-require-role="medico,recepcionista,admin">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Pacientes
+                    </a>
+                    <a href="#" class="nav-link" data-page="doctors" data-require-role="admin,recepcionista">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Médicos
+                    </a>
+                    <a href="#" class="nav-link" data-page="test">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                            </path>
+                        </svg>
+                        Testes (Dev)
+                    </a>
+                    <a href="#" class="nav-link" data-page="profile"
+                        data-require-role="admin,medico,paciente,recepcionista,clinic_admin">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Meu Perfil
+                    </a>
+                </nav>
+
+                <div class="user-footer" id="userMenuBtn">
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" class="dropdown-item" onclick="App.navigate('profile')">Editar Perfil</a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item logout">Sair</button>
+                    </div>
+
+                    <div class="user-avatar">MB</div>
+                    <div class="user-info">
+                        <h4 class="user-name">Dr. João</h4>
+                        <span class="user-role">Médico</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Pages -->
+                <section id="homePage" class="page active">
+                    <section class="page-hero">
+                        <div class="hero-content">
+                            <span class="hero-badge">Visão Geral</span>
+                            <h1 class="hero-title">Olá, Dr. 👋</h1>
+                            <p class="hero-subtitle">Gerencie suas consultas e acompanhe seus pacientes de forma
+                                eficiente</p>
+                        </div>
+
+
+                    </section>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card appointments-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Próximas Consultas</h3>
+                                <a href="#" class="card-action" data-page="appointments">Ver todas</a>
+                            </div>
+                            <div class="appointments-list" id="upcomingAppointments">
+                                <!-- Dynamic content rendered by JS -->
+                                <div class="loading-state"
+                                    style="text-align:center; padding: 2rem; color: var(--color-gray-500);">
+                                    <p>Carregando consultas...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card quick-actions-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Ações Rápidas</h3>
+                            </div>
+                            <div class="quick-actions-grid">
+                                <button class="quick-action-btn" data-action="new-appointment"
+                                    data-require-role="admin,recepcionista,paciente">
+                                    <div class="action-icon blue">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Nova Consulta</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="new-patient"
+                                    data-require-role="admin,recepcionista">
+                                    <div class="action-icon green">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M16 21V19C16 16.7909 14.2091 15 12 15H5C2.79086 15 1 16.7909 1 19V21"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                            <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                                            <path d="M20 8V14M23 11H17" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Cadastrar Paciente</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="search-records"
+                                    data-require-role="admin,medico">
+                                    <div class="action-icon purple">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+                                            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Buscar Prontuário</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="reports" data-require-role="admin">
+                                    <div class="action-icon orange">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M9 17H15M9 13H15M9 9H12M13 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V8L13 3Z"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Relatórios</span>
+                                </button>
+                            </div>
+
+                            <div class="calendar-preview">
+                                <div class="calendar-header">
+                                    <span class="calendar-month">Janeiro 2026</span>
+                                    <div class="calendar-nav">
+                                        <button class="calendar-nav-btn">&lt;</button>
+                                        <button class="calendar-nav-btn">&gt;</button>
+                                    </div>
+                                </div>
+                                <div class="calendar-grid">
+                                    <span class="calendar-day-label">D</span>
+                                    <span class="calendar-day-label">S</span>
+                                    <span class="calendar-day-label">T</span>
+                                    <span class="calendar-day-label">Q</span>
+                                    <span class="calendar-day-label">Q</span>
+                                    <span class="calendar-day-label">S</span>
+                                    <span class="calendar-day-label">S</span>
+
+                                    <span class="calendar-day disabled">29</span>
+                                    <span class="calendar-day disabled">30</span>
+                                    <span class="calendar-day disabled">31</span>
+                                    <span class="calendar-day">1</span>
+                                    <span class="calendar-day">2</span>
+                                    <span class="calendar-day">3</span>
+                                    <span class="calendar-day">4</span>
+
+                                    <span class="calendar-day">5</span>
+                                    <span class="calendar-day">6</span>
+                                    <span class="calendar-day">7</span>
+                                    <span class="calendar-day">8</span>
+                                    <span class="calendar-day">9</span>
+                                    <span class="calendar-day">10</span>
+                                    <span class="calendar-day">11</span>
+
+                                    <span class="calendar-day">12</span>
+                                    <span class="calendar-day">13</span>
+                                    <span class="calendar-day">14</span>
+                                    <span class="calendar-day">15</span>
+                                    <span class="calendar-day">16</span>
+                                    <span class="calendar-day">17</span>
+                                    <span class="calendar-day">18</span>
+
+                                    <span class="calendar-day">19</span>
+                                    <span class="calendar-day">20</span>
+                                    <span class="calendar-day">21</span>
+                                    <span class="calendar-day today">22</span>
+                                    <span class="calendar-day has-appointments">23</span>
+                                    <span class="calendar-day">24</span>
+                                    <span class="calendar-day has-appointments">25</span>
+
+                                    <span class="calendar-day">26</span>
+                                    <span class="calendar-day">27</span>
+                                    <span class="calendar-day">28</span>
+                                    <span class="calendar-day">29</span>
+                                    <span class="calendar-day">30</span>
+                                    <span class="calendar-day">31</span>
+                                    <span class="calendar-day disabled">1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card notifications-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Notificações Recentes</h3>
+                            </div>
+                            <div class="notifications-list">
+                                <div class="notification-item unread">
+                                    <div class="notification-icon blue">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="2" />
+                                            <path d="M8 4V8L11 10" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text"><strong>Consulta confirmada</strong> para Maria
+                                            Silva
+                                            às 09:00</p>
+                                        <span class="notification-time">Há 5 minutos</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item unread">
+                                    <div class="notification-icon orange">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M8 3V8M8 11H8.01" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" />
+                                            <path
+                                                d="M13.657 13.657C15.533 11.781 15.533 8.781 13.657 6.905C11.781 5.029 8.781 5.029 6.905 6.905C5.029 8.781 5.029 11.781 6.905 13.657"
+                                                stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text"><strong>Pendência:</strong> Atualizar cadastro do
+                                            paciente Carlos Oliveira</p>
+                                        <span class="notification-time">Há 1 hora</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-icon green">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text">Relatório mensal de janeiro gerado com sucesso</p>
+                                        <span class="notification-time">Há 2 horas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-widgets">
+                        <!-- Chart Widget (Large) -->
+                        <div class="widget-card chart-widget">
+                            <div class="widget-header">
+                                <h3 class="widget-title">Faturamento Semanal</h3>
+                                <select class="widget-select">
+                                    <option>Últimos 7 dias</option>
+                                    <option>Este Mês</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Stats Column -->
+                        <div class="stats-column">
+                            <!-- Card 2 -->
+                            <div class="widget-card stat-widget">
+                                <div class="stat-icon green">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Pacientes Ativos</span>
+                                    <span class="stat-value">847</span>
+                                    <span class="stat-trend positive">+12% vs mês anterior</span>
+                                </div>
+                            </div>
+                            <!-- Card 3 -->
+                            <div class="widget-card stat-widget">
+                                <div class="stat-icon purple">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Taxa de Conclusão</span>
+                                    <span class="stat-value">94%</span>
+                                    <span class="stat-trend positive">+2.4% vs média</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Appointments Page -->
+                <section class="page" id="appointmentsPage">
+                    <div class="page-header">
+                        <div class="page-title-section">
+                            <h2 class="page-title">Gerenciar Consultas</h2>
+                            <p class="page-description">Visualize, agende e gerencie todas as consultas</p>
+                        </div>
+                        <button class="btn-primary" data-action="new-appointment"
+                            data-require-role="admin,recepcionista,paciente">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Nova Consulta
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrapper">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M17 17L13.5 13.5" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <input type="text" class="search-input"
+                                placeholder="Buscar por paciente, médico ou data...">
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">Todas</button>
+                            <button class="filter-btn" data-filter="today">Hoje</button>
+                            <button class="filter-btn" data-filter="pending">Pendentes</button>
+                            <button class="filter-btn" data-filter="confirmed">Confirmadas</button>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Container (Populated by JS) -->
+                    <div class="appointments-timeline" id="appointmentsTimeline">
+                        <div class="loading-state"
+                            style="text-align:center; padding: 3rem; color: var(--color-gray-500);">
+                            <p>Carregando consultas...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Doctors Page -->
+                <section class="page" id="doctorsPage">
+                    <div class="page-header">
+                        <div class="page-title-section">
+                            <h2 class="page-title">Equipe Médica</h2>
+                            <p class="page-description">Gerencie médicos e suas especialidades</p>
+                        </div>
+                        <button class="btn-primary" data-action="new-doctor" data-require-role="admin">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Cadastrar Médico
+                        </button>
+                    </div>
+
+                    <div class="doctors-grid">
+                        <div class="doctor-card">
+                            <div class="doctor-header">
+                                <div class="doctor-avatar">JS</div>
+                                <span class="doctor-status online"></span>
+                            </div>
+                            <h3 class="doctor-name">Dr. João Santos</h3>
+                            <p class="doctor-specialty">Cardiologia</p>
+                            <div class="doctor-info">
+                                <div class="info-item">
+                                    <span class="info-label">CRM</span>
+                                    <span class="info-value">12345-SP</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Consultas hoje</span>
+                                    <span class="info-value">8</span>
+                                </div>
+                            </div>
+                            <div class="doctor-actions">
+                                <button class="btn-secondary-small">Ver Agenda</button>
+                                <button class="btn-secondary-small">Perfil</button>
+                            </div>
+                        </div>
+
+                        <div class="doctor-card">
+                            <div class="doctor-header">
+                                <div class="doctor-avatar">AC</div>
+                                <span class="doctor-status online"></span>
+                            </div>
+                            <h3 class="doctor-name">Dra. Ana Costa</h3>
+                            <p class="doctor-specialty">Pediatria</p>
+                            <div class="doctor-info">
+                                <div class="info-item">
+                                    <span class="info-label">CRM</span>
+                                    <span class="info-value">67890-SP</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Consultas hoje</span>
+                                    <span class="info-value">6</span>
+                                </div>
+                            </div>
+                            <div class="doctor-actions">
+                                <button class="btn-secondary-small">Ver Agenda</button>
+                                <button class="btn-secondary-small">Perfil</button>
+                            </div>
+                        </div>
+
+                        <div class="doctor-card">
+                            <div class="doctor-header">
+                                <div class="doctor-avatar">PL</div>
+                                <span class="doctor-status busy"></span>
+                            </div>
+                            <h3 class="doctor-name">Dr. Pedro Lima</h3>
+                            <p class="doctor-specialty">Ortopedia</p>
+                            <div class="doctor-info">
+                                <div class="info-item">
+                                    <span class="info-label">CRM</span>
+                                    <span class="info-value">11223-SP</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Consultas hoje</span>
+                                    <span class="info-value">5</span>
+                                </div>
+                            </div>
+                            <div class="doctor-actions">
+                                <button class="btn-secondary-small">Ver Agenda</button>
+                                <button class="btn-secondary-small">Perfil</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Patients Page -->
+                <section class="page" id="patientsPage">
+                    <div class="page-header">
+                        <div class="page-title-section">
+                            <h2 class="page-title">Pacientes</h2>
+                            <p class="page-description">Gerencie cadastros e prontuários</p>
+                        </div>
+                        <button class="btn-primary" data-action="new-patient" data-require-role="admin,recepcionista">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Cadastrar Paciente
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrapper">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M17 17L13.5 13.5" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <input type="text" class="search-input" placeholder="Buscar por nome, CPF ou convênio...">
+                        </div>
+                    </div>
+
+                    <div class="patients-grid">
+                        <div class="patient-card">
+                            <div class="patient-header">
+                                <div class="patient-avatar">MS</div>
+                                <div class="patient-info">
+                                    <h3 class="patient-name">Maria Silva</h3>
+                                    <p class="patient-cpf">123.456.789-00</p>
+                                </div>
+                            </div>
+                            <div class="patient-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Convênio</span>
+                                    <span class="detail-value">Unimed</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Última consulta</span>
+                                    <span class="detail-value">15/01/2026</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Consultas</span>
+                                    <span class="detail-value">12 realizadas</span>
+                                </div>
+                            </div>
+                            <div class="patient-actions">
+                                <button class="btn-secondary-small" data-require-role="admin,medico">Ver
+                                    Prontuário</button>
+                                <button class="btn-secondary-small"
+                                    data-require-role="admin,recepcionista">Agendar</button>
+                            </div>
+                        </div>
+
+                        <div class="patient-card">
+                            <div class="patient-header">
+                                <div class="patient-avatar">CO</div>
+                                <div class="patient-info">
+                                    <h3 class="patient-name">Carlos Oliveira</h3>
+                                    <p class="patient-cpf">987.654.321-00</p>
+                                </div>
+                            </div>
+                            <div class="patient-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Convênio</span>
+                                    <span class="detail-value">SulAmérica</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Última consulta</span>
+                                    <span class="detail-value">18/01/2026</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Consultas</span>
+                                    <span class="detail-value">8 realizadas</span>
+                                </div>
+                            </div>
+                            <div class="patient-actions">
+                                <button class="btn-secondary-small" data-require-role="admin,medico">Ver
+                                    Prontuário</button>
+                                <button class="btn-secondary-small"
+                                    data-require-role="admin,recepcionista">Agendar</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile Page -->
+                <section class="page" id="profilePage">
+                    <div class="page-header">
+                        <div class="page-title-section">
+                            <h2 class="page-title">Meu Perfil</h2>
+                            <p class="page-description">Gerencie suas informações pessoais</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-container">
+                        <div class="profile-card">
+                            <div class="profile-avatar-section">
+                                <div class="profile-avatar-large">AS</div>
+                                <button class="btn-secondary-small">Alterar Foto</button>
+                            </div>
+                            <form class="profile-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Nome Completo</label>
+                                        <input type="text" class="form-input" value="Aline Santos" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-input" value="aline.santos@medclinic.com" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Cargo</label>
+                                        <input type="text" class="form-input" value="Desenvolvedora Full Stack"
+                                            disabled />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Telefone</label>
+                                        <input type="tel" class="form-input" value="(11) 98765-4321" />
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary">Cancelar</button>
+                                    <button type="submit" class="btn-primary">Salvar Alterações</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                </section>
+
+                <!-- Components Test Page -->
+                <section class="page" id="testPage">
+                    <div class="page-header">
+                        <h2 class="page-title">Testes de Componentes</h2>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Toasts</h3>
+                            </div>
+                            <div style="padding: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn-primary"
+                                    onclick="App.Toast.success('Operação realizada com sucesso!')">Success</button>
+                                <button class="btn-primary" style="background-color: var(--color-error)"
+                                    onclick="App.Toast.error('Erro ao processar solicitação')">Error</button>
+                                <button class="btn-primary" style="background-color: var(--color-warning)"
+                                    onclick="App.Toast.warning('Atenção: verifique os dados')">Warning</button>
+                                <button class="btn-primary" style="background-color: var(--color-primary)"
+                                    onclick="App.Toast.info('Nova atualização disponível')">Info</button>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Modals</h3>
+                            </div>
+                            <div style="padding: 20px;">
+                                <button class="btn-primary" onclick="App.Modal.open('demoModal')">Abrir Modal de
+                                    Exemplo</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Demo Modal -->
+            <div class="modal-overlay" id="demoModal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Modal de Exemplo</h3>
+                        <button class="modal-close">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M18 6L6 18M6 6L18 18"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Este é um modal de teste usando o novo componente `Modal.ts`.</p>
+                        <br>
+                        <form id="demoForm">
+                            <div class="form-group">
+                                <label class="form-label">Teste Validação (Required)</label>
+                                <input type="text" class="form-input" required
+                                    data-error-message="Este campo é obrigatório teste">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="text" class="form-input" data-validate="email">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" onclick="App.Modal.close('demoModal')">Cancelar</button>
+                        <button class="btn-primary"
+                            onclick="if(App.Form.validateForm('demoForm')) App.Toast.success('Formulário Válido!')">Validar
+                            Form</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main Application Logic -->
+    <script type="module" src="main.ts"></script>
+</body>
+
+</html>
