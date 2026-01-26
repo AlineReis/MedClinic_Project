@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import { ProfessionalService } from '../services/professional.service.js';
 
-const profService = new ProfessionalService();
-
 export class ProfessionalController {
+  constructor(private professionalService: ProfessionalService) {}
 
-  static async register(req: Request, res: Response) {
+  public register = async (req: Request, res: Response) => {
     try {
       const { user, details, availability } = req.body;
 
@@ -15,7 +14,7 @@ export class ProfessionalController {
 
       user.role = 'health_professional';
 
-      const result = await profService.register(user, details, availability || []);
+      const result = await this.professionalService.register(user, details, availability || []);
 
       res.status(201).json(result);
     } catch (error: any) {
@@ -25,10 +24,11 @@ export class ProfessionalController {
     }
   }
 
-  static async listBySpecialty(req: Request, res: Response) {
+  public listBySpecialty = async (req: Request, res: Response) => {
     try {
       const { specialty } = req.params;
-      const list = await profService.listBySpecialty(specialty);
+      const list = await this.professionalService.listBySpecialty(specialty);
+      console.log(list)
       res.json(list);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
