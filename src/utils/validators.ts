@@ -1,4 +1,4 @@
-import { USER_ROLES, type UserRole } from "@models/user.js";
+import { USER_ROLES, type UserRole } from "../models/user.js";
 
 export const PASSWORD_REQUIREMENTS = {
   minLength: 8,

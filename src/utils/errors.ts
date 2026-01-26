@@ -18,3 +18,21 @@ export class ValidationError extends AppError {
     super(message, field);
   }
 }
+
+export class AuthError extends AppError {
+  public statusCode = 401;
+  public code = "AUTH_ERROR";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ForbiddenError extends AppError {
+  public statusCode = 403;
+  public code = "FORBIDDEN_ERROR";
+
+  constructor(message: string) {
+    super(message);
+  }
+}

@@ -5,4 +5,11 @@ export class SecurityUtils {
     const hashedPassword = await bcrypt.hash(password, 10);
     return hashedPassword;
   }
+
+  static async comparePassword(
+    password: string,
+    hash: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
+  }
 }

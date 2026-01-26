@@ -1,4 +1,4 @@
-import { sanitizeCpf } from "utils/validators.js";
+import { sanitizeCpf } from "../utils/validators.js";
 import { database } from "../config/database.js";
 import { User, type CreateUserPayload } from "../models/user.js";
 
