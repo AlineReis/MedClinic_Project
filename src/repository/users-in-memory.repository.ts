@@ -65,4 +65,50 @@ export class InMemoryUserRepository implements IUserRepository {
   private generateId(): number {
     return this.users.length + 1;
   }
+
+  async listByClinicIdPaginated(
+    clinicId: number,
+    filters: {
+      role?: string;
+      search?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<{
+    items: User[];
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  }> {
+    let filteredUsers = this.users.filter((user) => user.clinicId === clinicId);
+
+    if (filters.role) {
+      filteredUsers = filteredUsers.filter((user) => user.role === filters.role);
+    }
+
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filteredUsers = filteredUsers.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchLower) ||
+          user.email.toLowerCase().includes(searchLower),
+      );
+    }
+
+    const page = filters.page || 1;
+    const pageSize = filters.pageSize || 10;
+    const total = filteredUsers.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const items = filteredUsers.slice(startIndex, startIndex + pageSize);
+
+    return {
+      items,
+      page,
+      pageSize,
+      total,
+      totalPages,
+    };
+  }
 }
