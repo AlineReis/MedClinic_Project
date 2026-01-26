@@ -56,7 +56,7 @@ export class UserService {
 
     const newUserId = await this.userRepository.createPatient({
       ...userData,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     const user = await this.userRepository.findById(newUserId);
@@ -68,7 +68,10 @@ export class UserService {
     return { user: userWithoutPassword as User, token };
   }
 
-  async login(email: string, passwordRaw: string): Promise<{ user: User; token: string }> {
+  async login(
+    email: string,
+    passwordRaw: string,
+  ): Promise<{ user: User; token: string }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new AuthError("Invalid email or password");
     if (!user.password) throw new AuthError("Invalid email or password");
@@ -105,8 +108,47 @@ export class UserService {
       throw new NotFoundError("Usuário não encontrado");
     }
 
-    const { password, ...userWithoutPassword } = user
+    const { password, ...userWithoutPassword } = user;
 
+    return userWithoutPassword;
+  }
+
+  public async getUserByIdScoped(input: {
+    clinicId: number;
+    requester: RequesterUser;
+    targetUserId: number;
+  }) {
+    const { clinicId, requester, targetUserId } = input;
+
+    // permissões: próprio usuário OU admin
+    const isSelf = requester.id === targetUserId;
+    const isAdmin =
+      requester.role === "clinic_admin" || requester.role === "system_admin";
+
+    if (!isSelf && !isAdmin) {
+      throw new ForbiddenError("Forbidden");
+    }
+
+    // se não for system_admin, só pode acessar a própria clínica
+    if (requester.role !== "system_admin") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const user = await this.userRepository.findWithDetailsById(targetUserId);
+    if (!user) {
+      throw new NotFoundError("Usuário não encontrado");
+    }
+
+    // garantir que o usuário retornado pertence à clínica (exceto system_admin pode ver qualquer uma)
+    if (requester.role !== "system_admin") {
+      if (Number((user as any).clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const { password, ...userWithoutPassword } = user as any;
     return userWithoutPassword;
   }
 
@@ -124,7 +166,11 @@ export class UserService {
       throw new AuthError("User not authenticated");
     }
 
-    const allowedRoles = ["clinic_admin", "receptionist", "system_admin"] as const;
+    const allowedRoles = [
+      "clinic_admin",
+      "receptionist",
+      "system_admin",
+    ] as const;
     const isRoleAllowed = allowedRoles.includes(requester.role as any);
 
     if (!isRoleAllowed) {
