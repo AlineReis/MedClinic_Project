@@ -24,6 +24,12 @@ type RequesterUser = {
 type ListUsersByClinicInput = {
   clinicId: number;
   requester?: RequesterUser;
+  filters?: {
+    role?: string;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+  };
 };
 
 export type GetUserInput = {
@@ -153,10 +159,10 @@ export class UserService {
   }
 
   // --- Clinic Logic (Incoming from backend-main) ---
-
   public listUsersByClinic = async ({
     clinicId,
     requester,
+    filters,
   }: ListUsersByClinicInput) => {
     if (!Number.isFinite(clinicId) || clinicId <= 0) {
       throw new ValidationError("clinic_id inválido");
@@ -177,7 +183,7 @@ export class UserService {
       throw new AuthError("Forbidden");
     }
 
-    //system_admin pode acessar qualquer clínica
+    // system_admin pode acessar qualquer clínica
     if (requester.role !== "system_admin") {
       if (!requester.clinic_id) {
         throw new AuthError("Forbidden");
@@ -187,16 +193,22 @@ export class UserService {
       }
     }
 
-    const users = await this.userRepository.findByClinicId(clinicId);
+    const result = await this.userRepository.listByClinicIdPaginated(
+      clinicId,
+      filters ?? {},
+    );
 
-    return users.map((u: any) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      role: u.role,
-      clinic_id: u.clinic_id,
-      created_at: u.created_at,
-      updated_at: u.updated_at,
-    }));
+    return {
+      ...result,
+      items: result.items.map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        clinic_id: u.clinic_id,
+        created_at: u.created_at,
+        updated_at: u.updated_at,
+      })),
+    };
   };
 }

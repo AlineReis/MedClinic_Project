@@ -37,4 +37,29 @@ export class ProfessionalRepository {
     `;
     return await database.query<any>(sql, [specialty]);
   }
+
+  async list(filters: { specialty?: string; name?: string }, limit: number, offset: number) {
+    let sql = `
+      SELECT u.id, u.name, pd.specialty, pd.consultation_price 
+      FROM professional_details pd
+      JOIN users u ON u.id = pd.user_id
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+
+    if (filters.specialty) {
+      sql += ` AND pd.specialty = ?`;
+      params.push(filters.specialty);
+    }
+
+    if (filters.name) {
+      sql += ` AND u.name LIKE ?`;
+      params.push(`%${filters.name}%`);
+    }
+
+    sql += ` ORDER BY u.name ASC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    return await database.query<any>(sql, params);
+  }
 }

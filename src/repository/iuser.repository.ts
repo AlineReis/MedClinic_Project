@@ -16,6 +16,21 @@ export interface IUserRepository {
     userId: number,
   ): Promise<ProfessionalDetails | null>;
   findByClinicId(clinicId: number): Promise<User[]>;
+  listByClinicIdPaginated(
+    clinicId: number,
+    filters: {
+      role?: string;
+      search?: string;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<{
+    items: User[];
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  }>;  
   findWithDetailsById(userId: number): Promise<UserWithDetails | null>;
   delete(id: number): Promise<void>
 }
