@@ -1,21 +1,17 @@
 import { Request, Response } from "express";
-import { ExamService } from "../services/exam.service.js";
-import { ExamRepository } from "../repository/exam.repository.js";
-import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { CreateExamRequestPayload } from "../models/exam.js";
-
-const examRepository = new ExamRepository();
-const appointmentRepository = new AppointmentRepository();
-const examService = new ExamService(examRepository, appointmentRepository);
+import { ExamService } from "../services/exam.service.js";
 
 export class ExamController {
-  static async listCatalog(req: Request, res: Response) {
+  constructor(private examService: ExamService) {}
+
+  public listCatalog = async (req: Request, res: Response) => {
     // GET /exams/catalog
-    const catalog = await examService.listCatalog();
+    const catalog = await this.examService.listCatalog();
     return res.json(catalog);
   }
 
-  static async createRequest(req: Request, res: Response) {
+  public createRequest = async (req: Request, res: Response) => {
     // POST /exams
     // Request vem do body. User vem do middleware de auth (req.user)
     // OBS: Implementação simplificada assumindo que req.user existe (middleware)
@@ -41,7 +37,7 @@ export class ExamController {
     };
 
     try {
-      const id = await examService.createRequest(payload);
+      const id = await this.examService.createRequest(payload);
       return res
         .status(201)
         .json({ id, message: "Exame solicitado com sucesso." });
@@ -56,20 +52,20 @@ export class ExamController {
     }
   }
 
-  static async listRequests(req: Request, res: Response) {
+  public listRequests = async (req: Request, res: Response) => {
     // GET /exams
     const user = (req as any).user;
-    const requests = await examService.listRequestsByContext(user);
+    const requests = await this.examService.listRequestsByContext(user);
     return res.json(requests);
   }
 
-  static async getRequest(req: Request, res: Response) {
+  public getRequest = async (req: Request, res: Response) => {
     // GET /exams/:id
     const user = (req as any).user;
     const id = parseInt(req.params.id);
 
     try {
-      const request = await examService.getRequestById(id, user);
+      const request = await this.examService.getRequestById(id, user);
       return res.json(request);
     } catch (error: any) {
       if (error.name === "ForbiddenError")

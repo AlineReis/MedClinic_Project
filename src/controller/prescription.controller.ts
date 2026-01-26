@@ -1,18 +1,11 @@
 import { Request, Response } from "express";
-import { PrescriptionService } from "../services/prescription.service.js";
-import { PrescriptionRepository } from "../repository/prescription.repository.js";
-import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { CreatePrescriptionPayload } from "../models/prescription.js";
-
-const prescriptionRepository = new PrescriptionRepository();
-const appointmentRepository = new AppointmentRepository();
-const prescriptionService = new PrescriptionService(
-  prescriptionRepository,
-  appointmentRepository,
-);
+import { PrescriptionService } from "../services/prescription.service.js";
 
 export class PrescriptionController {
-  static async create(req: Request, res: Response) {
+  constructor(private prescriptionService: PrescriptionService) {}
+
+  public create = async (req: Request, res: Response) => {
     // POST /prescriptions
     const user = (req as any).user;
 
@@ -36,7 +29,7 @@ export class PrescriptionController {
     };
 
     try {
-      const id = await prescriptionService.createPrescription(payload);
+      const id = await this.prescriptionService.createPrescription(payload);
       return res
         .status(201)
         .json({ id, message: "Prescrição criada com sucesso." });
@@ -51,20 +44,20 @@ export class PrescriptionController {
     }
   }
 
-  static async list(req: Request, res: Response) {
+  public list = async (req: Request, res: Response) => {
     // GET /prescriptions
     const user = (req as any).user;
-    const list = await prescriptionService.listPrescriptionsByContext(user);
+    const list = await this.prescriptionService.listPrescriptionsByContext(user);
     return res.json(list);
   }
 
-  static async getById(req: Request, res: Response) {
+  public getById = async (req: Request, res: Response) => {
     // GET /prescriptions/:id
     const user = (req as any).user;
     const id = parseInt(req.params.id);
 
     try {
-      const prescription = await prescriptionService.getPrescriptionById(
+      const prescription = await this.prescriptionService.getPrescriptionById(
         id,
         user,
       );
