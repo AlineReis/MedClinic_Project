@@ -1,6 +1,11 @@
-import { sanitizeCpf } from "../utils/validators.js";
+import type { ProfessionalDetails } from "@models/professional.model.js";
 import { database } from "../config/database.js";
-import { User, type CreateUserPayload } from "../models/user.js";
+import {
+  User,
+  type CreateUserPayload,
+  type UserWithDetails,
+} from "../models/user.js";
+import { sanitizeCpf } from "../utils/validators.js";
 
 export class UserRepository {
   async createPatient(userData: User): Promise<number> {
@@ -75,6 +80,33 @@ export class UserRepository {
     const cleanCpf = sanitizeCpf(cpf);
     const sql = `SELECT * FROM users WHERE cpf = ?`;
     return await database.queryOne<User>(sql, [cleanCpf]);
+  }
+
+  public async findWithDetailsById(
+    userId: number,
+  ): Promise<UserWithDetails | null> {
+    const user = await this.findById(userId);
+    if (!user) {
+      return null;
+    }
+
+    if (user.role !== "health_professional") {
+      return user;
+    }
+
+    const details = await this.findProfessionalDetailsByUserId(userId);
+    return { ...user, professional_details: details };
+  }
+
+  public async findProfessionalDetailsByUserId(
+    userId: number,
+  ): Promise<ProfessionalDetails | null> {
+    const sql = `
+      SELECT specialty, registration_number, council, consultation_price, commission_percentage
+      FROM professional_details
+      WHERE user_id = ?
+    `;
+    return database.queryOne<ProfessionalDetails>(sql, [userId]);
   }
 
   async delete(id: number): Promise<void> {
