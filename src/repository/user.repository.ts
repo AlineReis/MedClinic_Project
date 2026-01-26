@@ -74,4 +74,9 @@ export class UserRepository {
     const sql = `SELECT * FROM users WHERE cpf = ?`;
     return await database.queryOne<User>(sql, [cleanCpf]);
   }
+
+  async delete(id: number): Promise<void> {
+    const sql = `DELETE FROM users WHERE id = ?`;
+    await database.run(sql, [id]);
+  }
 }
