@@ -1,6 +1,7 @@
-import { Appointment } from "../models/appointment.js";
+import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams } from "../models/appointment.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
-import { ValidationError, NotFoundError } from "../utils/errors.js";
+import { ValidationError, NotFoundError, ForbiddenError } from "../utils/errors.js";
+import { AuthResult } from "../models/user.js";
 
 export class AppointmentService {
     constructor(private appointmentRepository: AppointmentRepository) { }
@@ -8,6 +9,7 @@ export class AppointmentService {
     async scheduleAppointment(data: Appointment): Promise<number> {
         // Validar data no futuro
         const appointmentDateTime = new Date(`${data.date}T${data.time}`);
+        // Validacao simplificada, idealmente checar fusos
         if (appointmentDateTime < new Date()) {
             throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
         }
@@ -27,7 +29,6 @@ export class AppointmentService {
         }
 
         // Criar agendamento
-        // O preço deve ser passado congelado (frontend/controller deve enviar ou obter antes)
         return this.appointmentRepository.create(data);
     }
 
@@ -45,6 +46,37 @@ export class AppointmentService {
 
     async getProfessionalAgenda(professionalId: number, date?: string): Promise<Appointment[]> {
         return this.appointmentRepository.findByProfessionalId(professionalId, date);
+    }
+
+    async listAppointments(
+        filters: AppointmentFilters,
+        pagination: PaginationParams,
+        user: AuthResult
+    ): Promise<PaginatedResult<Appointment>> {
+
+        // RBAC Enforcements no Service Layer (Camada extra de seguranca)
+        if (user.role === 'patient') {
+            // Paciente SO pode ver seus proprios
+            if (filters.patient_id && filters.patient_id !== user.id) {
+                throw new ForbiddenError("Pacientes podem apenas visualizar seus próprios agendamentos.");
+            }
+            // Força o ID do paciente
+            filters.patient_id = user.id;
+        }
+
+        if (user.role === 'health_professional') {
+            // Profissional SO pode ver sua propria agenda
+            if (filters.professional_id && filters.professional_id !== user.id) {
+                throw new ForbiddenError("Profissionais podem apenas visualizar sua própria agenda.");
+            }
+            // Força o ID do profissional
+            filters.professional_id = user.id;
+        }
+
+        // Se nao for admin/recepcao, nao pode ver tudo.
+        // Logica acima ja restringe, mas bom garantir.
+
+        return this.appointmentRepository.findAll(filters, pagination);
     }
 
     async confirmAppointment(id: number): Promise<void> {

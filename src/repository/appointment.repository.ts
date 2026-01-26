@@ -1,5 +1,5 @@
 import { database } from "../config/database.js";
-import { Appointment } from "../models/appointment.js";
+import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams } from "../models/appointment.js";
 
 export class AppointmentRepository {
 
@@ -59,6 +59,70 @@ export class AppointmentRepository {
         sql += ` ORDER BY date, time`;
 
         return await database.query<Appointment>(sql, params);
+    }
+
+    // Listagem Avançada com Filtros e Paginação
+    async findAll(filters: AppointmentFilters, pagination: PaginationParams): Promise<PaginatedResult<Appointment>> {
+        let baseQuery = `FROM appointments WHERE 1=1`;
+        const params: any[] = [];
+
+        // Filtros
+        if (filters.status) {
+            baseQuery += ` AND status = ?`;
+            params.push(filters.status);
+        }
+        if (filters.professional_id) {
+            baseQuery += ` AND professional_id = ?`;
+            params.push(filters.professional_id);
+        }
+        if (filters.patient_id) {
+            baseQuery += ` AND patient_id = ?`;
+            params.push(filters.patient_id);
+        }
+        if (filters.date) {
+            baseQuery += ` AND date = ?`;
+            params.push(filters.date);
+        }
+        if (filters.upcoming) {
+            baseQuery += ` AND date >= date('now')`;
+        }
+        // Opcionais extras
+        if (filters.startDate) {
+            baseQuery += ` AND date >= ?`;
+            params.push(filters.startDate);
+        }
+        if (filters.endDate) {
+            baseQuery += ` AND date <= ?`;
+            params.push(filters.endDate);
+        }
+
+        // Count Total
+        const countSql = `SELECT COUNT(*) as total ${baseQuery}`;
+        const countResult = await database.queryOne<{ total: number }>(countSql, params);
+        const total = countResult ? countResult.total : 0;
+
+        // Query Dados
+        let dataSql = `SELECT * ${baseQuery}`;
+
+        // Ordenação padrão: Próximas primeiro, depois por horário
+        dataSql += ` ORDER BY date ASC, time ASC`;
+
+        // Paginação
+        const offset = (pagination.page - 1) * pagination.pageSize;
+        dataSql += ` LIMIT ? OFFSET ?`;
+        params.push(pagination.pageSize, offset);
+
+        const data = await database.query<Appointment>(dataSql, params);
+
+        const totalPages = Math.ceil(total / pagination.pageSize);
+
+        return {
+            total,
+            data,
+            page: pagination.page,
+            pageSize: pagination.pageSize,
+            totalPages
+        };
     }
 
     // Validar RN-04 (Sem duplicação)
