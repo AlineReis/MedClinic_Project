@@ -24,14 +24,42 @@ export class ProfessionalController {
     }
   }
 
-  public listBySpecialty = async (req: Request, res: Response) => {
+  public list = async (req: Request, res: Response) => {
     try {
-      const { specialty } = req.params;
-      const list = await this.professionalService.listBySpecialty(specialty);
-      console.log(list)
+      const { specialty, name, page, pageSize } = req.query;
+      
+      const filters = {
+        specialty: specialty ? String(specialty) : undefined,
+        name: name ? String(name) : undefined
+      };
+      
+      // Ensure safe integers
+      const pageNum = Math.max(1, parseInt(page as string) || 1);
+      const sizeNum = Math.max(1, parseInt(pageSize as string) || 10);
+
+      const list = await this.professionalService.listProfessionals(filters, pageNum, sizeNum);
       res.json(list);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  public getAvailability = async (req: Request, res: Response) => {
+    try {
+       const { id } = req.params;
+       const { days_ahead } = req.query;
+
+       const professionalId = Number(id);
+       const daysAhead = Math.min(90, Math.max(1, parseInt(days_ahead as string) || 7));
+
+       if (!professionalId || isNaN(professionalId)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+       }
+
+       const availability = await this.professionalService.getAvailability(professionalId, daysAhead);
+       res.json(availability);
+    } catch (error: any) {
+       res.status(500).json({ error: error.message });
     }
   }
 }

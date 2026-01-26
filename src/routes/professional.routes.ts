@@ -12,11 +12,17 @@ const router = Router();
 const usersRepository = new UserRepository();
 const availabilityRepository = new AvailabilityRepository();
 const professionalRepository = new ProfessionalRepository();
-const professionalService = new ProfessionalService(usersRepository, professionalRepository, availabilityRepository);
+// Need Appointment Repository now
+import { AppointmentRepository } from "@repositories/appointment.repository.js";
+const appointmentRepository = new AppointmentRepository();
+
+const professionalService = new ProfessionalService(usersRepository, professionalRepository, availabilityRepository, appointmentRepository);
 const professionalController = new ProfessionalController(professionalService);
 
 
 router.post('/', professionalController.register);
-router.get('/:specialty', professionalController.listBySpecialty);
+// Rota de listagem com filtros (query params: ?specialty=x&name=y&page=1)
+router.get('/', professionalController.list);
+router.get('/:id/availability', professionalController.getAvailability);
 
 export { router as professionalRoutes };
