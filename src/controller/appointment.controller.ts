@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { AppointmentService } from "../services/appointment.service.js";
-import { Appointment } from "../models/appointment.js";
+import { Appointment, AppointmentFilters, PaginationParams } from "../models/appointment.js";
 import { ValidationError, ForbiddenError } from "../utils/errors.js";
 
 export class AppointmentController {
@@ -30,44 +30,39 @@ export class AppointmentController {
         }
     };
 
-    // GET /appointments/patient/:id
-    public listPatientAppointments = async (req: Request, res: Response, next: NextFunction) => {
+    /**
+     * GET /appointments
+     * Unified endpoint for listing appointments with filters, pagination and RBAC
+     */
+    public list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const patientId = Number(req.params.id);
+            const user = req.user!; // Middleware de auth garante user
 
-            // Segurança: Paciente só vê seus agendamentos
-            if (req.user?.role === 'patient' && req.user.id !== patientId) {
-                throw new ForbiddenError("Acesso negado.");
-            }
+            // Extrair Filters
+            const filters: AppointmentFilters = {
+                status: req.query.status as string,
+                date: req.query.date as string,
+                upcoming: req.query.upcoming === 'true',
+                startDate: req.query.startDate as string,
+                endDate: req.query.endDate as string
+            };
 
-            const appointments = await this.appointmentService.getPatientAppointments(patientId);
+            // Parse numeric IDs if provided, validation handled by Service RBAC
+            if (req.query.patient_id) filters.patient_id = Number(req.query.patient_id);
+            if (req.query.professional_id) filters.professional_id = Number(req.query.professional_id);
+
+            // Extrair Pagination
+            const page = Number(req.query.page) || 1;
+            const pageSize = Number(req.query.pageSize) || 10;
+            const pagination: PaginationParams = { page, pageSize };
+
+            const result = await this.appointmentService.listAppointments(filters, pagination, user);
 
             res.status(200).json({
                 success: true,
-                appointments
+                ...result
             });
-        } catch (error) {
-            next(error);
-        }
-    };
 
-    // GET /appointments/professional/:id
-    public listProfessionalAgenda = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const professionalId = Number(req.params.id);
-            const date = req.query.date as string | undefined;
-
-            // Segurança: Profissional só vê sua própria agenda (ou admin/recepção)
-            if (req.user?.role === 'health_professional' && req.user.id !== professionalId) {
-                throw new ForbiddenError("Acesso negado.");
-            }
-
-            const appointments = await this.appointmentService.getProfessionalAgenda(professionalId, date);
-
-            res.status(200).json({
-                success: true,
-                appointments
-            });
         } catch (error) {
             next(error);
         }
