@@ -1,9 +1,18 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { UserRepository } from '../repository/user.repository.js';
-import { User } from '../models/user.js';
-import * as Validators from '../utils/validators.js';
-import { AuthError, ValidationError } from "../utils/errors.js";
+import type { IUserRepository } from "@repositories/iuser.repository.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import {
+  User,
+  type UserRole,
+  type UserWithoutPassword,
+} from "../models/user.js";
+import {
+  AuthError,
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from "../utils/errors.js";
+import * as Validators from "../utils/validators.js";
 
 // Representa o usuário que fez a requisição (extraído do token JWT) - From backend-main
 type RequesterUser = {
@@ -17,36 +26,42 @@ type ListUsersByClinicInput = {
   requester?: RequesterUser;
 };
 
+export type GetUserInput = {
+  requesterId: number;
+  requesterRole: UserRole;
+  targetUserId: number;
+};
+
 export class UserService {
-  private userRepo: UserRepository;
+  constructor(private readonly userRepository: IUserRepository) {}
 
-  constructor() {
-    this.userRepo = new UserRepository();
-  }
-
-  // --- Auth & Registration Logic (My Branch) ---
-
-  async registerPatient(userData: User): Promise<{ user: User; token: string }> {
-    if (!Validators.isValidEmail(userData.email)) throw new ValidationError('Invalid email format');
+  async registerPatient(
+    userData: User,
+  ): Promise<{ user: User; token: string }> {
+    if (!Validators.isValidEmail(userData.email))
+      throw new ValidationError("Invalid email format");
     if (userData.password && !Validators.isValidPassword(userData.password)) {
-      throw new ValidationError('Password must have 8+ chars, uppercase, lowercase and number');
+      throw new ValidationError(
+        "Password must have 8+ chars, uppercase, lowercase and number",
+      );
     }
-    if (userData.cpf && !Validators.isValidCpfLogic(userData.cpf)) throw new ValidationError('Invalid CPF');
+    if (userData.cpf && !Validators.isValidCpfLogic(userData.cpf))
+      throw new ValidationError("Invalid CPF");
 
-    const existingUser = await this.userRepo.findByEmail(userData.email);
-    if (existingUser) throw new ValidationError('Email already in use');
+    const existingUser = await this.userRepository.findByEmail(userData.email);
+    if (existingUser) throw new ValidationError("Email already in use");
 
-    if (!userData.password) throw new ValidationError('Password is required');
+    if (!userData.password) throw new ValidationError("Password is required");
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-    const newUserId = await this.userRepo.createPatient({
+    const newUserId = await this.userRepository.createPatient({
       ...userData,
       password: hashedPassword
     });
 
-    const user = await this.userRepo.findById(newUserId);
-    if (!user) throw new Error('Error retrieving created user');
-    
+    const user = await this.userRepository.findById(newUserId);
+    if (!user) throw new Error("Error retrieving created user");
+
     const { password, ...userWithoutPassword } = user;
     const token = this.generateToken(user);
 
@@ -54,12 +69,12 @@ export class UserService {
   }
 
   async login(email: string, passwordRaw: string): Promise<{ user: User; token: string }> {
-    const user = await this.userRepo.findByEmail(email);
-    if (!user) throw new AuthError('Invalid email or password');
-    if (!user.password) throw new AuthError('Invalid email or password');
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) throw new AuthError("Invalid email or password");
+    if (!user.password) throw new AuthError("Invalid email or password");
 
     const isMatch = await bcrypt.compare(passwordRaw, user.password);
-    if (!isMatch) throw new AuthError('Invalid email or password');
+    if (!isMatch) throw new AuthError("Invalid email or password");
 
     const token = this.generateToken(user);
     const { password, ...userWithoutPassword } = user;
@@ -68,12 +83,31 @@ export class UserService {
   }
 
   private generateToken(user: User): string {
-    const secret = process.env.JWT_SECRET || 'default_secret_dev_only';
+    const secret = process.env.JWT_SECRET || "default_secret_dev_only";
     return jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       secret,
-      { expiresIn: '24h' }
+      { expiresIn: "24h" },
     );
+  }
+
+  public async getUserById(input: GetUserInput): Promise<UserWithoutPassword> {
+    const { requesterId, requesterRole, targetUserId } = input;
+
+    if (requesterRole === "patient" && requesterId !== targetUserId) {
+      throw new ForbiddenError(
+        "Você não tem permissão para acessar este usuário",
+      );
+    }
+
+    const user = await this.userRepository.findWithDetailsById(targetUserId);
+    if (!user) {
+      throw new NotFoundError("Usuário não encontrado");
+    }
+
+    const { password, ...userWithoutPassword } = user
+
+    return userWithoutPassword;
   }
 
   // --- Clinic Logic (Incoming from backend-main) ---
@@ -107,7 +141,7 @@ export class UserService {
       }
     }
 
-    const users = await this.userRepo.findByClinicId(clinicId);
+    const users = await this.userRepository.findByClinicId(clinicId);
 
     return users.map((u: any) => ({
       id: u.id,

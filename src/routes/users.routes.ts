@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { UserController } from "../controller/user.controller.js";
-import { UserService } from "../services/user.service.js";
-import { UserRepository } from "../repository/user.repository.js";
 import {
   authMiddleware,
   roleMiddleware,
 } from "../middlewares/auth.middleware.js";
+import { UserRepository } from "../repository/user.repository.js";
+import { UserService } from "../services/user.service.js";
 
 const router = Router();
 
@@ -23,5 +23,6 @@ router.get(
   roleMiddleware(["clinic_admin", "receptionist", "system_admin"]),
   userController.listByClinic,
 );
+router.get("/:id", authMiddleware, userController.getUser);
 
 export { router as userRoutes };

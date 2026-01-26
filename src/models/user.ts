@@ -1,3 +1,5 @@
+import type { ProfessionalDetails } from "./professional.model.js";
+
 export const USER_ROLES = [
   "patient",
   "receptionist",
@@ -21,5 +23,10 @@ export interface User {
   updated_at?: string | null;
 }
 
+export type UserWithDetails = User & {
+  professional_details?: ProfessionalDetails | null;
+};
+
+export type UserWithoutPassword = Omit<User, "password">;
 export type CreateUserPayload = Omit<User, "id" | "created_at" | "updated_at">;
 export type AuthResult = Pick<User, "id" | "name" | "email" | "role">;
