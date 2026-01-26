@@ -14,8 +14,7 @@ const appointmentController = new AppointmentController(appointmentService);
 router.use(authMiddleware); // Todas as rotas de agendamento requerem autenticação
 
 router.post("/", appointmentController.schedule);
-router.get("/patient/:id", appointmentController.listPatientAppointments);
-router.get("/professional/:id", appointmentController.listProfessionalAgenda);
+router.get("/", appointmentController.list); // Unified list with filters
 router.get("/:id", appointmentController.getById);
 router.patch("/:id/confirm", appointmentController.confirm);
 router.post("/:id/cancel", appointmentController.cancel);
