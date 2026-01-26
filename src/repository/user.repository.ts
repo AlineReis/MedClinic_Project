@@ -74,4 +74,11 @@ export class UserRepository {
     const sql = `SELECT * FROM users WHERE cpf = ?`;
     return await database.queryOne<User>(sql, [cleanCpf]);
   }
+
+  //busca os usuários de uma clínica específica
+  async findByClinicId(clinicId: number): Promise<User[]> {
+    const sql = `SELECT * FROM users WHERE clinic_id = ? ORDER BY id ASC`;
+    return await database.query<User>(sql, [clinicId]);
+  }
+
 }
