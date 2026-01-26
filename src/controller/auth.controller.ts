@@ -1,10 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import type { CreateUserPayload } from "../models/user.js";
-import type { AuthService } from "../services/auth.service.js";
 import { UserRepository } from "../repository/user.repository.js";
-import { SecurityUtils } from "../utils/security.js";
-import { AuthError, ValidationError } from "../utils/errors.js";
+import type { AuthService } from "../services/auth.service.js";
+import { AuthError } from "../utils/errors.js";
 
 export class AuthController {
   private userRepository: UserRepository;
@@ -33,30 +31,7 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      if (!email || !password) {
-        throw new ValidationError("Email and password are required");
-      }
-
-      const user = await this.userRepository.findByEmail(email);
-
-      if (!user) {
-        throw new AuthError("Invalid credentials");
-      }
-
-      const isPasswordValid = await SecurityUtils.comparePassword(
-        password,
-        user.password,
-      );
-
-      if (!isPasswordValid) {
-        throw new AuthError("Invalid credentials");
-      }
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET || "default_secret",
-        { expiresIn: (process.env.JWT_EXPIRES_IN || "24h") as any },
-      );
+      const { token, user } = await this.authService.login(email, password);
 
       res.cookie("token", token, {
         httpOnly: true,

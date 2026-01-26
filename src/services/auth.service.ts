@@ -1,7 +1,9 @@
-import type { AuthResult, CreateUserPayload } from "../models/user.js";
-import type { UserRepository } from "../repository/user.repository.js";
+import jwt from "jsonwebtoken";
 
-import { ValidationError } from "../utils/errors.js";
+import type { AuthResult, CreateUserPayload } from "../models/user.js";
+
+import type { IUserRepository } from "../repository/iuser.repository.js";
+import { AuthError, ConflictError, ValidationError } from "../utils/errors.js";
 import { SecurityUtils } from "../utils/security.js";
 import {
   getPasswordMissingRequirements,
@@ -13,7 +15,7 @@ import {
 } from "../utils/validators.js";
 
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(private readonly userRepository: IUserRepository) {}
 
   public async registerPatient(input: CreateUserPayload): Promise<AuthResult> {
     this.validateRegistrationInput(input);
@@ -27,7 +29,7 @@ export class AuthService {
     ]);
 
     if (existingEmail) {
-      throw new ValidationError("Este email já está em uso", "email");
+      throw new ConflictError("Este email já está em uso", "email");
     }
     if (existingCpf) {
       throw new ValidationError("Este CPF já está cadastrado", "cpf");
@@ -77,5 +79,42 @@ export class AuthService {
         "role",
       );
     }
+  }
+
+  public async login(email: string, password: string) {
+    if (!email || !password) {
+      throw new ValidationError("Email and password are required");
+    }
+
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new AuthError("Invalid credentials");
+    }
+
+    const isPasswordValid = await SecurityUtils.comparePassword(
+      password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new AuthError("Invalid credentials");
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || "default_secret",
+      { expiresIn: (process.env.JWT_EXPIRES_IN || "24h") as any },
+    );
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 }
