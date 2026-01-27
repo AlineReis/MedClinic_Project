@@ -1,10 +1,14 @@
 import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams } from "../models/appointment.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
+import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { ValidationError, NotFoundError, ForbiddenError } from "../utils/errors.js";
 import { AuthResult } from "../models/user.js";
 
 export class AppointmentService {
-    constructor(private appointmentRepository: AppointmentRepository) { }
+    constructor(
+        private appointmentRepository: AppointmentRepository,
+        private availabilityRepository: AvailabilityRepository
+    ) { }
 
     async scheduleAppointment(data: Appointment): Promise<number> {
         // Validar data no futuro
@@ -12,6 +16,35 @@ export class AppointmentService {
         // Validacao simplificada, idealmente checar fusos
         if (appointmentDateTime < new Date()) {
             throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
+        }
+
+        // RN-01: Validar disponibilidade do profissional (horário deve estar em professional_availabilities)
+        const dayOfWeek = appointmentDateTime.getDay(); // 0 is Sunday, 1 is Monday...
+
+        const availabilities = await this.availabilityRepository.findByProfessionalId(data.professional_id);
+        const dailyAvailability = availabilities.filter(a => a.day_of_week === dayOfWeek);
+
+        if (dailyAvailability.length === 0) {
+            throw new ValidationError("O profissional não atende neste dia da semana.", "availability");
+        }
+
+        const isWithinSlot = dailyAvailability.some(slot => {
+            return data.time >= slot.start_time && data.time < slot.end_time;
+        });
+
+        if (!isWithinSlot) {
+            throw new ValidationError("O horário escolhido está fora do expediente do profissional.", "availability");
+        }
+
+        // RN-02: Antecedência mínima de 2h para agendamentos presenciais
+        if (data.type === 'presencial') {
+            const now = new Date();
+            const diffInMs = appointmentDateTime.getTime() - now.getTime();
+            const twoHoursInMs = 2 * 60 * 60 * 1000;
+
+            if (diffInMs < twoHoursInMs) {
+                throw new ValidationError("Agendamentos presenciais devem ser feitos com no mínimo 2 horas de antecedência.", "date");
+            }
         }
 
         // Validar RN-04: Sem duplicação de agendamento para o mesmo paciente/profissional/dia

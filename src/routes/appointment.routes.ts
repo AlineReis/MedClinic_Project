@@ -2,13 +2,15 @@ import { Router } from "express";
 import { AppointmentController } from "../controller/appointment.controller.js";
 import { AppointmentService } from "../services/appointment.service.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
+import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 // Injeção de dependência manual (idealmente usaríamos um container)
 const appointmentRepository = new AppointmentRepository();
-const appointmentService = new AppointmentService(appointmentRepository);
+const availabilityRepository = new AvailabilityRepository();
+const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository);
 const appointmentController = new AppointmentController(appointmentService);
 
 router.use(authMiddleware); // Todas as rotas de agendamento requerem autenticação
