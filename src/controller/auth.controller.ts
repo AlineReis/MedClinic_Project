@@ -1,15 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import type { CreateUserPayload } from "../models/user.js";
-import { UserRepository } from "../repository/user.repository.js";
 import type { AuthService } from "../services/auth.service.js";
 import { AuthError } from "../utils/errors.js";
 
 export class AuthController {
-  private userRepository: UserRepository;
 
-  constructor(private authService: AuthService) {
-    this.userRepository = new UserRepository();
-  }
+  constructor(private authService: AuthService) {}
 
   public register = async (req: Request, res: Response, next: NextFunction) => {
     try {

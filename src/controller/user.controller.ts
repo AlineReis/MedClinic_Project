@@ -1,7 +1,6 @@
-import type { UserRole } from "@models/user.js";
 import type { NextFunction, Request, Response } from "express";
 import type { UserService } from "../services/user.service.js";
-import { AuthError, ValidationError } from "../utils/errors.js";
+import { AuthError } from "../utils/errors.js";
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -31,14 +30,6 @@ export class UserController {
       const clinicId = Number(req.params.clinic_id);
       const targetUserId = Number(req.params.id);
 
-      if (!Number.isFinite(clinicId) || clinicId <= 0) {
-        throw new ValidationError("clinic_id inválido");
-      }
-
-      if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
-        throw new ValidationError("id inválido");
-      }
-
       const requester = req.user;
       if (!requester) {
         throw new AuthError("User not authenticated");
@@ -58,7 +49,7 @@ export class UserController {
       return next(error);
     }
   };
-  
+
   /**
    * GET /api/v1/:clinic_id/users
    * Lista os usuários de uma clínica específica
@@ -71,16 +62,19 @@ export class UserController {
     try {
       const clinicId = Number(req.params.clinic_id);
 
-      if (!Number.isFinite(clinicId) || clinicId <= 0) {
-        throw new ValidationError("clinic_id inválido");
-      }
-
       // req.user vem do authMiddleware (igual no AuthController.getProfile)
       const requester = req.user;
+      const { role, search, page, pageSize } = req.query;
 
       const users = await this.userService.listUsersByClinic({
         clinicId,
         requester,
+        filters: {
+          role: (req.query.role || 'health_professional') as string,
+          search: search as string,
+          page: page ? Number(page) : 1,       // Converte string para número
+          pageSize: pageSize ? Number(pageSize) : 10 // Converte string para número
+          }
       });
 
       return res.status(200).json({

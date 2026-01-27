@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 import type { AuthResult, CreateUserPayload } from "../models/user.js";
 
+import { env } from "@config/config.js";
 import type { IUserRepository } from "../repository/iuser.repository.js";
 import { AuthError, ConflictError, ValidationError } from "../utils/errors.js";
 import { SecurityUtils } from "../utils/security.js";
@@ -103,7 +104,7 @@ export class AuthService {
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || "default_secret",
+      env.JWT_SECRET || "default_secret",
       { expiresIn: (process.env.JWT_EXPIRES_IN || "24h") as any },
     );
 

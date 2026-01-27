@@ -1,7 +1,8 @@
-import { database } from "./config/database.js";
 import { createApp } from "./app.js";
+import { env } from './config/config.js';
+import { database } from "./config/database.js";
 
-const PORT = Number(process.env.PORT ?? 3000);
+const PORT = Number(env.PORT ?? 3000);
 
 const app = createApp();
 
