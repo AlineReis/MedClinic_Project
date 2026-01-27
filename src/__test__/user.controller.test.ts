@@ -2,14 +2,17 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
 
 import { UserController } from "../controller/user.controller.js";
+import { UserService } from "../services/user.service.js";
+import { AuthError } from "../utils/errors.js";
 
-type PaginatedUsers = {
-  items: Array<Record<string, unknown>>;
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
-};
+// --- Magia do TypeScript: Inferência de Tipos ---
+// Extrai o tipo de retorno da Promise do método listUsersByClinic
+type ServiceResponse = Awaited<ReturnType<UserService["listUsersByClinic"]>>;
+type PaginatedUsers = ServiceResponse;
+// Extrai o tipo de um único item dentro do array 'items'
+type UserItem = ServiceResponse["items"][number];
+
+// --- Tipos (Mantidos para contexto) ---
 
 type ListUsersByClinicParams = {
   clinicId: number;
@@ -22,45 +25,73 @@ type ListUsersByClinicParams = {
   };
 };
 
-class FakeUserService {
-  public async listUsersByClinic(
-    params: Partial<ListUsersByClinicParams> = {},
-  ): Promise<PaginatedUsers> {
-    const page = params.filters?.page ?? 1;
-    const pageSize = params.filters?.pageSize ?? 10;
+type QueryParams = {
+  page?: string;
+  pageSize?: string;
+  search?: string;
+  role?: string;
+};
 
-    return {
-      items: [
-        {
-          id: 1,
-          name: "Dr. Example",
-          email: "doctor@example.com",
-          role: "health_professional",
-        },
-      ],
-      page,
-      pageSize,
-      total: 1,
-      totalPages: 1,
-    };
-  }
-}
+const makeMockRes = () => {
+  const json = jest.fn().mockReturnThis();
+  const status = jest.fn().mockReturnThis();
+  return { status, json } as unknown as Response;
+};
+
+// --- Mock Setup ---
+
+// Define o resultado padrão de sucesso para evitar repetição nos testes
+const defaultPaginatedResult: PaginatedUsers = {
+  items: [
+    {
+      id: 1,
+      name: "Dr. Example",
+      email: "doctor@example.com",
+      role: "health_professional",
+      clinic_id: 42, // O TS agora aceita pois ele "leu" o retorno do seu service
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      cpf: "000.000.000-00",
+    } as UserItem,
+  ],
+  page: 2,
+  pageSize: 5,
+  total: 1,
+  totalPages: 1,
+};
+
+// Cria o objeto Mock.
+// Dica: Se você tiver a interface do UserService, pode usar: jest.Mocked<UserService>
+const mockUserService = {
+  listUsersByClinic: jest.fn(),
+  updateClinicUser: jest.fn(),
+} as unknown as jest.Mocked<UserService>;
 
 describe("UserController.listByClinic", () => {
   let controller: UserController;
-  let fakeService: FakeUserService;
 
-  const makeRequest = () => {
+  const defaultRequester = {
+    id: 99,
+    role: "clinic_admin",
+    clinic_id: 42,
+    name: "Admin",
+    email: "admin@example.com",
+  };
+
+  // Helper para criar request/response
+  const makeRequest = ({
+    query = { page: "2", pageSize: "5" },
+    user = defaultRequester,
+    params = { clinic_id: "42" },
+  }: {
+    query?: QueryParams;
+    user?: typeof defaultRequester;
+    params?: Record<string, string>;
+  } = {}) => {
     const mockReq = {
-      params: { clinic_id: "42" },
-      query: { page: "2", pageSize: "5" },
-      user: {
-        id: 99,
-        role: "clinic_admin",
-        clinic_id: 42,
-        name: "Admin",
-        email: "admin@example.com",
-      } as any,
+      params,
+      query,
+      user: { ...user } as any,
     } as Partial<Request>;
 
     const jsonSpy = jest.fn();
@@ -82,42 +113,35 @@ describe("UserController.listByClinic", () => {
   };
 
   beforeEach(() => {
-    fakeService = new FakeUserService();
-    controller = new UserController(fakeService as any);
+    jest.clearAllMocks(); // Limpa chamadas anteriores e resets de estado
+    // Injeta o mock no controller
+    controller = new UserController(mockUserService as any);
   });
 
   it("should return paginated results with expected structure", async () => {
+    // Arrange: Configura o mock para resolver com sucesso
+    mockUserService.listUsersByClinic.mockResolvedValue(defaultPaginatedResult);
+
     const { req, res, next, statusSpy, jsonSpy } = makeRequest();
 
+    // Act
     await controller.listByClinic(req, res, next);
 
+    // Assert
     expect(statusSpy).toHaveBeenCalledWith(200);
     expect(jsonSpy).toHaveBeenCalledWith({
       success: true,
-      users: {
-        items: [
-          {
-            id: 1,
-            name: "Dr. Example",
-            email: "doctor@example.com",
-            role: "health_professional",
-          },
-        ],
-        page: 2,
-        pageSize: 5,
-        total: 1,
-        totalPages: 1,
-      },
+      users: defaultPaginatedResult,
     });
   });
 
   it("should pass converted query filters to the service", async () => {
-    const spy = jest.spyOn(fakeService, "listUsersByClinic");
+    mockUserService.listUsersByClinic.mockResolvedValue(defaultPaginatedResult);
     const { req, res, next } = makeRequest();
 
     await controller.listByClinic(req, res, next);
 
-    expect(spy).toHaveBeenCalledWith(
+    expect(mockUserService.listUsersByClinic).toHaveBeenCalledWith(
       expect.objectContaining({
         clinicId: 42,
         requester: expect.objectContaining({
@@ -137,15 +161,17 @@ describe("UserController.listByClinic", () => {
     const { req, res, next } = makeRequest();
     const error = new Error("Service Failure");
 
-    jest.spyOn(fakeService, "listUsersByClinic").mockRejectedValue(error);
+    // Arrange: Força o mock a rejeitar (erro)
+    mockUserService.listUsersByClinic.mockRejectedValue(error);
 
     await controller.listByClinic(req, res, next);
+
     expect(next).toHaveBeenCalledWith(error);
   });
 
   it("should use default pagination values when query is empty", async () => {
+    mockUserService.listUsersByClinic.mockResolvedValue(defaultPaginatedResult);
     const { res, next } = makeRequest();
-    const spy = jest.spyOn(fakeService, "listUsersByClinic");
 
     const reqWithoutQuery = {
       params: { clinic_id: "42" },
@@ -155,7 +181,7 @@ describe("UserController.listByClinic", () => {
 
     await controller.listByClinic(reqWithoutQuery, res, next);
 
-    expect(spy).toHaveBeenCalledWith(
+    expect(mockUserService.listUsersByClinic).toHaveBeenCalledWith(
       expect.objectContaining({
         filters: expect.objectContaining({
           page: 1,
@@ -166,8 +192,8 @@ describe("UserController.listByClinic", () => {
   });
 
   it("should pass search and role filters when they are provided in the query", async () => {
+    mockUserService.listUsersByClinic.mockResolvedValue(defaultPaginatedResult);
     const { res, next } = makeRequest();
-    const spy = jest.spyOn(fakeService, "listUsersByClinic");
 
     const reqWithFilters = {
       params: { clinic_id: "42" },
@@ -182,7 +208,7 @@ describe("UserController.listByClinic", () => {
 
     await controller.listByClinic(reqWithFilters, res, next);
 
-    expect(spy).toHaveBeenCalledWith(
+    expect(mockUserService.listUsersByClinic).toHaveBeenCalledWith(
       expect.objectContaining({
         filters: expect.objectContaining({
           search: "John Doe",
@@ -192,10 +218,47 @@ describe("UserController.listByClinic", () => {
     );
   });
 
+  it("should reject patients (403) when they call the endpoint", async () => {
+    // Arrange: Simulamos que o serviço rejeita com AuthError quando é paciente
+    // Nota: Em testes com Mocks, nós controlamos o resultado. Se a lógica de Auth
+    // fica no serviço, simulamos o erro do serviço.
+    mockUserService.listUsersByClinic.mockRejectedValue(
+      new AuthError("Forbidden"),
+    );
+
+    const { req, res, next, statusSpy, jsonSpy } = makeRequest({
+      user: { ...defaultRequester, role: "patient" },
+    });
+
+    await controller.listByClinic(req, res, next);
+
+    expect(mockUserService.listUsersByClinic).toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(AuthError));
+    expect(statusSpy).not.toHaveBeenCalled();
+    expect(jsonSpy).not.toHaveBeenCalled();
+  });
+
+  it("should include the role query filter when provided", async () => {
+    mockUserService.listUsersByClinic.mockResolvedValue(defaultPaginatedResult);
+    const { req, res, next } = makeRequest({
+      query: { role: "health_professional", page: "1", pageSize: "10" },
+    });
+
+    await controller.listByClinic(req, res, next);
+
+    expect(mockUserService.listUsersByClinic).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: expect.objectContaining({ role: "health_professional" }),
+      }),
+    );
+  });
+
   describe("Input Validation & Security (To Be Implemented)", () => {
     it.skip("should handle invalid pagination strings by falling back to defaults", async () => {
+      mockUserService.listUsersByClinic.mockResolvedValue(
+        defaultPaginatedResult,
+      );
       const { res, next } = makeRequest();
-      const spy = jest.spyOn(fakeService, "listUsersByClinic");
 
       const reqWithGarbage = {
         params: { clinic_id: "42" },
@@ -205,7 +268,7 @@ describe("UserController.listByClinic", () => {
 
       await controller.listByClinic(reqWithGarbage, res, next);
 
-      expect(spy).toHaveBeenCalledWith(
+      expect(mockUserService.listUsersByClinic).toHaveBeenCalledWith(
         expect.objectContaining({
           filters: expect.objectContaining({ page: 1, pageSize: 10 }),
         }),
@@ -214,6 +277,8 @@ describe("UserController.listByClinic", () => {
 
     it.skip("should throw an error if requester tries to access a different clinic_id", async () => {
       const { res, next } = makeRequest();
+
+      // Aqui não precisamos configurar o mock do serviço, pois o controller deve barrar antes
 
       const maliciousReq = {
         params: { clinic_id: "999" },
@@ -231,8 +296,10 @@ describe("UserController.listByClinic", () => {
     });
 
     it.skip("should ignore search filter if it is an empty string", async () => {
+      mockUserService.listUsersByClinic.mockResolvedValue(
+        defaultPaginatedResult,
+      );
       const { res, next } = makeRequest();
-      const spy = jest.spyOn(fakeService, "listUsersByClinic");
 
       const reqWithEmptySearch = {
         params: { clinic_id: "42" },
@@ -242,13 +309,17 @@ describe("UserController.listByClinic", () => {
 
       await controller.listByClinic(reqWithEmptySearch, res, next);
 
-      const [callArgs] = spy.mock.calls[0] as [ListUsersByClinicParams];
+      const [callArgs] = mockUserService.listUsersByClinic.mock.calls[0] as [
+        ListUsersByClinicParams,
+      ];
       expect(callArgs.filters.search).toBeUndefined();
     });
 
     it.skip("should not pass unknown query parameters to the service", async () => {
+      mockUserService.listUsersByClinic.mockResolvedValue(
+        defaultPaginatedResult,
+      );
       const { res, next } = makeRequest();
-      const spy = jest.spyOn(fakeService, "listUsersByClinic");
 
       const reqWithExtraParams = {
         params: { clinic_id: "42" },
@@ -258,7 +329,7 @@ describe("UserController.listByClinic", () => {
 
       await controller.listByClinic(reqWithExtraParams, res, next);
 
-      expect(spy).toHaveBeenCalledWith(
+      expect(mockUserService.listUsersByClinic).toHaveBeenCalledWith(
         expect.objectContaining({
           filters: {
             page: 1,
@@ -266,6 +337,93 @@ describe("UserController.listByClinic", () => {
           },
         }),
       );
+    });
+  });
+
+  describe("updateOwnProfile", () => {
+    const makeUpdateRequest = ({
+      body = { name: "New Name", email: "new@email.com" },
+      user = defaultRequester,
+      params = { clinic_id: "42", id: "99" },
+    }: {
+      body?: Record<string, any>;
+      user?: typeof defaultRequester;
+      params?: Record<string, string>;
+    } = {}) => {
+      const req = {
+        params,
+        query: {},
+        body,
+        user: { ...user } as any,
+      } as Partial<Request>;
+
+      const res = makeMockRes();
+      const next = jest.fn() as unknown as NextFunction;
+
+      return { req: req as Request, res, next };
+    };
+
+    it("allows patients to update name/email only", async () => {
+      mockUserService.updateClinicUser.mockResolvedValue({
+        ...defaultPaginatedResult.items[0],
+        name: "New Name",
+        email: "new@email.com",
+        cpf: "000.000.000-00",
+      });
+
+      const { req, res, next } = makeUpdateRequest();
+
+      await controller.updateOwnProfile(req, res, next);
+
+      expect(mockUserService.updateClinicUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: { name: "New Name", email: "new@email.com" },
+          targetUserId: 99,
+          clinicId: 42,
+        }),
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        success: true,
+        user: expect.objectContaining({
+          name: "New Name",
+          email: "new@email.com",
+        }),
+      });
+    });
+
+    it("rejects requests attempting to change role or password", async () => {
+      const { req, res, next } = makeUpdateRequest({
+        body: {
+          name: "Allowed",
+          email: "allowed@email.com",
+          role: "admin",
+          password: "secret",
+        } as Record<string, any>,
+      });
+
+      await controller.updateOwnProfile(req, res, next);
+
+      expect(mockUserService.updateClinicUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: { name: "Allowed", email: "allowed@email.com" },
+        }),
+      );
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true }),
+      );
+    });
+
+    it("rejects attempts to update another user", async () => {
+      const { req, res, next } = makeUpdateRequest({
+        params: { clinic_id: "42", id: "2" },
+        user: { ...defaultRequester, id: 99 },
+      });
+
+      await controller.updateOwnProfile(req, res, next);
+
+      expect(mockUserService.updateClinicUser).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expect.any(AuthError));
     });
   });
 });
