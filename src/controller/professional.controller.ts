@@ -62,4 +62,34 @@ export class ProfessionalController {
        res.status(500).json({ error: error.message });
     }
   }
+  
+  public createAvailability = async (req: Request, res: Response) => {
+    try {
+       const { id } = req.params;
+       const { availabilities } = req.body;
+       
+       const professionalId = Number(id);
+       if (!professionalId || isNaN(professionalId)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+       }
+
+       if (!availabilities || !Array.isArray(availabilities) || availabilities.length === 0) {
+           return res.status(400).json({ error: 'Missing required field: availabilities (must be a non-empty array)' });
+       }
+
+
+       for (const [i, slot] of availabilities.entries()) {
+           if (slot.day_of_week === undefined || !slot.start_time || !slot.end_time) {
+                return res.status(400).json({ error: `Item ${i}: Missing required fields: day_of_week, start_time, end_time` });
+           }
+       }
+
+       const result = await this.professionalService.createAvailability(professionalId, availabilities);
+
+       res.status(201).json(result);
+    } catch (error: any) {
+       const status = error.message.includes('Invalid') || error.message.includes('required') || error.message.includes('Overlaps') ? 400 : 500;
+       res.status(status).json({ error: error.message });
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { env } from "@config/config.js";
 import type { IUserRepository } from "@repositories/iuser.repository.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -92,7 +93,7 @@ export class UserService {
   }
 
   private generateToken(user: User): string {
-    const secret = process.env.JWT_SECRET || "default_secret_dev_only";
+    const secret = env.JWT_SECRET || "default_secret";
     return jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       secret,
@@ -119,16 +120,51 @@ export class UserService {
     return userWithoutPassword;
   }
 
+  public async getUserByIdScoped(input: {
+    clinicId: number;
+    requester: RequesterUser;
+    targetUserId: number;
+  }) {
+    const { clinicId, requester, targetUserId } = input;
+
+    // permissões: próprio usuário OU admin
+    const isSelf = requester.id === targetUserId;
+    const isAdmin =
+      requester.role === "clinic_admin" || requester.role === "system_admin";
+
+    if (!isSelf && !isAdmin) {
+      throw new ForbiddenError("Forbidden");
+    }
+
+    // se não for system_admin, só pode acessar a própria clínica
+    if (requester.role !== "system_admin") {
+      if (!requester.clinic_id || requester.clinic_id !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const user = await this.userRepository.findWithDetailsById(targetUserId);
+    if (!user) {
+      throw new NotFoundError("Usuário não encontrado");
+    }
+
+    // garantir que o usuário retornado pertence à clínica (exceto system_admin pode ver qualquer uma)
+    if (requester.role !== "system_admin") {
+      if (Number((user as any).clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const { password, ...userWithoutPassword } = user as any;
+    return userWithoutPassword;
+  }
+
   // --- Clinic Logic (Incoming from backend-main) ---
   public listUsersByClinic = async ({
     clinicId,
     requester,
     filters,
   }: ListUsersByClinicInput) => {
-    if (!Number.isFinite(clinicId) || clinicId <= 0) {
-      throw new ValidationError("clinic_id inválido");
-    }
-
     if (!requester) {
       throw new AuthError("User not authenticated");
     }

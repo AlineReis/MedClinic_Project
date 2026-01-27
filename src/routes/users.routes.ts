@@ -23,7 +23,8 @@ router.get(
   roleMiddleware(["clinic_admin", "receptionist", "system_admin"]),
   userController.listByClinic,
 );
-router.get("/:id", authMiddleware, userController.getUser);
+router.get("/:id", authMiddleware, userController.getById);
+
 
 router.put("/:id", authMiddleware, userController.update);
 

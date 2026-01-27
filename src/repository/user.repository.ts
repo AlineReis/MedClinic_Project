@@ -1,4 +1,5 @@
 import type { ProfessionalDetails } from "@models/professional.model.js";
+import type { IUserRepository } from "@repositories/iuser.repository.js";
 import { database } from "../config/database.js";
 import {
   User,
@@ -6,7 +7,6 @@ import {
   type UserWithDetails,
 } from "../models/user.js";
 import { sanitizeCpf } from "../utils/validators.js";
-import type { IUserRepository } from "@repositories/iuser.repository.js";
 
 export class UserRepository implements IUserRepository {
   async createPatient(userData: User): Promise<number> {
@@ -117,8 +117,10 @@ export class UserRepository implements IUserRepository {
 
   //busca os usuários de uma clínica específica (from backend-main)
   async findByClinicId(clinicId: number): Promise<User[]> {
-    const sql = `SELECT * FROM users WHERE clinic_id = ? ORDER BY id ASC`;
-    return await database.query<User>(sql, [clinicId]);
+    // TODO: Voltar aqui depois de implementar o clinic_id
+    // const sql = `SELECT * FROM users WHERE clinic_id = ? ORDER BY id ASC`;
+    const sql = `SELECT * FROM users ORDER BY id ASC`;
+    return await database.query<User>(sql, /*[clinicId]*/);
   }
 
   async listByClinicIdPaginated(
@@ -148,9 +150,11 @@ export class UserRepository implements IUserRepository {
 
     const pageSize = Math.min(pageSizeRaw, 50);
     const offset = (page - 1) * pageSize;
-
-    const where: string[] = ["clinic_id = ?"];
-    const params: unknown[] = [clinicId];
+    // TODO: Voltar aqui depois de implementar o clinic_id
+    // const where: string[] = ["clinic_id = ?"];
+    const where: string[] = [];
+    // const params: unknown[] = [clinicId];
+    const params: unknown[] = [];
 
     if (filters.role) {
       where.push("role = ?");
