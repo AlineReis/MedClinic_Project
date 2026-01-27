@@ -120,11 +120,11 @@ export class ProfessionalController {
       res.status(201).json(result);
     } catch (error: any) {
       const status =
-        error.message.includes("Invalid") ||
-        error.message.includes("required") ||
-        error.message.includes("Overlaps")
+        error.message.includes("Invalid") || error.message.includes("required")
           ? 400
-          : 500;
+          : error.message.includes("Overlaps")
+            ? 409
+            : 500;
       res.status(status).json({ error: error.message });
     }
   };

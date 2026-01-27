@@ -4,6 +4,7 @@ import { ProfessionalController } from "../controller/professional.controller.js
 import { ProfessionalService } from "../services/professional.service.js";
 
 class FakeProfessionalService extends ProfessionalService {
+  public static lastGetAvailabilityArgs: any[] = [];
   constructor() {
     super({} as any, {} as any, {} as any, {} as any, {} as any);
   }
@@ -34,14 +35,12 @@ class FakeProfessionalService extends ProfessionalService {
     ];
   }
 
-  public override async getAvailability(
-    professionalId: number,
-    daysAhead: number,
-  ) {
-    if (professionalId === 999) {
-      throw new Error("Professional not found");
-    }
-    return [
+  public override async getAvailability(professionalId: number, daysAhead: number) {
+     FakeProfessionalService.lastGetAvailabilityArgs = [professionalId, daysAhead];
+     if (professionalId === 999) {
+         throw new Error("Professional not found");
+     }
+     return [
       { date: "2024-02-01", time: "08:00", is_available: true },
       { date: "2024-02-01", time: "09:00", is_available: false },
     ];
@@ -91,14 +90,20 @@ describe("Professional Routes Integration", () => {
     expect(response.body[0].name).toBe("Dr. Gregory House");
   });
 
-  it("GET /professionals/:id/availability returns slots", async () => {
-    const response = await request(app).get(
-      "/professionals/1/availability?days_ahead=3",
-    );
+  it("GET /professionals/:id/availability returns slots with default 7 days", async () => {
+    FakeProfessionalService.lastGetAvailabilityArgs = []; // Reset
+    
+    // Test default
+    let response = await request(app).get("/professionals/1/availability");
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(2);
-    expect(response.body[0].time).toBe("08:00");
+    expect(FakeProfessionalService.lastGetAvailabilityArgs).toEqual([1, 7]);
+
+    // Test explicit
+    response = await request(app).get("/professionals/1/availability?days_ahead=3");
+    expect(response.status).toBe(200);
+    expect(FakeProfessionalService.lastGetAvailabilityArgs).toEqual([1, 3]);
   });
+
 
   it("GET /professionals/:id/availability handles invalid ID", async () => {
     const response = await request(app).get("/professionals/abc/availability");
@@ -136,5 +141,20 @@ describe("Professional Routes Integration", () => {
         ],
       });
     expect(response.status).toBe(400);
+  });
+
+  it("POST /professionals/:id/availability rejects overlapping slots", async () => {
+      service.createAvailability = async (id: number, slots: any[]) => {
+          throw new Error('Overlaps with existing rule');
+      };
+
+      const response = await request(app).post("/professionals/1/availability").send({
+          availabilities: [
+             { day_of_week: 1, start_time: "08:00", end_time: "10:00" } 
+          ]
+      });
+      
+      expect(response.status).toBe(409); 
+      expect(response.body.error).toContain("Overlaps");
   });
 });
