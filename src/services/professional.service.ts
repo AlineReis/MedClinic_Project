@@ -83,7 +83,6 @@ export class ProfessionalService {
   }
 
   async getAvailability(professionalId: number, daysAhead: number = 7) {
-    // 1. Buscar a agenda base do profissional (ex: Segunda 08-12)
     const schedule = await this.availabilityRepository.findByProfessionalId(professionalId);
     
     if (!schedule || schedule.length === 0) {
@@ -93,7 +92,6 @@ export class ProfessionalService {
     const availableSlots: { date: string; time: string; is_available: boolean }[] = [];
     const today = new Date();
 
-    //Iterar pelos próximos N dias
     for (let i = 0; i < daysAhead; i++) {
       const currentDate = new Date(today);
       currentDate.setDate(today.getDate() + i);
@@ -101,14 +99,12 @@ export class ProfessionalService {
       const dayOfWeek = currentDate.getDay(); // 0=Dom, 1=Seg...
       const dateStr = formatDate(currentDate);
 
-      // 3. Encontrar regras para este dia da semana
       const dailyRules = schedule.filter(s => s.day_of_week === dayOfWeek);
 
       for (const rule of dailyRules) {
         let currentTime = rule.start_time;
         const endTime = rule.end_time;
 
-        // 4. Gerar slots de 50 minutos
         while (currentTime < endTime) {
            const slotEnd = addMinutes(currentTime, SLOT_DURATION_MINUTES);
            
@@ -117,7 +113,7 @@ export class ProfessionalService {
            availableSlots.push({
              date: dateStr,
              time: currentTime,
-             is_available: true // livre por padrão
+             is_available: true
            });
 
            currentTime = slotEnd; 
@@ -125,7 +121,6 @@ export class ProfessionalService {
       }
     }
 
-    // Busca agendamentos desse profissional no range de datas
     const startDate = formatDate(today);
     const endDateDate = new Date(today);
     endDateDate.setDate(today.getDate() + daysAhead);
@@ -136,7 +131,6 @@ export class ProfessionalService {
       { page: 1, pageSize: 1000 }
     );
 
-    // 6. Marcar slots ocupados
     for (const slot of availableSlots) {
        const isTaken = appointments.data.some(appt => 
           appt.date === slot.date && 
@@ -150,38 +144,61 @@ export class ProfessionalService {
        }
     }
 
-    return availableSlots.filter(s => s.is_available); // Retorna só os livres (Card 4.3.3 pede is_available, mas geralmente frontend quer só os livres. Vou retornar estrutura completa se precisar)
+    return availableSlots.filter(s => s.is_available);
   }
 
-  async createAvailability(professionalId: number, slot: {
+  async createAvailability(professionalId: number, slots: {
     day_of_week: number;
     start_time: string;
     end_time: string;
-  }): Promise<Availability> {
-      if (slot.start_time >= slot.end_time) {
-          throw new Error('Start time must be before end time');
-      }
-
+  }[]): Promise<Availability[]> {
       const allRules = await this.availabilityRepository.findByProfessionalId(professionalId);
-      const dayRules = allRules.filter(r => r.day_of_week === slot.day_of_week);
+      const createdSlots: Availability[] = [];
 
-      for (const rule of dayRules) {
-          if (slot.start_time < rule.end_time && slot.end_time > rule.start_time) {
-              throw new Error(`Time overlap with existing rule: ${rule.start_time} - ${rule.end_time}`);
+
+      for (const [index, slot] of slots.entries()) {
+
+          if (slot.start_time >= slot.end_time) {
+              throw new Error(`Item ${index}: Start time must be before end time`);
+          }
+
+
+          const internalOverlap = slots.some((other, otherIndex) => 
+             index !== otherIndex &&
+             slot.day_of_week === other.day_of_week &&
+             slot.start_time < other.end_time && 
+             slot.end_time > other.start_time
+          );
+
+          if (internalOverlap) {
+            throw new Error(`Item ${index}: Overlaps with another item in the request`);
+          }
+
+
+          const dayRules = allRules.filter(r => r.day_of_week === slot.day_of_week);
+          for (const rule of dayRules) {
+              if (slot.start_time < rule.end_time && slot.end_time > rule.start_time) {
+                  throw new Error(`Item ${index}: Overlaps with existing rule: ${rule.start_time} - ${rule.end_time}`);
+              }
           }
       }
 
-      const id = await this.availabilityRepository.create({
-          ...slot,
-          professional_id: professionalId
-      });
-      
-      return {
-          id,
-          professional_id: professionalId,
-          ...slot,
-          is_active: 1
-      };
+
+      for (const slot of slots) {
+          const id = await this.availabilityRepository.create({
+            ...slot,
+            professional_id: professionalId
+        });
+        
+        createdSlots.push({
+            id,
+            professional_id: professionalId,
+            ...slot,
+            is_active: 1
+        });
+      }
+
+      return createdSlots;
   }
 
   async listProfessionals(filters: { specialty?: string; name?: string }, page: number = 1, pageSize: number = 10) {

@@ -33,16 +33,19 @@ class FakeProfessionalService extends ProfessionalService {
       { date: "2024-02-01", time: "09:00", is_available: false },
     ];
   }
-  public override async createAvailability(professionalId: number, slot: any) {
-      if (slot.start_time >= slot.end_time) {
-          throw new Error('Invalid: Start time must be before end time');
+  public override async createAvailability(professionalId: number, slots: any[]) {
+      // Simples validação no mock
+      for (const slot of slots) {
+        if (slot.start_time >= slot.end_time) {
+            throw new Error('Invalid: Start time must be before end time');
+        }
       }
-      return {
+      return slots.map(slot => ({
           id: 123,
           professional_id: professionalId,
           ...slot,
           is_active: 1
-      };
+      }));
   }
 }
 
@@ -91,22 +94,24 @@ describe("Professional Routes Integration", () => {
       expect(response.body.error).toBe("Professional not found");
   });
 
-  it("POST /professionals/:id/availability creates a new slot", async () => {
+  it("POST /professionals/:id/availability creates new slots (batch)", async () => {
     const response = await request(app).post("/professionals/1/availability").send({
-        day_of_week: 1,
-        start_time: "08:00",
-        end_time: "12:00"
+        availabilities: [
+            { day_of_week: 1, start_time: "08:00", end_time: "12:00" },
+            { day_of_week: 2, start_time: "14:00", end_time: "18:00" }
+        ]
     });
     expect(response.status).toBe(201);
-    expect(response.body.id).toBe(123);
-    expect(response.body.professional_id).toBe(1);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body).toHaveLength(2);
+    expect(response.body[0].id).toBe(123);
   });
 
-  it("POST /professionals/:id/availability returns 400 for invalid data", async () => {
+  it("POST /professionals/:id/availability returns 400 for invalid data in batch", async () => {
       const response = await request(app).post("/professionals/1/availability").send({
-          day_of_week: 1,
-          start_time: "12:00",
-          end_time: "08:00" // Invalid range
+          availabilities: [
+            { day_of_week: 1, start_time: "12:00", end_time: "08:00" } // Invalid
+          ]
       });
       expect(response.status).toBe(400); 
   });

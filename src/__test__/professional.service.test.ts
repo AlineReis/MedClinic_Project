@@ -108,13 +108,13 @@ describe("ProfessionalService - Availability Logic", () => {
              mockFindByProfessionalId.mockResolvedValue([]); // No existing rules
              mockCreate.mockResolvedValue(123);
 
-             const result = await service.createAvailability(1, {
+             const result = await service.createAvailability(1, [{
                  day_of_week: 1,
                  start_time: "08:00",
                  end_time: "12:00"
-             });
+             }]);
 
-             expect(result.id).toBe(123);
+             expect(result[0].id).toBe(123);
              expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
                  professional_id: 1,
                  start_time: "08:00"
@@ -122,25 +122,34 @@ describe("ProfessionalService - Availability Logic", () => {
         });
 
         it("should throw error if start_time >= end_time", async () => {
-            await expect(service.createAvailability(1, {
+            await expect(service.createAvailability(1, [{
                 day_of_week: 1,
                 start_time: "10:00",
                 end_time: "09:00"
-            })).rejects.toThrow("Start time must be before end time");
+            }])).rejects.toThrow("Start time must be before end time");
         });
 
-        it("should throw error if there is an overlap", async () => {
+        it("should throw error if there is an overlap with DB", async () => {
             // Existing rule: 08:00 - 12:00
             mockFindByProfessionalId.mockResolvedValue([{
                 id: 1, professional_id: 1, day_of_week: 1, start_time: "08:00", end_time: "12:00", is_active: 1
             }]);
 
             // Try to add: 10:00 - 14:00 (Overlaps!)
-            await expect(service.createAvailability(1, {
+            await expect(service.createAvailability(1, [{
                 day_of_week: 1,
                 start_time: "10:00",
                 end_time: "14:00"
-            })).rejects.toThrow(/overlap/);
+            }])).rejects.toThrow(/Overlaps with existing rule/);
+        });
+
+        it("should throw error if there is an INTERNAL overlap in the batch", async () => {
+            mockFindByProfessionalId.mockResolvedValue([]);
+
+            await expect(service.createAvailability(1, [
+                { day_of_week: 1, start_time: "08:00", end_time: "10:00" },
+                { day_of_week: 1, start_time: "09:00", end_time: "11:00" } // Overlaps with the first one!
+            ])).rejects.toThrow("Overlaps with another item in the request");
         });
     });
 });
