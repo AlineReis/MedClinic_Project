@@ -1,7 +1,7 @@
 import type { UserRole } from "@models/user.js";
 import type { NextFunction, Request, Response } from "express";
 import type { UserService } from "../services/user.service.js";
-import { ValidationError } from "../utils/errors.js";
+import { AuthError, ValidationError } from "../utils/errors.js";
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -57,4 +57,40 @@ export class UserController {
       return next(error);
     }
   };
+
+  public update = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const clinicId = Number(req.params.clinic_id);
+    const targetUserId = Number(req.params.id);
+
+    if (!Number.isFinite(clinicId) || clinicId <= 0) {
+      throw new ValidationError("clinic_id inválido");
+    }
+
+    if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+      throw new ValidationError("id inválido");
+    }
+
+    const requester = req.user;
+    if (!requester) {
+      throw new AuthError("User not authenticated");
+    }
+
+    const user = await this.userService.updateUserScoped({
+      clinicId,
+      requester,
+      targetUserId,
+      data: req.body,
+    });
+
+    return res.status(200).json({
+      success: true,
+      user,
+      message: "Usuário atualizado com sucesso",
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 }

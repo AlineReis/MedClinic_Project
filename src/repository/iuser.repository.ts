@@ -33,4 +33,14 @@ export interface IUserRepository {
   }>;  
   findWithDetailsById(userId: number): Promise<UserWithDetails | null>;
   delete(id: number): Promise<void>
+  updateById(
+  userId: number,
+  patch: Partial<{
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+  }>,
+): Promise<void>;
+
 }

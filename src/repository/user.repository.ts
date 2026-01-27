@@ -8,8 +8,6 @@ import {
 import { sanitizeCpf } from "../utils/validators.js";
 import type { IUserRepository } from "@repositories/iuser.repository.js";
 
-
-
 export class UserRepository implements IUserRepository {
   async createPatient(userData: User): Promise<number> {
     const sql = `
@@ -167,7 +165,10 @@ export class UserRepository implements IUserRepository {
     const whereSql = `WHERE ${where.join(" AND ")}`;
 
     const countSql = `SELECT COUNT(*) as total FROM users ${whereSql}`;
-    const countRow = await database.queryOne<{ total: number }>(countSql, params);
+    const countRow = await database.queryOne<{ total: number }>(
+      countSql,
+      params,
+    );
     const total = Number(countRow?.total ?? 0);
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -191,5 +192,28 @@ export class UserRepository implements IUserRepository {
       total,
       totalPages,
     };
+  }
+  public async updateById(
+    userId: number,
+    patch: Partial<{
+      name: string;
+      email: string;
+      phone: string;
+      password: string;
+    }>,
+  ): Promise<void> {
+    const fields = Object.keys(patch) as Array<keyof typeof patch>;
+    if (fields.length === 0) return;
+
+    const setSql = fields.map((f) => `${String(f)} = ?`).join(", ");
+    const values = fields.map((f) => (patch as any)[f]);
+
+    const sql = `
+    UPDATE users
+    SET ${setSql}, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+
+    await database.run(sql, [...values, userId]);
   }
 }

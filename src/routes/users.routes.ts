@@ -25,4 +25,6 @@ router.get(
 );
 router.get("/:id", authMiddleware, userController.getUser);
 
+router.put("/:id", authMiddleware, userController.update);
+
 export { router as userRoutes };

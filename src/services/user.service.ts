@@ -172,4 +172,91 @@ export class UserService {
       })),
     };
   };
+
+  public async updateUserScoped(input: {
+    clinicId: number;
+    requester: RequesterUser;
+    targetUserId: number;
+    data: any;
+  }) {
+    const { clinicId, requester, targetUserId, data } = input;
+
+    const isSelf = requester.id === targetUserId;
+    const isAdmin =
+      requester.role === "clinic_admin" || requester.role === "system_admin";
+
+    if (!isSelf && !isAdmin) {
+      throw new ForbiddenError("Forbidden");
+    }
+
+    // clinic scope (system_admin pode acessar qualquer clínica)
+    if (requester.role !== "system_admin") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const existing = await this.userRepository.findById(targetUserId);
+    if (!existing) throw new NotFoundError("Usuário não encontrado");
+
+    if (requester.role !== "system_admin") {
+      if (Number((existing as any).clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    // Regras da task:
+    // - self: pode name/email/phone/password
+    // - admin: pode atualizar campos, MAS NÃO role e NÃO password
+    const patch: Record<string, any> = {};
+
+    if (typeof data?.name === "string") patch.name = data.name.trim();
+
+    if (typeof data?.email === "string") {
+      const email = data.email.trim();
+      if (!Validators.isValidEmail(email)) {
+        throw new ValidationError("Invalid email format");
+      }
+      patch.email = email;
+    }
+
+    if (typeof data?.phone === "string") patch.phone = data.phone.trim();
+
+    // Bloqueia role sempre (pela descrição que você comentou antes)
+    if (data?.role !== undefined) {
+      throw new ForbiddenError("Não é permitido alterar role");
+    }
+
+    // password: somente o próprio usuário
+    if (data?.password !== undefined) {
+      if (!isSelf) {
+        throw new ForbiddenError("Não é permitido alterar password");
+      }
+      if (typeof data.password !== "string" || !data.password) {
+        throw new ValidationError("Password is required");
+      }
+      if (!Validators.isValidPassword(data.password)) {
+        throw new ValidationError(
+          "Password must have 8+ chars, uppercase, lowercase and number",
+        );
+      }
+      patch.password = await bcrypt.hash(data.password, 10);
+    }
+
+    // Se for admin, ok atualizar name/email/phone (e outros que existirem no patch)
+    // Se não for admin (self), patch já está limitado
+    if (!isAdmin && !isSelf) throw new ForbiddenError("Forbidden");
+
+    if (Object.keys(patch).length === 0) {
+      throw new ValidationError("Nenhum campo válido para atualizar");
+    }
+
+    await this.userRepository.updateById(targetUserId, patch);
+
+    const updated = await this.userRepository.findWithDetailsById(targetUserId);
+    if (!updated) throw new Error("Erro ao recuperar usuário atualizado");
+
+    const { password, ...withoutPassword } = updated as any;
+    return withoutPassword;
+  }
 }
