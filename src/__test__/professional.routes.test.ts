@@ -145,7 +145,7 @@ describe("Professional Routes Integration", () => {
           ]
       });
       
-      expect(response.status).toBe(400); 
+      expect(response.status).toBe(409); 
       expect(response.body.error).toContain("Overlaps");
   });
 });

@@ -88,7 +88,12 @@ export class ProfessionalController {
 
        res.status(201).json(result);
     } catch (error: any) {
-       const status = error.message.includes('Invalid') || error.message.includes('required') || error.message.includes('Overlaps') ? 400 : 500;
+       let status = 500;
+       if (error.message.includes('Invalid') || error.message.includes('required')) {
+           status = 400;
+       } else if (error.message.includes('Overlaps')) {
+           status = 409;
+       }
        res.status(status).json({ error: error.message });
     }
   }
