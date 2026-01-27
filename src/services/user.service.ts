@@ -119,6 +119,45 @@ export class UserService {
     return userWithoutPassword;
   }
 
+  public async getUserByIdScoped(input: {
+    clinicId: number;
+    requester: RequesterUser;
+    targetUserId: number;
+  }) {
+    const { clinicId, requester, targetUserId } = input;
+
+    // permissões: próprio usuário OU admin
+    const isSelf = requester.id === targetUserId;
+    const isAdmin =
+      requester.role === "clinic_admin" || requester.role === "system_admin";
+
+    if (!isSelf && !isAdmin) {
+      throw new ForbiddenError("Forbidden");
+    }
+
+    // se não for system_admin, só pode acessar a própria clínica
+    if (requester.role !== "system_admin") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const user = await this.userRepository.findWithDetailsById(targetUserId);
+    if (!user) {
+      throw new NotFoundError("Usuário não encontrado");
+    }
+
+    // garantir que o usuário retornado pertence à clínica (exceto system_admin pode ver qualquer uma)
+    if (requester.role !== "system_admin") {
+      if (Number((user as any).clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    const { password, ...userWithoutPassword } = user as any;
+    return userWithoutPassword;
+  }
+
   // --- Clinic Logic (Incoming from backend-main) ---
   public listUsersByClinic = async ({
     clinicId,
