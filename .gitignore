@@ -28,3 +28,6 @@ npm-debug.log*
 # Assistente e Tarefas
 .antigravity/
 tasks.md
+
+# Backups
+frontend_src_backup_v1/

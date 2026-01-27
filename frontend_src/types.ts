@@ -7,18 +7,27 @@
 // User Types
 // ==========================================
 
-export type UserRole = 'admin' | 'medico' | 'paciente' | 'recepcionista';
+export type UserRole = 'admin' | 'medico' | 'paciente' | 'recepcionista' | 'clinic_admin' | 'system_admin' | 'health_professional' | 'lab_tech';
 
 export interface User {
     id: number;
     name: string;
     email: string;
-    password_hash: string;
+    password_hash?: string;
     role: UserRole;
     cpf: string;
     phone?: string;
     avatar?: string;
     created_at: string;
+    professional_details?: {
+        specialty?: string;
+        crm?: string;
+        price?: number;
+    };
+    patient_details?: {
+        insurance_plan?: string;
+        birth_date?: string;
+    };
 }
 
 // ==========================================

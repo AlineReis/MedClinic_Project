@@ -70,7 +70,6 @@ const DB = {
     // Inicializa o banco se estiver vazio
     init() {
         if (!localStorage.getItem(DB_KEY)) {
-            console.log('DB: Inicializando banco de dados com seed data...');
             this.save(INITIAL_DATA);
         }
     },
@@ -126,6 +125,17 @@ const DB = {
             db.users.push(newUser);
             DB.save(db);
             return newUser;
+        },
+
+        update(id, updates) {
+            const db = DB.getAll();
+            const index = db.users.findIndex(u => String(u.id) === String(id));
+
+            if (index === -1) return null;
+
+            db.users[index] = { ...db.users[index], ...updates };
+            DB.save(db);
+            return db.users[index];
         }
     },
 
@@ -163,6 +173,23 @@ const DB = {
         findByProfessionalId(professionalId) {
             // Conversão segura para string
             return this.findAll().filter(a => String(a.professional_id) === String(professionalId) && a.is_active === 1);
+        },
+
+        saveForProfessional(professionalId, newAvailabilities) {
+            const db = DB.getAll();
+            // Remove existing availabilities for this professional
+            db.availabilities = db.availabilities.filter(a => String(a.professional_id) !== String(professionalId));
+
+            // Add new ones
+            newAvailabilities.forEach(a => {
+                db.availabilities.push({
+                    id: Date.now() + Math.random(), // Simple ID gen
+                    professional_id: professionalId,
+                    ...a
+                });
+            });
+
+            DB.save(db);
         }
     }
 };

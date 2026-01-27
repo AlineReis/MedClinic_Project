@@ -14,6 +14,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -169,7 +170,7 @@
                         Início
                     </a>
                     <a href="#" class="nav-link" data-page="appointments"
-                        data-require-role="admin,medico,paciente,recepcionista,clinic_admin">
+                        data-require-role="admin,medico,recepcionista,clinic_admin">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -248,206 +249,217 @@
                             <p class="hero-subtitle">Gerencie suas consultas e acompanhe seus pacientes de forma
                                 eficiente</p>
                         </div>
-
-
                     </section>
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card appointments-card">
-                            <div class="card-header">
-                                <h3 class="card-title">Próximas Consultas</h3>
-                                <a href="#" class="card-action" data-page="appointments">Ver todas</a>
-                            </div>
-                            <div class="appointments-list" id="upcomingAppointments">
-                                <!-- Dynamic content rendered by JS -->
-                                <div class="loading-state"
-                                    style="text-align:center; padding: 2rem; color: var(--color-gray-500);">
-                                    <p>Carregando consultas...</p>
+
+                    <!-- NOVO LAYOUT DE COLUNAS -->
+                    <div class="dashboard-columns">
+
+                        <!-- Coluna da Esquerda (Principal) -->
+                        <div class="dashboard-col-left">
+
+                            <!-- 1. Appointments Card -->
+                            <div class="dashboard-card appointments-card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Próximas Consultas</h3>
+                                    <a href="#" class="card-action" data-page="appointments">Ver todas</a>
+                                </div>
+                                <div class="appointments-list" id="upcomingAppointments">
+                                    <!-- Dynamic content rendered by JS -->
+                                    <div class="loading-state"
+                                        style="text-align:center; padding: 2rem; color: var(--color-gray-500);">
+                                        <p>Carregando consultas...</p>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- 2. Notifications Card -->
+                            <div class="dashboard-card notifications-card"
+                                data-require-role="admin,medico,recepcionista,clinic_admin">
+                                <div class="card-header">
+                                    <h3 class="card-title">Notificações Recentes</h3>
+                                </div>
+                                <div class="notifications-list">
+                                    <div class="notification-item unread">
+                                        <div class="notification-icon blue">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="2" />
+                                                <path d="M8 4V8L11 10" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </div>
+                                        <div class="notification-content">
+                                            <p class="notification-text"><strong>Consulta confirmada</strong> para Maria
+                                                Silva
+                                                às 09:00</p>
+                                            <span class="notification-time">Há 5 minutos</span>
+                                        </div>
+                                    </div>
+                                    <div class="notification-item unread">
+                                        <div class="notification-icon orange">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <path d="M8 3V8M8 11H8.01" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                                <path
+                                                    d="M13.657 13.657C15.533 11.781 15.533 8.781 13.657 6.905C11.781 5.029 8.781 5.029 6.905 6.905C5.029 8.781 5.029 11.781 6.905 13.657"
+                                                    stroke="currentColor" stroke-width="2" />
+                                            </svg>
+                                        </div>
+                                        <div class="notification-content">
+                                            <p class="notification-text"><strong>Pendência:</strong> Atualizar cadastro
+                                                do
+                                                paciente Carlos Oliveira</p>
+                                            <span class="notification-time">Há 1 hora</span>
+                                        </div>
+                                    </div>
+                                    <div class="notification-item">
+                                        <div class="notification-icon green">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </div>
+                                        <div class="notification-content">
+                                            <p class="notification-text">Relatório mensal de janeiro gerado com sucesso
+                                            </p>
+                                            <span class="notification-time">Há 2 horas</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Revenue Chart (Moved inside left column) -->
+                            <div class="widget-card chart-widget" data-require-role="admin,clinic_admin">
+                                <div class="widget-header">
+                                    <h3 class="widget-title">Faturamento Semanal</h3>
+                                    <select class="widget-select">
+                                        <option>Últimos 7 dias</option>
+                                        <option>Este Mês</option>
+                                    </select>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+
                         </div>
 
-                        <div class="dashboard-card quick-actions-card">
-                            <div class="card-header">
-                                <h3 class="card-title">Ações Rápidas</h3>
-                            </div>
-                            <div class="quick-actions-grid">
-                                <button class="quick-action-btn" data-action="new-appointment"
-                                    data-require-role="admin,recepcionista,paciente">
-                                    <div class="action-icon blue">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5"
-                                                stroke-linecap="round" />
-                                        </svg>
-                                    </div>
-                                    <span class="action-label">Nova Consulta</span>
-                                </button>
-                                <button class="quick-action-btn" data-action="new-patient"
-                                    data-require-role="admin,recepcionista">
-                                    <div class="action-icon green">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path
-                                                d="M16 21V19C16 16.7909 14.2091 15 12 15H5C2.79086 15 1 16.7909 1 19V21"
-                                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                            <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2" />
-                                            <path d="M20 8V14M23 11H17" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" />
-                                        </svg>
-                                    </div>
-                                    <span class="action-label">Cadastrar Paciente</span>
-                                </button>
-                                <button class="quick-action-btn" data-action="search-records"
-                                    data-require-role="admin,medico">
-                                    <div class="action-icon purple">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-                                            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" />
-                                        </svg>
-                                    </div>
-                                    <span class="action-label">Buscar Prontuário</span>
-                                </button>
-                                <button class="quick-action-btn" data-action="reports" data-require-role="admin">
-                                    <div class="action-icon orange">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                            <path
-                                                d="M9 17H15M9 13H15M9 9H12M13 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V8L13 3Z"
-                                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                        </svg>
-                                    </div>
-                                    <span class="action-label">Relatórios</span>
-                                </button>
-                            </div>
+                        <!-- Coluna da Direita (Lateral) -->
+                        <div class="dashboard-col-right">
 
-                            <div class="calendar-preview">
-                                <div class="calendar-header">
-                                    <span class="calendar-month">Janeiro 2026</span>
-                                    <div class="calendar-nav">
-                                        <button class="calendar-nav-btn">&lt;</button>
-                                        <button class="calendar-nav-btn">&gt;</button>
-                                    </div>
+                            <!-- 1. Quick Actions + Calendar -->
+                            <div class="dashboard-card quick-actions-card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Ações Rápidas</h3>
                                 </div>
-                                <div class="calendar-grid">
-                                    <span class="calendar-day-label">D</span>
-                                    <span class="calendar-day-label">S</span>
-                                    <span class="calendar-day-label">T</span>
-                                    <span class="calendar-day-label">Q</span>
-                                    <span class="calendar-day-label">Q</span>
-                                    <span class="calendar-day-label">S</span>
-                                    <span class="calendar-day-label">S</span>
-
-                                    <span class="calendar-day disabled">29</span>
-                                    <span class="calendar-day disabled">30</span>
-                                    <span class="calendar-day disabled">31</span>
-                                    <span class="calendar-day">1</span>
-                                    <span class="calendar-day">2</span>
-                                    <span class="calendar-day">3</span>
-                                    <span class="calendar-day">4</span>
-
-                                    <span class="calendar-day">5</span>
-                                    <span class="calendar-day">6</span>
-                                    <span class="calendar-day">7</span>
-                                    <span class="calendar-day">8</span>
-                                    <span class="calendar-day">9</span>
-                                    <span class="calendar-day">10</span>
-                                    <span class="calendar-day">11</span>
-
-                                    <span class="calendar-day">12</span>
-                                    <span class="calendar-day">13</span>
-                                    <span class="calendar-day">14</span>
-                                    <span class="calendar-day">15</span>
-                                    <span class="calendar-day">16</span>
-                                    <span class="calendar-day">17</span>
-                                    <span class="calendar-day">18</span>
-
-                                    <span class="calendar-day">19</span>
-                                    <span class="calendar-day">20</span>
-                                    <span class="calendar-day">21</span>
-                                    <span class="calendar-day today">22</span>
-                                    <span class="calendar-day has-appointments">23</span>
-                                    <span class="calendar-day">24</span>
-                                    <span class="calendar-day has-appointments">25</span>
-
-                                    <span class="calendar-day">26</span>
-                                    <span class="calendar-day">27</span>
-                                    <span class="calendar-day">28</span>
-                                    <span class="calendar-day">29</span>
-                                    <span class="calendar-day">30</span>
-                                    <span class="calendar-day">31</span>
-                                    <span class="calendar-day disabled">1</span>
+                                <div class="quick-actions-grid">
+                                    <button class="quick-action-btn" data-action="new-appointment"
+                                        data-require-role="admin,recepcionista,paciente">
+                                        <div class="action-icon blue">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </div>
+                                        <span class="action-label">Nova Consulta</span>
+                                    </button>
+                                    <button class="quick-action-btn" data-action="new-patient"
+                                        data-require-role="admin,recepcionista">
+                                        <div class="action-icon green">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path
+                                                    d="M16 21V19C16 16.7909 14.2091 15 12 15H5C2.79086 15 1 16.7909 1 19V21"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                                <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                                                <path d="M20 8V14M23 11H17" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </div>
+                                        <span class="action-label">Cadastrar Paciente</span>
+                                    </button>
+                                    <button class="quick-action-btn" data-action="search-records"
+                                        data-require-role="admin,medico">
+                                        <div class="action-icon purple">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+                                                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" />
+                                            </svg>
+                                        </div>
+                                        <span class="action-label">Buscar Prontuário</span>
+                                    </button>
+                                    <button class="quick-action-btn" data-action="reports" data-require-role="admin">
+                                        <div class="action-icon orange">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <path
+                                                    d="M9 17H15M9 13H15M9 9H12M13 3H8C6.89543 3 6 3.89543 6 5V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V8L13 3Z"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                            </svg>
+                                        </div>
+                                        <span class="action-label">Relatórios</span>
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="dashboard-card notifications-card">
-                            <div class="card-header">
-                                <h3 class="card-title">Notificações Recentes</h3>
-                            </div>
-                            <div class="notifications-list">
-                                <div class="notification-item unread">
-                                    <div class="notification-icon blue">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="2" />
-                                            <path d="M8 4V8L11 10" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" />
-                                        </svg>
+                                <div class="calendar-preview">
+                                    <div class="calendar-header">
+                                        <span class="calendar-month">Janeiro 2026</span>
+                                        <div class="calendar-nav">
+                                            <button class="calendar-nav-btn">&lt;</button>
+                                            <button class="calendar-nav-btn">&gt;</button>
+                                        </div>
                                     </div>
-                                    <div class="notification-content">
-                                        <p class="notification-text"><strong>Consulta confirmada</strong> para Maria
-                                            Silva
-                                            às 09:00</p>
-                                        <span class="notification-time">Há 5 minutos</span>
-                                    </div>
-                                </div>
-                                <div class="notification-item unread">
-                                    <div class="notification-icon orange">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M8 3V8M8 11H8.01" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" />
-                                            <path
-                                                d="M13.657 13.657C15.533 11.781 15.533 8.781 13.657 6.905C11.781 5.029 8.781 5.029 6.905 6.905C5.029 8.781 5.029 11.781 6.905 13.657"
-                                                stroke="currentColor" stroke-width="2" />
-                                        </svg>
-                                    </div>
-                                    <div class="notification-content">
-                                        <p class="notification-text"><strong>Pendência:</strong> Atualizar cadastro do
-                                            paciente Carlos Oliveira</p>
-                                        <span class="notification-time">Há 1 hora</span>
-                                    </div>
-                                </div>
-                                <div class="notification-item">
-                                    <div class="notification-icon green">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                            <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" />
-                                        </svg>
-                                    </div>
-                                    <div class="notification-content">
-                                        <p class="notification-text">Relatório mensal de janeiro gerado com sucesso</p>
-                                        <span class="notification-time">Há 2 horas</span>
+                                    <div class="calendar-grid">
+                                        <span class="calendar-day-label">D</span>
+                                        <span class="calendar-day-label">S</span>
+                                        <span class="calendar-day-label">T</span>
+                                        <span class="calendar-day-label">Q</span>
+                                        <span class="calendar-day-label">Q</span>
+                                        <span class="calendar-day-label">S</span>
+                                        <span class="calendar-day-label">S</span>
+
+                                        <span class="calendar-day disabled">29</span>
+                                        <span class="calendar-day disabled">30</span>
+                                        <span class="calendar-day disabled">31</span>
+                                        <span class="calendar-day">1</span>
+                                        <span class="calendar-day">2</span>
+                                        <span class="calendar-day">3</span>
+                                        <span class="calendar-day">4</span>
+
+                                        <span class="calendar-day">5</span>
+                                        <span class="calendar-day">6</span>
+                                        <span class="calendar-day">7</span>
+                                        <span class="calendar-day">8</span>
+                                        <span class="calendar-day">9</span>
+                                        <span class="calendar-day">10</span>
+                                        <span class="calendar-day">11</span>
+
+                                        <span class="calendar-day">12</span>
+                                        <span class="calendar-day">13</span>
+                                        <span class="calendar-day">14</span>
+                                        <span class="calendar-day">15</span>
+                                        <span class="calendar-day">16</span>
+                                        <span class="calendar-day">17</span>
+                                        <span class="calendar-day">18</span>
+
+                                        <span class="calendar-day">19</span>
+                                        <span class="calendar-day">20</span>
+                                        <span class="calendar-day">21</span>
+                                        <span class="calendar-day today">22</span>
+                                        <span class="calendar-day has-appointments">23</span>
+                                        <span class="calendar-day">24</span>
+                                        <span class="calendar-day has-appointments">25</span>
+
+                                        <span class="calendar-day">26</span>
+                                        <span class="calendar-day">27</span>
+                                        <span class="calendar-day">28</span>
+                                        <span class="calendar-day">29</span>
+                                        <span class="calendar-day">30</span>
+                                        <span class="calendar-day">31</span>
+                                        <span class="calendar-day disabled">1</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="dashboard-widgets">
-                        <!-- Chart Widget (Large) -->
-                        <div class="widget-card chart-widget">
-                            <div class="widget-header">
-                                <h3 class="widget-title">Faturamento Semanal</h3>
-                                <select class="widget-select">
-                                    <option>Últimos 7 dias</option>
-                                    <option>Este Mês</option>
-                                </select>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="revenueChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Stats Column -->
-                        <div class="stats-column">
-                            <!-- Card 2 -->
+                            <!-- 2. Stats (Moved from bottom) -->
                             <div class="widget-card stat-widget">
                                 <div class="stat-icon green">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -464,7 +476,7 @@
                                     <span class="stat-trend positive">+12% vs mês anterior</span>
                                 </div>
                             </div>
-                            <!-- Card 3 -->
+                            <!-- 3. Stat Card 2 -->
                             <div class="widget-card stat-widget">
                                 <div class="stat-icon purple">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -478,8 +490,11 @@
                                     <span class="stat-trend positive">+2.4% vs média</span>
                                 </div>
                             </div>
+
                         </div>
                     </div>
+
+
                 </section>
 
                 <!-- Appointments Page -->
@@ -517,11 +532,21 @@
                         </div>
                     </div>
 
-                    <!-- Timeline Container (Populated by JS) -->
-                    <div class="appointments-timeline" id="appointmentsTimeline">
-                        <div class="loading-state"
-                            style="text-align:center; padding: 3rem; color: var(--color-gray-500);">
-                            <p>Carregando consultas...</p>
+                    <!-- Appointments List -->
+                    <div class="appointments-list-container">
+                        <div class="table-header">
+                            <div class="th">Paciente / Médico</div>
+                            <div class="th">Data & Hora</div>
+                            <div class="th">Tipo & Especialidade</div>
+                            <div class="th">Status</div>
+                            <div class="th">Ações</div>
+                        </div>
+                        <div class="appointments-list" id="appointmentsList">
+                            <!-- Populated by JS -->
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <p>Carregando consultas...</p>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -704,6 +729,20 @@
                     </div>
                 </section>
 
+                <!-- Doctors Page -->
+                <section class="page" id="doctorsPage">
+                    <div class="page-header">
+                        <div class="page-title-section">
+                            <h2 class="page-title">Corpo Clínico</h2>
+                            <p class="page-description">Gerencie os profissionais de saúde</p>
+                        </div>
+                    </div>
+
+                    <div class="doctors-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
                 <!-- Profile Page -->
                 <section class="page" id="profilePage">
                     <div class="page-header">
@@ -748,8 +787,6 @@
                             </form>
                         </div>
                     </div>
-                </section>
-
                 </section>
 
                 <!-- Components Test Page -->
@@ -827,6 +864,27 @@
     </div>
 
     <!-- Toast Notification Container -->
+    <!-- Dynamic Generic Modal -->
+    <div class="modal-overlay" id="dynamicModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Título do Modal</h3>
+                <button class="modal-close" aria-label="Fechar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary">Cancelar</button>
+                <button type="button" class="btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Main Application Logic -->

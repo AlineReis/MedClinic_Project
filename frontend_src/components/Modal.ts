@@ -34,19 +34,60 @@ export default class Modal {
         });
     }
 
+    static show(title: string, contentHtml: string, onConfirm?: () => Promise<boolean> | boolean) {
+        let modal = document.getElementById('dynamicModal');
+
+        if (!modal) {
+            console.error('Dynamic modal container not found');
+            return;
+        }
+
+        const titleEl = modal.querySelector('.modal-title');
+        const bodyEl = modal.querySelector('.modal-body');
+        const confirmBtn = modal.querySelector('.btn-primary') as HTMLButtonElement;
+        const cancelBtn = modal.querySelector('.btn-secondary') as HTMLButtonElement;
+
+        if (titleEl) titleEl.textContent = title;
+        if (bodyEl) bodyEl.innerHTML = contentHtml;
+
+        // Clear previous event listeners (clone element hack)
+        const newConfirmBtn = confirmBtn.cloneNode(true) as HTMLButtonElement;
+        confirmBtn.parentNode?.replaceChild(newConfirmBtn, confirmBtn);
+
+        const newCancelBtn = cancelBtn.cloneNode(true) as HTMLButtonElement;
+        cancelBtn.parentNode?.replaceChild(newCancelBtn, cancelBtn);
+
+        // Setup events
+        newCancelBtn.addEventListener('click', () => this.close('dynamicModal'));
+
+        if (onConfirm) {
+            newConfirmBtn.style.display = 'inline-flex';
+            newConfirmBtn.addEventListener('click', async () => {
+                newConfirmBtn.disabled = true;
+                const result = await onConfirm();
+                newConfirmBtn.disabled = false;
+
+                if (result !== false) { // Close unless strictly false
+                    this.close('dynamicModal');
+                }
+            });
+        } else {
+            newConfirmBtn.style.display = 'none';
+        }
+
+        this.open('dynamicModal');
+    }
+
     static open(modalId: string) {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
 
-            // Focus trap could be implemented here
             const firstInput = modal.querySelector('input') as HTMLElement;
             if (firstInput) {
                 setTimeout(() => firstInput.focus(), 100);
             }
-        } else {
-            console.error(`Modal with ID '${modalId}' not found.`);
         }
     }
 
@@ -54,11 +95,7 @@ export default class Modal {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
-
-            // Optional: Reset forms inside modal on close
-            // const form = modal.querySelector('form');
-            // if (form) form.reset();
+            document.body.style.overflow = '';
         }
     }
 }

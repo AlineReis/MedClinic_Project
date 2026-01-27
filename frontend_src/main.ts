@@ -1,9 +1,14 @@
 import Auth from './services/auth';
 import DB from './services/db';
+import Schedule from './services/schedule';
 import Utils from './utils/validators';
 import Modal from './components/Modal';
 import Toast from './components/Toast';
 import Form from './components/Form';
+import AppointmentModal from './components/AppointmentModal';
+import PatientModal from './components/PatientModal';
+import PatientHistory from './components/PatientHistory';
+import DoctorManager from './components/DoctorManager';
 import type { User, Appointment } from './types';
 
 /**
@@ -42,20 +47,102 @@ const AppState: AppStateInterface = {
 // ========================================
 
 const App = {
+    /* =========================================================================
+       PATIENTS PAGE
+       ========================================================================= */
+    loadPatients(filter = '') {
+        const container = document.querySelector('.patients-grid');
+        if (!container) return;
+
+        // Ensure we are on patients page or container exists
+        const patients = DB.users.findAll().filter((u: User) => u.role === 'paciente');
+
+        let filteredPatients = patients;
+        if (filter) {
+            const term = filter.toLowerCase();
+            filteredPatients = patients.filter((p: User) =>
+                (p.name && p.name.toLowerCase().includes(term)) ||
+                (p.email && p.email.toLowerCase().includes(term)) ||
+                (p.cpf && p.cpf.includes(term)) ||
+                (p.patient_details?.insurance_plan && p.patient_details.insurance_plan.toLowerCase().includes(term))
+            );
+        }
+
+        if (filteredPatients.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+                    <p style="color: var(--color-gray-500);">Nenhum paciente encontrado.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filteredPatients.map((patient: User) => {
+            const initials = patient.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+
+            // Mock data for display if details missing
+            const plan = patient.patient_details?.insurance_plan || 'Particular';
+            const lastVisit = '15/01/2026'; // Mocked for now, implies DB relation
+            const totalVisits = '3'; // Mocked
+
+            return `
+            <div class="patient-card">
+                <div class="patient-header">
+                    <div class="patient-avatar">${initials}</div>
+                    <div class="patient-info">
+                        <h3 class="patient-name">${patient.name}</h3>
+                        <p class="patient-cpf">${patient.cpf || 'CPF não informado'}</p>
+                    </div>
+                </div>
+                <div class="patient-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Convênio</span>
+                        <span class="detail-value">${plan}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Última consulta</span>
+                        <span class="detail-value">${lastVisit}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Consultas</span>
+                        <span class="detail-value">${totalVisits} realizadas</span>
+                    </div>
+                </div>
+                <div class="patient-actions">
+                    <button class="btn-secondary-small" onclick="App.openPatientHistory('${patient.id}')">Ver Prontuário</button>
+                    <button class="btn-secondary-small" onclick="App.openNewAppointmentModal('${patient.id}')">Agendar</button>
+                </div>
+            </div>
+            `;
+        }).join('');
+    },
+
+    setupPatientSearch() {
+        const searchInput = document.querySelector('#patientsPage .search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e: any) => {
+                this.loadPatients(e.target.value);
+            });
+        }
+    },
+
+    /* =========================================================================
+       DOCTORS PAGE (Placeholder for Phase 3)
+       ========================================================================= */
     Modal,
     Toast,
     Form,
 
     init() {
-        console.log('🏥 MedClinic - Inicializando aplicação...');
-
-        // Init Components
+        // Initialize DBComponents
         Modal.init();
         Toast.init();
 
-        // LIMPAR localStorage para sempre começar no login (modo dev)
-        localStorage.removeItem('medclinic_user');
-        console.log('🔄 localStorage limpo - sempre inicia no login');
+        // Initialize DB
+        DB.init();
+
+        // Clear previous session/state for debugging/demo purposes
+        // localStorage.removeItem('medclinic_session');
 
         // Setup event listeners PRIMEIRO (antes de mostrar qualquer coisa)
         this.setupEventListeners();
@@ -73,72 +160,64 @@ const App = {
     },
 
     setupEventListeners() {
-        console.log('📌 Configurando event listeners...');
-
         // Login form
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
-            console.log('✅ Login form encontrado');
-            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
-        } else {
-            console.log('❌ Login form NÃO encontrado');
+            loginForm.addEventListener('submit', async (e) => this.handleLogin(e));
         }
 
         // Password toggle
-        const passwordToggle = document.querySelector('.password-toggle');
-        if (passwordToggle) {
-            passwordToggle.addEventListener('click', () => this.togglePassword());
+        const togglePassword = document.getElementById('togglePassword');
+        const loginPassword = document.getElementById('loginPassword') as HTMLInputElement;
+
+        if (togglePassword && loginPassword) {
+            togglePassword.addEventListener('click', () => {
+                const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                loginPassword.setAttribute('type', type);
+
+                // Update icon
+                togglePassword.innerHTML = type === 'password'
+                    ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>'
+                    : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            });
         }
 
-        // Show/Hide test users dropdown
+        // --- DEV ONLY: Test Users ---
+        // Fill login form with test user data
         const showTestUsers = document.getElementById('showTestUsers');
+        const testUserItems = document.querySelectorAll('.test-user-item');
         const testUsersDropdown = document.getElementById('testUsersDropdown');
 
         if (showTestUsers && testUsersDropdown) {
-            console.log('✅ Botão de usuários de teste encontrado');
             showTestUsers.addEventListener('click', () => {
-                console.log('🖱️ Clicou em Ver usuários de teste');
                 const isVisible = testUsersDropdown.style.display === 'block';
                 testUsersDropdown.style.display = isVisible ? 'none' : 'block';
-                console.log('👁️ Dropdown agora está:', testUsersDropdown.style.display);
             });
-        } else {
-            console.log('❌ Botão ou dropdown de usuários NÃO encontrado');
         }
 
         // Test user items - auto-fill and close dropdown
-        const testUserItems = document.querySelectorAll('.test-user-item');
-        console.log(`📋 Encontrados ${testUserItems.length} usuários de teste`);
-
         testUserItems.forEach((item, index) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log(`🖱️ Clicou no usuário ${index + 1}`);
 
                 const target = e.currentTarget as HTMLElement;
                 const email = target.getAttribute('data-email');
                 const password = target.getAttribute('data-password');
-
-                console.log('📧 Email:', email);
-                console.log('🔑 Senha:', password);
 
                 const emailInput = document.getElementById('loginEmail') as HTMLInputElement;
                 const passwordInput = document.getElementById('loginPassword') as HTMLInputElement;
 
                 if (emailInput && email) {
                     emailInput.value = email;
-                    console.log('✅ Email preenchido');
                 }
 
                 if (passwordInput && password) {
                     passwordInput.value = password;
-                    console.log('✅ Senha preenchida');
                 }
 
                 // Close dropdown after selection
                 if (testUsersDropdown) {
                     testUsersDropdown.style.display = 'none';
-                    console.log('✅ Dropdown fechado');
                 }
 
                 // Visual feedback
@@ -207,7 +286,6 @@ const App = {
 
     async handleLogin(e: Event) {
         e.preventDefault();
-        console.log('🔐 Tentando fazer login...');
 
         const emailInput = document.getElementById('loginEmail') as HTMLInputElement;
         const passwordInput = document.getElementById('loginPassword') as HTMLInputElement;
@@ -220,7 +298,6 @@ const App = {
 
         try {
             const result = await Auth.login(email, password);
-            console.log('✅ Login bem-sucedido!');
             errorDiv.textContent = '';
             errorDiv.style.display = 'none';
             AppState.currentUser = result.user; // Update local state
@@ -228,8 +305,7 @@ const App = {
             this.updateUserUI();
             this.navigate('home');
         } catch (error: any) {
-            console.log('❌ Login falhou:', error.message);
-            errorDiv.textContent = error.message || 'Erro desconhecido';
+            this.showToast('error', 'Erro ao fazer login', error.message || 'Erro desconhecido');
             errorDiv.style.display = 'block';
         }
     },
@@ -370,22 +446,21 @@ const App = {
     },
 
     loadPageData(page: string) {
-        switch (page) {
-            case 'home':
-                this.loadDashboard();
-                break;
-            case 'appointments':
-                this.loadAppointments();
-                break;
-            case 'patients':
-                this.loadPatients();
-                break;
-            case 'doctors':
-                this.loadDoctors();
-                break;
-            case 'profile':
-                this.loadProfile();
-                break;
+        // Setup specific page logic
+        if (page === 'appointments') {
+            this.loadAppointments();
+            // Assuming setupAppointmentFilters() exists or will be added
+            // this.setupAppointmentFilters();
+        } else if (page === 'home') {
+            this.loadDashboard();
+        } else if (page === 'patients') {
+            this.loadPatients();
+            // Assuming setupPatientSearch() exists or will be added
+            this.setupPatientSearch();
+        } else if (page === 'doctors') {
+            DoctorManager.renderList();
+        } else if (page === 'profile') {
+            this.loadProfile();
         }
     },
 
@@ -394,7 +469,24 @@ const App = {
         const container = document.getElementById('upcomingAppointments');
         if (!container) return;
 
-        const userAppointments = this.getUpcomingAppointments();
+        const userAppointmentsRaw = this.getUpcomingAppointments();
+
+        // Enrich data
+        const userAppointments = userAppointmentsRaw.map((apt: any) => {
+            // Aceita patientId (novo) ou patient_id (legado)
+            const pId = apt.patientId || apt.patient_id;
+            const dId = apt.doctorId || apt.professional_id;
+
+            const patient = DB.users.findById(pId);
+            const doctor = DB.users.findById(dId);
+
+            return {
+                ...apt,
+                patientName: patient?.name || 'Desconhecido',
+                doctorName: doctor?.name || 'Desconhecido',
+                specialty: doctor?.professional_details?.specialty || 'Geral'
+            };
+        });
 
         if (userAppointments.length === 0) {
             container.innerHTML = `
@@ -431,9 +523,9 @@ const App = {
         const today = new Date().toISOString().split('T')[0];
 
         return DB.appointments.findAll().filter((apt: any) => {
-            if (user.role === 'health_professional') {
+            if (user.role === 'medico') {
                 return apt.doctorId === user.id && apt.date >= today;
-            } else if (user.role === 'patient') {
+            } else if (user.role === 'paciente') {
                 return apt.patientId === user.id && apt.date >= today;
             }
             return apt.date >= today; // Admin/Recepcionista vê tudo
@@ -441,34 +533,131 @@ const App = {
     },
 
     loadAppointments() {
-        console.log('Loading appointments page...');
-        // TODO: Implementar listagem completa de consultas
+        const container = document.getElementById('appointmentsList');
+        if (!container) return;
+
+        // Limpar loading
+        container.innerHTML = '';
+
+        // Obter filtros (futuro: ler dos inputs)
+        const allAppointments = DB.appointments.findAll();
+
+        // Simular join com users e cast para tipos corretos
+        const enrichedAppointments = allAppointments.map((apt: any): Appointment & { patientName: string; doctorName: string; specialty: string } => {
+            const patient = DB.users.findById(apt.patientId);
+            const doctor = DB.users.findById(apt.doctorId);
+            return {
+                ...apt,
+                patientName: patient?.name || 'Desconhecido',
+                doctorName: doctor?.name || 'Desconhecido',
+                specialty: doctor?.professional_details?.specialty || 'Geral'
+            };
+        });
+
+        // Ordenar por data/hora descrescente
+        enrichedAppointments.sort((a: any, b: any) => {
+            return new Date(`${b.date}T${b.time}`).getTime() - new Date(`${a.date}T${a.time}`).getTime();
+        });
+
+        if (enrichedAppointments.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p>Nenhuma consulta encontrada.</p>
+                </div>
+            `;
+            return;
+        }
+
+        enrichedAppointments.forEach((apt: any) => {
+            const row = document.createElement('div');
+            row.className = 'table-row';
+
+            const isMedico = AppState.currentUser?.role === 'medico';
+            const primaryName = isMedico ? apt.patientName : apt.doctorName;
+            const secondaryName = isMedico ? 'Paciente' : apt.specialty;
+
+            row.innerHTML = `
+                <div class="td">
+                    <div class="user-info">
+                        <div class="avatar-small">${primaryName.charAt(0)}</div>
+                        <div>
+                            <span class="name">${primaryName}</span>
+                            <span class="sub-text">${secondaryName}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="td">
+                    <span class="date">${this.formatDate(apt.date)}</span>
+                    <span class="time">${apt.time}</span>
+                </div>
+                <div class="td">
+                    <span class="type">${apt.type === 'online' ? 'Online' : 'Presencial'}</span>
+                    <span class="sub-text">${apt.type}</span>
+                </div>
+                <div class="td">
+                    <span class="status-badge ${apt.status}">${this.getStatusLabel(apt.status)}</span>
+                </div>
+                <div class="td actions">
+                    ${apt.status === 'scheduled' ? `
+                        <button class="icon-btn danger cancel-btn" title="Cancelar">
+                            ✕
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+
+            // Event listeners para ações
+            const cancelBtn = row.querySelector('.cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => this.handleCancelAppointment(apt.id));
+            }
+
+            container.appendChild(row);
+        });
     },
 
-    loadPatients() {
-        console.log('Loading patients page...');
-        // TODO: Implementar listagem de pacientes
+    getStatusLabel(status: string) {
+        const map: Record<string, string> = {
+            'scheduled': 'Agendada',
+            'confirmed': 'Confirmada',
+            'completed': 'Concluída',
+            'cancelled': 'Cancelada',
+            'cancelled_by_patient': 'Canc. p/ Paciente',
+            'cancelled_by_clinic': 'Canc. p/ Clínica'
+        };
+        return map[status] || status;
     },
+
+    async handleCancelAppointment(id: number) {
+        if (!confirm('Tem certeza que deseja cancelar esta consulta?')) return;
+
+        try {
+            await Schedule.cancelAppointment(id, 'cancelled_by_clinic', 'admin'); // Arguments fixed
+            Toast.success('Consulta cancelada com sucesso');
+            this.loadAppointments();
+            this.loadDashboard();
+        } catch (error: any) {
+            Toast.error(error.message);
+        }
+    },
+
+
 
     loadDoctors() {
-        console.log('Loading doctors page...');
-        // TODO: Implementar listagem de médicos
+        DoctorManager.renderList();
     },
 
     loadProfile() {
-        console.log('Loading profile page...');
         // TODO: Implementar página de perfil
     },
 
     handleQuickAction(action: string) {
-        console.log('Quick action:', action);
-
         switch (action) {
             case 'new-appointment':
-                this.showToast('info', 'Novo Agendamento', 'Funcionalidade em desenvolvimento');
+                AppointmentModal.open();
                 break;
             case 'new-patient':
-                this.showToast('info', 'Cadastro de Paciente', 'Funcionalidade em desenvolvimento');
+                PatientModal.open();
                 break;
             case 'search-records':
                 this.showToast('info', 'Buscar Prontuário', 'Funcionalidade em desenvolvimento');
@@ -477,6 +666,18 @@ const App = {
                 this.showToast('info', 'Relatórios', 'Funcionalidade em desenvolvimento');
                 break;
         }
+    },
+
+    openNewPatientModal() {
+        PatientModal.open();
+    },
+
+    openPatientHistory(patientId: string) {
+        PatientHistory.render(parseInt(patientId));
+    },
+
+    closePatientHistory() {
+        PatientHistory.back();
     },
 
     formatDate(dateString: string) {

@@ -38,10 +38,8 @@ const Auth = {
         return {
             success: true,
             user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role
+                ...user,
+                avatar: user.avatar || user.name.substring(0, 2).toUpperCase()
             },
             message: 'Login realizado com sucesso'
         };
@@ -119,11 +117,8 @@ const Auth = {
     _saveSession(user, token) {
         const session = {
             user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                avatar: user.name.substring(0, 2).toUpperCase()
+                ...user,
+                avatar: user.avatar || user.name.substring(0, 2).toUpperCase()
             },
             token: token,
             created_at: Date.now()
