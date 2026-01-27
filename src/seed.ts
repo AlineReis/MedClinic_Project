@@ -63,7 +63,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Maria Silva',
             email: 'maria@email.com',
-            password: 'senha123',
+            password: 'patient',
             role: 'patient',
             cpf: '12345678901',
             phone: '11987654321'
@@ -71,7 +71,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'João Santos',
             email: 'joao.santos@email.com',
-            password: 'senha123',
+            password: 'patient',
             role: 'patient',
             cpf: '98765432100',
             phone: '11912345678'
@@ -79,7 +79,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Dr. João Cardiologista',
             email: 'joao@clinica.com',
-            password: 'medico123',
+            password: 'health_professional',
             role: 'health_professional',
             cpf: '11122233344',
             phone: '1133334444'
@@ -87,7 +87,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Dra. Ana Psicóloga',
             email: 'ana@clinica.com',
-            password: 'medico123',
+            password: 'health_professional',
             role: 'health_professional',
             cpf: '55566677788',
             phone: '1144445555'
@@ -95,7 +95,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Dr. Carlos Nutricionista',
             email: 'carlos@clinica.com',
-            password: 'medico123',
+            password: 'health_professional',
             role: 'health_professional',
             cpf: '99988877766',
             phone: '1155556666'
@@ -103,7 +103,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Paula Recepcionista',
             email: 'paula@clinica.com',
-            password: 'recepcao123',
+            password: 'receptionist',
             role: 'receptionist',
             cpf: '33344455566',
             phone: '1166667777'
@@ -111,7 +111,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Roberto Lab Tech',
             email: 'roberto@clinica.com',
-            password: 'labtech123',
+            password: 'lab_tech',
             role: 'lab_tech',
             cpf: '77788899900',
             phone: '1177778888'
@@ -119,7 +119,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'Admin Clínica',
             email: 'admin@clinica.com',
-            password: 'admin123',
+            password: 'clinic_admin',
             role: 'clinic_admin',
             cpf: '00011122233',
             phone: '1188889999'
@@ -127,7 +127,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         {
             name: 'System Admin',
             email: 'sysadmin@medclinic.com',
-            password: 'sysadmin123',
+            password: 'system_admin',
             role: 'system_admin',
             cpf: '44455566677',
             phone: '1199990000'
