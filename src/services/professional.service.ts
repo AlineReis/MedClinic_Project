@@ -50,7 +50,7 @@ export class ProfessionalService {
     private readonly availabilityRepository: AvailabilityRepository,
     private readonly appointmentRepository: AppointmentRepository,
     private readonly commissionRepository: CommissionRepository,
-  ) {}
+  ) { }
 
   async register(
     userData: User,
@@ -98,7 +98,7 @@ export class ProfessionalService {
     } catch (error) {
       console.error("Registration failed, rolling back...", error);
       if (userId) {
-        await this.usersRepository.delete(userId);
+        await this.usersRepository.delete(userId, "system_admin");
       }
       throw error;
     }
