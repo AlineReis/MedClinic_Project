@@ -5,47 +5,63 @@ import { ProfessionalService } from "../services/professional.service.js";
 
 class FakeProfessionalService extends ProfessionalService {
   constructor() {
-    super({} as any, {} as any, {} as any, {} as any);
+    super({} as any, {} as any, {} as any, {} as any, {} as any);
   }
 
   public override async listProfessionals(
     filters: { specialty?: string; name?: string },
     page: number,
-    pageSize: number
+    pageSize: number,
   ) {
     if (filters.name === "Gregory") {
-        return [
-             { id: 1, name: "Dr. Gregory House", specialty: "Diagnostic", crm: "12345" }
-        ];
+      return [
+        {
+          id: 1,
+          name: "Dr. Gregory House",
+          specialty: "Diagnostic",
+          crm: "12345",
+        },
+      ];
     }
     return [
-      { id: 1, name: "Dr. Gregory House", specialty: "Diagnostic", crm: "12345" },
+      {
+        id: 1,
+        name: "Dr. Gregory House",
+        specialty: "Diagnostic",
+        crm: "12345",
+      },
       { id: 2, name: "Dr. James Wilson", specialty: "Oncology", crm: "67890" },
     ];
   }
 
-  public override async getAvailability(professionalId: number, daysAhead: number) {
-     if (professionalId === 999) {
-         throw new Error("Professional not found");
-     }
-     return [
+  public override async getAvailability(
+    professionalId: number,
+    daysAhead: number,
+  ) {
+    if (professionalId === 999) {
+      throw new Error("Professional not found");
+    }
+    return [
       { date: "2024-02-01", time: "08:00", is_available: true },
       { date: "2024-02-01", time: "09:00", is_available: false },
     ];
   }
-  public override async createAvailability(professionalId: number, slots: any[]) {
-      // Simples validação no mock
-      for (const slot of slots) {
-        if (slot.start_time >= slot.end_time) {
-            throw new Error('Invalid: Start time must be before end time');
-        }
+  public override async createAvailability(
+    professionalId: number,
+    slots: any[],
+  ) {
+    // Simples validação no mock
+    for (const slot of slots) {
+      if (slot.start_time >= slot.end_time) {
+        throw new Error("Invalid: Start time must be before end time");
       }
-      return slots.map(slot => ({
-          id: 123,
-          professional_id: professionalId,
-          ...slot,
-          is_active: 1
-      }));
+    }
+    return slots.map(slot => ({
+      id: 123,
+      professional_id: professionalId,
+      ...slot,
+      is_active: 1,
+    }));
   }
 }
 
@@ -76,7 +92,9 @@ describe("Professional Routes Integration", () => {
   });
 
   it("GET /professionals/:id/availability returns slots", async () => {
-    const response = await request(app).get("/professionals/1/availability?days_ahead=3");
+    const response = await request(app).get(
+      "/professionals/1/availability?days_ahead=3",
+    );
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(2);
     expect(response.body[0].time).toBe("08:00");
@@ -89,18 +107,20 @@ describe("Professional Routes Integration", () => {
   });
 
   it("GET /professionals/:id/availability handles service errors", async () => {
-      const response = await request(app).get("/professionals/999/availability");
-      expect(response.status).toBe(500);
-      expect(response.body.error).toBe("Professional not found");
+    const response = await request(app).get("/professionals/999/availability");
+    expect(response.status).toBe(500);
+    expect(response.body.error).toBe("Professional not found");
   });
 
   it("POST /professionals/:id/availability creates new slots (batch)", async () => {
-    const response = await request(app).post("/professionals/1/availability").send({
+    const response = await request(app)
+      .post("/professionals/1/availability")
+      .send({
         availabilities: [
-            { day_of_week: 1, start_time: "08:00", end_time: "12:00" },
-            { day_of_week: 2, start_time: "14:00", end_time: "18:00" }
-        ]
-    });
+          { day_of_week: 1, start_time: "08:00", end_time: "12:00" },
+          { day_of_week: 2, start_time: "14:00", end_time: "18:00" },
+        ],
+      });
     expect(response.status).toBe(201);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body).toHaveLength(2);
@@ -108,11 +128,13 @@ describe("Professional Routes Integration", () => {
   });
 
   it("POST /professionals/:id/availability returns 400 for invalid data in batch", async () => {
-      const response = await request(app).post("/professionals/1/availability").send({
-          availabilities: [
-            { day_of_week: 1, start_time: "12:00", end_time: "08:00" } // Invalid
-          ]
+    const response = await request(app)
+      .post("/professionals/1/availability")
+      .send({
+        availabilities: [
+          { day_of_week: 1, start_time: "12:00", end_time: "08:00" }, // Invalid
+        ],
       });
-      expect(response.status).toBe(400); 
+    expect(response.status).toBe(400);
   });
 });
