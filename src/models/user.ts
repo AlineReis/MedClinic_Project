@@ -19,6 +19,9 @@ export interface User {
   role: UserRole;
   cpf: string;
   phone?: string;
+
+  clinic_id?: number | null;
+
   created_at?: string;
   updated_at?: string | null;
 }
@@ -29,4 +32,4 @@ export type UserWithDetails = User & {
 
 export type UserWithoutPassword = Omit<User, "password">;
 export type CreateUserPayload = Omit<User, "id" | "created_at" | "updated_at">;
-export type AuthResult = Pick<User, "id" | "name" | "email" | "role">;
+export type AuthResult = Pick<User, "id" | "name" | "email" | "role" | "clinic_id">;
