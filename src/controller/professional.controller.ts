@@ -62,4 +62,31 @@ export class ProfessionalController {
        res.status(500).json({ error: error.message });
     }
   }
+  
+  public createAvailability = async (req: Request, res: Response) => {
+    try {
+       const { id } = req.params;
+       const { day_of_week, start_time, end_time } = req.body;
+       
+       const professionalId = Number(id);
+       if (!professionalId || isNaN(professionalId)) {
+        return res.status(400).json({ error: 'Invalid ID' });
+       }
+
+       if (day_of_week === undefined || !start_time || !end_time) {
+           return res.status(400).json({ error: 'Missing required fields: day_of_week, start_time, end_time' });
+       }
+
+       const result = await this.professionalService.createAvailability(professionalId, {
+           day_of_week,
+           start_time,
+           end_time
+       });
+
+       res.status(201).json(result);
+    } catch (error: any) {
+       const status = error.message.includes('Invalid') || error.message.includes('required') ? 400 : 500;
+       res.status(status).json({ error: error.message });
+    }
+  }
 }

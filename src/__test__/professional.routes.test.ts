@@ -33,6 +33,17 @@ class FakeProfessionalService extends ProfessionalService {
       { date: "2024-02-01", time: "09:00", is_available: false },
     ];
   }
+  public override async createAvailability(professionalId: number, slot: any) {
+      if (slot.start_time >= slot.end_time) {
+          throw new Error('Invalid: Start time must be before end time');
+      }
+      return {
+          id: 123,
+          professional_id: professionalId,
+          ...slot,
+          is_active: 1
+      };
+  }
 }
 
 describe("Professional Routes Integration", () => {
@@ -44,6 +55,7 @@ describe("Professional Routes Integration", () => {
 
   app.get("/professionals", controller.list);
   app.get("/professionals/:id/availability", controller.getAvailability);
+  app.post("/professionals/:id/availability", controller.createAvailability);
 
   it("GET /professionals returns a list of professionals", async () => {
     const response = await request(app).get("/professionals");
@@ -77,5 +89,25 @@ describe("Professional Routes Integration", () => {
       const response = await request(app).get("/professionals/999/availability");
       expect(response.status).toBe(500);
       expect(response.body.error).toBe("Professional not found");
+  });
+
+  it("POST /professionals/:id/availability creates a new slot", async () => {
+    const response = await request(app).post("/professionals/1/availability").send({
+        day_of_week: 1,
+        start_time: "08:00",
+        end_time: "12:00"
+    });
+    expect(response.status).toBe(201);
+    expect(response.body.id).toBe(123);
+    expect(response.body.professional_id).toBe(1);
+  });
+
+  it("POST /professionals/:id/availability returns 400 for invalid data", async () => {
+      const response = await request(app).post("/professionals/1/availability").send({
+          day_of_week: 1,
+          start_time: "12:00",
+          end_time: "08:00" // Invalid range
+      });
+      expect(response.status).toBe(400); 
   });
 });

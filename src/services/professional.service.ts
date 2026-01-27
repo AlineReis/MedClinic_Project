@@ -153,6 +153,37 @@ export class ProfessionalService {
     return availableSlots.filter(s => s.is_available); // Retorna só os livres (Card 4.3.3 pede is_available, mas geralmente frontend quer só os livres. Vou retornar estrutura completa se precisar)
   }
 
+  async createAvailability(professionalId: number, slot: {
+    day_of_week: number;
+    start_time: string;
+    end_time: string;
+  }): Promise<Availability> {
+      if (slot.start_time >= slot.end_time) {
+          throw new Error('Start time must be before end time');
+      }
+
+      const allRules = await this.availabilityRepository.findByProfessionalId(professionalId);
+      const dayRules = allRules.filter(r => r.day_of_week === slot.day_of_week);
+
+      for (const rule of dayRules) {
+          if (slot.start_time < rule.end_time && slot.end_time > rule.start_time) {
+              throw new Error(`Time overlap with existing rule: ${rule.start_time} - ${rule.end_time}`);
+          }
+      }
+
+      const id = await this.availabilityRepository.create({
+          ...slot,
+          professional_id: professionalId
+      });
+      
+      return {
+          id,
+          professional_id: professionalId,
+          ...slot,
+          is_active: 1
+      };
+  }
+
   async listProfessionals(filters: { specialty?: string; name?: string }, page: number = 1, pageSize: number = 10) {
     const limit = pageSize;
     const offset = (page - 1) * pageSize;

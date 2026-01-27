@@ -24,5 +24,6 @@ router.post('/', professionalController.register);
 // Rota de listagem com filtros (query params: ?specialty=x&name=y&page=1)
 router.get('/', professionalController.list);
 router.get('/:id/availability', professionalController.getAvailability);
+router.post('/:id/availability', professionalController.createAvailability);
 
 export { router as professionalRoutes };

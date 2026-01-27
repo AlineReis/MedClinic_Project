@@ -3,13 +3,16 @@ import { Availability } from '../models/professional.model.js';
 import { Appointment, PaginatedResult } from '../models/appointment.js';
 
 const mockFindByProfessionalId = jest.fn<(id: number) => Promise<Availability[]>>();
+const mockCreate = jest.fn<(availability: any) => Promise<number>>();
 const mockFindAll = jest.fn<(filters: any, pagination: any) => Promise<PaginatedResult<Appointment>>>();
 
 jest.unstable_mockModule("../repository/availability.repository.js", () => ({
     AvailabilityRepository: jest.fn().mockImplementation(() => ({
-        findByProfessionalId: mockFindByProfessionalId
+        findByProfessionalId: mockFindByProfessionalId,
+        create: mockCreate
     }))
 }));
+
 
 jest.unstable_mockModule("../repository/appointment.repository.js", () => ({
     AppointmentRepository: jest.fn().mockImplementation(() => ({
@@ -97,6 +100,48 @@ describe("ProfessionalService - Availability Logic", () => {
 
         expect(times).toContain("08:00");
         expect(times).not.toContain("08:50");
+    });
+
+
+    describe("createAvailability", () => {
+        it("should create availability when valid", async () => {
+             mockFindByProfessionalId.mockResolvedValue([]); // No existing rules
+             mockCreate.mockResolvedValue(123);
+
+             const result = await service.createAvailability(1, {
+                 day_of_week: 1,
+                 start_time: "08:00",
+                 end_time: "12:00"
+             });
+
+             expect(result.id).toBe(123);
+             expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
+                 professional_id: 1,
+                 start_time: "08:00"
+             }));
+        });
+
+        it("should throw error if start_time >= end_time", async () => {
+            await expect(service.createAvailability(1, {
+                day_of_week: 1,
+                start_time: "10:00",
+                end_time: "09:00"
+            })).rejects.toThrow("Start time must be before end time");
+        });
+
+        it("should throw error if there is an overlap", async () => {
+            // Existing rule: 08:00 - 12:00
+            mockFindByProfessionalId.mockResolvedValue([{
+                id: 1, professional_id: 1, day_of_week: 1, start_time: "08:00", end_time: "12:00", is_active: 1
+            }]);
+
+            // Try to add: 10:00 - 14:00 (Overlaps!)
+            await expect(service.createAvailability(1, {
+                day_of_week: 1,
+                start_time: "10:00",
+                end_time: "14:00"
+            })).rejects.toThrow(/overlap/);
+        });
     });
 });
 
