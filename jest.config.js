@@ -3,6 +3,13 @@ export default {
   preset: "ts-jest/presets/default-esm",
   testEnvironment: "node",
   extensionsToTreatAsEsm: [".ts"],
+
+  //roda só os testes TypeScript da pasta src
+  testMatch: ["<rootDir>/src/**/__test__/**/*.test.ts"],
+
+  //ignora qualquer coisa compilada
+  testPathIgnorePatterns: ["/node_modules/", "/dist/"],
+
   moduleNameMapper: {
     // Use string keys without the /.../ wrappers
     "^@config/(.*)\\.js$": "<rootDir>/src/config/$1",
