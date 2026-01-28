@@ -108,31 +108,7 @@
         </p>
     </div>
 
-    <script>
-        document.getElementById('register-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            // In a real app, this would call an API
-            // For the prototype, we redirect to onboarding
-            window.location.href = 'onboarding.html';
-        });
 
-        // CPF Mask
-        document.getElementById('cpf').addEventListener('input', function (e) {
-            let v = e.target.value.replace(/\D/g, '');
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            e.target.value = v;
-        });
-
-        // Phone Mask
-        document.getElementById('phone').addEventListener('input', function (e) {
-            let v = e.target.value.replace(/\D/g, '');
-            v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-            v = v.replace(/(\d{5})(\d)/, '$1-$2');
-            e.target.value = v;
-        });
-    </script>
 
 </body>
 

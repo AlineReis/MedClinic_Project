@@ -10,12 +10,14 @@ module.exports = (env, argv) => {
     entry: {
       main: "./src/index.ts",
       login: "./src/pages/login.ts",
+      patient_dashboard: "./src/pages/patient-dashboard.ts",
+      register: "./src/pages/register.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "js/[name].[contenthash:8].js",
       clean: true,
-      publicPath: "",
+      publicPath: "/",
     },
     module: {
       rules: [
@@ -45,6 +47,18 @@ module.exports = (env, argv) => {
         chunks: ["login"],
         publicPath: "/",
       }),
+      new HtmlWebpackPlugin({
+        template: "./pages/patient-dashboard.html",
+        filename: "pages/patient-dashboard.html",
+        chunks: ["patient_dashboard"], // Load specific bundle
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/register.html",
+        filename: "pages/register.html",
+        chunks: ["register"],
+        publicPath: "/",
+      }),
       new CopyWebpackPlugin({
         patterns: [
           {
@@ -55,7 +69,7 @@ module.exports = (env, argv) => {
             from: "pages",
             to: "pages",
             globOptions: {
-              ignore: ["**/login.html"],
+              ignore: ["**/login.html", "**/patient-dashboard.html", "**/register.html"],
             },
           },
           {
