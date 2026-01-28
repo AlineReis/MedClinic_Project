@@ -4,6 +4,8 @@ import { UserRepository } from '../repository/user.repository.js';
 import { PaymentMockService } from '../services/payment-mock.service.js';
 import { AppointmentService } from '../services/appointment.service.js';
 
+import { ResendEmailService } from '../services/email.service.js';
+
 import { Appointment } from '../models/appointment.js';
 import { Availability } from '../models/professional.model.js';
 import { User } from '../models/user.js';
@@ -16,6 +18,7 @@ jest.mock('../repository/appointment.repository.js');
 jest.mock('../repository/availability.repository.js');
 jest.mock('../repository/user.repository.js');
 jest.mock('../services/payment-mock.service.js');
+jest.mock('../services/email.service.js');
 
 
 describe('AppointmentService', () => {
@@ -24,6 +27,7 @@ describe('AppointmentService', () => {
     let availabilityRepositoryMock: jest.Mocked<AvailabilityRepository>;
     let userRepositoryMock: jest.Mocked<UserRepository>;
     let paymentMockServiceMock: jest.Mocked<PaymentMockService>;
+    let emailServiceMock: jest.Mocked<ResendEmailService>;
 
     beforeEach(() => {
         // Clear all mocks before each test
@@ -38,13 +42,15 @@ describe('AppointmentService', () => {
             findAll: jest.fn(),
             updateStatus: jest.fn(),
             cancel: jest.fn(),
-            updatePaymentStatus: jest.fn()
+            updatePaymentStatus: jest.fn(),
+            reschedule: jest.fn()
         } as unknown as jest.Mocked<AppointmentRepository>;
 
         availabilityRepositoryMock = {
             create: jest.fn(),
             findByProfessionalId: jest.fn(),
-            deleteByProfessionalId: jest.fn()
+            deleteByProfessionalId: jest.fn(),
+            isProfessionalAvailable: jest.fn()
         } as unknown as jest.Mocked<AvailabilityRepository>;
 
         userRepositoryMock = {
@@ -56,7 +62,11 @@ describe('AppointmentService', () => {
             processRefund: jest.fn()
         } as unknown as jest.Mocked<PaymentMockService>;
 
-        appointmentService = new AppointmentService(appointmentRepositoryMock, availabilityRepositoryMock, userRepositoryMock, paymentMockServiceMock);
+        emailServiceMock = {
+            send: jest.fn().mockImplementation(async () => {})
+        } as unknown as jest.Mocked<ResendEmailService>;
+
+        appointmentService = new AppointmentService(appointmentRepositoryMock, availabilityRepositoryMock, userRepositoryMock, paymentMockServiceMock, emailServiceMock);
     });
 
     describe('scheduleAppointment', () => {

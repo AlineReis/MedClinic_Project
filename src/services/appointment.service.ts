@@ -6,6 +6,8 @@ import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
 import { PaymentMockService } from "./payment-mock.service.js";
+import { ResendEmailService } from "./email.service.js";
+import { getAppointmentEmailHtml } from "../utils/email-templates.js";
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../utils/errors.js";
 
 export class AppointmentService {
@@ -13,7 +15,8 @@ export class AppointmentService {
         private appointmentRepository: AppointmentRepository,
         private availabilityRepository: AvailabilityRepository,
         private userRepository: UserRepository,
-        private paymentMockService: PaymentMockService
+        private paymentMockService: PaymentMockService,
+        private emailService: ResendEmailService
     ) { }
 
     async scheduleAppointment(data: Appointment, cardDetails?: any): Promise<{ id: number, invoice?: any, payment_status?: string, message?: string }> {
@@ -57,6 +60,26 @@ export class AppointmentService {
 
         // Criar agendamento (Status scheduled, Payment pending defaults logic in Repo)
         const appointmentId = await this.appointmentRepository.create(data);
+
+        // Enviar Email de Confirmação (Assíncrono - não trava o response)
+        // TODO: Mover para um Queue no futuro
+        if (patient && patient.email) {
+            const emailHtml = getAppointmentEmailHtml({
+                patientName: patient.name,
+                doctorName: professional.name, // Assumindo que professional tem name
+                date: data.date,
+                time: data.time,
+                type: data.type,
+                cancelLink: `https://medilux.com/appointments/${appointmentId}`, // Mock
+                confirmLink: `https://medilux.com/confirm?id=${appointmentId}`   // Mock
+            });
+
+            this.emailService.send({
+                to: patient.email,
+                subject: "Confirmação de Agendamento - MediLux 🏥",
+                html: emailHtml
+            }).catch(err => console.error("❌ Erro ao enviar email de confirmação:", err));
+        }
 
         // Process Payment if card details provided
         if (cardDetails) {
