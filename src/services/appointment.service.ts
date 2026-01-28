@@ -1,17 +1,78 @@
-import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams } from "../models/appointment.js";
-import { AppointmentRepository } from "../repository/appointment.repository.js";
-import { ValidationError, NotFoundError, ForbiddenError } from "../utils/errors.js";
+import { env } from "@config/config.js";
+import { isMinimumHoursInFuture, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours } from "utils/validators.js";
+import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams, type RescheduleAppointmentInput } from "../models/appointment.js";
 import { AuthResult } from "../models/user.js";
+import { AppointmentRepository } from "../repository/appointment.repository.js";
+import { AvailabilityRepository } from "../repository/availability.repository.js";
+import { UserRepository } from "../repository/user.repository.js";
+import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../utils/errors.js";
 
 export class AppointmentService {
-    constructor(private appointmentRepository: AppointmentRepository) { }
+    constructor(
+        private appointmentRepository: AppointmentRepository,
+        private availabilityRepository: AvailabilityRepository,
+        private userRepository: UserRepository
+    ) { }
 
     async scheduleAppointment(data: Appointment): Promise<number> {
+        // Validar existência do paciente
+        const patient = await this.userRepository.findById(data.patient_id);
+        if (!patient) {
+            throw new NotFoundError("Paciente não encontrado.");
+        }
+
+        // Validar existência do profissional
+        const professional = await this.userRepository.findById(data.professional_id);
+        if (!professional) {
+            throw new NotFoundError("Profissional não encontrado.");
+        }
+        if (professional.role !== 'health_professional') {
+            throw new ValidationError("O usuário informado não é um profissional de saúde.", "professional");
+        }
+
         // Validar data no futuro
         const appointmentDateTime = new Date(`${data.date}T${data.time}`);
         // Validacao simplificada, idealmente checar fusos
         if (appointmentDateTime < new Date()) {
             throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
+        }
+
+        // RN-01: Validar disponibilidade do profissional (horário deve estar em professional_availabilities)
+        const dayOfWeek = appointmentDateTime.getDay(); // 0 is Sunday, 1 is Monday...
+
+        const availabilities = await this.availabilityRepository.findByProfessionalId(data.professional_id);
+        const dailyAvailability = availabilities.filter(a => a.day_of_week === dayOfWeek);
+
+        if (dailyAvailability.length === 0) {
+            throw new ValidationError("O profissional não atende neste dia da semana.", "availability");
+        }
+
+        const isWithinSlot = dailyAvailability.some(slot => {
+            return data.time >= slot.start_time && data.time < slot.end_time;
+        });
+
+        if (!isWithinSlot) {
+            throw new ValidationError("O horário escolhido está fora do expediente do profissional.", "availability");
+        }
+
+        // RN-02: Antecedência mínima de 2h para agendamentos presenciais
+        if (data.type === 'presencial') {
+            const now = new Date();
+            const diffInMs = appointmentDateTime.getTime() - now.getTime();
+            const twoHoursInMs = 2 * 60 * 60 * 1000;
+
+            if (diffInMs < twoHoursInMs) {
+                throw new ValidationError("Agendamentos presenciais devem ser feitos com no mínimo 2 horas de antecedência.", "date");
+            }
+        }
+
+        // RN-03: Antecedência máxima de 90 dias
+        const now = new Date();
+        const diffInMsGeneric = appointmentDateTime.getTime() - now.getTime();
+        const ninetyDaysInMs = 90 * 24 * 60 * 60 * 1000;
+
+        if (diffInMsGeneric > ninetyDaysInMs) {
+            throw new ValidationError("Não é possível agendar consultas com mais de 90 dias de antecedência.", "date");
         }
 
         // Validar RN-04: Sem duplicação de agendamento para o mesmo paciente/profissional/dia
@@ -104,4 +165,78 @@ export class AppointmentService {
         // Pode adicionar regras de transição aqui
         await this.appointmentRepository.updatePaymentStatus(id, status);
     }
+
+	  public async reschedule(
+    input: RescheduleAppointmentInput,
+  ): Promise<Appointment> {
+    const { requesterId, requesterRole, appointmentId, newDate, newTime } =
+      input;
+    const appointment =
+      await this.appointmentRepository.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundError("Agendamento não encontrado");
+    }
+
+    if (requesterRole === "patient" && appointment.patient_id !== requesterId) {
+      throw new ForbiddenError(
+        "Você não tem permissão para reagendar este agendamento",
+      );
+    }
+    if (requesterRole === "health_professional") {
+      throw new ForbiddenError(
+        "Você não tem permissão para reagendar este agendamento",
+      );
+    }
+
+    if (!isValidDate(newDate) || !isValidTime(newTime)) {
+      throw new ValidationError("Data/hora inválidas", "date");
+    }
+    const dateTimeStr = `${newDate}T${newTime}:00`;
+    const appointmentDate = new Date(dateTimeStr);
+    if (!isMinimumHoursInFuture(appointmentDate, 0)) {
+      throw new ValidationError("Data não pode ser no passado", "date");
+    }
+    const MAX_BOOKING_DAYS = 90;
+
+    if (!isWithinDayRange(newDate, MAX_BOOKING_DAYS)) {
+      throw new ValidationError("Data acima do limite de 90 dias", "date");
+    }
+    if (
+      !isWithinMinimumHours(
+        newDate,
+        newTime,
+        appointment.type === "presencial" ? 2 : 1,
+      )
+    ) {
+      throw new ValidationError("Antecedência mínima não atingida", "date");
+    }
+
+    const available = await this.availabilityRepository.isProfessionalAvailable(
+      appointment.professional_id,
+      newDate,
+      newTime,
+    );
+    if (!available) {
+      throw new ConflictError("Horário indisponível", "time");
+    }
+
+    const isFreeReschedule = isMinimumHoursInFuture(new Date(`${appointment.date}T${appointment.time}:00`), env.RESCHEDULE_FREE_WINDOW_HOURS);
+    if (!isFreeReschedule) {
+      // TODO: Se o reagendamento for antes de 24 horas, cobrar R$ 30 de taxa
+      console.log("IMPLEMENTAR: Cobrança de taxa de R$ 30,00 gerada.");
+    }
+
+    await this.appointmentRepository.reschedule(
+      appointmentId,
+      newDate,
+      newTime,
+    );
+
+    return {
+      ...appointment,
+      date: newDate,
+      time: newTime,
+      payment_status: appointment.payment_status,
+    };
+  }
 }
