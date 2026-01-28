@@ -43,5 +43,5 @@ export interface IUserRepository {
       password: string;
     }>,
   ): Promise<void>;
-
+  deleteById(id: number): Promise<void>;
 }

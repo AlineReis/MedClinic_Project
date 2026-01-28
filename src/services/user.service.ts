@@ -301,14 +301,47 @@ export class UserService {
     return withoutPassword;
   }
 
-  async deleteUser(requester: RequesterUser, targetUserId: number): Promise<void> {
-    if (requester.role !== 'clinic_admin' && requester.role !== 'system_admin') {
-      throw new ForbiddenError("Apenas administradores podem deletar usuários.");
+  public async deleteUser(input: {
+    clinicId: number;
+    requester: RequesterUser;
+    targetUserId: number;
+  }) {
+    const { clinicId, requester, targetUserId } = input;
+
+    // permissão: admin ou system_admin
+    const allowed = ["clinic_admin", "system_admin"];
+    if (!allowed.includes(requester.role)) {
+      throw new ForbiddenError("Forbidden");
     }
-    const hasPending = await this.appointmentRepository.checkActiveAppointments(targetUserId);
+
+    // admin da clínica só pode atuar na própria clínica
+    if (requester.role === "clinic_admin") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    // não pode excluir o próprio usuário
+    if (requester.id === targetUserId) {
+      throw new ValidationError("Não é permitido excluir o próprio usuário");
+    }
+
+    // usuário existe?
+    const target = await this.userRepository.findById(targetUserId);
+    if (!target) {
+      throw new NotFoundError("Usuário não encontrado");
+    }
+
+    // agendamentos ativos
+    const hasPending =
+      await this.appointmentRepository.checkActiveAppointments(targetUserId);
     if (hasPending) {
-      throw new ValidationError("Não é possível deletar o usuário pois ele possui agendamentos ativos.");
+      throw new ValidationError(
+        "Não é possível deletar o usuário pois ele possui agendamentos ativos.",
+      );
     }
-    await this.userRepository.delete(targetUserId);
+
+    // deletar
+    await this.userRepository.deleteById(targetUserId);
   }
 }

@@ -221,4 +221,14 @@ export class UserRepository implements IUserRepository {
 
     await database.run(sql, [...values, userId]);
   }
+
+  async deleteById(id: number): Promise<void> {
+  const sql = `
+    UPDATE users
+    SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND deleted_at IS NULL
+  `;
+  await database.run(sql, [id]);
+}
+
 }
