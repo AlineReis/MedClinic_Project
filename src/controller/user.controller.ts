@@ -88,6 +88,7 @@ export class UserController {
   };
 
   public update = async (req: Request, res: Response, next: NextFunction) => {
+    //(próprio usuário pode atualizar nome/email)
     try {
       const clinicId = Number(req.params.clinic_id);
       const targetUserId = Number(req.params.id);
