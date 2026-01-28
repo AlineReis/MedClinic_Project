@@ -5,6 +5,7 @@ import {
   User,
   type CreateUserPayload,
   type UserWithDetails,
+  type UserRole,
 } from "../models/user.js";
 import { sanitizeCpf } from "../utils/validators.js";
 

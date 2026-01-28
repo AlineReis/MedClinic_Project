@@ -39,8 +39,13 @@ export type GetUserInput = {
   targetUserId: number;
 };
 
+import { AppointmentRepository } from "../repository/appointment.repository.js";
+
 export class UserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly appointmentRepository: AppointmentRepository
+  ) { }
 
   async registerPatient(
     userData: User,
@@ -298,25 +303,13 @@ export class UserService {
 
   public async deleteUser(input: {
     clinicId: number;
-    requester: { id: number; role: UserRole; clinic_id?: number | null };
+    requester: RequesterUser;
     targetUserId: number;
-  }): Promise<void> {
+  }) {
     const { clinicId, requester, targetUserId } = input;
 
-    if (!Number.isFinite(clinicId) || clinicId <= 0) {
-      throw new ValidationError("clinic_id inválido");
-    }
-
-    if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
-      throw new ValidationError("id inválido");
-    }
-
-    if (!requester) {
-      throw new AuthError("User not authenticated");
-    }
-
-    // só admin da clínica e admin do sistema
-    const allowed: UserRole[] = ["clinic_admin", "system_admin"];
+    // permissão: admin ou system_admin
+    const allowed = ["clinic_admin", "system_admin"];
     if (!allowed.includes(requester.role)) {
       throw new ForbiddenError("Forbidden");
     }
@@ -328,20 +321,27 @@ export class UserService {
       }
     }
 
-    // (opcional, mas recomendado) evitar deletar a si mesmo
+    // não pode excluir o próprio usuário
     if (requester.id === targetUserId) {
       throw new ValidationError("Não é permitido excluir o próprio usuário");
     }
 
-    // garante que usuário existe (e está ativo, já que findById filtra deleted_at)
+    // usuário existe?
     const target = await this.userRepository.findById(targetUserId);
     if (!target) {
       throw new NotFoundError("Usuário não encontrado");
     }
 
-    // se vocês quiserem restringir para não deletar system_admin:
-    // if (target.role === "system_admin") throw new ForbiddenError("Forbidden");
+    // agendamentos ativos
+    const hasPending =
+      await this.appointmentRepository.checkActiveAppointments(targetUserId);
+    if (hasPending) {
+      throw new ValidationError(
+        "Não é possível deletar o usuário pois ele possui agendamentos ativos.",
+      );
+    }
 
+    // deletar
     await this.userRepository.deleteById(targetUserId);
   }
 }

@@ -50,7 +50,7 @@ export class ProfessionalService {
     private readonly availabilityRepository: AvailabilityRepository,
     private readonly appointmentRepository: AppointmentRepository,
     private readonly commissionRepository: CommissionRepository,
-  ) {}
+  ) { }
 
   async register(
     userData: User,

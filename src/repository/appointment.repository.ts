@@ -159,14 +159,28 @@ export class AppointmentRepository {
       professionalId,
       date,
     ]);
-    return result ? result.count > 0 : false;
+
+    return (result?.count || 0) > 0;
+  }
+
+  // Check for active appointments for a user (either as patient or professional)
+  async checkActiveAppointments(userId: number): Promise<boolean> {
+    const sql = `
+             SELECT 1 FROM appointments
+             WHERE (patient_id = ? OR professional_id = ?)
+             AND status NOT IN ('cancelled_by_patient', 'cancelled_by_clinic', 'no_show', 'completed')
+             LIMIT 1
+        `;
+
+    const result = await database.queryOne(sql, [userId, userId]);
+    return !!result;
   }
 
   // Atualizar status
   async updateStatus(id: number, status: string): Promise<void> {
     const sql = `
-            UPDATE appointments
-            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            UPDATE appointments 
+            SET status = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE id = ?
         `;
     await database.run(sql, [status, id]);

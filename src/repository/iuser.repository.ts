@@ -3,6 +3,7 @@ import type {
   CreateUserPayload,
   User,
   UserWithDetails,
+  UserRole,
 } from "../models/user.js";
 
 export interface IUserRepository {
