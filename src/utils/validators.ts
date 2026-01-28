@@ -149,3 +149,8 @@ export const isWithinDayRange = (
 
   return targetDate >= todayUTC && targetDate <= limitDateUTC;
 };
+
+export const isValidId = (id: any): boolean => {
+  const num = Number(id);
+  return Number.isFinite(num) && num > 0;
+};

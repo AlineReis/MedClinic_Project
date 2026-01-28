@@ -44,8 +44,8 @@ import { AppointmentRepository } from "../repository/appointment.repository.js";
 export class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly appointmentRepository: AppointmentRepository
-  ) { }
+    private readonly appointmentRepository: AppointmentRepository,
+  ) {}
 
   async registerPatient(
     userData: User,
@@ -261,7 +261,13 @@ export class UserService {
       patch.email = email;
     }
 
-    if (typeof data?.phone === "string") patch.phone = data.phone.trim();
+    if (typeof data?.phone === "string") {
+      const phone = data.phone.trim();
+      if (!Validators.isValidPhone(phone)) {
+        throw new ValidationError("Invalid phone format");
+      }
+      patch.phone = phone;
+    }
 
     // Bloqueia role sempre (pela descrição que você comentou antes)
     if (data?.role !== undefined) {
