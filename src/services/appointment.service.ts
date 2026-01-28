@@ -1,10 +1,12 @@
-import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams } from "../models/appointment.js";
+import { env } from "@config/config.js";
+import { isMinimumHoursInFuture, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours } from "utils/validators.js";
+import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams, type RescheduleAppointmentInput } from "../models/appointment.js";
+import { AuthResult } from "../models/user.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
-import { ValidationError, NotFoundError, ForbiddenError } from "../utils/errors.js";
-import { AuthResult } from "../models/user.js";
 import { PaymentMockService } from "./payment-mock.service.js";
+import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../utils/errors.js";
 
 export class AppointmentService {
     constructor(
@@ -154,4 +156,78 @@ export class AppointmentService {
         // Pode adicionar regras de transição aqui
         await this.appointmentRepository.updatePaymentStatus(id, status);
     }
+
+	  public async reschedule(
+    input: RescheduleAppointmentInput,
+  ): Promise<Appointment> {
+    const { requesterId, requesterRole, appointmentId, newDate, newTime } =
+      input;
+    const appointment =
+      await this.appointmentRepository.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundError("Agendamento não encontrado");
+    }
+
+    if (requesterRole === "patient" && appointment.patient_id !== requesterId) {
+      throw new ForbiddenError(
+        "Você não tem permissão para reagendar este agendamento",
+      );
+    }
+    if (requesterRole === "health_professional") {
+      throw new ForbiddenError(
+        "Você não tem permissão para reagendar este agendamento",
+      );
+    }
+
+    if (!isValidDate(newDate) || !isValidTime(newTime)) {
+      throw new ValidationError("Data/hora inválidas", "date");
+    }
+    const dateTimeStr = `${newDate}T${newTime}:00`;
+    const appointmentDate = new Date(dateTimeStr);
+    if (!isMinimumHoursInFuture(appointmentDate, 0)) {
+      throw new ValidationError("Data não pode ser no passado", "date");
+    }
+    const MAX_BOOKING_DAYS = 90;
+
+    if (!isWithinDayRange(newDate, MAX_BOOKING_DAYS)) {
+      throw new ValidationError("Data acima do limite de 90 dias", "date");
+    }
+    if (
+      !isWithinMinimumHours(
+        newDate,
+        newTime,
+        appointment.type === "presencial" ? 2 : 1,
+      )
+    ) {
+      throw new ValidationError("Antecedência mínima não atingida", "date");
+    }
+
+    const available = await this.availabilityRepository.isProfessionalAvailable(
+      appointment.professional_id,
+      newDate,
+      newTime,
+    );
+    if (!available) {
+      throw new ConflictError("Horário indisponível", "time");
+    }
+
+    const isFreeReschedule = isMinimumHoursInFuture(new Date(`${appointment.date}T${appointment.time}:00`), env.RESCHEDULE_FREE_WINDOW_HOURS);
+    if (!isFreeReschedule) {
+      // TODO: Se o reagendamento for antes de 24 horas, cobrar R$ 30 de taxa
+      console.log("IMPLEMENTAR: Cobrança de taxa de R$ 30,00 gerada.");
+    }
+
+    await this.appointmentRepository.reschedule(
+      appointmentId,
+      newDate,
+      newTime,
+    );
+
+    return {
+      ...appointment,
+      date: newDate,
+      time: newTime,
+      payment_status: appointment.payment_status,
+    };
+  }
 }

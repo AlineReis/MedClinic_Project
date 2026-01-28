@@ -1,7 +1,8 @@
-import type { Request, Response, NextFunction } from "express";
-import { AppointmentService } from "../services/appointment.service.js";
+import type { UserRole } from "@models/user.js";
+import type { NextFunction, Request, Response } from "express";
 import { Appointment, AppointmentFilters, PaginationParams } from "../models/appointment.js";
-import { ValidationError, ForbiddenError } from "../utils/errors.js";
+import { AppointmentService } from "../services/appointment.service.js";
+import { ForbiddenError, ValidationError } from "../utils/errors.js";
 
 export class AppointmentController {
     constructor(private appointmentService: AppointmentService) { }
@@ -141,4 +142,29 @@ export class AppointmentController {
             next(error);
         }
     };
+
+    public reschedule = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const appointmentId = Number(req.params.id)
+            const appointment = await this.appointmentService.reschedule({
+                requesterId: req.user?.id ?? 0,
+                requesterRole: (req.user?.role as UserRole) ?? "patient",
+                appointmentId,
+                newDate: req.body.new_date,
+                newTime: req.body.new_time,
+            })
+
+            return res.status(200).json({
+                success: true,
+                appointment,
+                message: "Agendamento reagendado com sucesso",
+            })
+        } catch (error) {
+            return next(error)
+        }
+    }
 }

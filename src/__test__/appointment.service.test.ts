@@ -1,15 +1,15 @@
-import { AppointmentService } from '../services/appointment.service.js';
 import { AppointmentRepository } from '../repository/appointment.repository.js';
 import { AvailabilityRepository } from '../repository/availability.repository.js';
 import { UserRepository } from '../repository/user.repository.js';
 import { PaymentMockService } from '../services/payment-mock.service.js';
+import { AppointmentService } from '../services/appointment.service.js';
 
 import { Appointment } from '../models/appointment.js';
 import { Availability } from '../models/professional.model.js';
 import { User } from '../models/user.js';
 
-import { ValidationError, NotFoundError } from '../utils/errors.js';
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { NotFoundError, ValidationError } from '../utils/errors.js';
 
 // Mock types
 jest.mock('../repository/appointment.repository.js');
