@@ -7,7 +7,10 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === "production"
 
   return {
-    entry: "./src/index.ts",
+    entry: {
+      main: "./src/index.ts",
+      login: "./src/pages/login.ts",
+    },
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "js/[name].[contenthash:8].js",
@@ -34,6 +37,13 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: "./index.html",
         filename: "index.html",
+        chunks: ["main"],
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/login.html",
+        filename: "pages/login.html",
+        chunks: ["login"],
+        publicPath: "/",
       }),
       new CopyWebpackPlugin({
         patterns: [
@@ -41,11 +51,32 @@ module.exports = (env, argv) => {
             from: "assets",
             to: "assets",
           },
+          {
+            from: "pages",
+            to: "pages",
+            globOptions: {
+              ignore: ["**/login.html"],
+            },
+          },
+          {
+            from: "manifest.json",
+            to: "manifest.json",
+          },
+          {
+            from: "css/global.css",
+            to: "css/global.css",
+          },
+          {
+            from: "sw.js",
+            to: "sw.js",
+          },
         ],
       }),
     ],
     devServer: {
-      static: "./dist",
+      static: {
+        directory: path.resolve(__dirname, "dist"),
+      },
       watchFiles: ["src/**/*", "css/**/*", "js/**/*", "pages/**/*"],
       open: true,
       hot: false,

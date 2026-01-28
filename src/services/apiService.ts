@@ -13,7 +13,7 @@ export interface ApiResponse<T> {
   error?: ApiError
 }
 
-const BASE_URL = "/api/v1/clinic-01"
+const BASE_URL = "http://localhost:3000/api/v1/clinic-01"
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
@@ -35,11 +35,12 @@ export async function request<T>(
     const payload = await parseResponse<T>(response)
 
     if (!response.ok) {
+      const errorMessage = payload.error?.message ?? "Erro inesperado"
       return {
         success: false,
         error: payload.error || {
           code: `HTTP_${response.status}`,
-          message: payload.error?.message ?? "Erro inesperado",
+          message: errorMessage,
           statusCode: response.status,
         },
       }

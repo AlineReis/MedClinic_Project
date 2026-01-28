@@ -113,8 +113,12 @@ class AuthStore {
   private async fetchProfile(): Promise<UserSession | null> {
     const response = await request<{ user: UserSession }>("/auth/profile")
 
-    if (response.success && response.data) {
-      return response.data.user
+    const payloadUser =
+      response.data?.user ??
+      (response as typeof response & { user?: UserSession }).user
+
+    if (response.success && payloadUser) {
+      return payloadUser
     }
 
     if (response.error?.statusCode === 401) {

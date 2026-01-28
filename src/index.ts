@@ -1,13 +1,14 @@
 import "../css/global.css"
 
-import "../js/components/navigation.js"
-import "../js/pages/app.js"
-import "../js/services/mock_db.js"
+// import "../js/components/navigation.js"
+// import "../js/pages/app.js"
+// import "../js/services/mock_db.js"
 
 import { roleRoutes } from "./config/roleRoutes"
 import "./pages/login"
 import "./services/apiService"
 import { authStore } from "./stores/authStore"
+import { dashboardStore } from "./stores/dashboardStore"
 import "./stores/uiStore"
 
 const authBlocker = createAuthBlocker()
@@ -32,6 +33,7 @@ authReadyPromise.then(session => {
       window.location.href = target
       return
     }
+    dashboardStore.loadAppointmentsForSession(session)
   } else if (!currentPath.endsWith("/pages/login.html")) {
     window.location.href = "/pages/login.html"
     return
