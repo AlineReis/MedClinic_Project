@@ -5,92 +5,72 @@ import { AuthResult } from "../models/user.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
+import { PaymentMockService } from "./payment-mock.service.js";
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../utils/errors.js";
 
 export class AppointmentService {
     constructor(
         private appointmentRepository: AppointmentRepository,
         private availabilityRepository: AvailabilityRepository,
-        private userRepository: UserRepository
+        private userRepository: UserRepository,
+        private paymentMockService: PaymentMockService
     ) { }
 
-    async scheduleAppointment(data: Appointment): Promise<number> {
+    async scheduleAppointment(data: Appointment, cardDetails?: any): Promise<{ id: number, invoice?: any, payment_status?: string, message?: string }> {
+        // ... (validations remain the same) ...
         // Validar existência do paciente
         const patient = await this.userRepository.findById(data.patient_id);
-        if (!patient) {
-            throw new NotFoundError("Paciente não encontrado.");
-        }
+        if (!patient) throw new NotFoundError("Paciente não encontrado.");
 
         // Validar existência do profissional
         const professional = await this.userRepository.findById(data.professional_id);
-        if (!professional) {
-            throw new NotFoundError("Profissional não encontrado.");
-        }
-        if (professional.role !== 'health_professional') {
-            throw new ValidationError("O usuário informado não é um profissional de saúde.", "professional");
-        }
+        if (!professional) throw new NotFoundError("Profissional não encontrado.");
+        if (professional.role !== 'health_professional') throw new ValidationError("O usuário informado não é um profissional de saúde.", "professional");
 
         // Validar data no futuro
         const appointmentDateTime = new Date(`${data.date}T${data.time}`);
-        // Validacao simplificada, idealmente checar fusos
-        if (appointmentDateTime < new Date()) {
-            throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
-        }
+        if (appointmentDateTime < new Date()) throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
 
-        // RN-01: Validar disponibilidade do profissional (horário deve estar em professional_availabilities)
-        const dayOfWeek = appointmentDateTime.getDay(); // 0 is Sunday, 1 is Monday...
-
+        // RN-01: Disponibilidade
+        const dayOfWeek = appointmentDateTime.getDay();
         const availabilities = await this.availabilityRepository.findByProfessionalId(data.professional_id);
         const dailyAvailability = availabilities.filter(a => a.day_of_week === dayOfWeek);
 
-        if (dailyAvailability.length === 0) {
-            throw new ValidationError("O profissional não atende neste dia da semana.", "availability");
-        }
+        if (dailyAvailability.length === 0) throw new ValidationError("O profissional não atende neste dia da semana.", "availability");
 
-        const isWithinSlot = dailyAvailability.some(slot => {
-            return data.time >= slot.start_time && data.time < slot.end_time;
-        });
+        const isWithinSlot = dailyAvailability.some(slot => data.time >= slot.start_time && data.time < slot.end_time);
+        if (!isWithinSlot) throw new ValidationError("O horário escolhido está fora do expediente do profissional.", "availability");
 
-        if (!isWithinSlot) {
-            throw new ValidationError("O horário escolhido está fora do expediente do profissional.", "availability");
-        }
-
-        // RN-02: Antecedência mínima de 2h para agendamentos presenciais
+        // RN-02: 2h antecedência
         if (data.type === 'presencial') {
-            const now = new Date();
-            const diffInMs = appointmentDateTime.getTime() - now.getTime();
-            const twoHoursInMs = 2 * 60 * 60 * 1000;
-
-            if (diffInMs < twoHoursInMs) {
-                throw new ValidationError("Agendamentos presenciais devem ser feitos com no mínimo 2 horas de antecedência.", "date");
-            }
+            const diffInMs = appointmentDateTime.getTime() - new Date().getTime();
+            if (diffInMs < 2 * 60 * 60 * 1000) throw new ValidationError("Agendamentos presenciais devem ser feitos com no mínimo 2 horas de antecedência.", "date");
         }
 
-        // RN-03: Antecedência máxima de 90 dias
-        const now = new Date();
-        const diffInMsGeneric = appointmentDateTime.getTime() - now.getTime();
-        const ninetyDaysInMs = 90 * 24 * 60 * 60 * 1000;
+        // RN-03: 90 dias
+        const diffInMsGeneric = appointmentDateTime.getTime() - new Date().getTime();
+        if (diffInMsGeneric > 90 * 24 * 60 * 60 * 1000) throw new ValidationError("Não é possível agendar consultas com mais de 90 dias de antecedência.", "date");
 
-        if (diffInMsGeneric > ninetyDaysInMs) {
-            throw new ValidationError("Não é possível agendar consultas com mais de 90 dias de antecedência.", "date");
+        // RN-04: Conflito
+        const hasConflict = await this.appointmentRepository.checkConflict(data.patient_id, data.professional_id, data.date);
+        if (hasConflict) throw new ValidationError("O paciente já possui uma consulta agendada com este profissional nesta data.", "conflict");
+
+        // Criar agendamento (Status scheduled, Payment pending defaults logic in Repo)
+        const appointmentId = await this.appointmentRepository.create(data);
+
+        // Process Payment if card details provided
+        if (cardDetails) {
+            const paymentResult = await this.paymentMockService.processAppointmentPayment(appointmentId, cardDetails);
+            
+            return {
+                id: appointmentId,
+                invoice: paymentResult.invoice,
+                payment_status: paymentResult.success ? 'paid' : 'failed',
+                message: paymentResult.message
+            };
         }
 
-        // Validar RN-04: Sem duplicação de agendamento para o mesmo paciente/profissional/dia
-        const hasConflict = await this.appointmentRepository.checkConflict(
-            data.patient_id,
-            data.professional_id,
-            data.date
-        );
-
-        if (hasConflict) {
-            throw new ValidationError(
-                "O paciente já possui uma consulta agendada com este profissional nesta data.",
-                "conflict"
-            );
-        }
-
-        // Criar agendamento
-        return this.appointmentRepository.create(data);
+        return { id: appointmentId, message: "Agendado com sucesso (Pagamento pendente)" };
     }
 
     async getAppointmentById(id: number): Promise<Appointment> {
@@ -150,7 +130,7 @@ export class AppointmentService {
         await this.appointmentRepository.updateStatus(id, 'confirmed');
     }
 
-    async cancelAppointment(id: number, reason: string, cancelledById: number): Promise<void> {
+    async cancelAppointment(id: number, reason: string, cancelledById: number): Promise<{ message: string, refundDetails?: any }> {
         const appointment = await this.getAppointmentById(id);
 
         if (['cancelled_by_patient', 'cancelled_by_clinic', 'completed'].includes(appointment.status || '')) {
@@ -158,6 +138,17 @@ export class AppointmentService {
         }
 
         await this.appointmentRepository.cancel(id, reason, cancelledById);
+
+        // Process Refund Automatically if Paid
+        if (appointment.payment_status === 'paid') {
+            const refundResult = await this.paymentMockService.processRefund(id);
+            return {
+                message: "Consulta cancelada com sucesso.",
+                refundDetails: refundResult
+            };
+        }
+
+        return { message: "Consulta cancelada com sucesso." };
     }
 
     async updatePaymentStatus(id: number, status: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'partially_refunded'): Promise<void> {
