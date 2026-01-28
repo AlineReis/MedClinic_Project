@@ -49,9 +49,9 @@ export function isValidRole(role: string): role is UserRole {
 }
 
 export function isValidCpfLogic(cpf: string): boolean {
-  const cleanCPF = cpf.replace(/[^\d]/g, '');
+  const cleanCPF = cpf.replace(/[^\d]/g, "");
   if (cleanCPF.length !== 11) return false;
-  
+
   if (/^(\d)\1+$/.test(cleanCPF)) return false;
 
   let sum = 0;
@@ -76,3 +76,76 @@ export function isValidCpfLogic(cpf: string): boolean {
 
   return true;
 }
+
+export const isMinimumHoursInFuture = (
+  target: Date,
+  minHours: number,
+  now: Date = new Date(),
+): boolean => {
+  const minMilliseconds = minHours * 60 * 60 * 1000;
+  const diff = target.getTime() - now.getTime();
+
+  return diff >= minMilliseconds;
+};
+
+export const isWithinMinimumHours = (
+  date: string,
+  time: string,
+  minHours: number,
+  now: Date = new Date(),
+): boolean => {
+  const appointment = new Date(`${date}T${time}:00`);
+
+  if (isNaN(appointment.getTime())) return false;
+
+  return isMinimumHoursInFuture(appointment, minHours, now);
+};
+
+export const isValidDate = (date: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return false;
+  }
+
+  const parsed = new Date(`${date}T00:00:00.000Z`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  const [year, month, day] = date.split("-").map(Number);
+
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+  );
+};
+
+export const isValidTime = (time: string): boolean => {
+  const isFormatValid = /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time);
+  if (!isFormatValid) return false;
+
+  const [hours, minutes] = time.split(":").map(Number);
+  if (hours < 8 || hours >= 18) {
+    return false;
+  }
+
+  return true;
+};
+
+export const isWithinDayRange = (
+  dateStr: string,
+  maxDays: number,
+  now: Date = new Date(),
+): boolean => {
+  const targetDate = new Date(`${dateStr}T00:00:00Z`);
+
+  const todayUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
+
+  const limitDateUTC = new Date(todayUTC);
+  limitDateUTC.setUTCDate(todayUTC.getUTCDate() + maxDays);
+
+  return targetDate >= todayUTC && targetDate <= limitDateUTC;
+};
