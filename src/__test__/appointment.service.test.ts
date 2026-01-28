@@ -2,6 +2,7 @@ import { AppointmentService } from '../services/appointment.service.js';
 import { AppointmentRepository } from '../repository/appointment.repository.js';
 import { AvailabilityRepository } from '../repository/availability.repository.js';
 import { UserRepository } from '../repository/user.repository.js';
+import { PaymentMockService } from '../services/payment-mock.service.js';
 
 import { Appointment } from '../models/appointment.js';
 import { Availability } from '../models/professional.model.js';
@@ -14,6 +15,7 @@ import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 jest.mock('../repository/appointment.repository.js');
 jest.mock('../repository/availability.repository.js');
 jest.mock('../repository/user.repository.js');
+jest.mock('../services/payment-mock.service.js');
 
 
 describe('AppointmentService', () => {
@@ -21,6 +23,7 @@ describe('AppointmentService', () => {
     let appointmentRepositoryMock: jest.Mocked<AppointmentRepository>;
     let availabilityRepositoryMock: jest.Mocked<AvailabilityRepository>;
     let userRepositoryMock: jest.Mocked<UserRepository>;
+    let paymentMockServiceMock: jest.Mocked<PaymentMockService>;
 
     beforeEach(() => {
         // Clear all mocks before each test
@@ -48,7 +51,12 @@ describe('AppointmentService', () => {
             findById: jest.fn()
         } as unknown as jest.Mocked<UserRepository>;
 
-        appointmentService = new AppointmentService(appointmentRepositoryMock, availabilityRepositoryMock, userRepositoryMock);
+        paymentMockServiceMock = {
+            processAppointmentPayment: jest.fn(),
+            processRefund: jest.fn()
+        } as unknown as jest.Mocked<PaymentMockService>;
+
+        appointmentService = new AppointmentService(appointmentRepositoryMock, availabilityRepositoryMock, userRepositoryMock, paymentMockServiceMock);
     });
 
     describe('scheduleAppointment', () => {
@@ -113,7 +121,7 @@ describe('AppointmentService', () => {
 
             const result = await appointmentService.scheduleAppointment(validAppointmentData);
 
-            expect(result).toBe(123);
+            expect(result.id).toBe(123);
             expect(availabilityRepositoryMock.findByProfessionalId).toHaveBeenCalledWith(2);
             expect(appointmentRepositoryMock.create).toHaveBeenCalledWith(validAppointmentData);
         });
@@ -235,7 +243,7 @@ describe('AppointmentService', () => {
             const onlineAppointment = { ...validAppointmentData, type: 'online' as const };
             const result = await appointmentService.scheduleAppointment(onlineAppointment);
 
-            expect(result).toBe(123);
+            expect(result.id).toBe(123);
 
             jest.useRealTimers();
         });
@@ -264,7 +272,7 @@ describe('AppointmentService', () => {
             // 2026-05-05 is a Tuesday.
             const tuesdayFarAway = '2026-05-05';
             // 2026-01-01 to 2026-05-05 is > 120 days
-
+            
             const farAppointment = { ...validAppointmentData, date: tuesdayFarAway };
 
             availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailability);
@@ -290,7 +298,7 @@ describe('AppointmentService', () => {
 
             const result = await appointmentService.scheduleAppointment(validAppointment);
 
-            expect(result).toBe(456);
+            expect(result.id).toBe(456);
 
             jest.useRealTimers();
         });
@@ -334,6 +342,53 @@ describe('AppointmentService', () => {
                 .toThrow(new ValidationError("O agendamento deve ser para uma data futura.", "date"));
 
             jest.useRealTimers();
+        });
+    });
+
+    describe('cancelAppointment', () => {
+        const appointmentId = 123;
+        const mockAppointment: Appointment = {
+            id: appointmentId,
+            patient_id: 1,
+            professional_id: 2,
+            date: '2026-03-10',
+            time: '14:30',
+            status: 'scheduled',
+            payment_status: 'pending',
+            price: 150,
+            type: 'presencial'
+        };
+
+        beforeEach(() => {
+            appointmentRepositoryMock.findById.mockResolvedValue(mockAppointment);
+            paymentMockServiceMock.processRefund.mockResolvedValue({ success: true, message: "Refund processed", refundAmount: 150 });
+        });
+
+        it('should cancel appointment successfully when pending payment', async () => {
+            await appointmentService.cancelAppointment(appointmentId, "Changed mind", 1);
+
+            expect(appointmentRepositoryMock.cancel).toHaveBeenCalledWith(appointmentId, "Changed mind", 1);
+            expect(paymentMockServiceMock.processRefund).not.toHaveBeenCalled();
+        });
+
+        it('should cancel and process refund when status is paid', async () => {
+            const paidAppointment = { ...mockAppointment, payment_status: 'paid' as const };
+            appointmentRepositoryMock.findById.mockResolvedValue(paidAppointment);
+
+            const result = await appointmentService.cancelAppointment(appointmentId, "Emergency", 1);
+
+            expect(appointmentRepositoryMock.cancel).toHaveBeenCalled();
+            expect(paymentMockServiceMock.processRefund).toHaveBeenCalledWith(appointmentId);
+            expect(result.refundDetails).toBeDefined();
+        });
+
+        it('should throw ValidationError if already cancelled', async () => {
+             const cancelledAppointment = { ...mockAppointment, status: 'cancelled_by_patient' as const };
+             appointmentRepositoryMock.findById.mockResolvedValue(cancelledAppointment);
+
+             await expect(appointmentService.cancelAppointment(appointmentId, "Reason", 1))
+                .rejects
+                .toThrow(new ValidationError("Este agendamento já está cancelado ou concluído.", "status"));
         });
     });
 });

@@ -9,7 +9,7 @@ export class AppointmentController {
     // POST /appointments
     public schedule = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data: Appointment = req.body;
+            const { cardDetails, ...data } = req.body;
 
             // Segurança: Garantir que o patient_id seja do usuário logado se for um paciente
             if (req.user?.role === 'patient') {
@@ -18,12 +18,14 @@ export class AppointmentController {
                 }
             }
 
-            const appointmentId = await this.appointmentService.scheduleAppointment(data);
+            const result = await this.appointmentService.scheduleAppointment(data as Appointment, cardDetails);
 
             res.status(201).json({
                 success: true,
-                message: "Consulta agendada com sucesso.",
-                id: appointmentId
+                message: result.message || "Consulta agendada com sucesso.",
+                id: result.id,
+                payment_status: result.payment_status,
+                invoice: result.invoice
             });
         } catch (error) {
             next(error);
@@ -128,11 +130,12 @@ export class AppointmentController {
                 throw new ForbiddenError("Você só pode cancelar seus próprios agendamentos.");
             }
 
-            await this.appointmentService.cancelAppointment(id, reason, req.user!.id);
+            const result = await this.appointmentService.cancelAppointment(id, reason, req.user!.id);
 
             res.status(200).json({
                 success: true,
-                message: "Consulta cancelada com sucesso."
+                message: result.message,
+                refund: result.refundDetails
             });
         } catch (error) {
             next(error);

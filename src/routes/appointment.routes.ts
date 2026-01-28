@@ -4,6 +4,9 @@ import { AppointmentService } from "../services/appointment.service.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
+import { TransactionRepository } from "../repository/transaction.repository.js";
+import { CommissionSplitRepository } from "../repository/commission-split.repository.js";
+import { PaymentMockService } from "../services/payment-mock.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -12,7 +15,12 @@ const router = Router();
 const appointmentRepository = new AppointmentRepository();
 const availabilityRepository = new AvailabilityRepository();
 const userRepository = new UserRepository();
-const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository, userRepository);
+const transactionRepository = new TransactionRepository();
+const commissionSplitRepository = new CommissionSplitRepository();
+
+const paymentMockService = new PaymentMockService(transactionRepository, commissionSplitRepository, appointmentRepository);
+
+const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository, userRepository, paymentMockService);
 const appointmentController = new AppointmentController(appointmentService);
 
 router.use(authMiddleware); // Todas as rotas de agendamento requerem autenticação
@@ -21,6 +29,6 @@ router.post("/", appointmentController.schedule);
 router.get("/", appointmentController.list); // Unified list with filters
 router.get("/:id", appointmentController.getById);
 router.patch("/:id/confirm", appointmentController.confirm);
-router.post("/:id/cancel", appointmentController.cancel);
+router.delete("/:id", appointmentController.cancel);
 
 export { router as appointmentRoutes };
