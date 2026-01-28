@@ -8,6 +8,7 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "email": "npx tsx src/scripts/test-email.ts",
     "seed": "tsx src/seed.ts",
     "db:init": "tsx -e \"import { database } from './src/config/database.js'; database.initialize().then(() => console.log('Done')).catch(console.error);\"",
     "db:seed": "tsx src/seed.ts",
@@ -25,6 +26,7 @@
     "express": "^4.22.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "resend": "^6.9.1",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {

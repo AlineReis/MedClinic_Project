@@ -8,6 +8,7 @@ import { TransactionRepository } from "../repository/transaction.repository.js";
 import { CommissionSplitRepository } from "../repository/commission-split.repository.js";
 import { PaymentMockService } from "../services/payment-mock.service.js";
 import { AppointmentService } from "../services/appointment.service.js";
+import { ResendEmailService } from "../services/email.service.js";
 
 const router = Router();
 
@@ -19,8 +20,9 @@ const transactionRepository = new TransactionRepository();
 const commissionSplitRepository = new CommissionSplitRepository();
 
 const paymentMockService = new PaymentMockService(transactionRepository, commissionSplitRepository, appointmentRepository);
+const emailService = new ResendEmailService();
 
-const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository, userRepository, paymentMockService);
+const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository, userRepository, paymentMockService, emailService);
 const appointmentController = new AppointmentController(appointmentService);
 
 router.use(authMiddleware); // Todas as rotas de agendamento requerem autenticação
