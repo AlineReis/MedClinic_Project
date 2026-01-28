@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { UserService } from "../services/user.service.js";
 import { AuthError, ValidationError } from "../utils/errors.js";
+import { isValidId } from "../utils/validators.js";
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -91,11 +92,11 @@ export class UserController {
       const clinicId = Number(req.params.clinic_id);
       const targetUserId = Number(req.params.id);
 
-      if (!Number.isFinite(clinicId) || clinicId <= 0) {
+      if (!isValidId(clinicId)) {
         throw new ValidationError("clinic_id inválido");
       }
 
-      if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+      if (!isValidId(targetUserId)) {
         throw new ValidationError("id inválido");
       }
 
@@ -130,11 +131,11 @@ export class UserController {
       const clinicId = Number(req.params.clinic_id);
       const targetUserId = Number(req.params.id);
 
-      if (!Number.isFinite(clinicId) || clinicId <= 0) {
+      if (!isValidId(clinicId)) {
         throw new ValidationError("clinic_id inválido");
       }
 
-      if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+      if (!isValidId(targetUserId)) {
         throw new ValidationError("id inválido");
       }
 
