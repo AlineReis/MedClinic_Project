@@ -1,0 +1,7 @@
+node_modules/
+.env
+.agent
+.vscode/
+database/
+dist/
+coverage/
