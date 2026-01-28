@@ -33,7 +33,7 @@ export interface IUserRepository {
     totalPages: number;
   }>;
   findWithDetailsById(userId: number): Promise<UserWithDetails | null>;
-  delete(id: number, requestingUserRole: UserRole): Promise<void>;
+  delete(id: number): Promise<void>;
   updateById(
     userId: number,
     patch: Partial<{

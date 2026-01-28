@@ -98,7 +98,7 @@ export class ProfessionalService {
     } catch (error) {
       console.error("Registration failed, rolling back...", error);
       if (userId) {
-        await this.usersRepository.delete(userId, "system_admin");
+        await this.usersRepository.delete(userId);
       }
       throw error;
     }

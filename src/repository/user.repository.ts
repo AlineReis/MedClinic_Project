@@ -111,28 +111,7 @@ export class UserRepository implements IUserRepository {
     return database.queryOne<ProfessionalDetails>(sql, [userId]);
   }
 
-  async delete(id: number, requestingUserRole: UserRole): Promise<void> {
-    if (
-      requestingUserRole !== "clinic_admin" &&
-      requestingUserRole !== "system_admin"
-    ) {
-      throw new Error("Unauthorized: Only admins can delete users");
-    }
-
-    // Check for existing appointments
-    const appointmentSql = `
-      SELECT 1 FROM appointments 
-      WHERE (patient_id = ? OR professional_id = ?) 
-      LIMIT 1
-    `;
-    const hasAppointments = await database.queryOne(appointmentSql, [id, id]);
-
-    if (hasAppointments) {
-      throw new Error(
-        "Cannot delete user with existing appointments (as patient or professional)",
-      );
-    }
-
+  async delete(id: number): Promise<void> {
     const sql = `DELETE FROM users WHERE id = ?`;
     await database.run(sql, [id]);
   }

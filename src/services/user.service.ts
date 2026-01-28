@@ -39,8 +39,13 @@ export type GetUserInput = {
   targetUserId: number;
 };
 
+import { AppointmentRepository } from "../repository/appointment.repository.js";
+
 export class UserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly appointmentRepository: AppointmentRepository
+  ) { }
 
   async registerPatient(
     userData: User,
@@ -294,5 +299,16 @@ export class UserService {
 
     const { password, ...withoutPassword } = updated as any;
     return withoutPassword;
+  }
+
+  async deleteUser(requester: RequesterUser, targetUserId: number): Promise<void> {
+    if (requester.role !== 'clinic_admin' && requester.role !== 'system_admin') {
+      throw new ForbiddenError("Apenas administradores podem deletar usuários.");
+    }
+    const hasPending = await this.appointmentRepository.checkActiveAppointments(targetUserId);
+    if (hasPending) {
+      throw new ValidationError("Não é possível deletar o usuário pois ele possui agendamentos ativos.");
+    }
+    await this.userRepository.delete(targetUserId);
   }
 }

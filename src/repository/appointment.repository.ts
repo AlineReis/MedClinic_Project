@@ -140,6 +140,38 @@ export class AppointmentRepository {
         return result ? result.count > 0 : false;
     }
 
+    // Check for active appointments for a user (either as patient or professional)
+    // "Active" means not cancelled, not no_show, and maybe in the future?
+    // Using the same status logic as checkConflict + preventing deletion if there's history?
+    // User request says "possui agendamentos ativos" (has active appointments).
+    // I will check for 'scheduled' status or any other non-terminal status.
+    async checkActiveAppointments(userId: number): Promise<boolean> {
+        const sql = `
+            SELECT 1 FROM appointments 
+            WHERE (patient_id = ? OR professional_id = ?) 
+            AND status IN ('scheduled', 'confirmed') 
+            LIMIT 1
+        `;
+        // Note: Assuming 'confirmed' is a valid status if added later, mostly 'scheduled' is used.
+        // Actually, let's look at checkConflict active statuses: NOT IN cancelled/no_show.
+        // That is safer.
+        const sqlSafe = `
+             SELECT 1 FROM appointments
+             WHERE (patient_id = ? OR professional_id = ?)
+             AND status NOT IN ('cancelled_by_patient', 'cancelled_by_clinic', 'no_show', 'completed')
+             LIMIT 1
+        `;
+        // If 'completed' exists, it shouldn't block *active* check, but might block deletion due to FK, 
+        // but checking "active" implies current/future.
+        // I will use the NOT IN list including 'completed' if I want strictly active.
+        // But usually "completed" is not "active".
+        // Let's stick to "NOT IN cancelled/no_show/completed".
+        // Use database.queryOne.
+
+        const result = await database.queryOne(sqlSafe, [userId, userId]);
+        return !!result;
+    }
+
     // Atualizar status
     async updateStatus(id: number, status: string): Promise<void> {
         const sql = `
