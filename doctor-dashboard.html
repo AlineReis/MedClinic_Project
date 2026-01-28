@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard Médico - MedClinic</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: { colors: { "primary": "#197fe6", "background-dark": "#111418", "surface-dark": "#1a1f26", "border-dark": "#2a3441" }, fontFamily: { "display": ["Manrope", "sans-serif"] } } }
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
+        <div class="h-16 flex items-center px-6 border-b border-border-dark">
+            <span class="material-symbols-outlined text-primary mr-2">local_hospital</span>
+            <h1 class="text-base font-bold">MedClinic Pro</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
+                <span class="material-symbols-outlined">dashboard</span> Visão Geral
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="agenda.html">
+                <span class="material-symbols-outlined">calendar_month</span> Minha Agenda
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="pep.html">
+                <span class="material-symbols-outlined">folder_shared</span> Prontuários
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="telemedicine.html">
+                <span class="material-symbols-outlined">videocam</span> Telemedicina
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border-dark">
+            <button data-logout-button
+                class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span> Sair
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
+            <h2 class="text-xl font-bold">Bem-vindo(a), <span data-user-name>Profissional</span>!</h2>
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-slate-400" data-user-role>Profissional de Saude</span>
+                <div class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm"
+                    data-user-initials>US</div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div class="max-w-[1400px] mx-auto space-y-8">
+                <!-- Stats -->
+                <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Consultas Hoje</p>
+                        <h3 class="text-3xl font-bold">8</h3>
+                    </div>
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Pacientes na Fila</p>
+                        <h3 class="text-3xl font-bold text-amber-500">3</h3>
+                    </div>
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Realizadas</p>
+                        <h3 class="text-3xl font-bold text-emerald-500">5</h3>
+                    </div>
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Telemedicina</p>
+                        <h3 class="text-3xl font-bold text-blue-500">2</h3>
+                    </div>
+                </section>
+
+                <!-- Next Patient & Queue -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div
+                        class="lg:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-8 rounded-2xl text-white shadow-xl">
+                        <span class="text-[10px] font-bold uppercase bg-white/20 px-2 py-1 rounded">Próximo
+                            Paciente</span>
+                        <h3 class="text-2xl font-bold mt-4">Ricardo Santos Oliveira</h3>
+                        <p class="text-sm opacity-80">Retorno • Cardiologia</p>
+                        <div class="flex gap-4 mt-6 text-sm">
+                            <span class="flex items-center gap-1"><span
+                                    class="material-symbols-outlined text-sm">schedule</span> 14:30</span>
+                            <span class="flex items-center gap-1"><span
+                                    class="material-symbols-outlined text-sm">location_on</span> Sala 3</span>
+                        </div>
+                        <button onclick="window.location.href='pep.html'"
+                            class="mt-8 px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-slate-100 transition-all">Iniciar
+                            Atendimento</button>
+                    </div>
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <h3 class="font-bold mb-4">Fila de Espera</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
+                                <span class="text-sm font-medium">Maria Clara</span>
+                                <span class="text-xs text-amber-500 font-bold">Aguardando</span>
+                            </li>
+                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
+                                <span class="text-sm font-medium">João Pedro</span>
+                                <span class="text-xs text-slate-500">15:00</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+</body>
+
+</html>

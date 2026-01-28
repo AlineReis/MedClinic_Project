@@ -1,0 +1,234 @@
+<!-- Painel Administrativo -->
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Painel Administrativo - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-[#111418] text-white font-display overflow-hidden h-screen flex">
+
+    <!-- Sidebar (Shared Admin Style) -->
+    <aside class="hidden lg:flex flex-col w-64 border-r border-[#293038] bg-[#1a1f26] shrink-0 h-full">
+        <div class="h-20 flex items-center px-6 border-b border-[#293038]">
+            <div class="flex items-center gap-3">
+                <div
+                    class="size-8 rounded bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                    <span class="material-symbols-outlined text-xl">analytics</span>
+                </div>
+                <h1 class="text-base font-bold tracking-tight">MedClinic Admin</h1>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-6 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-[#293038] hover:text-white transition-colors"
+                href="agenda.html">
+                <span class="material-symbols-outlined">calendar_month</span>
+                Agenda
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-[#293038] hover:text-white transition-colors"
+                href="pep.html">
+                <span class="material-symbols-outlined">medical_services</span>
+                Prontuários
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-[#293038] hover:text-white transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">payments</span>
+                Financeiro
+                <span class="ml-auto text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Novo</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-[#293038]">
+            <button onclick="window.location.href='index.html'"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-[#293038] hover:text-white transition-colors w-full">
+                <span class="material-symbols-outlined">logout</span>
+                Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h2 class="text-3xl font-bold tracking-tight">Visão Geral</h2>
+                <p class="text-slate-400 mt-1">Acompanhe os principais indicadores da sua clínica em tempo real.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-400">Período:</span>
+                <select
+                    class="bg-[#1a1f26] border border-[#293038] rounded-lg text-sm px-3 py-2 focus:ring-primary focus:border-primary">
+                    <option>Este Mês</option>
+                    <option>Hoje</option>
+                    <option>Esta Semana</option>
+                </select>
+                <button class="bg-primary hover:bg-blue-600 text-white p-2 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined">download</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Revenue -->
+            <div class="bg-[#1a1f26] border border-[#293038] rounded-xl p-6 relative overflow-hidden group">
+                <div class="absolute right-0 top-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <span class="material-symbols-outlined text-8xl">payments</span>
+                </div>
+                <h3 class="text-slate-400 text-sm font-medium mb-1">Receita Total</h3>
+                <div class="text-3xl font-bold text-white mb-2" id="kpi-revenue">R$ 0,00</div>
+                <div class="flex items-center gap-1 text-emerald-400 text-xs font-bold">
+                    <span class="material-symbols-outlined text-sm">trending_up</span>
+                    +12.5% <span class="text-slate-500 font-normal ml-1">vs mês anterior</span>
+                </div>
+            </div>
+
+            <!-- Appointments -->
+            <div class="bg-[#1a1f26] border border-[#293038] rounded-xl p-6">
+                <h3 class="text-slate-400 text-sm font-medium mb-1">Consultas Realizadas</h3>
+                <div class="text-3xl font-bold text-white mb-2" id="kpi-appointments">0</div>
+                <div class="flex items-center gap-1 text-emerald-400 text-xs font-bold">
+                    <span class="material-symbols-outlined text-sm">trending_up</span>
+                    +5.2% <span class="text-slate-500 font-normal ml-1">vs mês anterior</span>
+                </div>
+            </div>
+
+            <!-- New Patients -->
+            <div class="bg-[#1a1f26] border border-[#293038] rounded-xl p-6">
+                <h3 class="text-slate-400 text-sm font-medium mb-1">Novos Pacientes</h3>
+                <div class="text-3xl font-bold text-white mb-2" id="kpi-patients">0</div>
+                <div class="flex items-center gap-1 text-emerald-400 text-xs font-bold">
+                    <span class="material-symbols-outlined text-sm">group_add</span>
+                    +3 <span class="text-slate-500 font-normal ml-1">esta semana</span>
+                </div>
+            </div>
+
+            <!-- Doctors Active -->
+            <div class="bg-[#1a1f26] border border-[#293038] rounded-xl p-6">
+                <h3 class="text-slate-400 text-sm font-medium mb-1">Médicos Ativos</h3>
+                <div class="text-3xl font-bold text-white mb-2" id="kpi-doctors">0</div>
+                <div class="flex items-center gap-1 text-slate-400 text-xs text-normal">
+                    <span class="material-symbols-outlined text-sm">medical_services</span>
+                    Disponibilidade 98%
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Chart Area (Mock) -->
+            <div class="lg:col-span-2 bg-[#1a1f26] border border-[#293038] rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Receita Mensal</h3>
+                    <div class="flex gap-2 text-sm">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-primary"></span>
+                            Bruta</span>
+                        <span class="flex items-center gap-1.5 text-slate-400"><span
+                                class="w-3 h-3 rounded-full bg-slate-600"></span> Líquida</span>
+                    </div>
+                </div>
+
+                <!-- Simple CSS Bar Chart -->
+                <div class="h-64 flex items-end justify-between gap-2 px-2 pb-4 border-b border-[#293038]">
+                    <!-- Bar 1 -->
+                    <div class="flex flex-col items-center gap-2 flex-1 group">
+                        <div
+                            class="w-full max-w-[40px] bg-slate-700/30 rounded-t-sm h-[40%] relative hover:bg-slate-700/50 transition-colors">
+                            <div
+                                class="absolute bottom-0 inset-x-0 bg-primary/80 h-[70%] rounded-t-sm group-hover:bg-primary transition-colors">
+                            </div>
+                        </div>
+                        <span class="text-xs text-slate-400">Jun</span>
+                    </div>
+                    <!-- Bar 2 -->
+                    <div class="flex flex-col items-center gap-2 flex-1 group">
+                        <div
+                            class="w-full max-w-[40px] bg-slate-700/30 rounded-t-sm h-[55%] relative hover:bg-slate-700/50 transition-colors">
+                            <div
+                                class="absolute bottom-0 inset-x-0 bg-primary/80 h-[80%] rounded-t-sm group-hover:bg-primary transition-colors">
+                            </div>
+                        </div>
+                        <span class="text-xs text-slate-400">Jul</span>
+                    </div>
+                    <!-- Bar 3 -->
+                    <div class="flex flex-col items-center gap-2 flex-1 group">
+                        <div
+                            class="w-full max-w-[40px] bg-slate-700/30 rounded-t-sm h-[45%] relative hover:bg-slate-700/50 transition-colors">
+                            <div
+                                class="absolute bottom-0 inset-x-0 bg-primary/80 h-[65%] rounded-t-sm group-hover:bg-primary transition-colors">
+                            </div>
+                        </div>
+                        <span class="text-xs text-slate-400">Ago</span>
+                    </div>
+                    <!-- Bar 4 (Current) -->
+                    <div class="flex flex-col items-center gap-2 flex-1 group">
+                        <div
+                            class="w-full max-w-[40px] bg-slate-700/30 rounded-t-sm h-[75%] relative hover:bg-slate-700/50 transition-colors">
+                            <div
+                                class="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                R$ 42k</div>
+                            <div
+                                class="absolute bottom-0 inset-x-0 bg-emerald-500 h-[90%] rounded-t-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-white">Set</span>
+                    </div>
+                    <!-- Bar 5 -->
+                    <div class="flex flex-col items-center gap-2 flex-1 group opacity-50">
+                        <div class="w-full max-w-[40px] bg-slate-700/20 rounded-t-sm h-[30%] relative"></div>
+                        <span class="text-xs text-slate-500">Out</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity / Split Info -->
+            <div class="bg-[#1a1f26] border border-[#293038] rounded-xl p-6">
+                <h3 class="text-lg font-bold mb-4">Repasses Recentes (Split)</h3>
+                <div class="space-y-4" id="split-list">
+                    <!-- Loaded via JS -->
+                    <p class="text-slate-400 text-sm">Carregando dados financeiros...</p>
+                </div>
+                <button
+                    class="w-full mt-6 py-2 rounded-lg border border-[#293038] text-sm text-slate-300 hover:text-white hover:bg-[#293038] transition-colors">
+                    Ver Relatório Completo
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

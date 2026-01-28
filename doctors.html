@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Busca de Profissionais - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display min-h-screen flex flex-col">
+
+    <header
+        class="sticky top-0 z-50 flex items-center justify-between border-b border-border-dark bg-surface-dark px-10 py-3">
+        <div class="flex items-center gap-4">
+            <div class="size-8 text-primary">
+                <span class="material-symbols-outlined text-3xl font-bold">medical_services</span>
+            </div>
+            <h2 class="text-lg font-bold">MedClinic</h2>
+        </div>
+        <nav class="hidden md:flex items-center gap-8">
+            <a href="index.html" class="text-sm font-medium hover:text-primary transition-colors">Início</a>
+            <a href="my-appointments.html" class="text-sm font-medium hover:text-primary transition-colors">Meus
+                Agendamentos</a>
+        </nav>
+        <div class="size-10 rounded-full bg-slate-700 border border-border-dark bg-cover bg-center"
+            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAbUA_C0ELQoIP0LyridFv4w39PbMIiMSbo6XAki7V3gEARK1q8mA1-eue7Q-1DGxW01bN9i9zd037YzchT_2HOpEn_0Dvj7WBDCJiitO5Cmw_wjiO_bdx_6pCh6X-Jw4jXKIVxnC7VYVw6fXJTCjBpbeeWLQVs1cl6F1BMnBWQApsKIDrjRMM0RVKY-AVKAYdda2CcyyZXbIATjFqQphefZ4C3T-gKWy6mwGBu7ou9ChzUBeqmCWOBOu4y6gWcgWnSgJh4cZ-VFk')">
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-10">
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar Filters -->
+            <aside class="w-full md:w-64 shrink-0 space-y-8">
+                <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                    <h3 class="font-bold mb-6 flex justify-between items-center">
+                        Filtros
+                        <button class="text-[10px] text-primary hover:underline">Limpar</button>
+                    </h3>
+
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-3">Especialidade</p>
+                            <div class="space-y-2">
+                                <label
+                                    class="flex items-center gap-2 text-sm text-slate-400 hover:text-white cursor-pointer group">
+                                    <input type="checkbox" checked
+                                        class="rounded border-border-dark bg-background-dark text-primary focus:ring-0">
+                                    Cardiologia
+                                </label>
+                                <label
+                                    class="flex items-center gap-2 text-sm text-slate-400 hover:text-white cursor-pointer group">
+                                    <input type="checkbox"
+                                        class="rounded border-border-dark bg-background-dark text-primary focus:ring-0">
+                                    Dermatologia
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-border-dark">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-3">Modalidade</p>
+                            <label class="flex items-center gap-2 text-sm text-slate-400 cursor-pointer mb-2">
+                                <input type="radio" name="mod" checked
+                                    class="border-border-dark bg-background-dark text-primary focus:ring-0">
+                                Todos
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-400 cursor-pointer">
+                                <input type="radio" name="mod"
+                                    class="border-border-dark bg-background-dark text-primary focus:ring-0">
+                                Telemedicina
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Results Grid -->
+            <div class="flex-1">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-xl font-bold">Profissionais Encontrados <span
+                            class="text-slate-500 text-sm font-normal ml-2">(24)</span></h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="doctors-list">
+                    <!-- Card 1 -->
+                    <div
+                        class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 transition-all group">
+                        <div class="p-6 flex flex-col h-full">
+                            <div class="flex items-start gap-4 mb-6">
+                                <div class="size-16 rounded-full bg-cover bg-center border border-border-dark"
+                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFgAl2VXMFAGduMVOWusic0h33VzKvNy9eWg5ajP7QO4QKya6tI67GYmI002SGoaPQrGlKLiiz2E91Kq2_C2qeYG9U7M6qd6fKhR7g8kak2UwMh6N-da1UGZIyLwMV2VJd86oQi85Rnd2R2tPt2sS0wdnLbIvX9cOzLFEwvDGKhuNu9_M3V7DHMurD82nvaeHZ3TheWcwTWyYr1GxBLiJzKGUl24VJRvGk2mYV0BvHFX_vAyKQoXh-mJTvU1NWGvA1IHL9j8QqhUo')">
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-base group-hover:text-primary transition-colors">Dra. Ana
+                                        Silva</h3>
+                                    <p class="text-xs text-slate-500">Cardiologista</p>
+                                    <div class="flex items-center gap-1 text-yellow-500 text-xs mt-1">
+                                        <span class="material-symbols-outlined text-xs fill-current">star</span>
+                                        <span class="font-bold text-white">4.9</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-auto pt-6 border-t border-border-dark flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-slate-500 uppercase">A partir de</span>
+                                    <span class="text-base font-bold">R$ 250</span>
+                                </div>
+                                <button onclick="window.location.href='slots.html'"
+                                    class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all">
+                                    Ver Horários
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+</body>
+
+</html>

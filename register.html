@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Criar Conta - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "primary-hover": "#166cc4",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 text-primary mb-4">
+                <span class="material-symbols-outlined !text-[48px]">local_hospital</span>
+            </div>
+            <h1 class="text-3xl font-black tracking-tight">MedClinic</h1>
+            <p class="text-slate-400 mt-2">Crie sua conta de paciente</p>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="bg-surface-dark border border-border-dark rounded-2xl p-8 shadow-xl">
+            <form id="register-form" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nome
+                        Completo</label>
+                    <input type="text" id="name" required placeholder="João Silva Santos"
+                        class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">CPF</label>
+                    <input type="text" id="cpf" required placeholder="000.000.000-00" maxlength="14"
+                        class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">E-mail</label>
+                    <input type="email" id="email" required placeholder="joao@email.com"
+                        class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Telefone</label>
+                    <input type="tel" id="phone" required placeholder="(11) 99999-9999"
+                        class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Senha</label>
+                    <input type="password" id="password" required placeholder="Mínimo 8 caracteres"
+                        class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                    <p class="text-[10px] text-slate-500 mt-1.5">Use letras maiúsculas, minúsculas e números.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Confirmar
+                        Senha</label>
+                    <input type="password" id="confirm-password" required placeholder="Repita a senha"
+                        class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                </div>
+
+                <div class="flex items-start gap-3 pt-2">
+                    <input type="checkbox" id="terms" required
+                        class="mt-1 rounded border-border-dark bg-background-dark text-primary focus:ring-primary/30" />
+                    <label for="terms" class="text-xs text-slate-400 leading-relaxed">
+                        Li e aceito os <a href="#" class="text-primary underline">Termos de Uso</a> e a <a href="#"
+                            class="text-primary underline">Política de Privacidade</a>.
+                    </label>
+                </div>
+
+                <button type="submit"
+                    class="w-full h-14 mt-4 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                    Criar Conta
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </form>
+        </div>
+
+        <p class="text-center text-sm text-slate-500 mt-8">
+            Já tem uma conta? <a href="login.html" class="text-primary font-bold hover:underline">Entrar</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // In a real app, this would call an API
+            // For the prototype, we redirect to onboarding
+            window.location.href = 'onboarding.html';
+        });
+
+        // CPF Mask
+        document.getElementById('cpf').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = v;
+        });
+
+        // Phone Mask
+        document.getElementById('phone').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+            v = v.replace(/(\d{5})(\d)/, '$1-$2');
+            e.target.value = v;
+        });
+    </script>
+
+</body>
+
+</html>

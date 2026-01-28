@@ -1,0 +1,128 @@
+<!-- Prontuário Eletrônico Avançado -->
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Prontuário Eletrônico Avançado - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Noto+Sans:wght@300..800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111418",
+                        "surface-dark": "#293038",
+                        "surface-hover": "#3c4753",
+                        "text-secondary": "#9dabb8",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "Noto Sans", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 border-r border-[#293038] bg-[#111418] shrink-0 h-full">
+        <div class="p-6 flex items-center gap-3 border-b border-[#293038] h-[72px]">
+            <div
+                class="size-8 rounded bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-xl">medical_services</span>
+            </div>
+            <h1 class="text-lg font-bold tracking-tight text-white">MedClinic PEP</h1>
+        </div>
+        <div class="flex-1 overflow-y-auto py-6 px-4 flex flex-col justify-between">
+            <div class="flex flex-col gap-2">
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-[#293038] hover:text-white transition-colors"
+                    href="agenda.html">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    <span class="text-sm font-medium">Voltar para Agenda</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="#">
+                    <span class="material-symbols-outlined">patient_list</span>
+                    <span class="text-sm font-medium">Pacientes</span>
+                </a>
+            </div>
+
+            <div class="mt-auto p-4 border-t border-[#293038]">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+                        <span data-user-initials>U</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-white" data-user-name>Usuario</span>
+                        <span class="text-xs text-text-secondary" data-user-role>Role</span>
+                    </div>
+                </div>
+                <button data-logout-button
+                    class="mt-3 flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
+                    Sair
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-[#111418]">
+        <!-- Top Search Header -->
+        <header class="h-[72px] flex items-center justify-between px-6 border-b border-[#293038] bg-[#111418] shrink-0">
+            <!-- Search -->
+            <div class="flex-1 max-w-xl">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span
+                            class="material-symbols-outlined text-text-secondary group-focus-within:text-primary transition-colors">search</span>
+                    </div>
+                    <input id="patient-search"
+                        class="block w-full pl-10 pr-3 py-2 border border-[#293038] rounded-lg leading-5 bg-[#1a1f26] text-white placeholder-text-secondary focus:outline-none focus:bg-[#293038] focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm transition-all"
+                        placeholder="Buscar paciente (Nome, CPF ou ID)..." type="text" value="Maria Silva Santos">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 ml-6">
+                <button
+                    class="flex items-center justify-center h-9 px-4 rounded-lg bg-[#293038] hover:bg-[#3c4753] text-white text-sm font-bold gap-2 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    Novo Atendimento
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8" id="pep-content">
+            <!-- Content Injected via JS -->
+            <div class="flex items-center justify-center h-full">
+                <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+    <script src="js/pep.js"></script>
+</body>
+
+</html>

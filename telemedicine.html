@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Telemedicina - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "danger": "#ef4444",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex flex-col">
+
+    <header class="h-16 border-b border-border-dark flex items-center justify-between px-6 bg-surface-dark shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined !text-[28px] font-bold">local_hospital</span>
+                <span class="font-bold text-xl">MedClinic Remote</span>
+            </div>
+            <div class="h-6 w-px bg-border-dark"></div>
+            <div>
+                <h1 class="text-sm font-bold">Ricardo Oliveira Santos</h1>
+                <p class="text-[10px] text-slate-500 uppercase">Sala de Telemedicina Ativa</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div
+                class="flex items-center gap-2 px-3 py-1 bg-danger/10 text-danger rounded-full border border-danger/20">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+                <span class="text-[10px] font-bold">AO VIVO</span>
+            </div>
+            <span class="text-sm font-medium tabular-nums">12:45</span>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Main Video Area -->
+        <main class="flex-1 relative bg-black flex items-center justify-center p-4">
+            <div class="w-full h-full rounded-2xl overflow-hidden bg-slate-900 relative shadow-inner">
+                <div class="absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrH1iaWr5YPtvuBwwujGz5qVe2cFsMPw0pbVr5NLNGy6sLSsrsJznbkvtC3rtb_7VU_M5h7nvy6bkOqFxr5DQvQ7DLbWaVNXmIT3x_66wzZylV6QPADjkhmNE9AYVWJ2_Bucd6CVaw8YE5iA4IlwuEFGxVIBp-cmw0ZuHIQ9YHVJmzxLeueFJALPE218I6G_kRdrL65BKC7dyseVv1_jobePf-28Ft8jBqH_xW414DYh0BBXqG8pZ0W-kVoAfmBnoIluPp0KmcYiA');">
+                </div>
+                <div
+                    class="absolute bottom-6 left-6 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg text-white text-[10px] font-medium border border-white/10">
+                    Paciente: Ricardo Oliveira
+                </div>
+            </div>
+
+            <!-- Self Video PiP -->
+            <div
+                class="absolute top-8 right-8 w-64 aspect-video rounded-xl overflow-hidden bg-slate-800 border-2 border-white/20 shadow-2xl z-10">
+                <div class="absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCwOR0yK9D2uE1UqLHIU0HyeKynATructuNzhcUcXoi5VCADnQ1cCwWsz9UljBXk49Ws-5QOPVV05pbX2gUGimCBv3v6f01d6iVwkP22ZNFNC9Y6QJ6efrGm-dMEC7EHrsrzFP9xSArT6xquDdmMKLp-l7k5hMCiiS9CdQFv0PSVCx1SriAHB4aa2IrCwbPm49AL2OVvHopZY5ejxOBSAOYpAnJ0nTuqBWMMcIgktBmUIhYeRn2v1mAJ53kONnlDxHG9K-0taXdr7U');">
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div
+                class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 p-3 bg-slate-800/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-20">
+                <button
+                    class="size-12 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 text-white transition-colors">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+                <button
+                    class="size-12 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 text-white transition-colors">
+                    <span class="material-symbols-outlined">videocam</span>
+                </button>
+                <button
+                    class="size-12 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 text-white transition-colors">
+                    <span class="material-symbols-outlined">present_to_all</span>
+                </button>
+                <div class="w-px h-8 bg-white/10 mx-1"></div>
+                <button
+                    class="size-12 rounded-xl flex items-center justify-center bg-danger hover:bg-red-600 text-white transition-colors"
+                    onclick="window.close();">
+                    <span class="material-symbols-outlined">call_end</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Clinical Sidebar -->
+        <aside class="w-96 border-l border-border-dark flex flex-col bg-surface-dark overflow-hidden">
+            <div class="p-6 border-b border-border-dark flex items-center justify-between">
+                <h2 class="text-sm font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">edit_note</span>
+                    Anotações Clínicas
+                </h2>
+                <span class="text-[10px] text-primary flex items-center gap-1">
+                    <span class="material-symbols-outlined !text-[12px] animate-spin">sync</span>
+                    Salvando...
+                </span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                <section>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-3">Anamnese do
+                        Atendimento</label>
+                    <textarea
+                        class="w-full min-h-[300px] bg-background-dark/50 border border-border-dark rounded-xl p-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none outline-none"
+                        placeholder="Relato do paciente..."></textarea>
+                </section>
+
+                <section class="p-4 bg-primary/5 rounded-xl border border-primary/20">
+                    <h3 class="text-xs font-bold text-primary mb-2">Prescrição Digital</h3>
+                    <p class="text-[10px] text-slate-400 leading-relaxed mb-4">A prescrição será enviada via SMS/E-mail
+                        para o paciente após o encerramento.</p>
+                    <button
+                        class="w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold transition-all shadow-lg shadow-primary/20">
+                        Gerar Prescrição
+                    </button>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/navigation.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,170 @@
+<!-- Agenda Inteligente Multimédica -->
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Agenda Inteligente Multimédica</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "surface-dark": "#1a222d",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display overflow-hidden h-screen flex transition-colors duration-200">
+
+    <!-- Sidebar Navigation -->
+    <aside
+        class="w-20 lg:w-72 bg-surface-dark border-r border-border-dark flex-shrink-0 flex flex-col transition-all duration-300">
+        <div
+            class="h-20 flex items-center justify-center lg:justify-start lg:px-6 gap-3 border-b border-border-dark lg:border-none">
+            <a href="#" data-dashboard-link class="bg-primary/20 p-2.5 rounded-lg text-primary flex-shrink-0">
+                <span class="material-symbols-outlined filled">local_hospital</span>
+            </a>
+            <div class="hidden lg:flex flex-col">
+                <h1 class="text-base font-bold leading-none tracking-tight text-white">MedClinic</h1>
+                <p class="text-xs text-slate-400 mt-1" data-user-role>Painel</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-2 lg:px-4 py-4 space-y-1 overflow-y-auto">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white shadow-lg shadow-primary/20 group relative"
+                href="#">
+                <span class="material-symbols-outlined filled">calendar_month</span>
+                <span class="font-medium hidden lg:block">Agenda</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-white transition-colors group relative"
+                href="#">
+                <span class="material-symbols-outlined">group</span>
+                <span class="font-medium hidden lg:block">Pacientes</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-white transition-colors group relative"
+                href="#">
+                <span class="material-symbols-outlined">stethoscope</span>
+                <span class="font-medium hidden lg:block">Médicos</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-white transition-colors group relative"
+                href="#">
+                <span class="material-symbols-outlined">payments</span>
+                <span class="font-medium hidden lg:block">Financeiro</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-border-dark mt-auto">
+            <div class="flex items-center gap-3 p-2 rounded-lg">
+                <div
+                    class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm border border-primary/30">
+                    <span data-user-initials>U</span>
+                </div>
+                <div class="hidden lg:block flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate" data-user-name>Usuário</p>
+                    <p class="text-xs text-slate-400 truncate" data-user-role>Role</p>
+                </div>
+            </div>
+            <button data-logout-button
+                class="mt-2 w-full flex items-center justify-center gap-2 p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors text-sm">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+                <span class="hidden lg:block">Sair</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-background-dark relative">
+        <header class="bg-surface-dark border-b border-border-dark z-20 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between px-6 py-5 gap-4">
+                <div class="flex flex-col gap-1">
+                    <h2 class="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                        Agenda Inteligente
+                        <span
+                            class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px] uppercase font-bold tracking-wider border border-border-dark">Hoje</span>
+                    </h2>
+                    <p class="text-slate-400 text-sm font-normal">Visão geral de agendamentos e disponibilidade médica.
+                    </p>
+                </div>
+                <!-- Stats Legend -->
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-medium">
+                    <div class="flex items-center gap-2 text-emerald-400">
+                        <div class="w-2.5 h-2.5 rounded bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                        <span>Agendado</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Calendar Grid Container -->
+        <div class="flex-1 overflow-auto relative flex flex-col bg-background-dark scroll-smooth">
+            <!-- Sticky Header: Resources (Doctors) -->
+            <div class="flex sticky top-0 z-30 bg-surface-dark/95 backdrop-blur border-b border-border-dark min-w-max shadow-sm"
+                id="calendar-header-doctors">
+                <!-- Time Column Header -->
+                <div
+                    class="w-20 flex-shrink-0 border-r border-border-dark bg-surface-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-slate-500 text-[20px]">schedule</span>
+                </div>
+                <!-- Doctors Header rendered via JS -->
+            </div>
+
+            <!-- Calendar Body: Time Slots & Grid -->
+            <div class="flex flex-1 min-w-max relative">
+                <!-- Time Column -->
+                <div class="w-20 flex-shrink-0 flex flex-col bg-surface-dark border-r border-border-dark text-xs text-slate-400 font-bold text-center sticky left-0 z-20 shadow-md"
+                    id="calendar-time-column">
+                    <!-- Times rendered via JS -->
+                </div>
+
+                <!-- Grid Background & Appointments -->
+                <div class="flex flex-1 relative bg-background-dark bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_96px]"
+                    id="calendar-grid">
+                    <!-- Current Time Line -->
+                    <div
+                        class="absolute top-[160px] w-full border-t-2 border-red-500 z-10 pointer-events-none flex items-center shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+                        <div class="absolute -left-[5px] w-2.5 h-2.5 bg-red-500 rounded-full"></div>
+                    </div>
+
+                    <!-- Columns rendered via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+    <script src="js/agenda.js"></script>
+</body>
+
+</html>

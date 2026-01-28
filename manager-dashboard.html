@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Gestão da Clínica - MedClinic</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: { colors: { "primary": "#197fe6", "background-dark": "#111418", "surface-dark": "#1a1f26", "border-dark": "#2a3441" }, fontFamily: { "display": ["Manrope", "sans-serif"] } } }
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
+    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
+        <div class="h-16 flex items-center px-6 border-b border-border-dark">
+            <span class="material-symbols-outlined text-primary mr-2">business</span>
+            <h1 class="text-base font-bold">MedClinic Manager</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="financial.html">
+                <span class="material-symbols-outlined">payments</span> Financeiro
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="users.html">
+                <span class="material-symbols-outlined">group</span> Equipe
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="dashboard.html">
+                <span class="material-symbols-outlined">analytics</span> KPIs
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border-dark">
+            <a href="login.html" class="flex items-center gap-2 text-sm text-slate-500 hover:text-white"><span
+                    class="material-symbols-outlined text-sm">logout</span> Sair</a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
+            <h2 class="text-xl font-bold">Painel do Gestor</h2>
+            <span class="text-sm text-slate-400">Outubro 2024</span>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div class="max-w-[1400px] mx-auto space-y-8">
+                <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Faturamento Bruto (RN-18)</p>
+                        <h3 class="text-2xl font-bold">R$ 142.580</h3>
+                        <span class="text-[10px] text-emerald-500 font-bold">+12% vs mês anterior</span>
+                    </div>
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Repasses Pendentes</p>
+                        <h3 class="text-2xl font-bold text-amber-500">R$ 85.548</h3>
+                        <span class="text-[10px] text-slate-400">60% para profissionais</span>
+                    </div>
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Consultas do Mês</p>
+                        <h3 class="text-2xl font-bold">312</h3>
+                    </div>
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Taxa de No-Show</p>
+                        <h3 class="text-2xl font-bold text-red-500">4.2%</h3>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <h3 class="font-bold mb-4">Splits Pendentes (RN-18)</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between p-4 bg-background-dark/50 rounded-xl">
+                                <div>
+                                    <p class="font-medium">Dra. Camila Rodrigues</p>
+                                    <p class="text-xs text-slate-500">Cardiologia • 28 consultas</p>
+                                </div>
+                                <span class="font-bold text-emerald-500">R$ 16.820</span>
+                            </li>
+                            <li class="flex items-center justify-between p-4 bg-background-dark/50 rounded-xl">
+                                <div>
+                                    <p class="font-medium">Dr. Pedro Lima</p>
+                                    <p class="text-xs text-slate-500">Dermatologia • 22 consultas</p>
+                                </div>
+                                <span class="font-bold text-emerald-500">R$ 9.240</span>
+                            </li>
+                        </ul>
+                        <button class="w-full mt-4 py-3 bg-primary text-white font-bold rounded-xl">Processar
+                            Repasses</button>
+                    </div>
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <h3 class="font-bold mb-4">Alertas</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3 p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+                                <span class="material-symbols-outlined text-red-500">warning</span>
+                                <div>
+                                    <p class="font-medium text-red-500">3 Reembolsos Pendentes</p>
+                                    <p class="text-xs text-slate-400">Cancelamentos há mais de 5 dias úteis</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+                                <span class="material-symbols-outlined text-amber-500">schedule</span>
+                                <div>
+                                    <p class="font-medium text-amber-500">Relatório Mensal</p>
+                                    <p class="text-xs text-slate-400">Prazo para fechamento: 5 dias</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+</body>
+
+</html>

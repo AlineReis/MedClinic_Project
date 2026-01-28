@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Complete seu Perfil - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "primary-hover": "#166cc4",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+    <style>
+        .step-item.active .step-circle {
+            @apply bg-primary text-white border-primary;
+        }
+
+        .step-item.completed .step-circle {
+            @apply bg-emerald-500 text-white border-emerald-500;
+        }
+
+        .step-item .step-circle {
+            @apply bg-transparent text-slate-500 border-border-dark;
+        }
+    </style>
+</head>
+
+<body class="bg-background-dark text-white font-display min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-border-dark bg-surface-dark px-6 py-4">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 text-primary">
+                <span class="material-symbols-outlined !text-[28px]">local_hospital</span>
+                <span class="text-lg font-bold">MedClinic</span>
+            </div>
+            <span class="text-xs text-slate-500">Passo <span id="current-step">1</span> de 3</span>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center p-6">
+        <div class="w-full max-w-2xl">
+
+            <!-- Progress Steps -->
+            <div class="flex items-center justify-center gap-4 mb-12">
+                <div class="step-item active flex items-center gap-2" data-step="1">
+                    <div
+                        class="step-circle size-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all">
+                        1</div>
+                    <span class="text-xs font-medium hidden sm:block">Dados Pessoais</span>
+                </div>
+                <div class="w-12 h-px bg-border-dark"></div>
+                <div class="step-item flex items-center gap-2" data-step="2">
+                    <div
+                        class="step-circle size-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all">
+                        2</div>
+                    <span class="text-xs font-medium hidden sm:block">Histórico Médico</span>
+                </div>
+                <div class="w-12 h-px bg-border-dark"></div>
+                <div class="step-item flex items-center gap-2" data-step="3">
+                    <div
+                        class="step-circle size-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all">
+                        3</div>
+                    <span class="text-xs font-medium hidden sm:block">Convênio</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Personal Data -->
+            <div id="step-1" class="step-content bg-surface-dark border border-border-dark rounded-2xl p-8">
+                <h2 class="text-xl font-bold mb-2">Informações Pessoais</h2>
+                <p class="text-sm text-slate-400 mb-8">Complete seus dados para agilizar futuros atendimentos.</p>
+                <form class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Data de
+                                Nascimento</label>
+                            <input type="date"
+                                class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Sexo Biológico</label>
+                            <select
+                                class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all appearance-none">
+                                <option value="">Selecione</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Feminino</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Endereço Completo</label>
+                        <input type="text" placeholder="Rua, número, bairro, cidade - UF"
+                            class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Contato de
+                            Emergência</label>
+                        <input type="text" placeholder="Nome e telefone"
+                            class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Medical History -->
+            <div id="step-2" class="step-content hidden bg-surface-dark border border-border-dark rounded-2xl p-8">
+                <h2 class="text-xl font-bold mb-2">Histórico Médico</h2>
+                <p class="text-sm text-slate-400 mb-8">Essas informações ajudam os profissionais a te atender melhor.
+                </p>
+                <form class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-3">Possui Alergias?</label>
+                        <div class="flex flex-wrap gap-3">
+                            <label
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-dark bg-background-dark hover:border-primary cursor-pointer transition-all">
+                                <input type="checkbox"
+                                    class="rounded text-primary focus:ring-primary/30 bg-transparent border-slate-500">
+                                Medicamentos
+                            </label>
+                            <label
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-dark bg-background-dark hover:border-primary cursor-pointer transition-all">
+                                <input type="checkbox"
+                                    class="rounded text-primary focus:ring-primary/30 bg-transparent border-slate-500">
+                                Alimentares
+                            </label>
+                            <label
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-dark bg-background-dark hover:border-primary cursor-pointer transition-all">
+                                <input type="checkbox"
+                                    class="rounded text-primary focus:ring-primary/30 bg-transparent border-slate-500">
+                                Nenhuma
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-3">Doenças Crônicas</label>
+                        <div class="flex flex-wrap gap-3">
+                            <label
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-dark bg-background-dark hover:border-primary cursor-pointer transition-all">
+                                <input type="checkbox"
+                                    class="rounded text-primary focus:ring-primary/30 bg-transparent border-slate-500">
+                                Diabetes
+                            </label>
+                            <label
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-dark bg-background-dark hover:border-primary cursor-pointer transition-all">
+                                <input type="checkbox"
+                                    class="rounded text-primary focus:ring-primary/30 bg-transparent border-slate-500">
+                                Hipertensão
+                            </label>
+                            <label
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-dark bg-background-dark hover:border-primary cursor-pointer transition-all">
+                                <input type="checkbox"
+                                    class="rounded text-primary focus:ring-primary/30 bg-transparent border-slate-500">
+                                Nenhuma
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Medicamentos em Uso</label>
+                        <textarea placeholder="Liste os medicamentos que você usa regularmente..." rows="3"
+                            class="w-full p-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all resize-none"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 3: Insurance -->
+            <div id="step-3" class="step-content hidden bg-surface-dark border border-border-dark rounded-2xl p-8">
+                <h2 class="text-xl font-bold mb-2">Convênio Médico</h2>
+                <p class="text-sm text-slate-400 mb-8">Opcional. Você também pode pagar como particular.</p>
+                <form class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Convênio</label>
+                        <select
+                            class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all appearance-none">
+                            <option value="">Particular (Sem Convênio)</option>
+                            <option value="unimed">Unimed</option>
+                            <option value="bradesco">Bradesco Saúde</option>
+                            <option value="sulamerica">SulAmérica</option>
+                            <option value="amil">Amil</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Número da
+                            Carteirinha</label>
+                        <input type="text" placeholder="Opcional"
+                            class="w-full h-12 px-4 rounded-xl border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all" />
+                    </div>
+                    <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 flex gap-3 mt-6">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        <p class="text-xs text-blue-300 leading-relaxed">
+                            Você pode atualizar essas informações a qualquer momento no seu perfil.
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex items-center justify-between mt-8">
+                <button id="prev-btn"
+                    class="hidden px-6 py-3 rounded-xl border border-border-dark text-slate-400 hover:text-white hover:border-slate-500 transition-all text-sm font-bold">
+                    Voltar
+                </button>
+                <div class="flex-1"></div>
+                <button id="next-btn"
+                    class="px-8 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all text-sm flex items-center gap-2">
+                    Próximo
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const currentStepEl = document.getElementById('current-step');
+
+        function updateUI() {
+            // Update step content visibility
+            document.querySelectorAll('.step-content').forEach((el, i) => {
+                el.classList.toggle('hidden', i + 1 !== currentStep);
+            });
+
+            // Update step indicators
+            document.querySelectorAll('.step-item').forEach((el) => {
+                const step = parseInt(el.dataset.step);
+                el.classList.remove('active', 'completed');
+                if (step === currentStep) el.classList.add('active');
+                if (step < currentStep) el.classList.add('completed');
+            });
+
+            // Update buttons
+            prevBtn.classList.toggle('hidden', currentStep === 1);
+            if (currentStep === totalSteps) {
+                nextBtn.innerHTML = 'Concluir <span class="material-symbols-outlined text-sm">check</span>';
+            } else {
+                nextBtn.innerHTML = 'Próximo <span class="material-symbols-outlined text-sm">arrow_forward</span>';
+            }
+            currentStepEl.textContent = currentStep;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            } else {
+                // Onboarding complete, go to dashboard
+                window.location.href = 'patient-dashboard.html';
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+{
+    "name": "MedClinic",
+    "short_name": "MedClinic",
+    "description": "Sistema de Gestão de Clínicas Médicas",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#0D1117",
+    "theme_color": "#00C896",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "pt-BR",
+    "icons": [
+        {
+            "src": "icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "medical",
+        "health",
+        "business"
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/dashboard.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Agendar Consulta",
+            "short_name": "Agendar",
+            "description": "Buscar médicos e agendar consulta",
+            "url": "/doctors.html",
+            "icons": [
+                {
+                    "src": "icons/icon-96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Minhas Consultas",
+            "short_name": "Consultas",
+            "description": "Ver minhas consultas agendadas",
+            "url": "/my-appointments.html",
+            "icons": [
+                {
+                    "src": "icons/icon-96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ]
+}

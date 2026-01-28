@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Recepção - MedClinic</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: { extend: { colors: { "primary": "#197fe6", "background-dark": "#111418", "surface-dark": "#1a1f26", "border-dark": "#2a3441" }, fontFamily: { "display": ["Manrope", "sans-serif"] } } }
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
+        <div class="h-16 flex items-center px-6 border-b border-border-dark">
+            <span class="material-symbols-outlined text-primary mr-2">local_hospital</span>
+            <h1 class="text-base font-bold">MedClinic</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
+                <span class="material-symbols-outlined">dashboard</span> Painel
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="agenda.html">
+                <span class="material-symbols-outlined">calendar_month</span> Agenda Geral
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="#">
+                <span class="material-symbols-outlined">person_add</span> Novo Paciente
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border-dark">
+            <div class="flex items-center gap-3 mb-3">
+                <div
+                    class="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+                    <span data-user-initials>U</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-white" data-user-name>Usuario</span>
+                    <span class="text-xs text-slate-400" data-user-role>Recepcionista</span>
+                </div>
+            </div>
+            <button data-logout-button
+                class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span> Sair
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
+            <h2 class="text-xl font-bold">Central de Recepção</h2>
+            <span class="text-sm text-slate-400" data-user-role>Recepcionista</span>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div class="max-w-[1400px] mx-auto space-y-8">
+                <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
+                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Agendados Hoje</p>
+                        <h3 class="text-3xl font-bold">24</h3>
+                    </div>
+                    <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl">
+                        <p class="text-xs text-amber-500 uppercase font-bold mb-1">Aguardando Check-in</p>
+                        <h3 class="text-3xl font-bold text-amber-500">5</h3>
+                    </div>
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl">
+                        <p class="text-xs text-emerald-500 uppercase font-bold mb-1">Em Atendimento</p>
+                        <h3 class="text-3xl font-bold text-emerald-500">3</h3>
+                    </div>
+                    <div class="bg-red-500/10 border border-red-500/20 p-6 rounded-2xl">
+                        <p class="text-xs text-red-500 uppercase font-bold mb-1">Ausentes (No-Show)</p>
+                        <h3 class="text-3xl font-bold text-red-500">1</h3>
+                    </div>
+                </section>
+
+                <section class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-border-dark flex items-center justify-between">
+                        <h3 class="font-bold">Próximos Check-ins</h3>
+                        <button class="text-xs text-primary font-bold">Ver Todos</button>
+                    </div>
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-border-dark/30">
+                            <tr>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Paciente</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Horário</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Profissional</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-dark">
+                            <tr class="hover:bg-border-dark/10">
+                                <td class="px-6 py-4 font-medium">Ricardo Santos</td>
+                                <td class="px-6 py-4 text-slate-400">14:30</td>
+                                <td class="px-6 py-4">Dra. Camila Rodrigues</td>
+                                <td class="px-6 py-4"><span
+                                        class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold">AGUARDANDO</span>
+                                </td>
+                                <td class="px-6 py-4"><button
+                                        class="px-3 py-1.5 bg-primary text-white text-[10px] font-bold rounded">CHECK-IN</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-border-dark/10">
+                                <td class="px-6 py-4 font-medium">Maria Clara Oliveira</td>
+                                <td class="px-6 py-4 text-slate-400">14:45</td>
+                                <td class="px-6 py-4">Dr. Pedro Lima</td>
+                                <td class="px-6 py-4"><span
+                                        class="px-2 py-0.5 rounded bg-slate-500/10 text-slate-400 text-[10px] font-bold">PENDENTE</span>
+                                </td>
+                                <td class="px-6 py-4"><button
+                                        class="px-3 py-1.5 bg-border-dark text-slate-400 text-[10px] font-bold rounded">CHECK-IN</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <h3 class="font-bold mb-4 flex items-center gap-2"><span
+                                class="material-symbols-outlined text-primary">meeting_room</span> Ocupação de Salas
+                        </h3>
+                        <ul class="space-y-3">
+                            <li
+                                class="flex items-center justify-between p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                                <span class="text-sm">Sala 1</span><span
+                                    class="text-xs text-emerald-500 font-bold">OCUPADA</span>
+                            </li>
+                            <li
+                                class="flex items-center justify-between p-3 bg-background-dark rounded-xl border border-border-dark">
+                                <span class="text-sm">Sala 2</span><span
+                                    class="text-xs text-slate-400 font-bold">LIVRE</span>
+                            </li>
+                            <li
+                                class="flex items-center justify-between p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                                <span class="text-sm">Sala 3</span><span
+                                    class="text-xs text-emerald-500 font-bold">OCUPADA</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+</body>
+
+</html>

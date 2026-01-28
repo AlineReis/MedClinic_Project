@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Agendamento - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display min-h-screen flex flex-col antialiased">
+
+    <header class="sticky top-0 z-50 border-b border-border-dark bg-surface-dark px-10 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="size-8 text-primary">
+                    <span class="material-symbols-outlined text-3xl">local_hospital</span>
+                </div>
+                <h2 class="text-lg font-bold">MedClinic</h2>
+            </div>
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-border-dark"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdg3ATnCt181ZkBPpQXMLQxPLrew5C9sqJwcXYvTjJbSCZRzlUoHr0VY9qIZg5BbDT-4QiYMy-N1fvUEoo_4VMtRHuEjDPVwDG8iujER5PwyN1aaJP1B5oOjNwuGE9GwDz54RfLK5Ze5yjfHiZgLwDW00v0O0fAEOjCsfH30xSXTrDhBGtul1umMSIcVCtp6mhS52dO2lnxOkSqzKewXP77sCylXScU47f6q_FKbh9VeNUuYSibW6LV8ZIcfOO94-vhCvq0agy478");'>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-10 py-10">
+
+        <div class="flex flex-col gap-8">
+            <div>
+                <button onclick="window.history.back()"
+                    class="text-slate-400 hover:text-white flex items-center gap-2 mb-4 transition-colors">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Voltar
+                </button>
+                <h1 class="text-3xl font-black">Selecione o melhor horário</h1>
+                <p class="text-slate-400">Dra. Ana Silva • Cardiologista • Unidade Jardins</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Date Picker -->
+                <div class="lg:col-span-1">
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <h3 class="font-bold mb-6">Sugestão de Datas</h3>
+                        <div class="flex flex-col gap-3">
+                            <button
+                                class="w-full text-left p-4 rounded-xl border border-primary bg-primary/10 transition-all">
+                                <p class="text-[10px] font-bold text-primary uppercase">Hoje</p>
+                                <p class="font-bold">Quinta, 15 Out</p>
+                            </button>
+                            <button
+                                class="w-full text-left p-4 rounded-xl border border-border-dark hover:border-slate-500 transition-all">
+                                <p class="text-[10px] font-bold text-slate-500 uppercase">Amanhã</p>
+                                <p class="font-bold">Sexta, 16 Out</p>
+                            </button>
+                            <button
+                                class="w-full text-left p-4 rounded-xl border border-border-dark hover:border-slate-500 transition-all text-slate-500">
+                                <p class="text-[10px] font-bold text-slate-600 uppercase">Próxima</p>
+                                <p class="font-bold">Segunda, 19 Out</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Times -->
+                <div class="lg:col-span-2">
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-8">
+                        <h3 class="font-bold mb-8">Horários Disponíveis</h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                            <button onclick="window.location.href='checkout.html'"
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark hover:bg-primary hover:border-primary transition-all font-bold text-sm">08:00</button>
+                            <button onclick="window.location.href='checkout.html'"
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark hover:bg-primary hover:border-primary transition-all font-bold text-sm">08:30</button>
+                            <button onclick="window.location.href='checkout.html'"
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark hover:bg-primary hover:border-primary transition-all font-bold text-sm">09:00</button>
+                            <button onclick="window.location.href='checkout.html'"
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark hover:bg-primary hover:border-primary transition-all font-bold text-sm">10:30</button>
+                            <button onclick="window.location.href='checkout.html'"
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark hover:bg-primary hover:border-primary transition-all font-bold text-sm">11:00</button>
+                            <button
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark/50 text-slate-600 cursor-not-allowed font-bold text-sm"
+                                disabled>14:00</button>
+                            <button onclick="window.location.href='checkout.html'"
+                                class="py-3 px-4 rounded-xl border border-border-dark bg-background-dark hover:bg-primary hover:border-primary transition-all font-bold text-sm">15:30</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/mock_db.js"></script>
+</body>
+
+</html>
