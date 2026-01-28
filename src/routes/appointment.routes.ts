@@ -7,7 +7,6 @@ import { UserRepository } from "../repository/user.repository.js";
 import { TransactionRepository } from "../repository/transaction.repository.js";
 import { CommissionSplitRepository } from "../repository/commission-split.repository.js";
 import { PaymentMockService } from "../services/payment-mock.service.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { AppointmentService } from "../services/appointment.service.js";
 
 const router = Router();
