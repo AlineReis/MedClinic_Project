@@ -7,22 +7,22 @@ const CACHE_NAME = 'medclinic-v1';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/login.html',
-    '/register.html',
-    '/patient-dashboard.html',
-    '/doctor-dashboard.html',
-    '/doctors.html',
-    '/slots.html',
-    '/checkout.html',
-    '/my-appointments.html',
-    '/prescription.html',
-    '/password-recovery.html',
-    '/js/mock_db.js',
-    '/js/auth.js',
-    '/js/api.js',
-    '/js/validation.js',
-    '/js/utils.js',
-    '/js/app.js',
+    '/pages/login.html',
+    '/pages/register.html',
+    '/pages/patient-dashboard.html',
+    '/pages/doctor-dashboard.html',
+    '/pages/doctors.html',
+    '/pages/slots.html',
+    '/pages/checkout.html',
+    '/pages/my-appointments.html',
+    '/pages/prescription.html',
+    '/pages/password-recovery.html',
+    '/js/services/mock_db.js',
+    '/js/services/auth.js',
+    '/js/services/api.js',
+    '/js/utils/validation.js',
+    '/js/utils/utils.js',
+    '/js/pages/app.js',
     '/css/global.css',
     '/manifest.json'
 ];
@@ -126,7 +126,7 @@ async function networkFirst(request) {
         if (cached) return cached;
 
         // Return offline page
-        return caches.match('/login.html');
+        return caches.match('/pages/login.html');
     }
 }
 
@@ -159,8 +159,8 @@ self.addEventListener('push', (event) => {
 
     const options = {
         body: data.body || 'Nova notificação do MedClinic',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-72.png',
+        icon: '/assets/icons/icon-192.png',
+        badge: '/assets/icons/icon-72.png',
         vibrate: [100, 50, 100],
         data: {
             url: data.url || '/'

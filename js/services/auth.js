@@ -77,7 +77,8 @@ const Auth = {
      */
     logout() {
         localStorage.removeItem(this.STORAGE_KEY);
-        window.location.href = 'login.html';
+        const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+        window.location.href = basePath + 'login.html';
     },
 
     /**
@@ -159,15 +160,17 @@ const Auth = {
      * @param {string|string[]} allowedRoles - Roles permitidos (opcional)
      */
     requireAuth(allowedRoles = null) {
+        const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+
         if (!this.isAuthenticated()) {
-            window.location.href = 'login.html';
+            window.location.href = basePath + 'login.html';
             return false;
         }
 
         if (allowedRoles && !this.hasRole(allowedRoles)) {
             // Redireciona para dashboard correto do usuário
             const role = this.getCurrentRole();
-            window.location.href = this.roleRoutes[role] || 'login.html';
+            window.location.href = basePath + (this.roleRoutes[role] || 'login.html');
             return false;
         }
 
@@ -180,11 +183,12 @@ const Auth = {
     redirectToDashboard() {
         const role = this.getCurrentRole();
         const route = this.roleRoutes[role];
+        const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
 
         if (route) {
-            window.location.href = route;
+            window.location.href = basePath + route;
         } else {
-            window.location.href = 'login.html';
+            window.location.href = basePath + 'login.html';
         }
     },
 

@@ -309,7 +309,8 @@ function processPayment(doctorId, time) {
         btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Sucesso!`;
 
         setTimeout(() => {
-            window.location.href = 'my-appointments.html';
+            const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+            window.location.href = basePath + 'my-appointments.html';
         }, 1000);
 
     }, 2000);

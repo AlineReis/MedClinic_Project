@@ -218,3 +218,24 @@ if (document.readyState === 'loading') {
 
 // Export
 window.Navigation = Navigation;
+
+// Helper for path resolution
+function getBasePath() {
+    return window.location.pathname.includes('/pages/') ? '' : 'pages/';
+}
+
+// Monkey-patch navigation methods to use base path
+const originalGetDashboard = Navigation.getDashboard;
+Navigation.getDashboard = function () {
+    const dashboard = originalGetDashboard.call(this);
+    return getBasePath() + dashboard;
+};
+
+const originalLogout = Navigation.logout;
+Navigation.logout = function () {
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('medclinic_auth');
+    window.location.href = getBasePath() + 'login.html';
+};
+

@@ -11,49 +11,49 @@
     "lang": "pt-BR",
     "icons": [
         {
-            "src": "icons/icon-72.png",
+            "src": "assets/icons/icon-72.png",
             "sizes": "72x72",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-96.png",
+            "src": "assets/icons/icon-96.png",
             "sizes": "96x96",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-128.png",
+            "src": "assets/icons/icon-128.png",
             "sizes": "128x128",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-144.png",
+            "src": "assets/icons/icon-144.png",
             "sizes": "144x144",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-152.png",
+            "src": "assets/icons/icon-152.png",
             "sizes": "152x152",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-192.png",
+            "src": "assets/icons/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-384.png",
+            "src": "assets/icons/icon-384.png",
             "sizes": "384x384",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icons/icon-512.png",
+            "src": "assets/icons/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
@@ -77,10 +77,10 @@
             "name": "Agendar Consulta",
             "short_name": "Agendar",
             "description": "Buscar médicos e agendar consulta",
-            "url": "/doctors.html",
+            "url": "/pages/doctors.html",
             "icons": [
                 {
-                    "src": "icons/icon-96.png",
+                    "src": "assets/icons/icon-96.png",
                     "sizes": "96x96"
                 }
             ]
@@ -89,10 +89,10 @@
             "name": "Minhas Consultas",
             "short_name": "Consultas",
             "description": "Ver minhas consultas agendadas",
-            "url": "/my-appointments.html",
+            "url": "/pages/my-appointments.html",
             "icons": [
                 {
-                    "src": "icons/icon-96.png",
+                    "src": "assets/icons/icon-96.png",
                     "sizes": "96x96"
                 }
             ]
