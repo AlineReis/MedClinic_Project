@@ -30,17 +30,17 @@ export interface IUserRepository {
     pageSize: number;
     total: number;
     totalPages: number;
-  }>;  
+  }>;
   findWithDetailsById(userId: number): Promise<UserWithDetails | null>;
-  delete(id: number): Promise<void>
+  delete(id: number): Promise<void>;
   updateById(
-  userId: number,
-  patch: Partial<{
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-  }>,
-): Promise<void>;
-
+    userId: number,
+    patch: Partial<{
+      name: string;
+      email: string;
+      phone: string;
+      password: string;
+    }>,
+  ): Promise<void>;
+  deleteById(id: number): Promise<void>;
 }

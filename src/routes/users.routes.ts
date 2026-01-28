@@ -13,10 +13,6 @@ const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);
 
-/**
- * GET /api/v1/:clinic_id/users
- * Apenas clinic_admin, receptionist e system_admin
- */
 router.get(
   "/",
   authMiddleware,
@@ -24,8 +20,13 @@ router.get(
   userController.listByClinic,
 );
 router.get("/:id", authMiddleware, userController.getById);
-
-
 router.put("/:id", authMiddleware, userController.update);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware(["clinic_admin", "system_admin"]),
+  userController.delete_User,
+);
 
 export { router as userRoutes };

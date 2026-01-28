@@ -295,4 +295,53 @@ export class UserService {
     const { password, ...withoutPassword } = updated as any;
     return withoutPassword;
   }
+
+  public async deleteUser(input: {
+    clinicId: number;
+    requester: { id: number; role: UserRole; clinic_id?: number | null };
+    targetUserId: number;
+  }): Promise<void> {
+    const { clinicId, requester, targetUserId } = input;
+
+    if (!Number.isFinite(clinicId) || clinicId <= 0) {
+      throw new ValidationError("clinic_id inválido");
+    }
+
+    if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+      throw new ValidationError("id inválido");
+    }
+
+    if (!requester) {
+      throw new AuthError("User not authenticated");
+    }
+
+    // só admin da clínica e admin do sistema
+    const allowed: UserRole[] = ["clinic_admin", "system_admin"];
+    if (!allowed.includes(requester.role)) {
+      throw new ForbiddenError("Forbidden");
+    }
+
+    // admin da clínica só pode atuar na própria clínica
+    if (requester.role === "clinic_admin") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+    }
+
+    // (opcional, mas recomendado) evitar deletar a si mesmo
+    if (requester.id === targetUserId) {
+      throw new ValidationError("Não é permitido excluir o próprio usuário");
+    }
+
+    // garante que usuário existe (e está ativo, já que findById filtra deleted_at)
+    const target = await this.userRepository.findById(targetUserId);
+    if (!target) {
+      throw new NotFoundError("Usuário não encontrado");
+    }
+
+    // se vocês quiserem restringir para não deletar system_admin:
+    // if (target.role === "system_admin") throw new ForbiddenError("Forbidden");
+
+    await this.userRepository.deleteById(targetUserId);
+  }
 }

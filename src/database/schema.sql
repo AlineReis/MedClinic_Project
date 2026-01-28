@@ -31,8 +31,15 @@ CREATE TABLE IF NOT EXISTS users (
     )),
     cpf TEXT UNIQUE,
     phone TEXT,
+
+    -- ✅ NOVO: vinculo com clinica (sem FK porque nao existe tabela clinics neste schema)
+    clinic_id INTEGER,
+
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT
+    updated_at TEXT,
+
+    -- ✅ NOVO: soft delete (quando preenchido, o usuario fica "removido" do sistema)
+    deleted_at TEXT
 );
 
 -- Trigger: Valida campos obrigatorios para roles especificas
@@ -392,6 +399,10 @@ CREATE TABLE IF NOT EXISTS monthly_reports (
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_cpf ON users(cpf);
+
+-- ✅ NOVOS indices para clinic_id e soft delete
+CREATE INDEX IF NOT EXISTS idx_users_clinic_id ON users(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_users_deleted_at ON users(deleted_at);
 
 -- Indices para professional_details
 CREATE INDEX IF NOT EXISTS idx_professional_details_user_id ON professional_details(user_id);

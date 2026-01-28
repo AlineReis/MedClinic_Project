@@ -2,15 +2,20 @@ import type { ProfessionalDetails } from "@models/professional.model.js";
 import type { CreateUserPayload, User, UserWithDetails } from "@models/user.js";
 import type { IUserRepository } from "./iuser.repository.js";
 
+type InMemoryUser = User & {
+  clinic_id?: number | null;
+  deleted_at?: string | null;
+};
+
 export class InMemoryUserRepository implements IUserRepository {
-  private users: UserWithDetails[] = [];
+  private users: (UserWithDetails & InMemoryUser)[] = [];
 
   public async create(payload: CreateUserPayload): Promise<number> {
     const id = this.generateId();
 
     const now = new Date().toISOString();
 
-    const record: UserWithDetails = {
+    const record = {
       id,
       name: payload.name,
       email: payload.email,
@@ -19,15 +24,16 @@ export class InMemoryUserRepository implements IUserRepository {
       cpf: payload.cpf ?? null,
       phone: payload.phone ?? undefined,
 
-      // importante para as rotas por clínica e para manter padrão com DB
+      //importante para as rotas por clínica e para manter padrão com DB
       clinic_id: (payload as any).clinic_id ?? 1,
 
       created_at: now,
       updated_at: now,
+      deleted_at: null,
 
       // pode existir/ser usado nos testes
       professional_details: null,
-    };
+    } as UserWithDetails & InMemoryUser;
 
     this.users.push(record);
 
@@ -58,32 +64,42 @@ export class InMemoryUserRepository implements IUserRepository {
   }
 
   public async findByEmail(email: string): Promise<User | null> {
-    return this.users.find((user) => user.email === email) ?? null;
+    return (
+      this.users.find((u) => u.email === email && u.deleted_at == null) ?? null
+    );
   }
 
   public async findById(id: number): Promise<User | null> {
-    return this.users.find((user) => user.id === id) ?? null;
+    return this.users.find((u) => u.id === id && u.deleted_at == null) ?? null;
   }
 
   public async findByCpf(cpf: string): Promise<User | null> {
-    return this.users.find((user) => user.cpf === cpf) ?? null;
+    return (
+      this.users.find((u) => u.cpf === cpf && u.deleted_at == null) ?? null
+    );
   }
 
   public async findProfessionalDetailsByUserId(
     userId: number,
   ): Promise<ProfessionalDetails | null> {
-    const user = this.users.find((u) => u.id === userId);
+    const user = this.users.find(
+      (u) => u.id === userId && u.deleted_at == null,
+    );
     return user?.professional_details ?? null;
   }
 
   public async findByClinicId(clinicId: number): Promise<User[]> {
-    return this.users.filter((user) => user.clinic_id === clinicId);
+    return this.users.filter(
+      (u) => u.clinic_id === clinicId && u.deleted_at == null,
+    );
   }
 
   public async findWithDetailsById(
     userId: number,
   ): Promise<UserWithDetails | null> {
-    const user = this.users.find((u) => u.id === userId);
+    const user = this.users.find(
+      (u) => u.id === userId && u.deleted_at == null,
+    );
     return user ?? null;
   }
 
@@ -114,7 +130,7 @@ export class InMemoryUserRepository implements IUserRepository {
 
     const pageSize = Math.min(pageSizeRaw, 50);
 
-    let items = this.users.filter((u) => u.clinic_id === clinicId);
+    let items = this.users.filter((u) => u.clinic_id === clinicId && u.deleted_at == null);
 
     if (filters.role) {
       items = items.filter((u) => u.role === filters.role);
@@ -149,7 +165,7 @@ export class InMemoryUserRepository implements IUserRepository {
       password: string;
     }>,
   ): Promise<void> {
-    const idx = this.users.findIndex((u) => u.id === userId);
+    const idx = this.users.findIndex((u) => u.id === userId && u.deleted_at == null);
     if (idx === -1) return;
 
     this.users[idx] = {
@@ -168,4 +184,12 @@ export class InMemoryUserRepository implements IUserRepository {
     return this.users.length + 1;
   }
 
+  public async deleteById(id: number): Promise<void> {
+    const user = this.users.find((u) => u.id === id && u.deleted_at == null);
+    if (!user) return;
+
+    const now = new Date().toISOString();
+    user.deleted_at = now;
+    user.updated_at = now;
+  }
 }

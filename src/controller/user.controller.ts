@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response } from "express";
 import type { UserService } from "../services/user.service.js";
 import { AuthError, ValidationError } from "../utils/errors.js";
 
-
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -71,11 +70,11 @@ export class UserController {
         clinicId,
         requester,
         filters: {
-          role: (req.query.role || 'health_professional') as string,
+          role: (req.query.role || "health_professional") as string,
           search: search as string,
-          page: page ? Number(page) : 1,       // Converte string para número
-          pageSize: pageSize ? Number(pageSize) : 10 // Converte string para número
-          }
+          page: page ? Number(page) : 1, // Converte string para número
+          pageSize: pageSize ? Number(pageSize) : 10, // Converte string para número
+        },
       });
 
       return res.status(200).json({
@@ -88,38 +87,72 @@ export class UserController {
   };
 
   public update = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const clinicId = Number(req.params.clinic_id);
-    const targetUserId = Number(req.params.id);
+    try {
+      const clinicId = Number(req.params.clinic_id);
+      const targetUserId = Number(req.params.id);
 
-    if (!Number.isFinite(clinicId) || clinicId <= 0) {
-      throw new ValidationError("clinic_id inválido");
+      if (!Number.isFinite(clinicId) || clinicId <= 0) {
+        throw new ValidationError("clinic_id inválido");
+      }
+
+      if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+        throw new ValidationError("id inválido");
+      }
+
+      const requester = req.user;
+      if (!requester) {
+        throw new AuthError("User not authenticated");
+      }
+
+      const user = await this.userService.updateUserScoped({
+        clinicId,
+        requester,
+        targetUserId,
+        data: req.body,
+      });
+
+      return res.status(200).json({
+        success: true,
+        user,
+        message: "Usuário atualizado com sucesso",
+      });
+    } catch (error) {
+      return next(error);
     }
+  };
 
-    if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
-      throw new ValidationError("id inválido");
+  public delete_User = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const clinicId = Number(req.params.clinic_id);
+      const targetUserId = Number(req.params.id);
+
+      if (!Number.isFinite(clinicId) || clinicId <= 0) {
+        throw new ValidationError("clinic_id inválido");
+      }
+
+      if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+        throw new ValidationError("id inválido");
+      }
+
+      const requester = req.user;
+      if (!requester) {
+        throw new AuthError("User not authenticated");
+      }
+
+      await this.userService.deleteUser({
+        clinicId,
+        requester: requester as any,
+        targetUserId,
+      });
+
+      // 204 sem corpo é padrão para delete
+      return res.status(204).send();
+    } catch (error) {
+      return next(error);
     }
-
-    const requester = req.user;
-    if (!requester) {
-      throw new AuthError("User not authenticated");
-    }
-
-    const user = await this.userService.updateUserScoped({
-      clinicId,
-      requester,
-      targetUserId,
-      data: req.body,
-    });
-
-    return res.status(200).json({
-      success: true,
-      user,
-      message: "Usuário atualizado com sucesso",
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
+  };
 }

@@ -21,6 +21,7 @@ export interface User {
   phone?: string;
 
   clinic_id?: number | null;
+  deleted_at?: string | null;
 
   created_at?: string;
   updated_at?: string | null;
