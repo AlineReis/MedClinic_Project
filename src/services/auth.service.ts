@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 import type { AuthResult, CreateUserPayload } from "../models/user.js";
 
-import { env } from "@config/config.js";
+import { env } from "../config/config.js";
 import type { IUserRepository } from "../repository/iuser.repository.js";
 import { AuthError, ConflictError, ValidationError } from "../utils/errors.js";
 import { SecurityUtils } from "../utils/security.js";
@@ -16,7 +16,8 @@ import {
 } from "../utils/validators.js";
 
 export class AuthService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(private readonly userRepository: IUserRepository) { }
+  // ... (rest of methods) keep them if possible or replace block
 
   public async registerPatient(input: CreateUserPayload): Promise<AuthResult> {
     this.validateRegistrationInput(input);
@@ -116,6 +117,21 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
+    };
+  }
+
+  public async getProfile(userId: number) {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new AuthError("User not found");
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     };
   }
 }
