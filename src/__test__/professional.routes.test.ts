@@ -6,7 +6,7 @@ import { ProfessionalService } from "../services/professional.service.js";
 class FakeProfessionalService extends ProfessionalService {
   public static lastGetAvailabilityArgs: any[] = [];
   constructor() {
-    super({} as any, {} as any, {} as any, {} as any, {} as any);
+    super({} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
   }
 
   public override async listProfessionals(

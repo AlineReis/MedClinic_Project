@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { CreateExamRequestPayload } from "../models/exam.js";
 import { ExamService } from "../services/exam.service.js";
+import type { UserRole } from "../models/user.js";
 
 export class ExamController {
   constructor(private examService: ExamService) {}
@@ -75,4 +76,39 @@ export class ExamController {
       return res.status(500).json({ error: "Erro interno." });
     }
   }
+
+  /**
+   * RN-14 & RN-15: Release exam result to patient and professional
+   * Only lab_tech or admin can release
+   */
+  public releaseResult = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const examId = parseInt(req.params.id);
+      const user = req.user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: { message: "Authentication required" },
+        });
+      }
+
+      const exam = await this.examService.releaseExamResult(examId, {
+        id: user.id,
+        role: user.role as UserRole,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Exam result released successfully. Notifications sent.",
+        data: exam,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  };
 }

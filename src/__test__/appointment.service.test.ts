@@ -66,7 +66,15 @@ describe('AppointmentService', () => {
             send: jest.fn().mockImplementation(async () => {})
         } as unknown as jest.Mocked<ResendEmailService>;
 
-        appointmentService = new AppointmentService(appointmentRepositoryMock, availabilityRepositoryMock, userRepositoryMock, paymentMockServiceMock, emailServiceMock);
+        appointmentService = new AppointmentService(
+            appointmentRepositoryMock,
+            availabilityRepositoryMock,
+            userRepositoryMock,
+            {} as any, // transactionRepository
+            {} as any, // commissionSplitRepository
+            paymentMockServiceMock,
+            emailServiceMock
+        );
     });
 
     describe('scheduleAppointment', () => {
