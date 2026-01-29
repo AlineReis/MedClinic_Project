@@ -164,11 +164,16 @@ export class AppointmentRepository {
   }
 
   // Check for active appointments for a user (either as patient or professional)
+  //Bloqueia soft delete se houver consulta pendente (status ativo ou pagamento pendente)
   async checkActiveAppointments(userId: number): Promise<boolean> {
     const sql = `
              SELECT 1 FROM appointments
              WHERE (patient_id = ? OR professional_id = ?)
              AND status NOT IN ('cancelled_by_patient', 'cancelled_by_clinic', 'no_show', 'completed')
+             AND (
+               status IN ('scheduled', 'confirmed', 'waiting', 'in_progress', 'rescheduled')
+               OR payment_status = 'pending'
+             )
              LIMIT 1
         `;
 
