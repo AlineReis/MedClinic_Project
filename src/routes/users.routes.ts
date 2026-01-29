@@ -28,4 +28,11 @@ router.delete(
   userController.delete_User,
 );
 
+// Phase 5: Create user by admin
+router.post(
+  "/",
+  roleMiddleware(["clinic_admin", "system_admin"]),
+  userController.create,
+);
+
 export { router as userRoutes };

@@ -101,10 +101,18 @@ export class ExamRepository {
     labTechId: number,
   ): Promise<void> {
     const sql = `
-            UPDATE exam_requests 
-            SET result_file_url = ?, result_text = ?, lab_tech_id = ?, status = 'ready', updated_at = CURRENT_TIMESTAMP 
+            UPDATE exam_requests
+            SET result_file_url = ?, result_text = ?, lab_tech_id = ?, status = 'ready', updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
     await database.run(sql, [resultUrl, resultText, labTechId, id]);
+  }
+
+  /**
+   * Phase 5: Update scheduled date for exam collection
+   */
+  async updateScheduledDate(id: number, scheduledDate: string): Promise<void> {
+    const sql = `UPDATE exam_requests SET scheduled_date = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    await database.run(sql, [scheduledDate, id]);
   }
 }

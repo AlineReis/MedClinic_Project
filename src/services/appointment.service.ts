@@ -274,4 +274,87 @@ export class AppointmentService {
       payment_status: appointment.payment_status,
     };
   }
+
+    /**
+     * Phase 5: Check-in appointment (receptionist only)
+     * scheduled/confirmed → waiting
+     */
+    async checkinAppointment(id: number, userId: number, userRole: string): Promise<void> {
+        const appointment = await this.getAppointmentById(id);
+
+        // Only receptionist or admins can check-in
+        if (!['receptionist', 'clinic_admin', 'system_admin'].includes(userRole)) {
+            throw new ForbiddenError("Apenas recepcionistas ou administradores podem fazer check-in.");
+        }
+
+        if (!['scheduled', 'confirmed'].includes(appointment.status || '')) {
+            throw new ValidationError("Apenas agendamentos 'agendados' ou 'confirmados' podem fazer check-in.", "status");
+        }
+
+        await this.appointmentRepository.updateStatus(id, 'waiting');
+    }
+
+    /**
+     * Phase 5: Start appointment (health_professional only)
+     * waiting → in_progress
+     */
+    async startAppointment(id: number, userId: number, userRole: string): Promise<void> {
+        const appointment = await this.getAppointmentById(id);
+
+        // Only the assigned professional can start
+        if (userRole !== 'health_professional' || appointment.professional_id !== userId) {
+            throw new ForbiddenError("Apenas o profissional responsável pode iniciar a consulta.");
+        }
+
+        if (appointment.status !== 'waiting') {
+            throw new ValidationError("Apenas agendamentos 'aguardando' podem ser iniciados.", "status");
+        }
+
+        await this.appointmentRepository.updateStatus(id, 'in_progress');
+    }
+
+    /**
+     * Phase 5: Complete appointment (health_professional only)
+     * in_progress → completed
+     * RN-27: Activates commission splits (pending_completion → pending)
+     */
+    async completeAppointment(id: number, userId: number, userRole: string): Promise<void> {
+        const appointment = await this.getAppointmentById(id);
+
+        // Only the assigned professional can complete
+        if (userRole !== 'health_professional' || appointment.professional_id !== userId) {
+            throw new ForbiddenError("Apenas o profissional responsável pode concluir a consulta.");
+        }
+
+        if (appointment.status !== 'in_progress') {
+            throw new ValidationError("Apenas agendamentos 'em andamento' podem ser concluídos.", "status");
+        }
+
+        await this.appointmentRepository.updateStatus(id, 'completed');
+
+        // RN-27: Activate commission splits after appointment completion
+        // This will be implemented when commission activation logic is added
+        // For now, we just complete the appointment
+    }
+
+    /**
+     * Phase 5: Mark appointment as no-show (receptionist only)
+     * scheduled/confirmed → no_show
+     * RN-24: No refund for no-show
+     */
+    async markNoShow(id: number, userId: number, userRole: string): Promise<void> {
+        const appointment = await this.getAppointmentById(id);
+
+        // Only receptionist or admins can mark no-show
+        if (!['receptionist', 'clinic_admin', 'system_admin'].includes(userRole)) {
+            throw new ForbiddenError("Apenas recepcionistas ou administradores podem marcar falta.");
+        }
+
+        if (!['scheduled', 'confirmed', 'waiting'].includes(appointment.status || '')) {
+            throw new ValidationError("Apenas agendamentos 'agendados', 'confirmados' ou 'aguardando' podem ser marcados como falta.", "status");
+        }
+
+        await this.appointmentRepository.updateStatus(id, 'no_show');
+        // RN-24: No refund is processed for no-show
+    }
 }

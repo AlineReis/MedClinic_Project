@@ -33,4 +33,10 @@ router.patch("/:id/confirm", appointmentController.confirm);
 router.delete("/:id", appointmentController.cancel);
 router.post("/:id/reschedule", appointmentController.reschedule);
 
+// Phase 5: Appointment workflow endpoints
+router.post("/:id/checkin", appointmentController.checkin);
+router.post("/:id/start", appointmentController.start);
+router.post("/:id/complete", appointmentController.complete);
+router.post("/:id/no-show", appointmentController.noShow);
+
 export { router as appointmentRoutes };
