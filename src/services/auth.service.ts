@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 import type { AuthResult, CreateUserPayload } from "../models/user.js";
 
-import { env } from "@config/config.js";
+import { env } from "../config/config.js";
 import type { IUserRepository } from "../repository/iuser.repository.js";
 import { AuthError, ConflictError, ValidationError } from "../utils/errors.js";
 import { SecurityUtils } from "../utils/security.js";
