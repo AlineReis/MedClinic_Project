@@ -1,5 +1,5 @@
+import type { UserSession } from "types/auth"
 import { request } from "../services/apiService"
-import type { UserSession } from "./authStore"
 import { uiStore } from "./uiStore"
 
 export interface AppointmentSummary {

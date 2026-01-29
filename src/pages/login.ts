@@ -1,15 +1,9 @@
 import { roleRoutes } from "../config/roleRoutes"
-import { ApiResponse, handleError, request } from "../services/apiService"
-import { authStore, UserRole, UserSession } from "../stores/authStore"
+import { handleError } from "../services/apiService"
+import { login as authLogin } from "../services/authService"
+import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
-
-interface LoginResponsePayload {
-  user: UserSession
-}
-
-type LoginResponseEnvelope = ApiResponse<LoginResponsePayload> & {
-  user?: UserSession
-}
+import type { UserRole, UserSession } from "../types/auth"
 
 const roleCredentials: Record<UserRole, { email: string; password: string }> = {
   patient: { email: "paciente@medclinic.com", password: "Paciente@123" },
@@ -49,8 +43,6 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
     const password = passwordInput.value.trim()
     const role = roleSelect.value as UserRole
 
-    console.log("Submitting login", { email, role })
-
     if (!email || !password) {
       uiStore.addToast("warning", "Preencha email e senha para continuar.")
       renderToasts()
@@ -58,33 +50,19 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
     }
 
     try {
-      const response = await request<LoginResponsePayload>(
-        "/auth/login",
-        "POST",
-        {
-          email,
-          password,
-          role,
-        },
-      )
-
-      const normalizedResponse = response as LoginResponseEnvelope
-      const loginUser =
-        normalizedResponse.user ?? extractLoginUser(normalizedResponse)
-
-      console.log("login response", response)
+      const response = await authLogin({ email, password, role })
+      const loginUser = response.data?.user
 
       if (!loginUser) {
         uiStore.addToast(
           "error",
-          response.error?.message || "Não foi possível fazer login.",
+          response.error?.message ?? "Não foi possível fazer login.",
         )
         renderToasts()
         return
       }
 
       const validatedSession = await handleSuccessfulLogin(loginUser)
-
       if (!validatedSession) return
 
       window.location.href = roleRoutes[validatedSession.role] || "index.html"
@@ -148,16 +126,4 @@ function renderToasts() {
     toastElement.textContent = toast.text
     toastContainer.appendChild(toastElement)
   })
-}
-
-function extractLoginUser(response: LoginResponseEnvelope): UserSession | null {
-  if (response.user) {
-    return response.user
-  }
-
-  if (response.success && response.data?.user) {
-    return response.data.user
-  }
-
-  return null
 }
