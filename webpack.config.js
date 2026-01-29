@@ -19,6 +19,7 @@ module.exports = (env, argv) => {
     entry: {
       main: "./src/index.ts",
       login: "./src/pages/login.ts",
+      register: "./src/pages/register.ts",
       patientDashboard: "./src/pages/patientDashboard.ts",
       myAppointments: "./src/pages/myAppointments.ts",
       examsPage: "./src/pages/examsPage.ts",
@@ -28,7 +29,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, "dist"),
       filename: "js/[name].[contenthash:8].js",
       clean: true,
-      publicPath: "",
+      publicPath: "/",
     },
     module: {
       rules: [
@@ -68,6 +69,12 @@ module.exports = (env, argv) => {
         template: "./pages/login.html",
         filename: "pages/login.html",
         chunks: ["login"],
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/register.html",
+        filename: "pages/register.html",
+        chunks: ["register"],
         publicPath: "/",
       }),
       new HtmlWebpackPlugin({
@@ -111,6 +118,8 @@ module.exports = (env, argv) => {
                 "**/schedule-appointment.html",
                 "**/my-appointments.html",
                 "**/exams.html",
+                "**/patient-dashboard.html",
+                "**/register.html",
                 ...mainPages.map(page => `**/${page}`),
               ],
             },

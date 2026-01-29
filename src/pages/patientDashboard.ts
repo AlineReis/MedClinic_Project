@@ -1,4 +1,6 @@
-import { logout as logoutService } from "../services/authService"
+import "../../css/global.css"
+import { Navigation } from "../components/Navigation"
+import { ToastContainer } from "../components/ToastContainer"
 import { authStore } from "../stores/authStore"
 import {
   DASHBOARD_APPOINTMENTS_EVENT,
@@ -15,36 +17,38 @@ const nextAppointmentContainer = document.querySelector(
 const activityList = document.querySelector(
   "[data-activity-list]",
 ) as HTMLTableSectionElement | null
-const toastContainer = document.getElementById("toast-container")
+
+let toastContainer: ToastContainer | null = null
+let navigation: Navigation | null = null
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupLogout()
+  toastContainer = new ToastContainer()
+  navigation = new Navigation()
   hydrateSessionUser()
   window.addEventListener(
     DASHBOARD_APPOINTMENTS_EVENT,
     handleDashboardUpdate as EventListener,
   )
-  renderToasts()
+  init()
 })
 
-async function setupLogout() {
-  const logoutButton = document.querySelector("[data-logout-button]")
-  if (!logoutButton) return
+async function init() {
+  const session = await authStore.refreshSession()
 
-  logoutButton.addEventListener("click", async () => {
-    const response = await logoutService()
-    if (!response.success) {
-      uiStore.addToast(
-        "error",
-        response.error?.message ?? "Não foi possível sair da sua conta.",
-      )
-      renderToasts()
-      return
-    }
+  hydrateSessionUser()
 
-    authStore.clearSession()
-    window.location.href = getBasePath() + "login.html"
-  })
+  if (!session) {
+    window.location.href = "/pages/login.html"
+    return
+  }
+
+  if (session.role !== "patient") {
+    uiStore.addToast("warning", "Acesso restrito a pacientes.")
+    setTimeout(() => {
+      window.location.href = "/"
+    }, 2000)
+    return
+  }
 }
 
 function hydrateSessionUser() {
@@ -71,7 +75,6 @@ function handleDashboardUpdate(event: CustomEvent<DashboardEventDetail>) {
     detail.isLoading,
     detail.hasError,
   )
-  renderToasts()
 }
 
 function renderNextAppointment(
@@ -353,16 +356,4 @@ function getSessionFromStorage(): UserSession | null {
 
 function getBasePath() {
   return window.location.pathname.includes("/pages/") ? "" : "pages/"
-}
-
-function renderToasts() {
-  if (!toastContainer) return
-  toastContainer.innerHTML = ""
-  uiStore.getToasts().forEach(toast => {
-    const toastElement = document.createElement("div")
-    toastElement.className =
-      "rounded-lg px-4 py-2 text-sm shadow-lg border border-border-dark bg-surface-dark"
-    toastElement.textContent = toast.text
-    toastContainer.appendChild(toastElement)
-  })
 }

@@ -77,3 +77,12 @@
 - Adjusted schedule-appointment availability rendering to consume flat availability arrays and aligned the card layout with the legacy `app.js` markup.
 - Fixed `getProfessionalAvailability` typing to consistently return `ApiResponse<ProfessionalAvailabilityEntry[]>`.
 - Restored the checkout/payment modal from `app.js`, wiring slot buttons to open the modal in `scheduleAppointment.ts`.
+
+## 2026-01-29 Session Notes (Merge + Dashboard)
+
+- Removed the duplicate `src/pages/patient-dashboard.ts` file; the canonical implementation now lives in `src/pages/patientDashboard.ts`.
+- Initialized `ToastContainer` and `Navigation` only after `DOMContentLoaded` to avoid missing DOM targets.
+- Ensured patient dashboard header hydration runs after `authStore.refreshSession()` so the UI updates once the session is available.
+- Hardened `Navigation` to guard against empty names and to compute initials safely.
+- Observed that `/auth/profile` currently returns `{ id, email, role }` without `name`, which is why the header stays blank (backend dependency).
+- Logout toast depends on backend returning `success: false`; offline behavior differs from login because it returns a network error rather than a success envelope.

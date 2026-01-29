@@ -1,25 +1,25 @@
-# 🚩 Handoff - 2026-01-29 03:12 BRT
+# 🚩 Handoff - 2026-01-29 09:54 BRT
 
 ### 🎯 Objetivo da Sessão Anterior
 
-- Ajustar o portal de agendamento (`schedule-appointment`) para usar o payload real do backend e restaurar o comportamento visual/checkout do `app.js`.
+- Revisar merge dos ajustes de dashboard/registro, corrigir inicialização de toasts e header, e registrar dependências do backend (payload de `/auth/profile`).
 
 ### ✅ Progresso Realizado
 
-- `src/pages/scheduleAppointment.ts`: cards atualizados para o layout do `app.js`, preview de horários usando array flat, modal de pagamento restaurado (createCheckoutModal), clique nos horários abre modal.
-- `src/services/professionalsService.ts`: normalização de `/professionals` para aceitar array direto; `/professionals/:id/availability` agora retorna array flat (`{ date, time, is_available }`) sem modificar estrutura.
-- `src/types/professionals.ts`: tipos ajustados para `ProfessionalAvailabilityEntry` com `is_available`.
-- `PROGRESS-backend-integration.md`: histórico atualizado com as entregas acima.
-- Build validado com `npm run build` (warnings apenas de tamanho de assets).
+- Removido `src/pages/patient-dashboard.ts` (arquivo antigo/duplicado) para consolidar em `src/pages/patientDashboard.ts`.
+- `src/pages/patientDashboard.ts`: inicialização de `ToastContainer` e `Navigation` movida para `DOMContentLoaded`, sincronização do header após `refreshSession`, e hidratação de sessão reforçada.
+- `src/components/Navigation.ts`: guardas contra `name` vazio, iniciais seguras, e logout verificando `response.success`.
+- Confirmado que o header depende de `name` retornado por `/auth/profile` (backend atual retorna apenas `id/email/role`).
 
 ### ⚠️ Estado de Alerta (Bugs e Bloqueios)
 
-- Nenhum bug crítico pendente. Validar manualmente o clique nos horários e abertura do modal no browser.
+- Backend `/auth/profile` não retorna `name`, então header fica vazio (não é bug frontend).
+- Toast de erro no logout só aparece se o endpoint responder com `success: false` (backend offline não dispara o mesmo fluxo de erro que o login).
 
 ### 🚀 Próximos Passos Imediatos
 
-1. Abrir `pages/schedule-appointment.html`, clicar em “Ver calendário” e em um horário para confirmar que o modal aparece corretamente.
-2. Definir se o fluxo de pagamento deve disparar `POST /appointments` (integrar backend) ou continuar mock.
+1. Alinhar com backend para incluir `name` no payload de `/auth/profile`.
+2. Confirmar se o logout deve exibir toast em falha de rede (não somente `success: false`).
 
 ---
 
