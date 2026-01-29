@@ -24,6 +24,10 @@ module.exports = (env, argv) => {
       myAppointments: "./src/pages/myAppointments.ts",
       examsPage: "./src/pages/examsPage.ts",
       scheduleAppointment: "./src/pages/scheduleAppointment.ts",
+      doctorDashboard: "./src/pages/doctorDashboard.ts",
+      receptionDashboard: "./src/pages/receptionDashboard.ts",
+      adminDashboard: "./src/pages/adminDashboard.ts",
+      usersPage: "./src/pages/usersPage.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -99,6 +103,10 @@ module.exports = (env, argv) => {
               ...(page === "patient-dashboard.html"
                 ? ["patientDashboard"]
                 : []),
+              ...(page === "doctor-dashboard.html" ? ["doctorDashboard"] : []),
+              ...(page === "reception-dashboard.html" ? ["receptionDashboard"] : []),
+              ...(page === "admin-dashboard.html" ? ["adminDashboard"] : []),
+              ...(page === "users.html" ? ["usersPage"] : []),
             ],
             publicPath: "/",
           }),
@@ -120,6 +128,10 @@ module.exports = (env, argv) => {
                 "**/exams.html",
                 "**/patient-dashboard.html",
                 "**/register.html",
+                "**/doctor-dashboard.html",
+                "**/reception-dashboard.html",
+                "**/admin-dashboard.html",
+                "**/users.html",
                 ...mainPages.map(page => `**/${page}`),
               ],
             },

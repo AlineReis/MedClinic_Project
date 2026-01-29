@@ -48,7 +48,7 @@
 
 **Next Action:** Document this plan as a shared artifact for the team (done here) and schedule the next work sprint focusing on finishing Authentication (Fase 2) before moving down the Kanban columns.
 
-## 2026-01-29 Updates
+## 2026-01-29 Updates (sessões 4-19)
 
 - Added `src/services/appointmentsService.ts` to centralize `/appointments` queries with typed filters and adapter mapping to frontend-friendly summaries.
 - Created `src/types/appointments.ts` to share appointment summary typing between services and stores.
@@ -124,3 +124,12 @@
 - **RN-03 (Máximo 90 dias)**: Validado pelo backend.
 - **RN-04 (Sem duplicidade)**: Erro `DUPLICATE_APPOINTMENT` quando já existe consulta com mesmo profissional na data.
 - **RN-05 (Cancelamento/Reembolso)**: >24h = 100%, <24h = 70%. Modal exibe informações de reembolso retornadas pelo backend.
+
+## 2026-01-29 Session Notes (Status Consolidado)
+
+- [x] **Doctor Dashboard** integra status reais, comissão, agenda e gestão de disponibilidade com `src/pages/doctorDashboard.ts`, `src/services/professionalsService.ts` e `pages/doctor-dashboard.html` atualizados, respeitando RBAC para `health_professional`.
+- [x] **Reception Dashboard** busca `GET /appointments?date={hoje}` e entrega estatísticas, check-in e toasts com placeholders até PATCH/INTEGRACAO confirmada.
+- [x] **Admin & Users**: `adminDashboard` e `usersPage` consomem `/users`, `/appointments` e `/professionals`, com filtros/pagination e ações (PUT/DELETE) acompanhadas de tratamento de erro 403/409.
+- [x] **Clinical Flows**: `examsService`, `prescriptionsService` e as modais no doctor dashboard consomem `/exams`, `/prescriptions`, incluindo TODOs de RBAC e mensagens `EXAM_NOT_FOUND`, `PRESCRIPTION_NOT_FOUND`.
+- [x] **Scheduling Core**: `appointmentsService` cobre listagem, cancelamentos, reagendamentos e criação com RN-01..05, e `scheduleAppointment` + `myAppointments` + `scheduleAppointment.ts` consomem dados reais.
+- [x] **Shared Infrastructure**: `apiService`, `authService`, `authStore`, `uiStore`, `webpack.config.js`, `ToastContainer` e todos os `pages/*.html` alinhados com as integrações, garantindo loaders, empty states e RBAC.
