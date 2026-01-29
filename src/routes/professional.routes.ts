@@ -1,4 +1,3 @@
-import { authMiddleware } from "@middlewares/auth.middleware.js";
 import { AppointmentRepository } from "@repositories/appointment.repository.js";
 import { AvailabilityRepository } from "@repositories/availability.repository.js";
 import { CommissionRepository } from "@repositories/commission.repository.js";
@@ -26,15 +25,13 @@ const professionalService = new ProfessionalService(
 );
 const professionalController = new ProfessionalController(professionalService);
 
+// Auth and clinic context middlewares are applied globally in routes/index.ts
+
 router.post("/", professionalController.register);
 // Rota de listagem com filtros (query params: ?specialty=x&name=y&page=1)
 router.get("/", professionalController.list);
 router.get("/:id/availability", professionalController.getAvailability);
 router.post("/:id/availability", professionalController.createAvailability);
-router.get(
-  "/:id/commissions",
-  authMiddleware,
-  professionalController.listCommissions,
-);
+router.get("/:id/commissions", professionalController.listCommissions);
 
 export { router as professionalRoutes };

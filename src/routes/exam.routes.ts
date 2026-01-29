@@ -3,13 +3,10 @@ import { ExamRepository } from "@repositories/exam.repository.js";
 import { ExamService } from "@services/exam.service.js";
 import { Router } from "express";
 import { ExamController } from "../controller/exam.controller.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const examRoutes = Router();
 
-examRoutes.use(authMiddleware);
-
-
+// Auth and clinic context middlewares are applied globally in routes/index.ts
 
 const examRepository = new ExamRepository();
 const appointmentRepository = new AppointmentRepository();
