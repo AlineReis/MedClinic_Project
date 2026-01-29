@@ -1,8 +1,6 @@
 import { AppointmentRepository } from '../repository/appointment.repository.js';
 import { AvailabilityRepository } from '../repository/availability.repository.js';
 import { UserRepository } from '../repository/user.repository.js';
-import { TransactionRepository } from '../repository/transaction.repository.js';
-import { CommissionSplitRepository } from '../repository/commission-split.repository.js';
 import { PaymentMockService } from '../services/payment-mock.service.js';
 import { AppointmentService } from '../services/appointment.service.js';
 
@@ -19,8 +17,6 @@ import { NotFoundError, ValidationError } from '../utils/errors.js';
 jest.mock('../repository/appointment.repository.js');
 jest.mock('../repository/availability.repository.js');
 jest.mock('../repository/user.repository.js');
-jest.mock('../repository/transaction.repository.js');
-jest.mock('../repository/commission-split.repository.js');
 jest.mock('../services/payment-mock.service.js');
 jest.mock('../services/email.service.js');
 
@@ -30,8 +26,6 @@ describe('AppointmentService', () => {
     let appointmentRepositoryMock: jest.Mocked<AppointmentRepository>;
     let availabilityRepositoryMock: jest.Mocked<AvailabilityRepository>;
     let userRepositoryMock: jest.Mocked<UserRepository>;
-    let transactionRepositoryMock: jest.Mocked<TransactionRepository>;
-    let commissionSplitRepositoryMock: jest.Mocked<CommissionSplitRepository>;
     let paymentMockServiceMock: jest.Mocked<PaymentMockService>;
     let emailServiceMock: jest.Mocked<ResendEmailService>;
 
@@ -68,17 +62,6 @@ describe('AppointmentService', () => {
             processRefund: jest.fn()
         } as unknown as jest.Mocked<PaymentMockService>;
 
-        transactionRepositoryMock = {
-            create: jest.fn(),
-            findByAppointmentId: jest.fn(),
-            findByReferenceId: jest.fn()
-        } as unknown as jest.Mocked<TransactionRepository>;
-
-        commissionSplitRepositoryMock = {
-            create: jest.fn(),
-            updateStatusByTransaction: jest.fn()
-        } as unknown as jest.Mocked<CommissionSplitRepository>;
-
         emailServiceMock = {
             send: jest.fn().mockImplementation(async () => { })
         } as unknown as jest.Mocked<ResendEmailService>;
@@ -87,8 +70,6 @@ describe('AppointmentService', () => {
             appointmentRepositoryMock,
             availabilityRepositoryMock,
             userRepositoryMock,
-            transactionRepositoryMock,
-            commissionSplitRepositoryMock,
             paymentMockServiceMock,
             emailServiceMock
         );
@@ -480,13 +461,11 @@ describe('AppointmentService', () => {
             });
 
             expect(appointmentRepositoryMock.reschedule).toHaveBeenCalledWith(appointmentId, newDate, newTime);
-            // Should NOT create a reschedule fee transaction
-            expect(transactionRepositoryMock.create).not.toHaveBeenCalled();
 
             jest.useRealTimers();
         });
 
-        it('should charge R$30 reschedule fee when <24 hours in advance - RN-25', async () => {
+        it('should log message about reschedule fee when <24 hours in advance - RN-25', async () => {
             // Set "now" to be 12 hours before the appointment
             const appointmentDateTime = new Date('2026-03-10T14:30:00');
             const twelveHoursBefore = new Date(appointmentDateTime.getTime() - 12 * 60 * 60 * 1000);
@@ -495,10 +474,11 @@ describe('AppointmentService', () => {
             jest.setSystemTime(twelveHoursBefore);
 
             appointmentRepositoryMock.reschedule.mockResolvedValue();
-            transactionRepositoryMock.create.mockResolvedValue(999);
 
             const newDate = '2026-03-17'; // Tuesday
             const newTime = '10:00';
+
+            const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
             await appointmentService.reschedule({
                 requesterId: 1,
@@ -510,18 +490,10 @@ describe('AppointmentService', () => {
 
             // Should reschedule
             expect(appointmentRepositoryMock.reschedule).toHaveBeenCalledWith(appointmentId, newDate, newTime);
+            // Should log about the fee (TODO in implementation)
+            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('IMPLEMENTAR'));
 
-            // Should create reschedule fee transaction
-            expect(transactionRepositoryMock.create).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    type: 'reschedule_fee',
-                    reference_id: appointmentId,
-                    amount_gross: 30,
-                    payer_id: 1,
-                    status: 'paid',
-                })
-            );
-
+            consoleLogSpy.mockRestore();
             jest.useRealTimers();
         });
 
@@ -540,74 +512,4 @@ describe('AppointmentService', () => {
         });
     });
 
-    describe('completeAppointment - RN-27', () => {
-        const appointmentId = 123;
-        const mockAppointment: Appointment = {
-            id: appointmentId,
-            patient_id: 1,
-            professional_id: 2,
-            date: '2026-03-10',
-            time: '14:30',
-            status: 'in_progress',
-            payment_status: 'paid',
-            price: 150,
-            type: 'presencial'
-        };
-
-        beforeEach(() => {
-            appointmentRepositoryMock.findById.mockResolvedValue(mockAppointment);
-            appointmentRepositoryMock.updateStatus.mockResolvedValue();
-        });
-
-        it('should complete appointment and activate commissions - RN-27', async () => {
-            const mockTransactions = [
-                {
-                    id: 456,
-                    type: 'appointment_payment' as const,
-                    reference_id: appointmentId,
-                    reference_type: 'appointment' as const,
-                    status: 'paid' as const,
-                    amount_gross: 150,
-                    payer_id: 1,
-                    mdr_fee: 4.5,
-                    amount_net: 145.5,
-                }
-            ];
-            transactionRepositoryMock.findByReferenceId.mockResolvedValue(mockTransactions);
-            commissionSplitRepositoryMock.updateStatusByTransaction.mockResolvedValue(undefined);
-
-            await appointmentService.completeAppointment(appointmentId, { id: 2, role: 'health_professional' });
-
-            expect(appointmentRepositoryMock.updateStatus).toHaveBeenCalledWith(appointmentId, 'completed');
-            expect(commissionSplitRepositoryMock.updateStatusByTransaction).toHaveBeenCalledWith(
-                456,
-                'pending_completion',
-                'pending'
-            );
-        });
-
-        it('should throw ForbiddenError if not the assigned professional', async () => {
-            // Different professional trying to complete
-            await expect(appointmentService.completeAppointment(appointmentId, { id: 999, role: 'health_professional' }))
-                .rejects
-                .toThrow('Only the assigned professional can complete this appointment');
-        });
-
-        it('should throw ValidationError if payment is not confirmed', async () => {
-            const unpaidAppointment = { ...mockAppointment, payment_status: 'pending' as const };
-            appointmentRepositoryMock.findById.mockResolvedValue(unpaidAppointment);
-
-            await expect(appointmentService.completeAppointment(appointmentId, { id: 2, role: 'health_professional' }))
-                .rejects
-                .toThrow('Cannot complete: appointment payment not confirmed');
-        });
-
-        it('should throw NotFoundError if appointment does not exist', async () => {
-            appointmentRepositoryMock.findById.mockResolvedValue(null);
-
-            await expect(appointmentService.completeAppointment(999, { id: 2, role: 'health_professional' }))
-                .rejects
-                .toThrow(NotFoundError);
-        });
-    });
 });

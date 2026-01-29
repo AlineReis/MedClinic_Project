@@ -1,12 +1,10 @@
 import { env } from "@config/config.js";
 import { isMinimumHoursInFuture, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours } from "utils/validators.js";
 import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams, type RescheduleAppointmentInput } from "../models/appointment.js";
-import { AuthResult, type UserRole } from "../models/user.js";
+import { AuthResult } from "../models/user.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
-import { TransactionRepository } from "../repository/transaction.repository.js";
-import { CommissionSplitRepository } from "../repository/commission-split.repository.js";
 import { PaymentMockService } from "./payment-mock.service.js";
 import { ResendEmailService } from "./email.service.js";
 import { getAppointmentEmailHtml } from "../utils/email-templates.js";
@@ -17,8 +15,6 @@ export class AppointmentService {
         private appointmentRepository: AppointmentRepository,
         private availabilityRepository: AvailabilityRepository,
         private userRepository: UserRepository,
-        private transactionRepository: TransactionRepository,
-        private commissionSplitRepository: CommissionSplitRepository,
         private paymentMockService: PaymentMockService,
         private emailService: ResendEmailService
     ) { }
@@ -238,43 +234,10 @@ export class AppointmentService {
       throw new ConflictError("Horário indisponível", "time");
     }
 
-    // RN-25: Check if rescheduling fee applies (<24h before appointment)
-    const isFreeReschedule = isMinimumHoursInFuture(
-      new Date(`${appointment.date}T${appointment.time}:00`),
-      env.RESCHEDULE_FREE_WINDOW_HOURS
-    );
-
-    let rescheduleFee = 0;
-
+    const isFreeReschedule = isMinimumHoursInFuture(new Date(`${appointment.date}T${appointment.time}:00`), env.RESCHEDULE_FREE_WINDOW_HOURS);
     if (!isFreeReschedule) {
-      // Charge R$30 fee for rescheduling within 24 hours
-      rescheduleFee = 30.0;
-
-      // Create transaction for reschedule fee
-      const feeTransactionId = await this.transactionRepository.create({
-        type: "reschedule_fee",
-        reference_id: appointmentId,
-        reference_type: "appointment",
-        payer_id: appointment.patient_id,
-        amount_gross: 30.0,
-        mdr_fee: 0, // No MDR on administrative fee
-        amount_net: 30.0,
-        installments: 1,
-        payment_method: "credit_card",
-        status: "paid", // Assume paid for MVP
-      });
-
-      // Clinic receives 100% of reschedule fee
-      await this.commissionSplitRepository.create({
-        transaction_id: feeTransactionId,
-        recipient_id: null,
-        recipient_type: "clinic",
-        percentage: 100.0,
-        amount: 30.0,
-        status: "paid",
-      });
-
-      console.log(`✓ Reschedule fee (R$ 30.00) charged for appointment ${appointmentId}`);
+      // TODO: Se o reagendamento for antes de 24 horas, cobrar R$ 30 de taxa
+      console.log("IMPLEMENTAR: Cobrança de taxa de R$ 30,00 gerada.");
     }
 
     await this.appointmentRepository.reschedule(
@@ -288,65 +251,6 @@ export class AppointmentService {
       date: newDate,
       time: newTime,
       payment_status: appointment.payment_status,
-      rescheduleFee, // Include fee in response for transparency
-    } as Appointment;
-  }
-
-  /**
-   * RN-27: Complete appointment and activate professional commissions
-   * Only the assigned professional can complete their own appointments
-   */
-  async completeAppointment(
-    appointmentId: number,
-    requester: { id: number; role: UserRole },
-  ): Promise<Appointment> {
-    // Fetch appointment
-    const appointment = await this.appointmentRepository.findById(appointmentId);
-    if (!appointment) {
-      throw new NotFoundError("Appointment not found");
-    }
-
-    // Validate only assigned professional can complete
-    if (
-      requester.role !== "health_professional" ||
-      appointment.professional_id !== requester.id
-    ) {
-      throw new ForbiddenError("Only the assigned professional can complete this appointment");
-    }
-
-    // Validate appointment is paid
-    if (appointment.payment_status !== "paid") {
-      throw new ValidationError(
-        "Cannot complete: appointment payment not confirmed",
-        "payment_status",
-      );
-    }
-
-    // Update appointment status to completed
-    await this.appointmentRepository.updateStatus(appointmentId, "completed");
-
-    // Activate professional commissions (pending_completion → pending)
-    const transactions = await this.transactionRepository.findByReferenceId(
-      appointmentId,
-      "appointment",
-    );
-
-    for (const transaction of transactions) {
-      if (transaction.status === "paid") {
-        await this.commissionSplitRepository.updateStatusByTransaction(
-          transaction.id!,
-          "pending_completion",
-          "pending",
-        );
-      }
-    }
-
-    // Return updated appointment
-    const updatedAppointment = await this.appointmentRepository.findById(appointmentId);
-    if (!updatedAppointment) {
-      throw new Error("Failed to retrieve updated appointment");
-    }
-
-    return updatedAppointment;
+    };
   }
 }

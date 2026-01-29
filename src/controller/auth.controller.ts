@@ -5,7 +5,7 @@ import { AuthError } from "../utils/errors.js";
 
 export class AuthController {
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   public register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -55,14 +55,16 @@ export class AuthController {
     res.status(200).json({ success: true, message: "Logged out successfully" });
   };
 
-  public getProfile = (req: Request, res: Response, next: NextFunction) => {
+  public getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // req.user será preenchido pelo authMiddleware
-      const user = req.user;
+      const jwtPayload = req.user;
 
-      if (!user) {
+      if (!jwtPayload) {
         throw new AuthError("User not authenticated");
       }
+
+      // Buscar perfil completo
+      const user = await this.authService.getProfile(jwtPayload.id);
 
       res.status(200).json({
         success: true,

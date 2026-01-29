@@ -1,4 +1,4 @@
-export type TransactionType = "appointment_payment" | "exam_payment" | "refund" | "reschedule_fee";
+export type TransactionType = "appointment_payment" | "exam_payment" | "refund";
 export type ReferenceType = "appointment" | "exam";
 export type PaymentMethod = "credit_card" | "debit_card" | "pix" | "boleto";
 export type TransactionStatus =

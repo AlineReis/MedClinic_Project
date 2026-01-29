@@ -163,7 +163,6 @@ CREATE TABLE IF NOT EXISTS appointments (
     notes TEXT,
     cancellation_reason TEXT,
     cancelled_by INTEGER,
-    reminded_at TEXT, -- RN-07: Timestamp when 24h reminder was sent
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT,
     FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE RESTRICT,
@@ -222,10 +221,8 @@ CREATE TABLE IF NOT EXISTS exam_requests (
         'sample_collected',
         'processing',
         'ready',
-        'released',
         'delivered',
-        'cancelled',
-        'expired'
+        'cancelled'
     )),
     payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN (
         'pending',
@@ -282,8 +279,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     type TEXT NOT NULL CHECK (type IN (
         'appointment_payment',
         'exam_payment',
-        'refund',
-        'reschedule_fee'
+        'refund'
     )),
     reference_id INTEGER NOT NULL,
     reference_type TEXT NOT NULL CHECK (reference_type IN ('appointment', 'exam')),
@@ -331,7 +327,6 @@ CREATE TABLE IF NOT EXISTS commission_splits (
     percentage REAL NOT NULL CHECK (percentage >= 0 AND percentage <= 100),
     amount REAL NOT NULL CHECK (amount >= 0),
     status TEXT DEFAULT 'pending' CHECK (status IN (
-        'pending_completion',
         'pending',
         'processing',
         'paid',
