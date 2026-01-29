@@ -1,5 +1,5 @@
 export type RecipientType = "professional" | "clinic" | "system";
-export type CommissionStatus = "pending" | "processing" | "paid" | "failed";
+export type CommissionStatus = "pending_completion" | "pending" | "processing" | "paid" | "failed";
 
 export interface CommissionSplit {
   id?: number;

@@ -65,4 +65,21 @@ export class CommissionSplitRepository {
 
     await database.run(sql, params);
   }
+
+  /**
+   * RN-27: Update commission status by transaction
+   * Used to activate commissions when appointment is completed
+   */
+  async updateStatusByTransaction(
+    transactionId: number,
+    oldStatus: CommissionStatus,
+    newStatus: CommissionStatus,
+  ): Promise<void> {
+    const sql = `
+      UPDATE commission_splits
+      SET status = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE transaction_id = ? AND status = ?
+    `;
+    await database.run(sql, [newStatus, transactionId, oldStatus]);
+  }
 }
