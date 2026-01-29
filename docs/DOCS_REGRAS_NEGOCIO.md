@@ -1,0 +1,871 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    MEDCLINIC - REGRAS DE NEGÓCIO
+              Sistema de Gestão de Clínicas Médicas com Pagamentos
+═══════════════════════════════════════════════════════════════════════════════
+
+📅 DATA: Janeiro 2026
+📋 VERSÃO: 1.0 - Documento Oficial
+🎯 OBJETIVO: Definir regras completas de negócio para desenvolvimento do MVP
+
+═══════════════════════════════════════════════════════════════════════════════
+1. VISÃO GERAL DO NEGÓCIO
+═══════════════════════════════════════════════════════════════════════════════
+
+🏥 DESCRIÇÃO DO PRODUTO:
+MedClinic é uma API de gestão completa para clínicas médicas que oferece:
+- Agendamento de consultas (presencial e online/telemedicina)
+- Gestão de exames (imagem e laboratoriais)
+- Processamento de pagamentos online
+- Prescrição digital e receituário eletrônico
+- Gestão financeira e comissionamento
+- Relatórios gerenciais
+
+🎯 DIFERENCIAIS COMPETITIVOS:
+✅ Pagamento online integrado (CloudWalk)
+✅ Telemedicina nativa
+✅ Prescrição digital
+✅ Sistema de comissões automático
+✅ Multi-especialidade
+✅ Gestão completa de exames
+✅ Relatórios financeiros em tempo real
+
+📊 ESPECIALIDADES CONTEMPLADAS:
+- Profissionais não-médicos: Psicologia, Nutrição, Fonoaudiologia, Fisioterapia
+- Médico clínico geral
+- Especialistas: Cardiologia, Oftalmologia, Urologia, Cirurgia Geral, Ortopedia, Neurologia
+
+═══════════════════════════════════════════════════════════════════════════════
+2. MODELO DE NEGÓCIO E PRECIFICAÇÃO
+═══════════════════════════════════════════════════════════════════════════════
+
+💰 TABELA DE PREÇOS (PARTICULAR):
+
+CATEGORIA                      | VALOR    | PARCELAMENTO
+─────────────────────────────────────────────────────────
+Não-Médicos                   | R$ 120   | Até 2x s/ juros
+Médico Clínico Geral          | R$ 250   | Até 3x s/ juros
+Médicos Especialistas         | R$ 350   | Até 4x s/ juros
+Exames de Sangue              | R$ 30-300| Até 2x s/ juros
+Exames de Imagem              | R$ 100-800| Até 6x s/ juros
+
+💳 REGRAS DE PARCELAMENTO:
+VALOR                | MAX PARCELAS | VALOR MIN/PARCELA
+────────────────────────────────────────────────────
+Até R$ 120          | 2x           | R$ 60
+R$ 121-250          | 3x           | R$ 80
+R$ 251-500          | 4x           | R$ 100
+Acima R$ 500        | 6x           | R$ 100
+
+⚠️ Parcela mínima: R$ 50
+
+🎯 SPLIT DE RECEITA:
+- 60% → Profissional de Saúde
+- 35% → Clínica
+- 5% → Taxa administrativa do sistema
+
+EXEMPLO (Consulta R$ 350):
+Valor bruto: R$ 350,00
+Taxa CloudWalk (3,79%): -R$ 13,27
+Valor líquido: R$ 336,73
+├─ Profissional (60%): R$ 202,04
+├─ Clínica (35%): R$ 117,86
+└─ Sistema (5%): R$ 16,83
+
+═══════════════════════════════════════════════════════════════════════════════
+3. TIPOS DE USUÁRIO E PERMISSÕES (6 ROLES)
+═══════════════════════════════════════════════════════════════════════════════
+
+🔐 HIERARQUIA:
+NÍVEL 1: patient (Paciente)
+NÍVEL 2: receptionist (Recepcionista), lab_tech (Setor de Exames)
+NÍVEL 3: health_professional (Profissionais de Saúde)
+NÍVEL 4: clinic_admin (Administrador/Gestor Financeiro)
+NÍVEL 5: system_admin (Desenvolvedor/Admin do Sistema)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 ROLE 1: PATIENT (PACIENTE)
+
+CÓDIGO: patient
+CADASTRO: Auto-registro (público)
+
+✅ PERMISSÕES:
+CONSULTAS:
+├─ Ver consultas disponíveis
+├─ Agendar consulta (presencial/online)
+├─ Ver APENAS suas consultas
+├─ Cancelar suas consultas (política de 24h)
+├─ Ver histórico completo
+└─ Avaliar consultas realizadas
+
+EXAMES:
+├─ Ver exames disponíveis
+├─ Solicitar exames (com pedido médico)
+├─ Pagar exames
+├─ Ver resultados dos seus exames
+└─ Download de laudos PDF
+
+PAGAMENTOS:
+├─ Realizar pagamentos
+├─ Escolher parcelamento
+├─ Ver histórico de pagamentos
+├─ Download de comprovantes
+└─ Solicitar reembolso
+
+PRESCRIÇÕES:
+├─ Ver prescrições médicas
+├─ Download de receitas PDF
+└─ Histórico de medicamentos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👔 ROLE 2: RECEPTIONIST (RECEPCIONISTA)
+
+CÓDIGO: receptionist
+CADASTRO: Criado por clinic_admin
+
+✅ PERMISSÕES:
+PACIENTES:
+├─ Ver lista completa
+├─ Buscar pacientes
+├─ Cadastrar novos
+├─ Editar dados cadastrais
+└─ Ver histórico
+
+CONSULTAS:
+├─ Ver TODAS as consultas
+├─ Agendar em nome de pacientes
+├─ Reagendar consultas
+├─ Cancelar consultas (com motivo)
+├─ Confirmar presença (check-in)
+├─ Marcar como "Realizada"
+└─ Marcar como "Faltou" (no-show)
+
+PAGAMENTOS (limitado):
+├─ Ver status de pagamentos
+├─ Gerar segunda via
+└─ Emitir recibos
+
+❌ NÃO PODE:
+├─ Ver relatórios financeiros detalhados
+├─ Ver comissões
+└─ Processar reembolsos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔬 ROLE 3: LAB_TECH (SETOR DE EXAMES)
+
+CÓDIGO: lab_tech
+CADASTRO: Criado por clinic_admin
+
+✅ PERMISSÕES:
+EXAMES:
+├─ Ver TODOS os exames solicitados
+├─ Filtrar por tipo/status/data/paciente
+├─ Marcar como "Em análise"
+├─ Lançar resultados:
+│  ├─ Upload de arquivos (PDF, imagens)
+│  ├─ Preencher laudo estruturado
+│  └─ Adicionar observações técnicas
+├─ Marcar como "Concluído"
+├─ Reeditar resultados
+└─ Liberar resultado para paciente
+
+❌ NÃO PODE:
+├─ Solicitar exames (só médico pode)
+├─ Ver dados financeiros
+└─ Cancelar exames
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚕️ ROLE 4: HEALTH_PROFESSIONAL (PROFISSIONAL DE SAÚDE)
+
+CÓDIGO: health_professional
+CADASTRO: Criado por clinic_admin
+SUBTIPOS: Psicólogo, Nutricionista, Fonoaudiólogo, Fisioterapeuta, Médicos
+
+✅ PERMISSÕES:
+CONSULTAS:
+├─ Ver APENAS suas próprias consultas
+├─ Ver agenda pessoal
+├─ Definir disponibilidade
+├─ Bloquear horários
+├─ Iniciar atendimento
+├─ Finalizar com prontuário
+└─ Remarcar quando necessário
+
+PACIENTES:
+├─ Ver APENAS pacientes que atendeu
+├─ Acessar prontuário completo
+├─ Adicionar anotações
+└─ Atualizar dados clínicos
+
+PRESCRIÇÃO DIGITAL:
+├─ Criar prescrições
+├─ Prescrição controlada (assinatura digital)
+├─ Gerar PDF assinado
+└─ Enviar automaticamente
+
+SOLICITAÇÃO DE EXAMES:
+├─ Solicitar exames de sangue
+├─ Solicitar exames de imagem
+├─ Justificativa clínica obrigatória
+└─ Ver resultados que solicitou
+
+TELEMEDICINA:
+├─ Realizar consultas online
+├─ Enviar mensagens
+├─ Prescrever remotamente
+└─ Solicitar exames remotamente
+
+FINANCEIRO (limitado):
+├─ Ver APENAS suas comissões
+├─ Gerar relatório mensal
+└─ Ver repasses a receber
+
+❌ NÃO PODE:
+├─ Ver dados de pacientes que não atendeu
+├─ Ver comissões de outros
+└─ Modificar tabela de preços
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 ROLE 5: CLINIC_ADMIN (ADMINISTRADOR/GESTOR)
+
+CÓDIGO: clinic_admin
+CADASTRO: Criado por system_admin
+
+✅ PERMISSÕES COMPLETAS:
+GESTÃO DE USUÁRIOS:
+├─ Criar usuários (exceto system_admin)
+├─ Editar dados
+├─ Desativar/ativar
+└─ Redefinir senhas
+
+GESTÃO DE PROFISSIONAIS:
+├─ Cadastrar profissionais
+├─ Definir especialidades e valores
+├─ Configurar comissões
+└─ Gerenciar disponibilidade
+
+GESTÃO COMPLETA:
+├─ Ver TODAS consultas/exames
+├─ Criar/editar/excluir
+└─ Estatísticas completas
+
+FINANCEIRO TOTAL:
+├─ Dashboard financeiro
+├─ Relatórios detalhados
+├─ Gestão de comissões
+├─ Aprovar/processar reembolsos
+└─ Gerenciar inadimplência
+
+CONFIGURAÇÕES:
+├─ Dados da clínica
+├─ Política de cancelamento
+├─ Valores e parcelamentos
+├─ Integração CloudWalk
+└─ Notificações automáticas
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 ROLE 6: SYSTEM_ADMIN (DEV/ADMIN DO SISTEMA)
+
+CÓDIGO: system_admin
+CADASTRO: Via script/migração
+
+✅ ACESSO TOTAL:
+├─ TODAS as permissões
+├─ Criar qualquer usuário
+├─ Acessar logs
+├─ Executar queries
+├─ Modificar configurações técnicas
+├─ Gerenciar backups
+└─ Deploy e manutenção
+
+⚠️ USO RESTRITO: Apenas para configuração/manutenção técnica
+
+═══════════════════════════════════════════════════════════════════════════════
+4. REGRAS DE NEGÓCIO - CONSULTAS
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 STATUS DA CONSULTA:
+1. 'scheduled' - Agendada (após pagamento)
+2. 'confirmed' - Confirmada (24h antes)
+3. 'waiting' - Em espera (check-in feito)
+4. 'in_progress' - Em atendimento
+5. 'completed' - Realizada
+6. 'no_show' - Paciente faltou
+7. 'cancelled_by_patient' - Cancelada pelo paciente
+8. 'cancelled_by_clinic' - Cancelada pela clínica
+9. 'rescheduled' - Remarcada
+
+💳 STATUS DE PAGAMENTO:
+1. 'pending' - Pendente
+2. 'processing' - Processando
+3. 'paid' - Pago
+4. 'failed' - Falhou
+5. 'refunded' - Reembolsado
+6. 'partially_refunded' - Reembolso parcial
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ REGRAS DE NEGÓCIO
+
+RN-01: DISPONIBILIDADE DE HORÁRIOS
+✅ Exibir APENAS horários disponíveis
+✅ Respeitar bloqueios do profissional
+✅ Respeitar horário de funcionamento
+✅ Não permitir agendamento no passado
+
+RN-02: ANTECEDÊNCIA MÍNIMA
+✅ Presencial: mínimo 2h de antecedência
+✅ Online: mínimo 1h de antecedência
+
+RN-03: ANTECEDÊNCIA MÁXIMA
+✅ Máximo 90 dias de antecedência
+
+RN-04: DUPLICAÇÃO DE AGENDAMENTOS
+❌ Paciente NÃO pode ter 2 consultas com mesmo profissional no mesmo dia
+❌ Paciente NÃO pode ter consultas em horários conflitantes
+
+RN-05: PAGAMENTO OBRIGATÓRIO
+✅ Agendamento confirmado APENAS após pagamento aprovado
+✅ Pagamento pendente → consulta em 'pending'
+✅ Pagamento recusado → libera horário
+
+RN-06: DURAÇÃO PADRÃO POR PROFISSIONAL
+- Psicologia: 60min
+- Nutrição/Fonoaudiologia/Fisioterapia: 45min
+- Médicos: 30min
+(Profissional pode customizar)
+
+RN-07: LEMBRETES AUTOMÁTICOS
+✅ 24h antes: Email + SMS (confirmar presença)
+✅ 2h antes: SMS/WhatsApp (lembrete final)
+
+RN-08: CHECK-IN (PRESENCIAL)
+✅ Check-in até 30min antes
+✅ Após check-in → status 'waiting'
+✅ Profissional vê na fila
+
+═══════════════════════════════════════════════════════════════════════════════
+5. REGRAS DE NEGÓCIO - EXAMES
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 STATUS DO EXAME:
+1. 'pending_payment' - Pendente de pagamento
+2. 'paid_pending_schedule' - Pago, aguardando agendamento
+3. 'scheduled' - Agendado
+4. 'in_analysis' - Em análise
+5. 'ready' - Resultado pronto
+6. 'released' - Resultado liberado
+7. 'cancelled' - Cancelado
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ REGRAS DE NEGÓCIO
+
+RN-09: PEDIDO MÉDICO OBRIGATÓRIO
+❌ Paciente NÃO pode solicitar exame diretamente
+✅ APENAS profissional de saúde pode solicitar
+✅ Justificativa clínica OBRIGATÓRIA
+
+RN-10: EXAME VINCULADO À CONSULTA
+✅ Exame vinculado a appointment_id
+✅ Registro de qual profissional solicitou
+✅ Indicação clínica obrigatória
+
+RN-11: PAGAMENTO SEPARADO
+✅ Exame cobrado separado da consulta
+✅ Permite parcelamento próprio
+✅ Paciente pode pagar depois
+
+RN-12: VALIDADE DO PEDIDO
+✅ Pedido válido por 30 dias
+✅ Após 30 dias → exame expira
+
+RN-13: ACESSO AO RESULTADO
+✅ Pode ver: Paciente, Médico solicitante, Admin
+❌ NÃO pode: Outros pacientes, Outros profissionais
+
+RN-14: LIBERAÇÃO DE RESULTADO
+✅ Pode liberar: lab_tech, Médico solicitante, Admin
+✅ Obrigatório: PDF ou laudo textual preenchido
+
+RN-15: NOTIFICAÇÕES DE EXAMES
+1. Solicitado → "Realize o pagamento"
+2. Pago → "Agende sua coleta"
+3. 24h antes coleta → "Lembrete: jejum 12h"
+4. Resultado pronto → Paciente + Médico
+
+═══════════════════════════════════════════════════════════════════════════════
+6. REGRAS DE NEGÓCIO - PAGAMENTOS
+═══════════════════════════════════════════════════════════════════════════════
+
+💳 CLOUDWALK MOCK (FASE 1)
+
+ARQUIVO: src/services/payment/cloudwalkMock.js
+
+FUNÇÕES:
+├─ processPayment(paymentData)
+│  ├─ Delay 2-3 segundos
+│  ├─ 80% aprovado, 20% recusado
+│  └─ Retorna transaction_id mockado
+│
+├─ processRefund(transactionId, amount)
+│  └─ Simula reembolso
+│
+└─ checkPaymentStatus(transactionId)
+
+RETORNO MOCK:
+```javascript
+{
+  success: true,
+  transaction_id: 'MOCK-' + Date.now(),
+  status: 'approved',
+  amount: 350.00,
+  net_amount: 336.73, // após MDR 3.79%
+  mdr_fee: 13.27,
+  installments: 3,
+  card_brand: 'visa',
+  processed_at: '2026-01-23T10:30:00Z'
+}
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ REGRAS DE NEGÓCIO
+
+RN-16: PARCELAMENTO SEM JUROS
+Até R$ 120 → máx 2x (parcela mín R$ 60)
+R$ 121-250 → máx 3x (parcela mín R$ 80)
+R$ 251-500 → máx 4x (parcela mín R$ 100)
+Acima R$ 500 → máx 6x (parcela mín R$ 100)
+⚠️ Parcela mínima absoluta: R$ 50
+
+RN-17: TOKENIZAÇÃO
+🔐 Sistema NÃO armazena dados completos do cartão
+✅ Armazena: Token, últimos 4 dígitos, bandeira, validade
+❌ NUNCA: Número completo, CVV
+
+RN-18: SPLIT AUTOMÁTICO
+TODO pagamento dividido:
+├─ 60% → Profissional
+├─ 35% → Clínica
+└─ 5% → Sistema
+(Sobre valor líquido após MDR)
+
+RN-19: PRAZO DE REPASSE
+Débito/Pix: D+1
+Crédito: D+30
+
+RN-20: COMPROVANTE
+✅ Gerar PDF com:
+├─ Dados da clínica (CNPJ)
+├─ Dados do paciente (CPF)
+├─ Descrição do serviço
+├─ Valor, forma, parcelas
+├─ Data/hora
+└─ Código autorização
+
+═══════════════════════════════════════════════════════════════════════════════
+7. POLÍTICA DE CANCELAMENTOS E REEMBOLSOS
+═══════════════════════════════════════════════════════════════════════════════
+
+RN-21: CANCELAMENTO >24H (REEMBOLSO TOTAL)
+✅ Mais de 24h de antecedência
+✅ Reembolso: 100% do valor
+✅ Processo automático
+✅ Libera horário
+Prazo reembolso:
+├─ Crédito: 5-7 dias úteis
+├─ Débito: 1-2 dias úteis
+└─ PIX: Imediato
+
+RN-22: CANCELAMENTO <24H (REEMBOLSO PARCIAL)
+✅ Menos de 24h de antecedência
+✅ Reembolso: 70% (retém 30% como multa)
+
+EXEMPLO (Consulta R$ 350):
+├─ Reembolso: R$ 245 (70%)
+└─ Retido: R$ 105 (30%)
+   ├─ Profissional (60%): R$ 63
+   ├─ Clínica (35%): R$ 36,75
+   └─ Sistema (5%): R$ 5,25
+
+RN-23: CANCELAMENTO PELA CLÍNICA
+✅ Clínica/profissional cancela
+✅ Reembolso: SEMPRE 100%
+✅ Independente do prazo
+✅ Motivo obrigatório
+
+RN-24: NO-SHOW (FALTOU)
+❌ Paciente não comparece
+❌ SEM REEMBOLSO (100% mantido)
+
+Tolerância:
+├─ Presencial: 15min atraso
+└─ Online: 10min atraso
+
+Política:
+├─ 1º no-show: Advertência
+├─ 2º no-show: Advertência + sugestão
+└─ 3º no-show: Bloqueio 30 dias
+
+RN-25: REAGENDAMENTO
+✅ >24h antecedência: SEM CUSTO
+✅ <24h antecedência: Taxa R$ 30
+✅ Para outro profissional: Novo agendamento
+
+═══════════════════════════════════════════════════════════════════════════════
+8. SISTEMA DE COMISSÕES
+═══════════════════════════════════════════════════════════════════════════════
+
+RN-26: COMISSÃO PADRÃO
+✅ 60% do valor líquido (após MDR)
+✅ Para TODOS profissionais de saúde
+
+CÁLCULO:
+Consulta R$ 350
+MDR (3,79%): -R$ 13,27
+Líquido: R$ 336,73
+Comissão (60%): R$ 202,04
+
+RN-27: COMISSÃO APÓS CONSULTA REALIZADA
+✅ Gera comissão quando:
+├─ status = 'completed'
+└─ payment_status = 'paid'
+
+❌ NÃO gera:
+├─ Consulta cancelada
+├─ Consulta não realizada
+└─ No-show → MANTÉM comissão
+
+RN-28: REPASSE MENSAL
+✅ Clínica repassa mensalmente
+✅ Competência: Mês anterior
+✅ Pagamento: Até dia 10
+
+RELATÓRIO AUTOMÁTICO:
+├─ Total consultas
+├─ Valor bruto
+├─ Total comissões
+├─ Descontos (cancelamentos)
+├─ Valor líquido
+└─ Data prevista
+
+WORKFLOW MENSAL (DIA 1):
+1. Sistema gera relatórios (cron job)
+2. Envia email aos profissionais
+3. Admin revisa relatórios
+4. Admin marca como "pago" (até dia 10)
+5. Sistema registra pagamento
+
+═══════════════════════════════════════════════════════════════════════════════
+9. ESTRUTURA DO BANCO DE DADOS (SQLITE)
+═══════════════════════════════════════════════════════════════════════════════
+
+TABELA: users
+───────────────
+id, name, email, password, role, cpf, phone, created_at, updated_at
+
+role: 'patient', 'receptionist', 'lab_tech', 'health_professional', 
+      'clinic_admin', 'system_admin'
+
+TABELA: professional_details (FK users)
+──────────────────────────
+id, user_id, specialty, registration_number, council, 
+hourly_rate, commission_percentage, available_hours
+
+specialty: 'psicologia', 'nutricao', 'fonoaudiologia', 
+          'fisioterapia', 'clinica_medica', 'cardiologia', 
+          'oftalmologia', 'urologia', 'cirurgia_geral', 
+          'ortopedia', 'neurologia'
+
+TABELA: appointments
+────────────────────
+id, patient_id (FK users), professional_id (FK users), 
+type ('presencial', 'online'), specialty, date, time, 
+duration_minutes, status, price, payment_status, 
+room_number, video_link, notes, cancellation_reason, 
+cancelled_at, cancelled_by (FK users), reminded_at, 
+created_at, updated_at
+
+TABELA: exam_requests
+─────────────────────
+id, patient_id (FK users), requesting_professional_id (FK users), 
+appointment_id (FK appointments), exam_type ('blood', 'image'), 
+exam_name, clinical_indication, urgency ('normal', 'urgent'), 
+status, price, payment_status, scheduled_date, scheduled_time, 
+collection_location, result_file_url, result_text, 
+lab_tech_id (FK users), result_released_at, observations, 
+created_at, updated_at
+
+TABELA: prescriptions
+─────────────────────
+id, appointment_id (FK appointments), patient_id (FK users), 
+professional_id (FK users), medication_name, dosage, frequency, 
+duration, instructions, prescription_type ('simple', 'controlled'), 
+pdf_url, created_at
+
+TABELA: transactions
+────────────────────
+id, transaction_type ('appointment_payment', 'exam_payment', 'refund'), 
+reference_id, patient_id (FK users), amount_gross, mdr_fee, 
+amount_net, installments, payment_method, card_brand, card_last_digits, 
+gateway_transaction_id, authorization_code, status, processed_at, 
+refunded_at, refund_amount, created_at, updated_at
+
+TABELA: commission_splits
+─────────────────────────
+id, transaction_id (FK transactions), recipient_id (FK users), 
+recipient_type ('professional', 'clinic', 'system'), 
+percentage, amount, status ('pending', 'paid'), 
+paid_at, created_at
+
+TABELA: refunds
+───────────────
+id, transaction_id (FK transactions), appointment_id, exam_id, 
+patient_id (FK users), amount_refunded, refund_percentage, 
+reason, reason_text, requested_by (FK users), status, 
+gateway_refund_id, processed_at, completed_at, created_at
+
+TABELA: commission_reports
+──────────────────────────
+id, professional_id (FK users), month, year, total_appointments, 
+total_gross_amount, total_net_amount, total_commission, 
+total_deductions, amount_to_receive, payment_status, 
+payment_date, generated_at, paid_at
+
+═══════════════════════════════════════════════════════════════════════════════
+10. ENDPOINTS DA API (RESUMO)
+═══════════════════════════════════════════════════════════════════════════════
+
+AUTENTICAÇÃO:
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+POST   /api/auth/refresh
+GET    /api/auth/profile
+
+CONSULTAS:
+GET    /api/appointments (filtrado por role)
+GET    /api/appointments/:id
+POST   /api/appointments (+ pagamento)
+PUT    /api/appointments/:id
+DELETE /api/appointments/:id
+POST   /api/appointments/:id/cancel
+POST   /api/appointments/:id/reschedule
+POST   /api/appointments/:id/checkin (receptionist)
+POST   /api/appointments/:id/start (health_professional)
+POST   /api/appointments/:id/complete (health_professional)
+POST   /api/appointments/:id/no-show (receptionist)
+
+EXAMES:
+GET    /api/exams
+GET    /api/exams/:id
+POST   /api/exams (health_professional)
+POST   /api/exams/:id/schedule
+POST   /api/exams/:id/upload-result (lab_tech)
+POST   /api/exams/:id/release-result
+GET    /api/exams/:id/download
+
+PAGAMENTOS:
+POST   /api/payments/appointment
+POST   /api/payments/exam
+POST   /api/payments/refund (admin)
+GET    /api/payments/history
+GET    /api/payments/:id/receipt
+
+PRESCRIÇÕES:
+GET    /api/prescriptions
+GET    /api/prescriptions/:id
+POST   /api/prescriptions (health_professional)
+GET    /api/prescriptions/:id/download
+
+RELATÓRIOS:
+GET    /api/reports/dashboard (admin)
+GET    /api/reports/financial (clinic_admin)
+GET    /api/reports/commissions (health_professional/admin)
+POST   /api/reports/generate-monthly (system_admin)
+GET    /api/reports/:id/export
+
+USUÁRIOS (ADMIN):
+GET    /api/users
+GET    /api/users/:id
+POST   /api/users (clinic_admin cria outros roles)
+PUT    /api/users/:id
+DELETE /api/users/:id
+
+═══════════════════════════════════════════════════════════════════════════════
+11. VALIDAÇÕES OBRIGATÓRIAS (MANUAIS)
+═══════════════════════════════════════════════════════════════════════════════
+
+ARQUIVO: src/utils/validation.js
+
+validateEmail(email):
+  Regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  
+validatePassword(password):
+  - Mínimo 8 caracteres
+  - 1 letra maiúscula
+  - 1 letra minúscula
+  - 1 número
+  Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+
+validateCPF(cpf):
+  - Remover pontuação
+  - 11 dígitos
+  - Validar dígitos verificadores (algoritmo)
+
+validatePhone(phone):
+  - Formato: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+  - DDD válido (11-99)
+
+validateDate(date):
+  - Formato: YYYY-MM-DD
+  - Data válida (não 31 de fevereiro)
+  - Verificar se é data futura (quando aplicável)
+
+validateTime(time):
+  - Formato: HH:MM
+  - Hora: 00-23
+  - Minuto: 00-59
+
+validateCurrency(value):
+  - Número positivo
+  - Máximo 2 casas decimais
+
+validateRole(role):
+  - Um de: patient, receptionist, lab_tech, 
+          health_professional, clinic_admin, system_admin
+
+validateAppointmentData(data):
+  - professional_id existe
+  - date não é passado
+  - time válido
+  - type: presencial ou online
+  - price > 0
+
+validateExamData(data):
+  - patient_id existe
+  - requesting_professional_id existe
+  - clinical_indication não vazio
+  - exam_type: blood ou image
+
+validatePaymentData(data):
+  - amount > 0
+  - installments válido (conforme RN-16)
+  - card_number: 13-19 dígitos
+  - cvv: 3-4 dígitos
+  - expiration_month: 01-12
+  - expiration_year: ano atual ou futuro
+
+═══════════════════════════════════════════════════════════════════════════════
+12. VARIÁVEIS DE AMBIENTE (.env.example)
+═══════════════════════════════════════════════════════════════════════════════
+
+# Server
+PORT=3000
+NODE_ENV=development
+
+# JWT
+JWT_SECRET=seu_secret_super_secreto_aqui_troque_em_producao
+JWT_EXPIRES_IN=24h
+
+# Database
+DATABASE_PATH=./database/medclinic.db
+
+# Pagamentos CloudWalk
+PAYMENT_PROVIDER=mock
+CLOUDWALK_API_KEY=
+CLOUDWALK_API_SECRET=
+CLOUDWALK_ENVIRONMENT=sandbox
+CLOUDWALK_WEBHOOK_SECRET=
+
+# IDs de Split
+CLINIC_RECIPIENT_ID=clinic_12345
+SYSTEM_RECIPIENT_ID=system_67890
+
+# Email (futuro)
+EMAIL_SERVICE=
+EMAIL_USER=
+EMAIL_PASS=
+
+# SMS/WhatsApp (futuro)
+SMS_API_KEY=
+
+═══════════════════════════════════════════════════════════════════════════════
+13. SEEDS (DADOS INICIAIS)
+═══════════════════════════════════════════════════════════════════════════════
+
+SYSTEM_ADMIN:
+email: admin@medclinic.dev
+senha: Admin@123
+role: system_admin
+
+CLINIC_ADMIN:
+email: gestor@clinica.com
+senha: Gestor@123
+role: clinic_admin
+
+RECEPCIONISTAS (2):
+email: recepcao1@clinica.com, recepcao2@clinica.com
+senha: Recepcao@123
+role: receptionist
+
+LAB_TECH (1):
+email: laboratorio@clinica.com
+senha: Lab@123
+role: lab_tech
+
+PROFISSIONAIS (10):
+- psicologo@clinica.com (Psicologia) - R$ 120
+- nutricionista@clinica.com (Nutrição) - R$ 120
+- fonoaudiologo@clinica.com (Fonoaudiologia) - R$ 120
+- fisioterapeuta@clinica.com (Fisioterapia) - R$ 120
+- clinico@clinica.com (Clínica Médica) - R$ 250
+- cardio@clinica.com (Cardiologia) - R$ 350
+- oftalmo@clinica.com (Oftalmologia) - R$ 350
+- uro@clinica.com (Urologia) - R$ 350
+- cirurgiao@clinica.com (Cirurgia Geral) - R$ 350
+- ortopedista@clinica.com (Ortopedia) - R$ 350
+- neuro@clinica.com (Neurologia) - R$ 350
+Senha todos: Profissional@123
+role: health_professional
+
+PACIENTES (5):
+maria@email.com, joao@email.com, ana@email.com, 
+pedro@email.com, julia@email.com
+Senha todos: Paciente@123
+role: patient
+
+═══════════════════════════════════════════════════════════════════════════════
+14. OBSERVAÇÕES IMPORTANTES
+═══════════════════════════════════════════════════════════════════════════════
+
+🔐 SEGURANÇA:
+- Bcrypt salt rounds: 10
+- JWT expira em 24h
+- Validar role em TODAS rotas protegidas
+- Nunca retornar senha em responses
+- SQL injection: usar prepared statements
+- CORS configurado adequadamente
+
+📊 PERFORMANCE:
+- Índices no banco (email, date, status)
+- Paginação em listagens (20 itens/página)
+- Cache de queries frequentes (futuro)
+
+🧪 TESTES:
+- Cobertura >80% obrigatória
+- Testar TODAS regras de negócio
+- Mocha + Chai
+
+📝 CÓDIGO:
+- JSDoc em funções públicas
+- Comentários em português
+- Nomenclatura clara
+- Tratamento de erros completo
+
+🚀 DEPLOY:
+- Backend: Railway/Render (gratuito)
+- Frontend: GitHub Pages
+- Banco: SQLite (arquivo)
+
+═══════════════════════════════════════════════════════════════════════════════
+                              FIM DO DOCUMENTO
+═══════════════════════════════════════════════════════════════════════════════
+

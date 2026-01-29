@@ -16,7 +16,7 @@ import {
 } from "../utils/validators.js";
 
 export class AuthService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(private readonly userRepository: IUserRepository) { }
 
   public async registerPatient(input: CreateUserPayload): Promise<AuthResult> {
     this.validateRegistrationInput(input);
@@ -116,6 +116,21 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
+    };
+  }
+
+  public async getProfile(userId: number) {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new AuthError("User not found");
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     };
   }
 }
