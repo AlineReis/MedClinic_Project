@@ -37,6 +37,39 @@ export async function listAppointments(
   }
 }
 
+type CreateAppointmentPayload = {
+  patientId: number
+  professionalId: number
+  date: string
+  time: string
+  type: string
+  price?: number
+}
+
+export async function createAppointment(
+  payload: CreateAppointmentPayload,
+): Promise<ApiResponse<AppointmentSummary>> {
+  const body = {
+    patient_id: payload.patientId,
+    professional_id: payload.professionalId,
+    date: payload.date,
+    time: payload.time,
+    type: payload.type,
+    price: payload.price,
+  }
+
+  const response = await request<AppointmentApiItem>("/appointments", "POST", body)
+
+  if (!response.success || !response.data) {
+    return response as ApiResponse<AppointmentSummary>
+  }
+
+  return {
+    ...response,
+    data: mapAppointmentSummary(response.data),
+  }
+}
+
 function buildAppointmentQuery(filters: AppointmentFilters) {
   const params = new URLSearchParams()
 

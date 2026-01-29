@@ -60,22 +60,22 @@
 
 ### 3.3 Slots / Agendamentos / Recepção (Equipe Scheduling)
 
-- **End-to-end endpoints e payloads**:
-  - `GET /professionals?specialty=&name=&page=&pageSize=` – lista pública de profissionais com `specialty`, `consultation_price`, `registration_number` para preencher dropdowns/tiles.
-  - `GET /professionals/{id}/availability?startDate=&endDate=&days_ahead=` – recupera slots e `available`/`available` flags; RN-01 exige desconsiderar horários onde `available=false` e capturar `reason` para toasts.
-  - `POST /appointments` – payload `{ patient_id, professional_id, date, time, type }`; resposta tem `appointment`, `payment_required`. Validar RN-02/03/04/05 no frontend antes da chamada (horário futuro, antecipação mínima/máxima, duplicidade, pagamento mock state). Exibir mensagens `INSUFFICIENT_NOTICE`, `SLOT_NOT_AVAILABLE`, `DUPLICATE_APPOINTMENT` conforme o backend refletir.
-  - `GET /appointments?status=&professional_id=&patient_id=&date=&upcoming=true&page=&pageSize=` – agendas para recepção/pacientes com filtros e paginação, retornando `pagination` e `data` (RN-04 deve evitar duplicidades na UI).
-  - `DELETE /appointments/{id}` – cancelamento com corpo opcional `reason`; o backend responde com `refund` info. UI deve gerar toasts informando o percentual de reembolso (100% ou 70% conforme 24h) e atualizar o store.
-  - `POST /appointments/{id}/reschedule` – payload `{ new_date, new_time }`; backend valida RN-01/02/03 e responde com novo `appointment`. UI precisa lidar com `NEW_SLOT_NOT_AVAILABLE` e refresh de disponibilidade.
-  - `GET /appointments/{id}` – detalhamento para recepção e exibição de notas/pagamentos quando necessário.
-- **Tarefas detalhadas:**
-  - Criar helpers de cache simples (`professionalsListCache` com TTL 30s) e `slotsCache` por profissional para reduzir chamadas repetidas ao navegar entre datas.
-  - Garantir que `apiService` exponha métodos `getProfessionals`, `getAvailability`, `createAppointment`, `listAppointments`, `cancelAppointment`, `rescheduleAppointment` com mapeamento de erros (ex: `SLOT_NOT_AVAILABLE`).
-  - Incorporar RN-01 a RN-05 no frontend: validar data >= agora, antecipação mínima de 2h (presencial), antecipação máxima 90 dias, evitar duplicação, lidar com pagamento mock falho/pendente. Cada validação deve ter um toast/banner e impedir o post.
-  - Implementar loaders e skeletons nas listas (appointments, availability) e estados `empty` (CTA para `pages/slots.html`) e `error` (mensagem persistente + retry) conforme `docs/fluto-de-dados-e-estados.md`.
-  - Facilitar filtros por status (`scheduled`, `confirmed`, `cancelled`), `professional_id`, `date` e `upcoming` com `GET /appointments` e guardar os filtros no `dashboardStore`/component state para reuso ao navegar.
-  - Ao receber `payment_required` no `POST /appointments`, exibir modal de confirmação com valor e botão que aciona o mock de pagamento interno do backend; caso retorne `status=failed`, permitir `retry` com `POST /appointments/{id}/reschedule` ou `POST /appointments` novamente.
-  - Após `cancel` ou `reschedule`, atualizar `GET /professionals/{id}/availability` para refletir novos slots e informar o usuário que o calendário foi atualizado.
+- **Endpoints e payloads (checar)**
+  - [x] `GET /professionals?specialty=&name=&page=&pageSize=` – lista pública de profissionais com `specialty`, `consultation_price`, `registration_number` para preencher dropdowns/tiles.
+  - [x] `GET /professionals/{id}/availability?startDate=&endDate=&days_ahead=` – recupera slots com flag `is_available`; o frontend filtra o retorno para só exibir horários futuros e mostra `reason` + toasts quando apropriado.
+  - [x] `POST /appointments` – payload `{ patient_id, professional_id, date, time, type, price }`; resposta é usada para toasts e atualização imediata da tela.
+  - [ ] `GET /appointments?status=&professional_id=&patient_id=&date=&upcoming=true&page=&pageSize=` – agendas para recepção/pacientes com filtros, paginação e deduplicação (keeper de RN-04 não implementado).
+  - [ ] `DELETE /appointments/{id}` – cancelamentos com corpo opcional `reason`, resposta inclui `refund` (regras 24h/70%).
+  - [ ] `POST /appointments/{id}/reschedule` – payload `{ new_date, new_time }`, valida RN-01/02/03 e responde com novo `appointment`.
+  - [ ] `GET /appointments/{id}` – detalhamento para recepção e exibição de notas/pagamentos.
+- **Tarefas detalhadas (status)**
+  - [ ] Criar helpers de cache simples (`professionalsListCache`/`slotsCache`) para reduzir chamadas repetidas ao navegar entre datas.
+  - [x] Garantir que `apiService` expose métodos `getProfessionals`, `getAvailability`, `createAppointment`, `listAppointments` com mapeamento de erros (RN-specific mapping ainda pendente).
+  - [ ] Aplicar RN-01 a RN-05 com toasts específicos (`SLOT_NOT_AVAILABLE`, `INSUFFICIENT_NOTICE`, `DUPLICATE_APPOINTMENT`, `payment mock`). Hoje há filtragem de datas futuras, mas sem mensagens dedicadas de backend.
+  - [x] Implementar loaders/empty/error states nos cards e no painel de disponibilidades (com skeletons e mensagens de fallback).
+  - [ ] Oferecer filtros por status (`scheduled`, `confirmed`, `cancelled`), `professional_id`, `date` e `upcoming` via `GET /appointments`, mantendo os filtros no store.
+  - [x] Quando `payment_required` é recebido, exibir modal de confirmação com valor, botão de pagamento e comportamentos de retry baseados no status retornado.
+  - [ ] Após `cancel` ou `reschedule`, revalidar `GET /professionals/{id}/availability` e notificar o usuário da atualização do calendário.
 
 ### 3.4 Profissionais / Disponibilidade / Comissões (Equipe Doctor)
 
