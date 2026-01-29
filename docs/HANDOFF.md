@@ -1,30 +1,25 @@
-# 🚩 Handoff - 2026-01-29 01:56 BRT
+# 🚩 Handoff - 2026-01-29 03:12 BRT
 
 ### 🎯 Objetivo da Sessão Anterior
 
-- Ajustar integrações do paciente para separar exames/appointments, corrigir fluxo de agendamento e conectar `schedule-appointment` ao endpoint `/professionals`.
+- Ajustar o portal de agendamento (`schedule-appointment`) para usar o payload real do backend e restaurar o comportamento visual/checkout do `app.js`.
 
 ### ✅ Progresso Realizado
 
-- Dashboard paciente agora carrega apenas appointments + prescriptions (exams removidos do dashboard) via `src/stores/dashboardStore.ts`.
-- `pages/exams.html` conectado ao bundle `examsPage` com `src/pages/examsPage.ts` chamando `/exams?patient_id={id}`.
-- `pages/my-appointments.html` conectado ao bundle `myAppointments` com `src/pages/myAppointments.ts` chamando `/appointments?patient_id={id}`.
-- Criada `pages/schedule-appointment.html` (novo portal de agendamento) e links atualizados para ela.
-- `src/index.ts` ajustado para permitir acesso autenticado a schedule-appointment/exams/my-appointments sem redirect forçado.
-- `webpack.config.js` corrigido para evitar conflitos (CopyWebpackPlugin ignora HTMLs gerados).
-- Adicionados `src/types/professionals.ts`, `src/services/professionalsService.ts` e `src/pages/scheduleAppointment.ts` para buscar `/professionals`.
-- `pages/schedule-appointment.html` removido mocks e recebe o bundle `scheduleAppointment`.
-- Build validado com sucesso (`npm run build`).
+- `src/pages/scheduleAppointment.ts`: cards atualizados para o layout do `app.js`, preview de horários usando array flat, modal de pagamento restaurado (createCheckoutModal), clique nos horários abre modal.
+- `src/services/professionalsService.ts`: normalização de `/professionals` para aceitar array direto; `/professionals/:id/availability` agora retorna array flat (`{ date, time, is_available }`) sem modificar estrutura.
+- `src/types/professionals.ts`: tipos ajustados para `ProfessionalAvailabilityEntry` com `is_available`.
+- `PROGRESS-backend-integration.md`: histórico atualizado com as entregas acima.
+- Build validado com `npm run build` (warnings apenas de tamanho de assets).
 
 ### ⚠️ Estado de Alerta (Bugs e Bloqueios)
 
-- Usuário reportou que `exams.html` não disparava request. Ajustado `examsPage.ts` para usar `authStore.refreshSession()` quando necessário. Precisa revalidar manualmente se a chamada aparece no Network.
+- Nenhum bug crítico pendente. Validar manualmente o clique nos horários e abertura do modal no browser.
 
 ### 🚀 Próximos Passos Imediatos
 
-1. Testar `pages/exams.html` no browser e confirmar `GET /exams?patient_id={id}` (Network/console).
-2. Implementar filtros/pesquisa no `schedule-appointment` usando parâmetros `specialty` e `name` de `/professionals`.
-3. Integrar disponibilidade: chamar `/professionals/:id/availability` ao clicar em "Ver Horários".
+1. Abrir `pages/schedule-appointment.html`, clicar em “Ver calendário” e em um horário para confirmar que o modal aparece corretamente.
+2. Definir se o fluxo de pagamento deve disparar `POST /appointments` (integrar backend) ou continuar mock.
 
 ---
 

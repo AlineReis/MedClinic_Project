@@ -68,3 +68,12 @@
 - Updated root `index.html` flow to redirect to login or the appropriate role dashboard based on session.
 - Registered new bundles for my-appointments, exams, and schedule-appointment in `webpack.config.js`.
 - Added professionals types/service and wired `schedule-appointment` to load `/professionals` from the API, replacing mock data in the scheduling portal.
+- Extended professionals types/service with availability response typing and `getProfessionalAvailability` helper aligned with `/professionals/:id/availability`.
+- Updated `src/pages/scheduleAppointment.ts` with dynamic filters (specialty/name), live search, and availability preview on “Ver Horários” with toast feedback.
+- Normalized `/professionals` response handling to accept raw arrays and adjusted card rendering to gracefully handle missing CRM/council fields.
+- Hardened `listProfessionals` to handle raw array payloads (no `success/data`) and fallback on invalid response structures.
+- Normalized `/professionals/:id/availability` to accept array-only payloads when the backend omits the standard response envelope.
+- Updated availability slot typing and schedule-appointment preview logic to use `is_available` from the backend payload.
+- Adjusted schedule-appointment availability rendering to consume flat availability arrays and aligned the card layout with the legacy `app.js` markup.
+- Fixed `getProfessionalAvailability` typing to consistently return `ApiResponse<ProfessionalAvailabilityEntry[]>`.
+- Restored the checkout/payment modal from `app.js`, wiring slot buttons to open the modal in `scheduleAppointment.ts`.

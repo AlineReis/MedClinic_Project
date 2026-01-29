@@ -1,14 +1,38 @@
-import { listProfessionals } from "../services/professionalsService"
+import {
+  getProfessionalAvailability,
+  listProfessionals,
+} from "../services/professionalsService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
 import type { UserSession } from "../types/auth"
-import type { ProfessionalSummary } from "../types/professionals"
+import type {
+  ProfessionalAvailabilityEntry,
+  ProfessionalSummary,
+} from "../types/professionals"
 
 const doctorsGrid = document.getElementById("doctors-grid")
 const toastContainer = document.getElementById("toast-container")
+const filtersContainer = document.getElementById("filters-container")
+const searchInput = document.getElementById("search-input") as
+  | HTMLInputElement
+  | null
+
+type FiltersState = {
+  specialty: string
+  name: string
+}
+
+const filters: FiltersState = {
+  specialty: "",
+  name: "",
+}
+
+let professionalsCache: ProfessionalSummary[] = []
 
 document.addEventListener("DOMContentLoaded", () => {
   hydrateSessionUser()
+  renderFilters()
+  bindSearchInput()
   loadProfessionals()
 })
 
@@ -21,7 +45,11 @@ async function loadProfessionals() {
     return
   }
 
-  const response = await listProfessionals()
+  const response = await listProfessionals({
+    specialty: filters.specialty || undefined,
+    name: filters.name || undefined,
+  })
+
   if (!response.success || !response.data) {
     uiStore.addToast(
       "error",
@@ -34,7 +62,9 @@ async function loadProfessionals() {
     return
   }
 
+  professionalsCache = response.data.data
   renderProfessionals(response.data.data)
+  updateFiltersOptions(response.data.data)
 }
 
 function renderProfessionals(professionals: ProfessionalSummary[]) {
@@ -50,6 +80,18 @@ function renderProfessionals(professionals: ProfessionalSummary[]) {
   doctorsGrid.innerHTML = professionals
     .map(professional => buildProfessionalCard(professional))
     .join("")
+
+  doctorsGrid.querySelectorAll("[data-action='view-availability']").forEach(
+    button => {
+      button.addEventListener("click", async event => {
+        const target = event.currentTarget as HTMLButtonElement
+        const professionalId = Number(target.dataset.professionalId)
+        if (!professionalId) return
+
+        await handleAvailabilityClick(target, professionalId)
+      })
+    },
+  )
 }
 
 function buildProfessionalCard(professional: ProfessionalSummary) {
@@ -59,6 +101,11 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
   const registration = professional.registration_number
     ? `CRM ${professional.registration_number}`
     : "Registro disponível"
+  const council = professional.council ? `• ${professional.council}` : ""
+  const registrationLabel =
+    registration === "Registro disponível" && !council
+      ? "Registro a confirmar"
+      : `${registration} ${council}`.trim()
 
   return `
     <div class="group flex flex-col bg-surface-dark border border-border-dark rounded-xl overflow-hidden hover:border-primary/50 transition-all shadow-sm hover:shadow-md hover:shadow-primary/5">
@@ -72,22 +119,233 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
               <h3 class="text-white text-lg font-bold leading-tight truncate">${professional.name}</h3>
               <p class="text-primary text-sm font-medium mt-1">${professional.specialty}</p>
             </div>
+            <div class="flex items-center gap-1 bg-background-dark px-2 py-1 rounded-md">
+              <span class="material-symbols-outlined text-yellow-400 text-[16px]">star</span>
+              <span class="text-white text-xs font-bold">4.9</span>
+            </div>
           </div>
-          <p class="text-text-secondary text-xs mt-1">${registration}</p>
+          <p class="text-text-secondary text-xs mt-1">${registrationLabel}</p>
+          <div class="flex items-center gap-2 mt-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+              Disponível hoje
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-border-dark text-text-secondary">
+              ${professional.specialty}
+            </span>
+          </div>
         </div>
       </div>
+
       <div class="h-px bg-border-dark mx-5"></div>
-      <div class="p-5 flex items-center justify-between">
-        <div>
-          <span class="text-xs text-text-secondary uppercase">A partir de</span>
-          <p class="text-base font-bold text-white">${price}</p>
+
+      <div class="p-5 flex flex-col gap-3">
+        <div class="flex justify-between items-center">
+          <p class="text-sm font-medium text-white">Horários hoje</p>
+          <button
+            class="text-xs text-primary hover:text-white transition-colors"
+            data-action="view-availability"
+            data-professional-id="${professional.id}"
+          >
+            Ver calendário
+          </button>
         </div>
-        <button class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all">
-          Ver Horários
+        <div
+          class="availability-preview flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1"
+          data-professional-id="${professional.id}"
+        >
+          <span class="text-xs text-text-secondary italic py-2">
+            Selecione “Ver calendário” para carregar os horários.
+          </span>
+        </div>
+      </div>
+
+      <div class="px-5 pb-5 pt-0">
+        <button class="w-full py-2 rounded-lg border border-border-dark text-sm font-medium text-text-secondary hover:text-white hover:bg-border-dark transition-colors">
+          Ver Perfil Completo
         </button>
       </div>
     </div>
   `
+}
+
+function renderFilters() {
+  if (!filtersContainer) return
+
+  filtersContainer.innerHTML = `
+    <div class="flex flex-col gap-3">
+      <label class="text-xs uppercase text-text-secondary">Especialidade</label>
+      <select
+        id="filter-specialty"
+        class="h-12 rounded-lg bg-surface-dark border border-border-dark text-white px-3"
+      >
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="flex flex-col gap-3">
+      <label class="text-xs uppercase text-text-secondary">Nome do médico</label>
+      <input
+        id="filter-name"
+        class="h-12 rounded-lg bg-surface-dark border border-border-dark text-white px-3"
+        placeholder="Ex: Ana, João..."
+        type="text"
+      />
+    </div>
+    <button
+      id="apply-filters"
+      class="h-12 rounded-lg bg-primary text-white text-sm font-bold"
+    >
+      Aplicar filtros
+    </button>
+  `
+
+  const specialtySelect = document.getElementById(
+    "filter-specialty",
+  ) as HTMLSelectElement | null
+  const nameInput = document.getElementById(
+    "filter-name",
+  ) as HTMLInputElement | null
+  const applyButton = document.getElementById(
+    "apply-filters",
+  ) as HTMLButtonElement | null
+
+  if (specialtySelect) {
+    specialtySelect.addEventListener("change", () => {
+      filters.specialty = specialtySelect.value
+    })
+  }
+
+  if (nameInput) {
+    nameInput.addEventListener("input", () => {
+      filters.name = nameInput.value.trim()
+    })
+  }
+
+  if (applyButton) {
+    applyButton.addEventListener("click", async () => {
+      await loadProfessionals()
+    })
+  }
+}
+
+function updateFiltersOptions(professionals: ProfessionalSummary[]) {
+  const specialtySelect = document.getElementById(
+    "filter-specialty",
+  ) as HTMLSelectElement | null
+
+  if (!specialtySelect) return
+
+  const specialties = Array.from(
+    new Set(professionals.map(item => item.specialty).filter(Boolean)),
+  )
+  specialties.sort((a, b) => a.localeCompare(b))
+
+  const currentValue = specialtySelect.value
+  specialtySelect.innerHTML = [
+    "<option value=\"\">Todas</option>",
+    ...specialties.map(
+      specialty =>
+        `<option value="${specialty}">${specialty}</option>`,
+    ),
+  ].join("")
+
+  specialtySelect.value = currentValue
+}
+
+function bindSearchInput() {
+  if (!searchInput) return
+  searchInput.addEventListener("input", async () => {
+    filters.name = searchInput.value.trim()
+    await loadProfessionals()
+  })
+}
+
+async function handleAvailabilityClick(
+  button: HTMLButtonElement,
+  professionalId: number,
+) {
+  button.disabled = true
+  button.textContent = "Carregando..."
+
+  const response = await getProfessionalAvailability(professionalId, {
+    daysAhead: 7,
+  })
+
+  if (!response.success || !response.data) {
+    uiStore.addToast(
+      "error",
+      response.error?.message ?? "Não foi possível carregar os horários.",
+    )
+    renderToasts()
+    button.textContent = "Ver Horários"
+    button.disabled = false
+    return
+  }
+
+  const availableSlots = response.data.filter(slot => slot.is_available)
+  uiStore.addToast(
+    "success",
+    availableSlots.length
+      ? `Encontramos ${availableSlots.length} horários disponíveis.`
+      : "Nenhum horário disponível para este profissional.",
+  )
+  renderToasts()
+  renderAvailabilityHighlight(button, availableSlots, professionalId)
+
+  button.textContent = "Ver calendário"
+  button.disabled = false
+}
+
+function renderAvailabilityHighlight(
+  button: HTMLButtonElement,
+  availability: ProfessionalAvailabilityEntry[],
+  professionalId: number,
+) {
+  const card = button.closest(".group")
+  if (!card) return
+
+  const container = card.querySelector(
+    ".availability-preview",
+  ) as HTMLDivElement | null
+  if (!container) return
+
+  if (availability.length === 0) {
+    container.innerHTML =
+      "<span class=\"text-xs text-text-secondary italic py-2\">Sem horários disponíveis.</span>"
+    return
+  }
+
+  const preview = availability.slice(0, 6)
+  container.innerHTML = preview
+    .map(
+      slot =>
+        `<button
+          class="shrink-0 px-4 py-2 bg-background-dark border border-border-dark hover:border-primary hover:bg-primary hover:text-white text-white rounded-lg text-sm font-medium transition-all"
+          data-action="select-slot"
+          data-professional-id="${professionalId}"
+          data-slot-date="${slot.date}"
+          data-slot-time="${slot.time}"
+        >
+          ${formatDate(slot.date)} • ${slot.time}
+        </button>`,
+    )
+    .join("")
+
+  container.querySelectorAll("[data-action='select-slot']").forEach(button => {
+    button.addEventListener("click", event => {
+      const target = event.currentTarget as HTMLButtonElement
+      const selectedProfessionalId = Number(target.dataset.professionalId)
+      const selectedDate = target.dataset.slotDate
+      const selectedTime = target.dataset.slotTime
+      if (!selectedDate || !selectedTime) return
+
+      const professional = professionalsCache.find(
+        item => item.id === selectedProfessionalId,
+      )
+      if (!professional) return
+
+      createCheckoutModal(professional, selectedDate, selectedTime)
+    })
+  })
 }
 
 function buildEmptyState(message: string) {
@@ -159,3 +417,137 @@ function renderToasts() {
     toastContainer.appendChild(toastElement)
   })
 }
+
+function formatDate(date: string) {
+  const parsed = new Date(`${date}T00:00:00`)
+  return parsed.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  })
+}
+
+function clearFilters() {
+  filters.specialty = ""
+  filters.name = ""
+
+  if (searchInput) searchInput.value = ""
+
+  const specialtySelect = document.getElementById(
+    "filter-specialty",
+  ) as HTMLSelectElement | null
+  const nameInput = document.getElementById(
+    "filter-name",
+  ) as HTMLInputElement | null
+
+  if (specialtySelect) specialtySelect.value = ""
+  if (nameInput) nameInput.value = ""
+
+  loadProfessionals()
+}
+
+function createCheckoutModal(
+  professional: ProfessionalSummary,
+  date: string,
+  time: string,
+) {
+  const existing = document.getElementById("checkout-modal")
+  if (existing) existing.remove()
+
+  const modal = document.createElement("div")
+  modal.id = "checkout-modal"
+  modal.className =
+    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  modal.innerHTML = `
+    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark">
+        <h3 class="text-white font-bold">Resumo do Agendamento</h3>
+        <button data-action="close-checkout" class="text-text-secondary hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-6">
+        <div class="flex gap-4 items-center">
+          <div class="size-16 rounded-full bg-primary/10 border border-border-dark flex items-center justify-center text-primary text-lg font-bold">
+            ${getInitials(professional.name)}
+          </div>
+          <div>
+            <h4 class="text-white font-bold text-lg">${professional.name}</h4>
+            <p class="text-primary text-sm">${professional.specialty}</p>
+          </div>
+        </div>
+
+        <div class="bg-background-dark rounded-lg p-4 border border-border-dark space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-text-secondary">Data</span>
+            <span class="text-white font-medium">${formatDateFull(date)}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-text-secondary">Horário</span>
+            <span class="text-white font-medium">${time}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-text-secondary">Local</span>
+            <span class="text-white font-medium">Unidade principal</span>
+          </div>
+          <div class="h-px bg-border-dark my-2"></div>
+          <div class="flex justify-between text-base">
+            <span class="text-white font-bold">Valor Total</span>
+            <span class="text-primary font-bold">${
+              professional.consultation_price
+                ? formatCurrency(professional.consultation_price)
+                : "A confirmar"
+            }</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-text-secondary uppercase mb-2">Forma de Pagamento</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="flex items-center justify-center gap-2 p-3 rounded-lg border border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary">
+              <span class="material-symbols-outlined">credit_card</span>
+              Crédito
+            </button>
+            <button class="flex items-center justify-center gap-2 p-3 rounded-lg border border-border-dark bg-background-dark text-text-secondary hover:text-white hover:border-text-secondary transition-colors">
+              <span class="material-symbols-outlined">pix</span>
+              PIX
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-text-secondary uppercase mb-2">Parcelamento</label>
+          <select class="w-full bg-background-dark border border-border-dark text-white rounded-lg p-2.5 text-sm focus:ring-primary focus:border-primary">
+            <option value="1">1x sem juros</option>
+            <option value="2">2x sem juros</option>
+          </select>
+        </div>
+
+        <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined">lock</span>
+          Pagar e Confirmar
+        </button>
+      </div>
+    </div>
+  `
+
+  modal.querySelector("[data-action='close-checkout']")?.addEventListener(
+    "click",
+    () => {
+      modal.remove()
+    },
+  )
+
+  document.body.appendChild(modal)
+}
+
+function formatDateFull(date: string) {
+  const parsed = new Date(`${date}T00:00:00`)
+  return parsed.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+(window as Window & { clearFilters?: () => void }).clearFilters = clearFilters
