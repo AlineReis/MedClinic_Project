@@ -26,16 +26,39 @@ const authReadyPromise = authStore.refreshSession()
   authReadyPromise
 
 authReadyPromise.then(session => {
+  console.log("[auth] session resolved", session)
   const currentPath = window.location.pathname || ""
+  const isRoot = currentPath.endsWith("/index.html") || currentPath === "/"
+  const loginPath = "/pages/login.html"
+  const allowWhileAuthenticated = new Set([
+    "/pages/schedule-appointment.html",
+    "/pages/my-appointments.html",
+    "/pages/exams.html",
+  ])
   if (session) {
     const target = roleRoutes[session.role] ?? "/"
-    if (currentPath !== target) {
+    console.log("[auth] role target", target, "current", currentPath)
+    if (isRoot || currentPath === loginPath) {
       window.location.href = target
       return
     }
-    dashboardStore.loadAppointmentsForSession(session)
-  } else if (!currentPath.endsWith("/pages/login.html")) {
-    window.location.href = "/pages/login.html"
+    if (currentPath !== target && !allowWhileAuthenticated.has(currentPath)) {
+      window.location.href = target
+      return
+    }
+    const shouldLoadAppointments = [
+      "patient",
+      "receptionist",
+      "health_professional",
+    ].includes(session.role)
+
+    if (shouldLoadAppointments) {
+      console.log("[dashboard] loading appointments for session", session)
+      dashboardStore.loadAppointmentsForSession(session)
+    }
+  } else if (!currentPath.endsWith(loginPath)) {
+    console.log("[auth] no session, redirecting to login")
+    window.location.href = loginPath
     return
   }
 

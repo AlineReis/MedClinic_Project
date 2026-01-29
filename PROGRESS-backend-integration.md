@@ -55,3 +55,16 @@
 - Updated `src/stores/dashboardStore.ts` to use `appointmentsService` (no direct fetch), keeping SRP and adapter boundaries.
 - Fixed login flow to accept backend payloads that return `{ success, user }` and corrected patient seed credentials in `src/pages/login.ts`.
 - Updated login seed credentials for lab_tech and health_professional (and aligned other roles) to match `docs/REGRAS_DE_NEGOCIO_MINI_DESAFIO.txt`.
+- Updated `webpack.config.js` to inject the `main` bundle into dashboard pages (patient/reception/doctor/lab/manager/admin) and prevent CopyWebpackPlugin from overwriting them.
+- Restricted appointment loading in `src/index.ts` to roles that need it (patient, receptionist, health_professional).
+- Added typed `exams` and `prescriptions` models plus dedicated services (`examsService`, `prescriptionsService`) to load patient clinical data from `/exams` and `/prescriptions`.
+- Extended `dashboardStore` to fetch appointments, exams, and prescriptions in parallel, track loading/error state, and dispatch unified dashboard updates.
+- Implemented `src/pages/patientDashboard.ts` to render next appointment and recent activity feed with real store data, session-aware UI, and logout flow.
+- Updated `pages/patient-dashboard.html` placeholders to support live data and added a toast container; removed legacy mock script tags for the patient dashboard.
+- Updated `webpack.config.js` to emit a dedicated `patientDashboard` bundle for the patient dashboard page.
+- Patient dashboard now loads only appointments and prescriptions; exams are fetched on demand in `pages/exams.html` for patient role.
+- Added `src/pages/myAppointments.ts` to fetch `/appointments?patient_id={id}` and `src/pages/examsPage.ts` to fetch `/exams?patient_id={id}` with session-based redirects.
+- Introduced `pages/schedule-appointment.html` (copied from `index.html`) and updated navigation links/buttons to point to it.
+- Updated root `index.html` flow to redirect to login or the appropriate role dashboard based on session.
+- Registered new bundles for my-appointments, exams, and schedule-appointment in `webpack.config.js`.
+- Added professionals types/service and wired `schedule-appointment` to load `/professionals` from the API, replacing mock data in the scheduling portal.

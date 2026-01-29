@@ -6,11 +6,23 @@ const webpack = require("webpack")
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === "production"
+  const mainPages = [
+    "patient-dashboard.html",
+    "reception-dashboard.html",
+    "doctor-dashboard.html",
+    "lab-dashboard.html",
+    "manager-dashboard.html",
+    "admin-dashboard.html",
+  ]
 
   return {
     entry: {
       main: "./src/index.ts",
       login: "./src/pages/login.ts",
+      patientDashboard: "./src/pages/patientDashboard.ts",
+      myAppointments: "./src/pages/myAppointments.ts",
+      examsPage: "./src/pages/examsPage.ts",
+      scheduleAppointment: "./src/pages/scheduleAppointment.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -47,11 +59,43 @@ module.exports = (env, argv) => {
         chunks: ["main"],
       }),
       new HtmlWebpackPlugin({
+        template: "./pages/schedule-appointment.html",
+        filename: "pages/schedule-appointment.html",
+        chunks: ["scheduleAppointment"],
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
         template: "./pages/login.html",
         filename: "pages/login.html",
         chunks: ["login"],
         publicPath: "/",
       }),
+      new HtmlWebpackPlugin({
+        template: "./pages/my-appointments.html",
+        filename: "pages/my-appointments.html",
+        chunks: ["myAppointments"],
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/exams.html",
+        filename: "pages/exams.html",
+        chunks: ["examsPage"],
+        publicPath: "/",
+      }),
+      ...mainPages.map(
+        page =>
+          new HtmlWebpackPlugin({
+            template: `./pages/${page}`,
+            filename: `pages/${page}`,
+            chunks: [
+              "main",
+              ...(page === "patient-dashboard.html"
+                ? ["patientDashboard"]
+                : []),
+            ],
+            publicPath: "/",
+          }),
+      ),
       new CopyWebpackPlugin({
         patterns: [
           {
@@ -62,7 +106,13 @@ module.exports = (env, argv) => {
             from: "pages",
             to: "pages",
             globOptions: {
-              ignore: ["**/login.html"],
+              ignore: [
+                "**/login.html",
+                "**/schedule-appointment.html",
+                "**/my-appointments.html",
+                "**/exams.html",
+                ...mainPages.map(page => `**/${page}`),
+              ],
             },
           },
           {

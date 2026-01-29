@@ -1,4 +1,5 @@
 import type { AppointmentSummary } from "../types/appointments"
+import type { ApiResponse } from "./apiService"
 import { request } from "./apiService"
 
 type AppointmentFilters = {
@@ -20,12 +21,14 @@ type AppointmentApiItem = {
   room_number?: string | null
 }
 
-export async function listAppointments(filters: AppointmentFilters = {}) {
+export async function listAppointments(
+  filters: AppointmentFilters = {},
+): Promise<ApiResponse<AppointmentSummary[]>> {
   const query = buildAppointmentQuery(filters)
   const response = await request<AppointmentApiItem[]>(`/appointments${query}`)
 
   if (!response.success || !response.data) {
-    return response
+    return response as ApiResponse<AppointmentSummary[]>
   }
 
   return {

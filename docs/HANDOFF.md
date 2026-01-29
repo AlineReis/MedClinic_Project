@@ -1,26 +1,31 @@
-# 🚩 Handoff - 2026-01-29 00:21 (America/Bahia)
+# 🚩 Handoff - 2026-01-29 01:56 BRT
 
 ### 🎯 Objetivo da Sessão Anterior
 
-- Consolidar a integração da agenda/appointments e estabilizar o login com redirecionamento para todos os roles (patient, lab_tech, health_professional, clinic_admin, system_admin).
+- Ajustar integrações do paciente para separar exames/appointments, corrigir fluxo de agendamento e conectar `schedule-appointment` ao endpoint `/professionals`.
 
 ### ✅ Progresso Realizado
 
-- `src/types/appointments.ts`: criado tipo compartilhado `AppointmentSummary`.
-- `src/services/appointmentsService.ts`: criado serviço com filtros tipados e adapter para `/appointments`.
-- `src/stores/dashboardStore.ts`: refatorado para consumir `appointmentsService` (sem fetch direto).
-- `src/pages/login.ts`: corrigido fallback para payload `{ success, user }`, credenciais seed alinhadas a `docs/REGRAS_DE_NEGOCIO_MINI_DESAFIO.txt` e removida chave extra gerando erro de sintaxe.
-- `PROGRESS-backend-integration.md`: atualizado com entregas e correções de login.
+- Dashboard paciente agora carrega apenas appointments + prescriptions (exams removidos do dashboard) via `src/stores/dashboardStore.ts`.
+- `pages/exams.html` conectado ao bundle `examsPage` com `src/pages/examsPage.ts` chamando `/exams?patient_id={id}`.
+- `pages/my-appointments.html` conectado ao bundle `myAppointments` com `src/pages/myAppointments.ts` chamando `/appointments?patient_id={id}`.
+- Criada `pages/schedule-appointment.html` (novo portal de agendamento) e links atualizados para ela.
+- `src/index.ts` ajustado para permitir acesso autenticado a schedule-appointment/exams/my-appointments sem redirect forçado.
+- `webpack.config.js` corrigido para evitar conflitos (CopyWebpackPlugin ignora HTMLs gerados).
+- Adicionados `src/types/professionals.ts`, `src/services/professionalsService.ts` e `src/pages/scheduleAppointment.ts` para buscar `/professionals`.
+- `pages/schedule-appointment.html` removido mocks e recebe o bundle `scheduleAppointment`.
+- Build validado com sucesso (`npm run build`).
 
 ### ⚠️ Estado de Alerta (Bugs e Bloqueios)
 
-- Sem bloqueios confirmados após corrigir credenciais e login. Caso algum role ainda não redirecione, validar `/auth/profile` e cookies HttpOnly.
+- Usuário reportou que `exams.html` não disparava request. Ajustado `examsPage.ts` para usar `authStore.refreshSession()` quando necessário. Precisa revalidar manualmente se a chamada aparece no Network.
 
 ### 🚀 Próximos Passos Imediatos
 
-1. Validar login para `lab_tech` e `health_professional` (verificar redirect para `lab-dashboard.html` e `doctor-dashboard.html`).
-2. Iniciar integração de `/professionals` e `/availability` para completar a agenda (services + adapters + UI).
+1. Testar `pages/exams.html` no browser e confirmar `GET /exams?patient_id={id}` (Network/console).
+2. Implementar filtros/pesquisa no `schedule-appointment` usando parâmetros `specialty` e `name` de `/professionals`.
+3. Integrar disponibilidade: chamar `/professionals/:id/availability` ao clicar em "Ver Horários".
 
 ---
 
-**Instrução para o Agente:** Ao concluir as tarefas acima, mova os pontos relevantes para o `PROGRESS-backend-integration.md`.
+**Instrução para o Agente:** Ao concluir as tarefas acima, delete este arquivo ou mova os dados relevantes para o `PROGRESS-backend-integration.md`.
