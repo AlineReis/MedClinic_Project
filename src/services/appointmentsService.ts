@@ -1,39 +1,118 @@
 import type { AppointmentSummary } from "../types/appointments"
+import { appointmentsCache, buildCacheKey } from "../utils/cache"
 import type { ApiResponse } from "./apiService"
 import { request } from "./apiService"
+import { clearAvailabilityCache } from "./professionalsService"
 
-type AppointmentFilters = {
+export type AppointmentFilters = {
   patientId?: number
   professionalId?: number
   status?: string
   date?: string
   upcoming?: boolean
+  page?: number
+  pageSize?: number
 }
 
 type AppointmentApiItem = {
   id: number
-  patient?: { id: number; name: string }
-  professional?: { id: number; name: string; specialty?: string }
+  patient?: { id: number; name: string; email?: string; phone?: string }
+  professional?: { id: number; name: string; specialty?: string; registration_number?: string }
   date: string
   time: string
+  duration_minutes?: number
+  type?: string
   status: string
+  payment_status?: string
   price?: number
   room_number?: string | null
+  notes?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+type PaginatedAppointmentsResponse = {
+  data: AppointmentApiItem[]
+  pagination: {
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
+}
+
+type AppointmentDetailResponse = {
+  appointment: AppointmentApiItem
+}
+
+export type PaginatedAppointments = {
+  appointments: AppointmentSummary[]
+  pagination: {
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
 }
 
 export async function listAppointments(
   filters: AppointmentFilters = {},
-): Promise<ApiResponse<AppointmentSummary[]>> {
-  const query = buildAppointmentQuery(filters)
-  const response = await request<AppointmentApiItem[]>(`/appointments${query}`)
+  useCache = true,
+): Promise<ApiResponse<PaginatedAppointments>> {
+  const cacheKey = buildCacheKey("appointments", {
+    patientId: filters.patientId,
+    professionalId: filters.professionalId,
+    status: filters.status,
+    date: filters.date,
+    upcoming: filters.upcoming,
+    page: filters.page,
+    pageSize: filters.pageSize,
+  })
 
-  if (!response.success || !response.data) {
-    return response as ApiResponse<AppointmentSummary[]>
+  if (useCache) {
+    const cached = appointmentsCache.get(cacheKey)
+    if (cached) {
+      return {
+        success: true,
+        data: cached as PaginatedAppointments,
+      }
+    }
   }
 
+  const query = buildAppointmentQuery(filters)
+  const response = await request<PaginatedAppointmentsResponse>(`/appointments${query}`)
+
+  if (!response.success || !response.data) {
+    return {
+      ...response,
+      data: {
+        appointments: [],
+        pagination: { total: 0, page: 1, pageSize: 20, totalPages: 0 },
+      },
+    } as ApiResponse<PaginatedAppointments>
+  }
+
+  // Handle both paginated and non-paginated responses
+  if (Array.isArray(response.data)) {
+    const result = {
+      appointments: response.data.map(mapAppointmentSummary),
+      pagination: { total: response.data.length, page: 1, pageSize: response.data.length, totalPages: 1 },
+    }
+    appointmentsCache.set(cacheKey, result, 2 * 60 * 1000) // 2 minute TTL for appointments
+    return {
+      ...response,
+      data: result,
+    }
+  }
+
+  const result = {
+    appointments: response.data.data.map(mapAppointmentSummary),
+    pagination: response.data.pagination,
+  }
+  appointmentsCache.set(cacheKey, result, 2 * 60 * 1000) // 2 minute TTL for appointments
   return {
     ...response,
-    data: response.data.map(mapAppointmentSummary),
+    data: result,
   }
 }
 
@@ -64,9 +143,102 @@ export async function createAppointment(
     return response as ApiResponse<AppointmentSummary>
   }
 
+  // Invalidate caches after successful appointment creation
+  appointmentsCache.clear()
+  clearAvailabilityCache(payload.professionalId)
+
   return {
     ...response,
     data: mapAppointmentSummary(response.data),
+  }
+}
+
+type CancelAppointmentPayload = {
+  reason?: string
+}
+
+type CancelAppointmentResponse = {
+  message: string
+  refund?: {
+    amount: number
+    percentage: number
+  }
+}
+
+export async function cancelAppointment(
+  appointmentId: number,
+  { reason = "Cancelado pelo usuário" }: CancelAppointmentPayload = {},
+): Promise<ApiResponse<CancelAppointmentResponse>> {
+  const body = {reason}
+
+  const response = await request<CancelAppointmentResponse>(
+    `/appointments/${appointmentId}`,
+    "DELETE",
+    body,
+  )
+
+  if (response.success) {
+    // Invalidate caches after successful cancellation
+    appointmentsCache.clear()
+    clearAvailabilityCache() // Clear all availability since we don't know professional ID here
+  }
+
+  return response
+}
+
+type RescheduleAppointmentPayload = {
+  newDate: string
+  newTime: string
+}
+
+export async function rescheduleAppointment(
+  appointmentId: number,
+  payload: RescheduleAppointmentPayload,
+): Promise<ApiResponse<AppointmentSummary>> {
+  const body = {
+    new_date: payload.newDate,
+    new_time: payload.newTime,
+  }
+
+  const response = await request<AppointmentApiItem>(
+    `/appointments/${appointmentId}/reschedule`,
+    "POST",
+    body,
+  )
+
+  if (!response.success || !response.data) {
+    return response as ApiResponse<AppointmentSummary>
+  }
+
+  // Invalidate caches after successful rescheduling
+  appointmentsCache.clear()
+  clearAvailabilityCache() // Clear all availability since we don't know professional ID here
+
+  return {
+    ...response,
+    data: mapAppointmentSummary(response.data),
+  }
+}
+
+export async function getAppointment(
+  appointmentId: number,
+): Promise<ApiResponse<AppointmentSummary>> {
+  const response = await request<AppointmentDetailResponse>(`/appointments/${appointmentId}`)
+
+  if (!response.success || !response.data) {
+    return {
+      success: false,
+      error: response.error ?? {
+        code: "UNKNOWN_ERROR",
+        message: "Erro desconhecido",
+        statusCode: 500,
+      },
+    }
+  }
+
+  return {
+    success: true,
+    data: mapAppointmentSummary(response.data.appointment),
   }
 }
 
@@ -82,6 +254,8 @@ function buildAppointmentQuery(filters: AppointmentFilters) {
   if (filters.upcoming !== undefined) {
     params.set("upcoming", String(filters.upcoming))
   }
+  if (filters.page) params.set("page", String(filters.page))
+  if (filters.pageSize) params.set("pageSize", String(filters.pageSize))
 
   const query = params.toString()
   return query ? `?${query}` : ""
@@ -103,102 +277,10 @@ function mapAppointmentSummary(item: AppointmentApiItem): AppointmentSummary {
   }
 }
 
-// ============ Cancelamento (DELETE /appointments/:id) ============
-
-type CancelAppointmentResponse = {
-  appointment: {
-    id: number
-    status: string
-    payment_status: string
-  }
-  refund?: {
-    amount: number
-    percentage: number
-    reason: string
-    processing: string
-  }
-  message: string
-}
-
-export async function cancelAppointment(
-  appointmentId: number,
-  reason?: string,
-): Promise<ApiResponse<CancelAppointmentResponse>> {
-  const body = reason ? { reason } : undefined
-  return request<CancelAppointmentResponse>(
-    `/appointments/${appointmentId}`,
-    "DELETE",
-    body,
-  )
-}
-
-// ============ Reagendamento (POST /appointments/:id/reschedule) ============
-
-type ReschedulePayload = {
-  newDate: string
-  newTime: string
-}
-
-type RescheduleResponse = {
-  appointment: {
-    id: number
-    date: string
-    time: string
-    status: string
-    payment_status: string
-    updated_at: string
-  }
-  message: string
-}
-
-export async function rescheduleAppointment(
-  appointmentId: number,
-  payload: ReschedulePayload,
-): Promise<ApiResponse<RescheduleResponse>> {
-  const body = {
-    new_date: payload.newDate,
-    new_time: payload.newTime,
-  }
-  return request<RescheduleResponse>(
-    `/appointments/${appointmentId}/reschedule`,
-    "POST",
-    body,
-  )
-}
-
-// ============ Detalhes do agendamento (GET /appointments/:id) ============
-
-export async function getAppointment(
-  appointmentId: number,
-): Promise<ApiResponse<AppointmentSummary>> {
-  const response = await request<AppointmentApiItem>(
-    `/appointments/${appointmentId}`,
-  )
-
-  if (!response.success || !response.data) {
-    return response as ApiResponse<AppointmentSummary>
-  }
-
-  return {
-    ...response,
-    data: mapAppointmentSummary(response.data),
-  }
-}
-
-// ============ Mapeamento de erros RN para mensagens amigáveis ============
-
-const RN_ERROR_MESSAGES: Record<string, string> = {
-  SLOT_NOT_AVAILABLE: "Este horário não está mais disponível. Por favor, escolha outro.",
-  INSUFFICIENT_NOTICE: "Agendamento requer antecedência mínima de 2 horas para consultas presenciais.",
-  DUPLICATE_APPOINTMENT: "Você já possui um agendamento com este profissional nesta data.",
-  NEW_SLOT_NOT_AVAILABLE: "O novo horário selecionado não está disponível.",
-  CANNOT_CANCEL: "Não é possível cancelar este agendamento no status atual.",
-  APPOINTMENT_NOT_FOUND: "Agendamento não encontrado.",
-  PROFESSIONAL_NOT_FOUND: "Profissional não encontrado.",
-  FORBIDDEN: "Você não tem permissão para realizar esta ação.",
-  OVERLAPPING_TIMES: "Os horários informados se sobrepõem.",
-}
-
-export function getErrorMessage(errorCode: string, fallback: string): string {
-  return RN_ERROR_MESSAGES[errorCode] ?? fallback
+/**
+ * Clear appointments cache
+ * Call this after any appointment mutation to refresh the list
+ */
+export function clearAppointmentsCache(): void {
+  appointmentsCache.clear()
 }

@@ -2,7 +2,6 @@ import "../../css/global.css"
 import { ToastContainer } from "../components/ToastContainer"
 import { request } from "../services/apiService"
 import { uiStore } from "../stores/uiStore"
-import { authStore } from "../stores/authStore"
 
 new ToastContainer()
 
@@ -65,7 +64,7 @@ if (registerForm) {
                 uiStore.addToast("success", "Conta criada com sucesso!")
                 // Auto-login or redirect
                 setTimeout(() => {
-                    // Optionally auto-login if the API returns a session, 
+                    // Optionally auto-login if the API returns a session,
                     // but usually we redirect to login or onboarding
                     window.location.href = "onboarding.html"
                 }, 1500)
@@ -73,11 +72,11 @@ if (registerForm) {
                 // Error is handled by apiService usually but usually shows toast
                 // If we want specific field errors handled manually:
                 if (response.error) {
-                    // already toasted by apiService? 
+                    // already toasted by apiService?
                     // Wait, apiService only returns error object, doesn't auto-toast properly unless we configured it?
-                    // Looking at apiService.ts provided earlier: 
-                    // it returns { success: false, error: ... } 
-                    // The caller usually handles it, OR fetchProfile handled it. 
+                    // Looking at apiService.ts provided earlier:
+                    // it returns { success: false, error: ... }
+                    // The caller usually handles it, OR fetchProfile handled it.
                     // request() does NOT auto-toast errors generally.
                     uiStore.addToast("error", response.error.message)
                 }
