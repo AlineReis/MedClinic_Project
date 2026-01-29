@@ -70,7 +70,8 @@ describe('AppointmentService', () => {
 
         transactionRepositoryMock = {
             create: jest.fn(),
-            findByAppointmentId: jest.fn()
+            findByAppointmentId: jest.fn(),
+            findByReferenceId: jest.fn()
         } as unknown as jest.Mocked<TransactionRepository>;
 
         commissionSplitRepositoryMock = {
@@ -79,7 +80,7 @@ describe('AppointmentService', () => {
         } as unknown as jest.Mocked<CommissionSplitRepository>;
 
         emailServiceMock = {
-            send: jest.fn().mockImplementation(async () => {})
+            send: jest.fn().mockImplementation(async () => { })
         } as unknown as jest.Mocked<ResendEmailService>;
 
         appointmentService = new AppointmentService(
@@ -306,7 +307,7 @@ describe('AppointmentService', () => {
             // 2026-05-05 is a Tuesday.
             const tuesdayFarAway = '2026-05-05';
             // 2026-01-01 to 2026-05-05 is > 120 days
-            
+
             const farAppointment = { ...validAppointmentData, date: tuesdayFarAway };
 
             availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailability);
@@ -417,10 +418,10 @@ describe('AppointmentService', () => {
         });
 
         it('should throw ValidationError if already cancelled', async () => {
-             const cancelledAppointment = { ...mockAppointment, status: 'cancelled_by_patient' as const };
-             appointmentRepositoryMock.findById.mockResolvedValue(cancelledAppointment);
+            const cancelledAppointment = { ...mockAppointment, status: 'cancelled_by_patient' as const };
+            appointmentRepositoryMock.findById.mockResolvedValue(cancelledAppointment);
 
-             await expect(appointmentService.cancelAppointment(appointmentId, "Reason", 1))
+            await expect(appointmentService.cancelAppointment(appointmentId, "Reason", 1))
                 .rejects
                 .toThrow(new ValidationError("Este agendamento já está cancelado ou concluído.", "status"));
         });
@@ -437,8 +438,7 @@ describe('AppointmentService', () => {
             status: 'scheduled',
             payment_status: 'paid',
             price: 150,
-            type: 'in_person',
-            clinic_id: 1
+            type: 'presencial'
         };
 
         const mockAvailabilityForReschedule = [
@@ -495,7 +495,7 @@ describe('AppointmentService', () => {
             jest.setSystemTime(twelveHoursBefore);
 
             appointmentRepositoryMock.reschedule.mockResolvedValue();
-            transactionRepositoryMock.create = jest.fn().mockResolvedValue(999);
+            transactionRepositoryMock.create.mockResolvedValue(999);
 
             const newDate = '2026-03-17'; // Tuesday
             const newTime = '10:00';
@@ -551,8 +551,7 @@ describe('AppointmentService', () => {
             status: 'in_progress',
             payment_status: 'paid',
             price: 150,
-            type: 'in_person',
-            clinic_id: 1
+            type: 'presencial'
         };
 
         beforeEach(() => {
@@ -566,12 +565,16 @@ describe('AppointmentService', () => {
                     id: 456,
                     type: 'appointment_payment' as const,
                     reference_id: appointmentId,
+                    reference_type: 'appointment' as const,
                     status: 'paid' as const,
                     amount_gross: 150,
+                    payer_id: 1,
+                    mdr_fee: 4.5,
+                    amount_net: 145.5,
                 }
             ];
-            transactionRepositoryMock.findByReferenceId = jest.fn().mockResolvedValue(mockTransactions);
-            commissionSplitRepositoryMock.updateStatusByTransaction = jest.fn().mockResolvedValue();
+            transactionRepositoryMock.findByReferenceId.mockResolvedValue(mockTransactions);
+            commissionSplitRepositoryMock.updateStatusByTransaction.mockResolvedValue(undefined);
 
             await appointmentService.completeAppointment(appointmentId, { id: 2, role: 'health_professional' });
 

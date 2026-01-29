@@ -1,5 +1,6 @@
 import { startAppointmentReminderJob } from "./appointmentReminders.js";
 import { startExamExpirationJob } from "./examExpiration.js";
+import { startMonthlyReportGeneratorJob } from "./monthlyReportGenerator.js";
 
 /**
  * Initialize all scheduled jobs
@@ -9,5 +10,6 @@ export function startAllJobs() {
   console.log("🕐 Starting scheduled jobs...");
   startAppointmentReminderJob();
   startExamExpirationJob();
+  startMonthlyReportGeneratorJob();
   console.log("✅ All jobs scheduled successfully");
 }
