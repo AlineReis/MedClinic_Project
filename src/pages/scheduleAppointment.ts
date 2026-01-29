@@ -1,6 +1,9 @@
 import {
+  cancelAppointment,
   createAppointment,
+  getErrorMessage,
   listAppointments,
+  rescheduleAppointment,
 } from "../services/appointmentsService"
 import {
   getProfessionalAvailability,
@@ -44,11 +47,65 @@ function renderAppointmentCards(appointments: AppointmentSummary[]) {
   appointmentsList.innerHTML = appointments
     .map(appointment => buildAppointmentCard(appointment))
     .join("")
+
+  // Bind cancel buttons
+  appointmentsList.querySelectorAll("[data-action='cancel-appointment']").forEach(
+    button => {
+      button.addEventListener("click", event => {
+        const target = event.currentTarget as HTMLButtonElement
+        const appointmentId = Number(target.dataset.appointmentId)
+        const appointmentDate = target.dataset.appointmentDate ?? ""
+        const appointmentTime = target.dataset.appointmentTime ?? ""
+        if (!appointmentId) return
+        createCancelModal(appointmentId, appointmentDate, appointmentTime)
+      })
+    },
+  )
+
+  // Bind reschedule buttons
+  appointmentsList.querySelectorAll("[data-action='reschedule-appointment']").forEach(
+    button => {
+      button.addEventListener("click", event => {
+        const target = event.currentTarget as HTMLButtonElement
+        const appointmentId = Number(target.dataset.appointmentId)
+        const professionalId = Number(target.dataset.professionalId)
+        const professionalName = target.dataset.professionalName ?? ""
+        if (!appointmentId || !professionalId) return
+        createRescheduleModal(appointmentId, professionalId, professionalName)
+      })
+    },
+  )
 }
 
 function buildAppointmentCard(appointment: AppointmentSummary) {
+  const canModify = ["scheduled", "confirmed"].includes(appointment.status)
+  const actionButtons = canModify
+    ? `
+      <div class="flex gap-2 mt-2 pt-2 border-t border-border-dark">
+        <button
+          class="flex-1 text-xs py-1.5 px-2 rounded bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors"
+          data-action="reschedule-appointment"
+          data-appointment-id="${appointment.id}"
+          data-professional-id="${appointment.professional_id}"
+          data-professional-name="${appointment.professional_name}"
+        >
+          Reagendar
+        </button>
+        <button
+          class="flex-1 text-xs py-1.5 px-2 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+          data-action="cancel-appointment"
+          data-appointment-id="${appointment.id}"
+          data-appointment-date="${appointment.date}"
+          data-appointment-time="${appointment.time}"
+        >
+          Cancelar
+        </button>
+      </div>
+    `
+    : ""
+
   return `
-    <div class="rounded-2xl border border-border-dark bg-background-dark p-4 flex flex-col gap-2">
+    <div class="rounded-2xl border border-border-dark bg-background-dark p-4 flex flex-col gap-2 min-w-[200px]">
       <div class="flex justify-between items-center">
         <h4 class="text-sm font-bold text-white truncate">${appointment.professional_name}</h4>
         <span class="text-xs text-text-secondary">${getStatusLabel(appointment.status)}</span>
@@ -62,6 +119,7 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
         <span class="material-symbols-outlined">schedule</span>
         ${appointment.time}
       </div>
+      ${actionButtons}
     </div>
   `
 }
@@ -728,10 +786,11 @@ function createCheckoutModal(
       })
 
       if (!response.success) {
-        uiStore.addToast(
-          "error",
+        const errorMsg = getErrorMessage(
+          response.error?.code ?? "",
           response.error?.message ?? "Não foi possível confirmar o agendamento.",
         )
+        uiStore.addToast("error", errorMsg)
         renderToasts()
         return
       }
@@ -758,6 +817,288 @@ function formatDateFull(date: string) {
     day: "2-digit",
     month: "long",
     year: "numeric",
+  })
+}
+
+// ============ Modal de Cancelamento ============
+
+function createCancelModal(
+  appointmentId: number,
+  appointmentDate: string,
+  appointmentTime: string,
+) {
+  const existing = document.getElementById("cancel-modal")
+  if (existing) existing.remove()
+
+  const modal = document.createElement("div")
+  modal.id = "cancel-modal"
+  modal.className =
+    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  modal.innerHTML = `
+    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark">
+        <h3 class="text-white font-bold">Cancelar Agendamento</h3>
+        <button data-action="close-cancel" class="text-text-secondary hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4">
+        <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+          <p class="text-red-400 text-sm font-medium">Atenção</p>
+          <p class="text-text-secondary text-xs mt-1">
+            Ao cancelar com menos de 24h de antecedência, o reembolso será de 70% do valor pago.
+          </p>
+        </div>
+
+        <div class="bg-background-dark rounded-lg p-4 border border-border-dark">
+          <p class="text-text-secondary text-xs">Agendamento</p>
+          <p class="text-white font-medium mt-1">${formatDateFull(appointmentDate)} às ${appointmentTime}</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-text-secondary uppercase mb-2">Motivo (opcional)</label>
+          <textarea
+            id="cancel-reason"
+            class="w-full bg-background-dark border border-border-dark text-white rounded-lg p-3 text-sm resize-none h-20"
+            placeholder="Informe o motivo do cancelamento..."
+          ></textarea>
+        </div>
+
+        <div class="flex gap-3 mt-2">
+          <button
+            data-action="close-cancel"
+            class="flex-1 py-2.5 rounded-lg border border-border-dark text-text-secondary hover:text-white hover:bg-border-dark transition-colors"
+          >
+            Voltar
+          </button>
+          <button
+            data-action="confirm-cancel"
+            class="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold transition-colors"
+          >
+            Confirmar Cancelamento
+          </button>
+        </div>
+      </div>
+    </div>
+  `
+
+  modal.querySelectorAll("[data-action='close-cancel']").forEach(btn => {
+    btn.addEventListener("click", () => modal.remove())
+  })
+
+  const confirmButton = modal.querySelector(
+    "[data-action='confirm-cancel']",
+  ) as HTMLButtonElement | null
+
+  confirmButton?.addEventListener("click", async () => {
+    if (!confirmButton) return
+    const reasonInput = modal.querySelector("#cancel-reason") as HTMLTextAreaElement | null
+    const reason = reasonInput?.value.trim() || undefined
+
+    confirmButton.disabled = true
+    confirmButton.textContent = "Cancelando..."
+
+    const response = await cancelAppointment(appointmentId, reason)
+
+    if (!response.success) {
+      const errorMsg = getErrorMessage(
+        response.error?.code ?? "",
+        response.error?.message ?? "Não foi possível cancelar o agendamento.",
+      )
+      uiStore.addToast("error", errorMsg)
+      renderToasts()
+      confirmButton.disabled = false
+      confirmButton.textContent = "Confirmar Cancelamento"
+      return
+    }
+
+    const refundInfo = response.data?.refund
+      ? ` Reembolso de ${response.data.refund.percentage}% (${formatCurrency(response.data.refund.amount)}) será processado em ${response.data.refund.processing}.`
+      : ""
+
+    uiStore.addToast("success", `Agendamento cancelado com sucesso.${refundInfo}`)
+    renderToasts()
+    modal.remove()
+    await loadPatientAppointments()
+  })
+
+  document.body.appendChild(modal)
+}
+
+// ============ Modal de Reagendamento ============
+
+function createRescheduleModal(
+  appointmentId: number,
+  professionalId: number,
+  professionalName: string,
+) {
+  const existing = document.getElementById("reschedule-modal")
+  if (existing) existing.remove()
+
+  const modal = document.createElement("div")
+  modal.id = "reschedule-modal"
+  modal.className =
+    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  modal.innerHTML = `
+    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark">
+        <h3 class="text-white font-bold">Reagendar Consulta</h3>
+        <button data-action="close-reschedule" class="text-text-secondary hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4">
+        <div class="bg-background-dark rounded-lg p-4 border border-border-dark">
+          <p class="text-text-secondary text-xs">Profissional</p>
+          <p class="text-white font-medium mt-1">${professionalName}</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-text-secondary uppercase mb-2">Selecione um novo horário</label>
+          <div
+            id="reschedule-slots"
+            class="bg-background-dark border border-border-dark rounded-lg p-4 min-h-[100px] flex flex-wrap gap-2"
+          >
+            <span class="text-text-secondary text-sm">Carregando horários disponíveis...</span>
+          </div>
+        </div>
+
+        <div id="reschedule-selected" class="hidden bg-primary/10 border border-primary/20 rounded-lg p-3">
+          <p class="text-primary text-sm font-medium">Novo horário selecionado:</p>
+          <p id="reschedule-selected-text" class="text-white font-bold mt-1"></p>
+        </div>
+
+        <div class="flex gap-3 mt-2">
+          <button
+            data-action="close-reschedule"
+            class="flex-1 py-2.5 rounded-lg border border-border-dark text-text-secondary hover:text-white hover:bg-border-dark transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            id="confirm-reschedule"
+            disabled
+            class="flex-1 py-2.5 rounded-lg bg-primary hover:bg-primary/80 text-white font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Confirmar Reagendamento
+          </button>
+        </div>
+      </div>
+    </div>
+  `
+
+  modal.querySelectorAll("[data-action='close-reschedule']").forEach(btn => {
+    btn.addEventListener("click", () => modal.remove())
+  })
+
+  const slotsContainer = modal.querySelector("#reschedule-slots") as HTMLDivElement
+  const selectedContainer = modal.querySelector("#reschedule-selected") as HTMLDivElement
+  const selectedText = modal.querySelector("#reschedule-selected-text") as HTMLParagraphElement
+  const confirmButton = modal.querySelector("#confirm-reschedule") as HTMLButtonElement
+
+  let selectedDate = ""
+  let selectedTime = ""
+
+  // Load available slots
+  loadRescheduleSlots(professionalId, slotsContainer, (date, time) => {
+    selectedDate = date
+    selectedTime = time
+    selectedContainer.classList.remove("hidden")
+    selectedText.textContent = `${formatDateFull(date)} às ${time}`
+    confirmButton.disabled = false
+  })
+
+  confirmButton.addEventListener("click", async () => {
+    if (!selectedDate || !selectedTime) return
+
+    confirmButton.disabled = true
+    confirmButton.textContent = "Reagendando..."
+
+    const response = await rescheduleAppointment(appointmentId, {
+      newDate: selectedDate,
+      newTime: selectedTime,
+    })
+
+    if (!response.success) {
+      const errorMsg = getErrorMessage(
+        response.error?.code ?? "",
+        response.error?.message ?? "Não foi possível reagendar.",
+      )
+      uiStore.addToast("error", errorMsg)
+      renderToasts()
+      confirmButton.disabled = false
+      confirmButton.textContent = "Confirmar Reagendamento"
+      return
+    }
+
+    uiStore.addToast(
+      "success",
+      `Consulta reagendada para ${formatDateFull(selectedDate)} às ${selectedTime}.`,
+    )
+    renderToasts()
+    modal.remove()
+    await loadPatientAppointments()
+  })
+
+  document.body.appendChild(modal)
+}
+
+async function loadRescheduleSlots(
+  professionalId: number,
+  container: HTMLDivElement,
+  onSelect: (date: string, time: string) => void,
+) {
+  const response = await getProfessionalAvailability(professionalId, { daysAhead: 14 })
+
+  if (!response.success || !response.data) {
+    container.innerHTML = `
+      <span class="text-red-400 text-sm">Não foi possível carregar os horários.</span>
+    `
+    return
+  }
+
+  const futureSlots = response.data
+    .filter(slot => slot.is_available)
+    .filter(slot => {
+      const slotDate = new Date(`${slot.date}T${slot.time}`)
+      return slotDate.getTime() > Date.now()
+    })
+
+  if (futureSlots.length === 0) {
+    container.innerHTML = `
+      <span class="text-text-secondary text-sm">Nenhum horário disponível nos próximos 14 dias.</span>
+    `
+    return
+  }
+
+  container.innerHTML = futureSlots
+    .slice(0, 12)
+    .map(
+      slot => `
+        <button
+          class="px-3 py-2 bg-surface-dark border border-border-dark hover:border-primary hover:bg-primary hover:text-white text-white rounded-lg text-sm transition-all reschedule-slot-btn"
+          data-date="${slot.date}"
+          data-time="${slot.time}"
+        >
+          ${formatDate(slot.date)} • ${slot.time}
+        </button>
+      `,
+    )
+    .join("")
+
+  container.querySelectorAll(".reschedule-slot-btn").forEach(btn => {
+    btn.addEventListener("click", event => {
+      const target = event.currentTarget as HTMLButtonElement
+      container.querySelectorAll(".reschedule-slot-btn").forEach(b => {
+        b.classList.remove("border-primary", "bg-primary")
+        b.classList.add("border-border-dark", "bg-surface-dark")
+      })
+      target.classList.remove("border-border-dark", "bg-surface-dark")
+      target.classList.add("border-primary", "bg-primary")
+      onSelect(target.dataset.date ?? "", target.dataset.time ?? "")
+    })
   })
 }
 

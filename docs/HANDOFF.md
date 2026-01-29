@@ -1,21 +1,45 @@
-# 🚩 Handoff - 2026-01-29 14:53 BRT
+# 🚩 Handoff - 2026-01-29 17:15 BRT
 
 ### 🎯 Objetivo da Sessão Anterior
 
-- Finalizar o Step 3 do fluxo de agendamento (plano 3.3) para o painel de pacientes, garantindo cards atualizados, filtros com debounce, disponibilidade futura e posting em `/appointments` com preços reais.
+- Implementar fluxos de cancelamento e reagendamento de agendamentos no painel do paciente.
+- Adicionar tratamento de erros RN-01 a RN-05 com mensagens amigáveis.
+- Documentar contratos de erro no PROGRESS.
 
 ### ✅ Progresso Realizado
 
-- Badge de contagem, rolagem horizontal e limitação a 3 cards futuros na seção “Agendamentos”, garantindo que, quando a lista exceder a largura, o usuário receba automaticamente uma barra de rolagem.
-- Filtros de especialidade/nome com debounce de 300 ms, `GET /professionals` adaptado e disponibilidade atualizada a partir de `/professionals/{id}/availability` só com slots futuros.
-- Modal de checkout conectado a `appointmentsService.createAppointment`, postando `{ patient_id, professional_id, date, time, type: "presencial", price }`, exibindo toasts e recarregando o painel após sucesso ou erro.
+- **`src/services/appointmentsService.ts`**: Adicionados métodos `cancelAppointment(id, reason?)`, `rescheduleAppointment(id, { newDate, newTime })`, `getAppointment(id)` e helper `getErrorMessage(code, fallback)` com mapeamento de códigos RN.
+- **`src/pages/scheduleAppointment.ts`**:
+  - Cards de agendamento agora exibem botões "Reagendar" e "Cancelar" para status `scheduled` ou `confirmed`.
+  - Modal de cancelamento com campo de motivo opcional e informações sobre reembolso (70% se <24h).
+  - Modal de reagendamento carrega slots disponíveis do profissional para os próximos 14 dias.
+  - Tratamento de erros atualizado para usar `getErrorMessage()` com mapeamento RN.
+  - Após cancelar ou reagendar, o painel de agendamentos é recarregado via `loadPatientAppointments()`.
+- **`PROGRESS-backend-integration.md`**: Documentados contratos de erro RN-01 a RN-05 com tabela de códigos e mensagens.
+- **PR #495** criado: `feature/cancel-reschedule-appointments` → `frontend-stitch`
 
-### ⚠️ Estado de Alerta (Bugs, Bloqueios e Itens pendentes do plano 3.3)
+### ⚠️ Estado de Alerta (Bugs, Bloqueios e Itens Pendentes)
 
-- Cache de profissionais/slots (`professionalsListCache` e `slotsCache`), filtros avançados (status, data, paginação) e deduplicação via `GET /appointments` com query params não foram implementados.
-- RN-01..RN-05 exigem mensagens do backend (`SLOT_NOT_AVAILABLE`, `INSUFFICIENT_NOTICE`, `DUPLICATE_APPOINTMENT`, `payment mock`) que ainda não aparecem no frontend, nem existem fluxos de cancelamento (`DELETE /appointments`) ou reagendamento (`POST /appointments/{id}/reschedule`).
+- Cache de profissionais/slots (`professionalsListCache` e `slotsCache`) ainda não implementado.
+- Filtros avançados (status, data, paginação) via `GET /appointments` com query params pendentes.
+- Deduplicação de agendamentos não implementada.
+- Payment mock (CloudWalk) não está sendo testado end-to-end.
+- `/auth/profile` retorna `{ id, email, role }` sem `name`, header do usuário fica em branco (dependência backend).
 
 ### 🚀 Próximos Passos Imediatos
 
-1. Atualizar o backlog do squad de agendamentos para tocar as pendências acima, registrando contratos e mensagens esperadas para cada erro/lista (PROGRESS + plan2).</n+2. Confirmar com o time se a rechecagem via `GET /appointments/{id}` deve rodar após cancelamentos/reagendamentos e implementar o flow de refresh do painel.
-3. Manter todos os cards na lista de agendamentos visíveis e com scroll lateral sempre que excederem a largura disponível.
+1. **Merge do PR #495** após revisão e testes manuais dos fluxos de cancelamento/reagendamento.
+2. **Implementar cache** de profissionais e slots para reduzir chamadas repetidas à API.
+3. **Filtros avançados** no painel de agendamentos (status, data, paginação).
+4. **Testar integração** com backend para validar erros RN em cenários reais (slot ocupado, duplicidade, antecedência).
+5. **Corrigir header do usuário** - aguardar backend retornar `name` no `/auth/profile` ou buscar via `/users/:id`.
+
+### 📁 Branch Ativa
+
+- **Branch:** `feature/cancel-reschedule-appointments`
+- **PR:** https://github.com/AlineReis/MedClinic_Project/pull/495
+- **Base:** `frontend-stitch`
+
+---
+
+**Instrução para o Agente:** Após merge do PR #495, mover dados relevantes para `PROGRESS-backend-integration.md` e focar nos itens pendentes de cache e filtros.
