@@ -6,6 +6,7 @@ import {
   rescheduleAppointment,
 } from "../services/appointmentsService"
 import {
+  clearAvailabilityCache,
   getProfessionalAvailability,
   listProfessionals,
 } from "../services/professionalsService"
@@ -920,6 +921,7 @@ function createCancelModal(
     uiStore.addToast("success", `Agendamento cancelado com sucesso.${refundInfo}`)
     renderToasts()
     modal.remove()
+    clearAvailabilityCache() // Invalidar cache de disponibilidade
     await loadPatientAppointments()
   })
 
@@ -1039,6 +1041,7 @@ function createRescheduleModal(
     )
     renderToasts()
     modal.remove()
+    clearAvailabilityCache(professionalId) // Invalidar cache do profissional
     await loadPatientAppointments()
   })
 

@@ -29,23 +29,86 @@ type AvailabilityFilters = {
   daysAhead?: number
 }
 
+// ============ Cache System ============
+
+type CacheEntry<T> = {
+  data: T
+  timestamp: number
+  expiresAt: number
+}
+
+const CACHE_TTL = {
+  professionals: 5 * 60 * 1000, // 5 minutos
+  availability: 2 * 60 * 1000,  // 2 minutos (slots mudam mais frequentemente)
+}
+
+const professionalsCache = new Map<string, CacheEntry<ProfessionalsApiResponse>>()
+const availabilityCache = new Map<string, CacheEntry<ProfessionalAvailabilityEntry[]>>()
+
+function getCacheKey(prefix: string, params: Record<string, unknown>): string {
+  const sorted = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== "")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&")
+  return `${prefix}:${sorted}`
+}
+
+function isExpired<T>(entry: CacheEntry<T> | undefined): boolean {
+  if (!entry) return true
+  return Date.now() > entry.expiresAt
+}
+
+export function clearProfessionalsCache(): void {
+  professionalsCache.clear()
+}
+
+export function clearAvailabilityCache(professionalId?: number): void {
+  if (professionalId) {
+    const prefix = `availability:${professionalId}`
+    for (const key of availabilityCache.keys()) {
+      if (key.startsWith(prefix)) {
+        availabilityCache.delete(key)
+      }
+    }
+  } else {
+    availabilityCache.clear()
+  }
+}
+
+export function clearAllCaches(): void {
+  professionalsCache.clear()
+  availabilityCache.clear()
+}
+
 export async function listProfessionals(
   filters: ProfessionalFilters = {},
+  options: { skipCache?: boolean } = {},
 ): Promise<ApiResponse<ProfessionalsApiResponse>> {
+  const cacheKey = getCacheKey("professionals", filters)
+
+  // Check cache first
+  if (!options.skipCache) {
+    const cached = professionalsCache.get(cacheKey)
+    if (!isExpired(cached)) {
+      return { success: true, data: cached!.data }
+    }
+  }
+
   const query = buildProfessionalsQuery(filters)
   const response = await request<unknown>(`/professionals${query}`)
 
+  let result: ApiResponse<ProfessionalsApiResponse>
+
   if (Array.isArray(response)) {
-    return {
+    result = {
       success: true,
       data: {
         data: response as ProfessionalSummary[],
       },
     }
-  }
-
-  if (!response || typeof response !== "object" || !("success" in response)) {
-    return {
+  } else if (!response || typeof response !== "object" || !("success" in response)) {
+    result = {
       success: false,
       error: {
         code: "INVALID_RESPONSE",
@@ -53,46 +116,66 @@ export async function listProfessionals(
         statusCode: 0,
       },
     }
-  }
+  } else {
+    const typed = response as ApiResponse<
+      ProfessionalsApiResponse | ProfessionalSummary[]
+    >
 
-  const typed = response as ApiResponse<
-    ProfessionalsApiResponse | ProfessionalSummary[]
-  >
-
-  if (!typed.success || !typed.data) {
-    return typed as ApiResponse<ProfessionalsApiResponse>
-  }
-
-  if (Array.isArray(typed.data)) {
-    return {
-      ...typed,
-      data: {
-        data: typed.data,
-      },
+    if (!typed.success || !typed.data) {
+      result = typed as ApiResponse<ProfessionalsApiResponse>
+    } else if (Array.isArray(typed.data)) {
+      result = {
+        ...typed,
+        data: {
+          data: typed.data,
+        },
+      }
+    } else {
+      result = typed as ApiResponse<ProfessionalsApiResponse>
     }
   }
 
-  return typed as ApiResponse<ProfessionalsApiResponse>
+  // Store in cache if successful
+  if (result.success && result.data) {
+    professionalsCache.set(cacheKey, {
+      data: result.data,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + CACHE_TTL.professionals,
+    })
+  }
+
+  return result
 }
 
 export async function getProfessionalAvailability(
   professionalId: number,
   filters: AvailabilityFilters = {},
+  options: { skipCache?: boolean } = {},
 ): Promise<ApiResponse<ProfessionalAvailabilityEntry[]>> {
+  const cacheKey = getCacheKey(`availability:${professionalId}`, filters)
+
+  // Check cache first
+  if (!options.skipCache) {
+    const cached = availabilityCache.get(cacheKey)
+    if (!isExpired(cached)) {
+      return { success: true, data: cached!.data }
+    }
+  }
+
   const query = buildAvailabilityQuery(filters)
   const response = await request<unknown>(
     `/professionals/${professionalId}/availability${query}`,
   )
 
+  let result: ApiResponse<ProfessionalAvailabilityEntry[]>
+
   if (Array.isArray(response)) {
-    return {
+    result = {
       success: true,
       data: response as ProfessionalAvailabilityEntry[],
     }
-  }
-
-  if (!response || typeof response !== "object" || !("success" in response)) {
-    return {
+  } else if (!response || typeof response !== "object" || !("success" in response)) {
+    result = {
       success: false,
       error: {
         code: "INVALID_RESPONSE",
@@ -100,52 +183,58 @@ export async function getProfessionalAvailability(
         statusCode: 0,
       },
     }
-  }
+  } else {
+    const typed = response as ApiResponse<
+      ProfessionalAvailabilityResponse | ProfessionalAvailabilityEntry[]
+    >
 
-  const typed = response as ApiResponse<
-    ProfessionalAvailabilityResponse | ProfessionalAvailabilityEntry[]
-  >
-
-  if (!typed.success || !typed.data) {
-    return typed as ApiResponse<ProfessionalAvailabilityEntry[]>
-  }
-
-  if (Array.isArray(typed.data)) {
-    return {
-      ...typed,
-      data: typed.data,
+    if (!typed.success || !typed.data) {
+      result = typed as ApiResponse<ProfessionalAvailabilityEntry[]>
+    } else if (Array.isArray(typed.data)) {
+      result = {
+        ...typed,
+        data: typed.data,
+      }
+    } else if (
+      typed.data &&
+      typeof typed.data === "object" &&
+      Array.isArray((typed.data as ProfessionalAvailabilityResponse).data)
+    ) {
+      const payload = typed.data as ProfessionalAvailabilityResponse
+      const flattened = payload.data.flatMap(day =>
+        day.slots.map(slot => ({
+          date: day.date,
+          time: slot.time,
+          is_available: slot.is_available,
+          reason: slot.reason,
+        })),
+      )
+      result = {
+        ...typed,
+        data: flattened,
+      }
+    } else {
+      result = {
+        success: false,
+        error: {
+          code: "INVALID_RESPONSE",
+          message: "Resposta inesperada do servidor",
+          statusCode: 0,
+        },
+      }
     }
   }
 
-  if (
-    typed.data &&
-    typeof typed.data === "object" &&
-    Array.isArray((typed.data as ProfessionalAvailabilityResponse).data)
-  ) {
-    const payload = typed.data as ProfessionalAvailabilityResponse
-    const flattened = payload.data.flatMap(day =>
-      day.slots.map(slot => ({
-        date: day.date,
-        time: slot.time,
-        is_available: slot.is_available,
-        reason: slot.reason,
-      })),
-    )
-
-    return {
-      ...typed,
-      data: flattened,
-    }
+  // Store in cache if successful
+  if (result.success && result.data) {
+    availabilityCache.set(cacheKey, {
+      data: result.data,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + CACHE_TTL.availability,
+    })
   }
 
-  return {
-    success: false,
-    error: {
-      code: "INVALID_RESPONSE",
-      message: "Resposta inesperada do servidor",
-      statusCode: 0,
-    },
-  }
+  return result
 }
 
 function buildProfessionalsQuery(filters: ProfessionalFilters) {

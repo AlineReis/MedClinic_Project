@@ -124,3 +124,24 @@
 - **RN-03 (Máximo 90 dias)**: Validado pelo backend.
 - **RN-04 (Sem duplicidade)**: Erro `DUPLICATE_APPOINTMENT` quando já existe consulta com mesmo profissional na data.
 - **RN-05 (Cancelamento/Reembolso)**: >24h = 100%, <24h = 70%. Modal exibe informações de reembolso retornadas pelo backend.
+
+## 2026-01-29 Session Notes (Cache de Profissionais e Slots)
+
+### Implementações Realizadas
+
+- **`src/services/professionalsService.ts`**:
+  - Sistema de cache com TTL configurável (profissionais: 5min, slots: 2min)
+  - `professionalsCache` - cache para lista de profissionais por filtro
+  - `availabilityCache` - cache para slots de disponibilidade por profissional
+  - Funções de invalidação: `clearProfessionalsCache()`, `clearAvailabilityCache(professionalId?)`, `clearAllCaches()`
+  - Opção `{ skipCache: true }` para forçar requisição à API
+
+- **`src/pages/scheduleAppointment.ts`**:
+  - Invalidação automática do cache de disponibilidade após cancelamento
+  - Invalidação do cache do profissional específico após reagendamento
+
+### Benefícios
+
+- Redução de chamadas à API ao navegar entre filtros e datas
+- Cache automático expira após TTL (não precisa de invalidação manual para dados desatualizados)
+- Invalidação seletiva após operações que modificam disponibilidade
