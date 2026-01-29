@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 
 import { UserController } from "../controller/user.controller.js";
 import { UserService } from "../services/user.service.js";
-import { AuthError } from "../utils/errors.js";
+import { AuthError, ForbiddenError } from "../utils/errors.js";
 
 // --- Magia do TypeScript: Inferência de Tipos ---
 // Extrai o tipo de retorno da Promise do método listUsersByClinic
@@ -65,6 +65,7 @@ const defaultPaginatedResult: PaginatedUsers = {
 const mockUserService = {
   listUsersByClinic: jest.fn(),
   updateUserScoped: jest.fn(),
+  deleteUser: jest.fn(),
 } as unknown as jest.Mocked<UserService>;
 
 describe("UserController.listByClinic", () => {
@@ -396,6 +397,44 @@ describe("UserController.listByClinic", () => {
         }),
         message: "Usuário atualizado com sucesso",
       });
+    });
+  });
+
+  describe("delete (DELETE /users/:id)", () => {
+    const makeDeleteRequest = ({
+      user = defaultRequester,
+      params = { clinic_id: "42", id: "99" },
+    }: {
+      user?: typeof defaultRequester;
+      params?: Record<string, string>;
+    } = {}) => {
+      const req = {
+        params,
+        query: {},
+        user: { ...user } as any,
+      } as Partial<Request>;
+
+      const res = makeMockRes();
+      const next = jest.fn() as unknown as NextFunction;
+
+      return { req: req as Request, res, next };
+    };
+
+    it("returns 403 when requester has no permission", async () => {
+      mockUserService.deleteUser.mockRejectedValue(
+        new ForbiddenError("Forbidden"),
+      );
+
+      const { req, res, next } = makeDeleteRequest({
+        user: { ...defaultRequester, role: "patient" },
+      });
+
+      await controller.delete_User(req, res, next);
+
+      expect(mockUserService.deleteUser).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
     });
   });
 });
