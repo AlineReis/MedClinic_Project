@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 
 import { UserController } from "../controller/user.controller.js";
 import { UserService } from "../services/user.service.js";
-import { AuthError } from "../utils/errors.js";
+import { AuthError, ForbiddenError } from "../utils/errors.js";
 
 // --- Magia do TypeScript: Inferência de Tipos ---
 // Extrai o tipo de retorno da Promise do método listUsersByClinic
@@ -64,7 +64,8 @@ const defaultPaginatedResult: PaginatedUsers = {
 // Dica: Se você tiver a interface do UserService, pode usar: jest.Mocked<UserService>
 const mockUserService = {
   listUsersByClinic: jest.fn(),
-  updateClinicUser: jest.fn(),
+  updateUserScoped: jest.fn(),
+  deleteUser: jest.fn(),
 } as unknown as jest.Mocked<UserService>;
 
 describe("UserController.listByClinic", () => {
@@ -340,7 +341,7 @@ describe("UserController.listByClinic", () => {
     });
   });
 
-  describe("updateOwnProfile", () => {
+  describe("update (PUT /users/:id)", () => {
     const makeUpdateRequest = ({
       body = { name: "New Name", email: "new@email.com" },
       user = defaultRequester,
@@ -363,67 +364,77 @@ describe("UserController.listByClinic", () => {
       return { req: req as Request, res, next };
     };
 
-    // it.skip("allows patients to update name/email only", async () => {
-    //   mockUserService.updateClinicUser.mockResolvedValue({
-    //     ...defaultPaginatedResult.items[0],
-    //     name: "New Name",
-    //     email: "new@email.com",
-    //     cpf: "000.000.000-00",
-    //   });
+    it("allows user to update own name/email only", async () => {
+      mockUserService.updateUserScoped.mockResolvedValue({
+        ...defaultPaginatedResult.items[0],
+        name: "New Name",
+        email: "new@email.com",
+        cpf: "000.000.000-00",
+      });
 
-    //   const { req, res, next } = makeUpdateRequest();
+      const { req, res, next } = makeUpdateRequest();
 
-    //   await controller.updateOwnProfile(req, res, next);
+      await controller.update(req, res, next);
 
-    //   expect(mockUserService.updateClinicUser).toHaveBeenCalledWith(
-    //     expect.objectContaining({
-    //       payload: { name: "New Name", email: "new@email.com" },
-    //       targetUserId: 99,
-    //       clinicId: 42,
-    //     }),
-    //   );
-    //   expect(res.status).toHaveBeenCalledWith(200);
-    //   expect(res.json).toHaveBeenCalledWith({
-    //     success: true,
-    //     user: expect.objectContaining({
-    //       name: "New Name",
-    //       email: "new@email.com",
-    //     }),
-    //   });
-    // });
+      expect(mockUserService.updateUserScoped).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clinicId: 42,
+          requester: expect.objectContaining({
+            id: 99,
+            role: "clinic_admin",
+            clinic_id: 42,
+          }),
+          targetUserId: 99,
+          data: { name: "New Name", email: "new@email.com" },
+        }),
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        success: true,
+        user: expect.objectContaining({
+          name: "New Name",
+          email: "new@email.com",
+        }),
+        message: "Usuário atualizado com sucesso",
+      });
+    });
+  });
 
-    // it.skip("rejects requests attempting to change role or password", async () => {
-    //   const { req, res, next } = makeUpdateRequest({
-    //     body: {
-    //       name: "Allowed",
-    //       email: "allowed@email.com",
-    //       role: "admin",
-    //       password: "secret",
-    //     } as Record<string, any>,
-    //   });
+  describe("delete (DELETE /users/:id)", () => {
+    const makeDeleteRequest = ({
+      user = defaultRequester,
+      params = { clinic_id: "42", id: "99" },
+    }: {
+      user?: typeof defaultRequester;
+      params?: Record<string, string>;
+    } = {}) => {
+      const req = {
+        params,
+        query: {},
+        user: { ...user } as any,
+      } as Partial<Request>;
 
-    //   await controller.updateOwnProfile(req, res, next);
+      const res = makeMockRes();
+      const next = jest.fn() as unknown as NextFunction;
 
-    //   expect(mockUserService.updateClinicUser).toHaveBeenCalledWith(
-    //     expect.objectContaining({
-    //       payload: { name: "Allowed", email: "allowed@email.com" },
-    //     }),
-    //   );
-    //   expect(res.json).toHaveBeenCalledWith(
-    //     expect.objectContaining({ success: true }),
-    //   );
-    // });
+      return { req: req as Request, res, next };
+    };
 
-    // it.skip("rejects attempts to update another user", async () => {
-    //   const { req, res, next } = makeUpdateRequest({
-    //     params: { clinic_id: "42", id: "2" },
-    //     user: { ...defaultRequester, id: 99 },
-    //   });
+    it("returns 403 when requester has no permission", async () => {
+      mockUserService.deleteUser.mockRejectedValue(
+        new ForbiddenError("Forbidden"),
+      );
 
-    //   await controller.updateOwnProfile(req, res, next);
+      const { req, res, next } = makeDeleteRequest({
+        user: { ...defaultRequester, role: "patient" },
+      });
 
-    //   expect(mockUserService.updateClinicUser).not.toHaveBeenCalled();
-    //   expect(next).toHaveBeenCalledWith(expect.any(AuthError));
-    // });
+      await controller.delete_User(req, res, next);
+
+      expect(mockUserService.deleteUser).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
+    });
   });
 });
