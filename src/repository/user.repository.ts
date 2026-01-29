@@ -116,12 +116,14 @@ export class UserRepository implements IUserRepository {
     await database.run(sql, [id]);
   }
 
-  //busca os usuários de uma clínica específica (from backend-main)
+  //busca os usuarios de uma cl�nica espec�fica (from backend-main)
   async findByClinicId(clinicId: number): Promise<User[]> {
-    // TODO: Voltar aqui depois de implementar o clinic_id
-    // const sql = `SELECT * FROM users WHERE clinic_id = ? ORDER BY id ASC`;
-    const sql = `SELECT * FROM users ORDER BY id ASC`;
-    return await database.query<User>(sql, /*[clinicId]*/);
+    const sql = `
+      SELECT * FROM users
+      WHERE clinic_id = ? AND deleted_at IS NULL
+      ORDER BY id ASC
+    `;
+    return await database.query<User>(sql, [clinicId]);
   }
 
   async listByClinicIdPaginated(
