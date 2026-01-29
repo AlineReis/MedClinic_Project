@@ -6,15 +6,15 @@ import { uiStore } from "../stores/uiStore"
 import type { UserRole, UserSession } from "../types/auth"
 
 const roleCredentials: Record<UserRole, { email: string; password: string }> = {
-  patient: { email: "paciente@medclinic.com", password: "Paciente@123" },
-  receptionist: { email: "recepcao@medclinic.com", password: "Recepcao@123" },
-  lab_tech: { email: "labs@medclinic.com", password: "Laboratorio@123" },
+  patient: { email: "maria@email.com", password: "password" },
+  receptionist: { email: "paula@clinica.com", password: "password" },
+  lab_tech: { email: "roberto@clinica.com", password: "password" },
   health_professional: {
-    email: "profissional@medclinic.com",
-    password: "Profissional@123",
+    email: "ana@clinica.com",
+    password: "password",
   },
-  clinic_admin: { email: "gestor@medclinic.com", password: "Gestor@123" },
-  system_admin: { email: "sistema@medclinic.com", password: "Admin@123" },
+  clinic_admin: { email: "admin@clinica.com", password: "password" },
+  system_admin: { email: "sysadmin@medclinic.com", password: "password" },
 }
 
 const loginForm = document.getElementById(
@@ -51,7 +51,9 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
 
     try {
       const response = await authLogin({ email, password, role })
-      const loginUser = response.data?.user
+      const loginUser =
+        response.data?.user ??
+        (response as typeof response & { user?: UserSession }).user
 
       if (!loginUser) {
         uiStore.addToast(

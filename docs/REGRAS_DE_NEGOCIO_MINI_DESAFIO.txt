@@ -561,72 +561,72 @@ TABELA: users
 ───────────────
 id, name, email, password, role, cpf, phone, created_at, updated_at
 
-role: 'patient', 'receptionist', 'lab_tech', 'health_professional', 
+role: 'patient', 'receptionist', 'lab_tech', 'health_professional',
       'clinic_admin', 'system_admin'
 
 TABELA: professional_details (FK users)
 ──────────────────────────
-id, user_id, specialty, registration_number, council, 
+id, user_id, specialty, registration_number, council,
 hourly_rate, commission_percentage, available_hours
 
-specialty: 'psicologia', 'nutricao', 'fonoaudiologia', 
-          'fisioterapia', 'clinica_medica', 'cardiologia', 
-          'oftalmologia', 'urologia', 'cirurgia_geral', 
+specialty: 'psicologia', 'nutricao', 'fonoaudiologia',
+          'fisioterapia', 'clinica_medica', 'cardiologia',
+          'oftalmologia', 'urologia', 'cirurgia_geral',
           'ortopedia', 'neurologia'
 
 TABELA: appointments
 ────────────────────
-id, patient_id (FK users), professional_id (FK users), 
-type ('presencial', 'online'), specialty, date, time, 
-duration_minutes, status, price, payment_status, 
-room_number, video_link, notes, cancellation_reason, 
-cancelled_at, cancelled_by (FK users), reminded_at, 
+id, patient_id (FK users), professional_id (FK users),
+type ('presencial', 'online'), specialty, date, time,
+duration_minutes, status, price, payment_status,
+room_number, video_link, notes, cancellation_reason,
+cancelled_at, cancelled_by (FK users), reminded_at,
 created_at, updated_at
 
 TABELA: exam_requests
 ─────────────────────
-id, patient_id (FK users), requesting_professional_id (FK users), 
-appointment_id (FK appointments), exam_type ('blood', 'image'), 
-exam_name, clinical_indication, urgency ('normal', 'urgent'), 
-status, price, payment_status, scheduled_date, scheduled_time, 
-collection_location, result_file_url, result_text, 
-lab_tech_id (FK users), result_released_at, observations, 
+id, patient_id (FK users), requesting_professional_id (FK users),
+appointment_id (FK appointments), exam_type ('blood', 'image'),
+exam_name, clinical_indication, urgency ('normal', 'urgent'),
+status, price, payment_status, scheduled_date, scheduled_time,
+collection_location, result_file_url, result_text,
+lab_tech_id (FK users), result_released_at, observations,
 created_at, updated_at
 
 TABELA: prescriptions
 ─────────────────────
-id, appointment_id (FK appointments), patient_id (FK users), 
-professional_id (FK users), medication_name, dosage, frequency, 
-duration, instructions, prescription_type ('simple', 'controlled'), 
+id, appointment_id (FK appointments), patient_id (FK users),
+professional_id (FK users), medication_name, dosage, frequency,
+duration, instructions, prescription_type ('simple', 'controlled'),
 pdf_url, created_at
 
 TABELA: transactions
 ────────────────────
-id, transaction_type ('appointment_payment', 'exam_payment', 'refund'), 
-reference_id, patient_id (FK users), amount_gross, mdr_fee, 
-amount_net, installments, payment_method, card_brand, card_last_digits, 
-gateway_transaction_id, authorization_code, status, processed_at, 
+id, transaction_type ('appointment_payment', 'exam_payment', 'refund'),
+reference_id, patient_id (FK users), amount_gross, mdr_fee,
+amount_net, installments, payment_method, card_brand, card_last_digits,
+gateway_transaction_id, authorization_code, status, processed_at,
 refunded_at, refund_amount, created_at, updated_at
 
 TABELA: commission_splits
 ─────────────────────────
-id, transaction_id (FK transactions), recipient_id (FK users), 
-recipient_type ('professional', 'clinic', 'system'), 
-percentage, amount, status ('pending', 'paid'), 
+id, transaction_id (FK transactions), recipient_id (FK users),
+recipient_type ('professional', 'clinic', 'system'),
+percentage, amount, status ('pending', 'paid'),
 paid_at, created_at
 
 TABELA: refunds
 ───────────────
-id, transaction_id (FK transactions), appointment_id, exam_id, 
-patient_id (FK users), amount_refunded, refund_percentage, 
-reason, reason_text, requested_by (FK users), status, 
+id, transaction_id (FK transactions), appointment_id, exam_id,
+patient_id (FK users), amount_refunded, refund_percentage,
+reason, reason_text, requested_by (FK users), status,
 gateway_refund_id, processed_at, completed_at, created_at
 
 TABELA: commission_reports
 ──────────────────────────
-id, professional_id (FK users), month, year, total_appointments, 
-total_gross_amount, total_net_amount, total_commission, 
-total_deductions, amount_to_receive, payment_status, 
+id, professional_id (FK users), month, year, total_appointments,
+total_gross_amount, total_net_amount, total_commission,
+total_deductions, amount_to_receive, payment_status,
 payment_date, generated_at, paid_at
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -697,7 +697,7 @@ ARQUIVO: src/utils/validation.js
 
 validateEmail(email):
   Regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  
+
 validatePassword(password):
   - Mínimo 8 caracteres
   - 1 letra maiúscula
@@ -729,7 +729,7 @@ validateCurrency(value):
   - Máximo 2 casas decimais
 
 validateRole(role):
-  - Um de: patient, receptionist, lab_tech, 
+  - Um de: patient, receptionist, lab_tech,
           health_professional, clinic_admin, system_admin
 
 validateAppointmentData(data):
@@ -792,23 +792,23 @@ SMS_API_KEY=
 ═══════════════════════════════════════════════════════════════════════════════
 
 SYSTEM_ADMIN:
-email: admin@medclinic.dev
-senha: Admin@123
+email: sysadmin@medclinic.com
+senha: password
 role: system_admin
 
 CLINIC_ADMIN:
-email: gestor@clinica.com
-senha: Gestor@123
+email: admin@clinica.com
+senha: password
 role: clinic_admin
 
 RECEPCIONISTAS (2):
-email: recepcao1@clinica.com, recepcao2@clinica.com
-senha: Recepcao@123
+email: paula@clinica.com
+senha: password
 role: receptionist
 
 LAB_TECH (1):
-email: laboratorio@clinica.com
-senha: Lab@123
+email: roberto@clinica.com
+senha: password
 role: lab_tech
 
 PROFISSIONAIS (10):
@@ -827,7 +827,7 @@ Senha todos: Profissional@123
 role: health_professional
 
 PACIENTES (5):
-maria@email.com, joao@email.com, ana@email.com, 
+maria@email.com, joao@email.com, ana@email.com,
 pedro@email.com, julia@email.com
 Senha todos: Paciente@123
 role: patient
@@ -868,4 +868,3 @@ role: patient
 ═══════════════════════════════════════════════════════════════════════════════
                               FIM DO DOCUMENTO
 ═══════════════════════════════════════════════════════════════════════════════
-

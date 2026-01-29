@@ -1,20 +1,8 @@
 import type { UserSession } from "types/auth"
-import { request } from "../services/apiService"
+import { listAppointments } from "../services/appointmentsService"
 import { uiStore } from "./uiStore"
 
-export interface AppointmentSummary {
-  id: number
-  patient_id: number
-  patient_name: string
-  professional_id: number
-  professional_name: string
-  specialty: string
-  date: string
-  time: string
-  status: string
-  price?: number
-  room?: string | null
-}
+import type { AppointmentSummary } from "../types/appointments"
 
 export type DashboardEventDetail = {
   appointments: AppointmentSummary[]
@@ -42,9 +30,8 @@ class DashboardStore {
     this.setLoading(true)
 
     try {
-      const response = await request<AppointmentSummary[]>(
-        `/appointments${query}`,
-      )
+      const response = await listAppointments(parseQuery(query))
+      console.log(response)
 
       if (response.success && response.data) {
         this.setAppointments(response.data)
@@ -65,7 +52,7 @@ class DashboardStore {
     }
   }
 
-  private setAppointments(appointments: AppointmentSummary[]) {
+  private setAppointments(appointments: any /*AppointmentSummary[]*/) {
     this.appointments = appointments
     this.publish()
   }
@@ -87,6 +74,26 @@ class DashboardStore {
       }),
     )
   }
+}
+
+function parseQuery(query: string) {
+  if (!query) return {}
+  const params = new URLSearchParams(query.replace(/^\?/, ""))
+  const upcoming = params.get("upcoming")
+
+  return {
+    patientId: toNumber(params.get("patient_id")),
+    professionalId: toNumber(params.get("professional_id")),
+    status: params.get("status") ?? undefined,
+    date: params.get("date") ?? undefined,
+    upcoming: upcoming === null ? undefined : upcoming === "true",
+  }
+}
+
+function toNumber(value: string | null) {
+  if (!value) return undefined
+  const parsed = Number(value)
+  return Number.isNaN(parsed) ? undefined : parsed
 }
 
 export const dashboardStore = new DashboardStore()
