@@ -7,10 +7,8 @@ export const EXAM_REQUEST_STATUS = [
   "sample_collected",
   "processing",
   "ready",
-  "released", // RN-14: Result released to patient and professional
   "delivered",
   "cancelled",
-  "expired", // RN-12: Expired after 30 days in pending_payment
 ] as const;
 
 export type ExamRequestStatus = (typeof EXAM_REQUEST_STATUS)[number];

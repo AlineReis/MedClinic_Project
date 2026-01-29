@@ -22,15 +22,7 @@ const commissionSplitRepository = new CommissionSplitRepository();
 const paymentMockService = new PaymentMockService(transactionRepository, commissionSplitRepository, appointmentRepository);
 const emailService = new ResendEmailService();
 
-const appointmentService = new AppointmentService(
-  appointmentRepository,
-  availabilityRepository,
-  userRepository,
-  transactionRepository,
-  commissionSplitRepository,
-  paymentMockService,
-  emailService
-);
+const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository, userRepository, paymentMockService, emailService);
 const appointmentController = new AppointmentController(appointmentService);
 
 router.use(authMiddleware); // Todas as rotas de agendamento requerem autenticação

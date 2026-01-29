@@ -118,14 +118,13 @@ export class PaymentMockService {
 
     // Ajuste de centavos (jogar diferença para sistema/clínica se houver, mas aqui simplificamos)
     // Persistir splits
-    // RN-27: Professional commission starts as pending_completion, activated when appointment is completed
     await this.commissionSplitRepository.create({
       transaction_id: transactionId,
       recipient_id: appointment.professional_id,
       recipient_type: "professional",
       percentage: 60.0,
       amount: professionalShare,
-      status: "pending_completion", // Activated when appointment is completed
+      status: "pending", // Repasse mensal
     });
 
     await this.commissionSplitRepository.create({

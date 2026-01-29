@@ -19,7 +19,6 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@types/node-cron": "^3.0.11",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -27,7 +26,6 @@
     "express": "^4.22.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "node-cron": "^4.2.1",
     "resend": "^6.9.1",
     "sqlite3": "^5.1.7"
   },

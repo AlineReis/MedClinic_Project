@@ -6,7 +6,7 @@ import type {
 } from "@repositories/commission.repository.js";
 import type { IUserRepository } from "@repositories/iuser.repository.js";
 import bcrypt from "bcrypt";
-import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "utils/errors.js";
+import { ForbiddenError, NotFoundError } from "utils/errors.js";
 import {
   Availability,
   ProfessionalDetails,
@@ -15,8 +15,6 @@ import { User, type UserRole } from "../models/user.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js"; // Reverted to relative
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { ProfessionalRepository } from "../repository/professional.repository.js";
-import { MonthlyReportRepository } from "../repository/monthly-report.repository.js";
-import type { MonthlyReport, MonthlyReportFilters } from "../models/monthly-report.js";
 import * as Validators from "../utils/validators.js";
 
 const SLOT_DURATION_MINUTES = 50;
@@ -52,7 +50,6 @@ export class ProfessionalService {
     private readonly availabilityRepository: AvailabilityRepository,
     private readonly appointmentRepository: AppointmentRepository,
     private readonly commissionRepository: CommissionRepository,
-    private readonly monthlyReportRepository: MonthlyReportRepository,
   ) { }
 
   async register(
@@ -311,150 +308,5 @@ export class ProfessionalService {
       },
       { pending: 0, paid: 0, total: 0 },
     );
-  }
-
-  /**
-   * Get monthly reports for a professional with RBAC
-   * RN-28: Professionals can view ONLY their own reports, admins can view any
-   */
-  async getMonthlyReports(
-    professionalId: number,
-    requester: { id: number; role: UserRole; clinic_id?: number | null },
-    filters?: MonthlyReportFilters,
-  ): Promise<MonthlyReport[]> {
-    // Verify professional exists
-    const professional = await this.usersRepository.findById(professionalId);
-    if (!professional || professional.role !== "health_professional") {
-      throw new NotFoundError("Professional not found");
-    }
-
-    // RBAC: Professional can only view own reports
-    if (requester.role === "health_professional") {
-      if (requester.id !== professionalId) {
-        throw new ForbiddenError("You can only view your own reports");
-      }
-    } else if (requester.role === "clinic_admin") {
-      // Clinic admin can only view reports from their clinic
-      if (professional.clinic_id !== requester.clinic_id) {
-        throw new ForbiddenError("You can only view reports from your clinic");
-      }
-    } else if (requester.role !== "system_admin") {
-      // Other roles cannot access reports
-      throw new ForbiddenError("You do not have permission to view reports");
-    }
-
-    return await this.monthlyReportRepository.findByProfessional(
-      professionalId,
-      filters,
-    );
-  }
-
-  /**
-   * Generate monthly report for a professional (admin only)
-   * RN-28: Reports generated on 1st of each month
-   */
-  async generateMonthlyReport(
-    professionalId: number,
-    month: number,
-    year: number,
-    requester: { role: UserRole; clinic_id?: number | null },
-  ): Promise<MonthlyReport> {
-    // Only admins can generate reports
-    if (
-      requester.role !== "clinic_admin" &&
-      requester.role !== "system_admin"
-    ) {
-      throw new ForbiddenError("Only admins can generate reports");
-    }
-
-    // Validate month and year
-    if (month < 1 || month > 12) {
-      throw new ValidationError("Month must be between 1 and 12");
-    }
-    if (year < 2024) {
-      throw new ValidationError("Year must be 2024 or later");
-    }
-
-    // Verify professional exists
-    const professional = await this.usersRepository.findById(professionalId);
-    if (!professional || professional.role !== "health_professional") {
-      throw new NotFoundError("Professional not found");
-    }
-
-    // Clinic admin can only generate for professionals in their clinic
-    if (requester.role === "clinic_admin") {
-      if (professional.clinic_id !== requester.clinic_id) {
-        throw new ForbiddenError(
-          "You can only generate reports for professionals in your clinic",
-        );
-      }
-    }
-
-    try {
-      const reportId = await this.monthlyReportRepository.generateReport(
-        professionalId,
-        month,
-        year,
-      );
-
-      const report = await this.monthlyReportRepository.findById(reportId);
-      if (!report) {
-        throw new Error("Failed to retrieve generated report");
-      }
-
-      return report;
-    } catch (error: any) {
-      // Handle UNIQUE constraint violation (duplicate report)
-      if (error.message?.includes("UNIQUE constraint failed")) {
-        throw new ConflictError(
-          `Report for ${year}-${month.toString().padStart(2, "0")} already exists`,
-        );
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * Mark a monthly report as paid (admin only)
-   */
-  async markReportAsPaid(
-    reportId: number,
-    requester: { role: UserRole; clinic_id?: number | null },
-    paymentDate?: string,
-  ): Promise<MonthlyReport> {
-    // Only admins can mark reports as paid
-    if (
-      requester.role !== "clinic_admin" &&
-      requester.role !== "system_admin"
-    ) {
-      throw new ForbiddenError("Only admins can mark reports as paid");
-    }
-
-    const report = await this.monthlyReportRepository.findById(reportId);
-    if (!report) {
-      throw new NotFoundError("Report not found");
-    }
-
-    // Verify professional belongs to admin's clinic
-    if (requester.role === "clinic_admin") {
-      const professional = await this.usersRepository.findById(
-        report.professional_id,
-      );
-      if (professional?.clinic_id !== requester.clinic_id) {
-        throw new ForbiddenError(
-          "You can only manage reports for your clinic",
-        );
-      }
-    }
-
-    const paidDate = paymentDate || new Date().toISOString().split("T")[0];
-    await this.monthlyReportRepository.markAsPaid(reportId, paidDate);
-
-    const updatedReport = await this.monthlyReportRepository.findById(reportId);
-    if (!updatedReport) {
-      throw new Error("Failed to retrieve updated report");
-    }
-
-    return updatedReport;
   }
 }
