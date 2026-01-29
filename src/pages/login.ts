@@ -1,26 +1,20 @@
 import { roleRoutes } from "../config/roleRoutes"
-import { ApiResponse, handleError, request } from "../services/apiService"
-import { authStore, UserRole, UserSession } from "../stores/authStore"
+import { handleError } from "../services/apiService"
+import { login as authLogin } from "../services/authService"
+import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
-
-interface LoginResponsePayload {
-  user: UserSession
-}
-
-type LoginResponseEnvelope = ApiResponse<LoginResponsePayload> & {
-  user?: UserSession
-}
+import type { UserRole, UserSession } from "../types/auth"
 
 const roleCredentials: Record<UserRole, { email: string; password: string }> = {
-  patient: { email: "paciente@medclinic.com", password: "Paciente@123" },
-  receptionist: { email: "recepcao@medclinic.com", password: "Recepcao@123" },
-  lab_tech: { email: "labs@medclinic.com", password: "Laboratorio@123" },
+  patient: { email: "maria@email.com", password: "password" },
+  receptionist: { email: "paula@clinica.com", password: "password" },
+  lab_tech: { email: "roberto@clinica.com", password: "password" },
   health_professional: {
-    email: "profissional@medclinic.com",
-    password: "Profissional@123",
+    email: "ana@clinica.com",
+    password: "password",
   },
-  clinic_admin: { email: "gestor@medclinic.com", password: "Gestor@123" },
-  system_admin: { email: "sistema@medclinic.com", password: "Admin@123" },
+  clinic_admin: { email: "admin@clinica.com", password: "password" },
+  system_admin: { email: "sysadmin@medclinic.com", password: "password" },
 }
 
 const loginForm = document.getElementById(
@@ -49,8 +43,6 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
     const password = passwordInput.value.trim()
     const role = roleSelect.value as UserRole
 
-    console.log("Submitting login", { email, role })
-
     if (!email || !password) {
       uiStore.addToast("warning", "Preencha email e senha para continuar.")
       renderToasts()
@@ -58,33 +50,21 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
     }
 
     try {
-      const response = await request<LoginResponsePayload>(
-        "/auth/login",
-        "POST",
-        {
-          email,
-          password,
-          role,
-        },
-      )
-
-      const normalizedResponse = response as LoginResponseEnvelope
+      const response = await authLogin({ email, password, role })
       const loginUser =
-        normalizedResponse.user ?? extractLoginUser(normalizedResponse)
-
-      console.log("login response", response)
+        response.data?.user ??
+        (response as typeof response & { user?: UserSession }).user
 
       if (!loginUser) {
         uiStore.addToast(
           "error",
-          response.error?.message || "Não foi possível fazer login.",
+          response.error?.message ?? "Não foi possível fazer login.",
         )
         renderToasts()
         return
       }
 
       const validatedSession = await handleSuccessfulLogin(loginUser)
-
       if (!validatedSession) return
 
       window.location.href = roleRoutes[validatedSession.role] || "index.html"
@@ -148,16 +128,4 @@ function renderToasts() {
     toastElement.textContent = toast.text
     toastContainer.appendChild(toastElement)
   })
-}
-
-function extractLoginUser(response: LoginResponseEnvelope): UserSession | null {
-  if (response.user) {
-    return response.user
-  }
-
-  if (response.success && response.data?.user) {
-    return response.data.user
-  }
-
-  return null
 }

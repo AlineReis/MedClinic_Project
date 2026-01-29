@@ -72,7 +72,7 @@
 
         <!-- Quick Actions -->
         <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <a href="../index.html"
+            <a href="../pages/schedule-appointment.html"
                 class="bg-primary hover:bg-primary-hover p-5 rounded-2xl text-white flex flex-col gap-3 transition-all group shadow-lg shadow-primary/20">
                 <span class="material-symbols-outlined !text-[32px]">calendar_add_on</span>
                 <span class="font-bold text-sm">Agendar Consulta</span>
@@ -102,7 +102,10 @@
                     <span class="material-symbols-outlined text-primary">event</span>
                     Próxima Consulta
                 </h2>
-                <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col md:flex-row gap-6">
+                <div
+                    class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col md:flex-row gap-6"
+                    data-next-appointment
+                >
                     <div class="size-20 rounded-full bg-cover bg-center border-2 border-primary/20 shrink-0"
                         style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDmnbbvRP02hJ7H_zoaKaRiRNKJX1-HGCsPGr0jtGdC-Z-RpxW0PIC4hi9UbGZECqEBJgvX6kMZNaB2B-qtgQq3Y7WLn0d-KK6i7UtIkQtipVRaZzxGHwaTJaOLH3RhQ5bfFecerS4T715D_V5jKKKvdukxXs1GuE__XOYOLbfHkbkHEBnm_9D6hV48EX-iJ-0NFcO0cZF6_ht4OP3GgN7FJhsNpMYNE3d80axsU_5euQIG_v1YcDFmISo1Mk1KGAX6Tmr8oFiyAWo')">
                     </div>
@@ -169,7 +172,7 @@
             </h2>
             <div class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden">
                 <table class="w-full text-left text-sm">
-                    <tbody class="divide-y divide-border-dark">
+                    <tbody class="divide-y divide-border-dark" data-activity-list>
                         <tr class="hover:bg-border-dark/20 transition-colors">
                             <td class="px-6 py-4 flex items-center gap-3">
                                 <span class="material-symbols-outlined text-emerald-500">check_circle</span>
@@ -197,8 +200,6 @@
         </section>
 
     </main>
-
-
 </body>
 
 </html>

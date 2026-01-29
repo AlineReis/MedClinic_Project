@@ -7,16 +7,25 @@ export interface ApiError {
   field?: string
 }
 
+declare const CLINIC_API_HOST: string | undefined
 export interface ApiResponse<T> {
   success: boolean
   data?: T
   error?: ApiError
 }
 
-const BASE_URL = "http://localhost:3000/api/v1/clinic-01"
+const BASE_URL = (
+  CLINIC_API_HOST ?? "http://localhost:3000/api/v1/clinic-01"
+).replace(/\/+$/, "")
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
+}
+
+let unauthorizedHandler: (() => void) | null = null
+
+export function onUnauthorized(handler: () => void) {
+  unauthorizedHandler = handler
 }
 
 export async function request<T>(
@@ -35,6 +44,9 @@ export async function request<T>(
     const payload = await parseResponse<T>(response)
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        unauthorizedHandler?.()
+      }
       const errorMessage = payload.error?.message ?? "Erro inesperado"
       return {
         success: false,

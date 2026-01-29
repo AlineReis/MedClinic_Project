@@ -10,6 +10,7 @@ Você deve seguir rigorosamente esta ordem de leitura para garantir a continuida
 2. **Plano Mestre**: Leia `plan2.md` para entender o objetivo macro.
 3. **Status do Projeto**: Leia `PROGRESS-backend-integration.md` para ver o que já foi entregue.
 4. **Estado de Transição**: Verifique se existe um `HANDOFF.md`. Se existir, as tarefas ali listadas têm prioridade máxima sobre o `plan2.md`.
+5. **Guia de Referência**: Leia `docs/.agents/files-summary.md` primeiro to decide which docs are relevant for the current task before digging deeper.
 
 ## 2. Fase de Execução
 

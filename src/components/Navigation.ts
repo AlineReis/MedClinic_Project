@@ -15,7 +15,15 @@ export class Navigation {
                 if (!confirm("Tem certeza que deseja sair?")) return
 
                 try {
-                    await request("/auth/logout", "POST")
+                    const response = await request("/auth/logout", "POST")
+                    if (!response.success) {
+                        uiStore.addToast(
+                            "error",
+                            response.error?.message ?? "Erro ao realizar logout",
+                        )
+                        return
+                    }
+
                     authStore.clearSession()
                     window.location.href = "/pages/login.html"
                 } catch (error) {
@@ -31,16 +39,18 @@ export class Navigation {
 
         authStore.subscribe(state => {
             const session = state.session
-            if (session) {
-                if (userEl) userEl.textContent = this.getInitials(session.name)
-                if (userNameEl) userNameEl.textContent = session.name.split(" ")[0]
-            }
+            const name = session?.name?.trim()
+            if (!name) return
+
+            if (userEl) userEl.textContent = this.getInitials(name)
+            if (userNameEl) userNameEl.textContent = name.split(" ")[0]
         })
     }
 
     private getInitials(name: string) {
         return name
             .split(" ")
+            .filter(Boolean)
             .map(n => n[0])
             .slice(0, 2)
             .join("")

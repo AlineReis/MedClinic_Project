@@ -1,22 +1,7 @@
-import { request } from "../services/apiService"
+import { onUnauthorized } from "../services/apiService"
+import { profile } from "../services/authService"
+import type { UserSession } from "../types/auth"
 import { uiStore } from "./uiStore"
-
-export type UserRole =
-  | "patient"
-  | "receptionist"
-  | "lab_tech"
-  | "health_professional"
-  | "clinic_admin"
-  | "system_admin"
-
-export interface UserSession {
-  id: number
-  name: string
-  email: string
-  role: UserRole
-  cpf?: string
-  phone?: string
-}
 
 interface AuthState {
   session: UserSession | null
@@ -31,6 +16,10 @@ class AuthStore {
   private state: AuthState = { session: null, isCheckingAuth: false }
   private subscribers: Subscriber[] = []
   private refreshPromise: Promise<UserSession | null> | null = null
+
+  constructor() {
+    onUnauthorized(() => this.handleUnauthorized())
+  }
 
   getSession() {
     return this.state.session
@@ -111,7 +100,7 @@ class AuthStore {
   }
 
   private async fetchProfile(): Promise<UserSession | null> {
-    const response = await request<{ user: UserSession }>("/auth/profile")
+    const response = await profile()
 
     const payloadUser =
       response.data?.user ??
@@ -122,7 +111,7 @@ class AuthStore {
     }
 
     if (response.error?.statusCode === 401) {
-      this.clearSession()
+      this.handleUnauthorized()
       return null
     }
 
@@ -135,6 +124,11 @@ class AuthStore {
     }
 
     return null
+  }
+
+  private handleUnauthorized() {
+    this.clearSession()
+    uiStore.addToast("warning", "Sua sessão expirou. Faça login novamente.")
   }
 
   private delay(ms: number) {

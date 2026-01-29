@@ -2,16 +2,28 @@ const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
+const webpack = require("webpack")
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === "production"
+  const mainPages = [
+    "patient-dashboard.html",
+    "reception-dashboard.html",
+    "doctor-dashboard.html",
+    "lab-dashboard.html",
+    "manager-dashboard.html",
+    "admin-dashboard.html",
+  ]
 
   return {
     entry: {
       main: "./src/index.ts",
       login: "./src/pages/login.ts",
-      patient_dashboard: "./src/pages/patient-dashboard.ts",
       register: "./src/pages/register.ts",
+      patientDashboard: "./src/pages/patientDashboard.ts",
+      myAppointments: "./src/pages/myAppointments.ts",
+      examsPage: "./src/pages/examsPage.ts",
+      scheduleAppointment: "./src/pages/scheduleAppointment.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -33,6 +45,12 @@ module.exports = (env, argv) => {
       ],
     },
     plugins: [
+      new webpack.DefinePlugin({
+        CLINIC_API_HOST: JSON.stringify(
+          process.env.CLINIC_API_HOST ??
+            "http://localhost:3000/api/v1/clinic-01",
+        ),
+      }),
       new MiniCssExtractPlugin({
         filename: "css/[name].[contenthash:8].css",
       }),
@@ -42,15 +60,15 @@ module.exports = (env, argv) => {
         chunks: ["main"],
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/login.html",
-        filename: "pages/login.html",
-        chunks: ["login"],
+        template: "./pages/schedule-appointment.html",
+        filename: "pages/schedule-appointment.html",
+        chunks: ["scheduleAppointment"],
         publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/patient-dashboard.html",
-        filename: "pages/patient-dashboard.html",
-        chunks: ["patient_dashboard"], // Load specific bundle
+        template: "./pages/login.html",
+        filename: "pages/login.html",
+        chunks: ["login"],
         publicPath: "/",
       }),
       new HtmlWebpackPlugin({
@@ -59,6 +77,32 @@ module.exports = (env, argv) => {
         chunks: ["register"],
         publicPath: "/",
       }),
+      new HtmlWebpackPlugin({
+        template: "./pages/my-appointments.html",
+        filename: "pages/my-appointments.html",
+        chunks: ["myAppointments"],
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/exams.html",
+        filename: "pages/exams.html",
+        chunks: ["examsPage"],
+        publicPath: "/",
+      }),
+      ...mainPages.map(
+        page =>
+          new HtmlWebpackPlugin({
+            template: `./pages/${page}`,
+            filename: `pages/${page}`,
+            chunks: [
+              "main",
+              ...(page === "patient-dashboard.html"
+                ? ["patientDashboard"]
+                : []),
+            ],
+            publicPath: "/",
+          }),
+      ),
       new CopyWebpackPlugin({
         patterns: [
           {
@@ -69,7 +113,15 @@ module.exports = (env, argv) => {
             from: "pages",
             to: "pages",
             globOptions: {
-              ignore: ["**/login.html", "**/patient-dashboard.html", "**/register.html"],
+              ignore: [
+                "**/login.html",
+                "**/schedule-appointment.html",
+                "**/my-appointments.html",
+                "**/exams.html",
+                "**/patient-dashboard.html",
+                "**/register.html",
+                ...mainPages.map(page => `**/${page}`),
+              ],
             },
           },
           {

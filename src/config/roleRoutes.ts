@@ -1,4 +1,4 @@
-import type { UserRole } from "../stores/authStore"
+import type { UserRole } from "types/auth"
 
 export const roleRoutes: Record<UserRole, string> = {
   patient: "/pages/patient-dashboard.html",
