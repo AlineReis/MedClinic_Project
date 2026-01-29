@@ -1,4 +1,4 @@
-import { NotFoundError } from "utils/errors.js";
+import { NotFoundError } from "../utils/errors.js";
 import { database } from "../config/database.js";
 import {
   Appointment,

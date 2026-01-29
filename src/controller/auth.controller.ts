@@ -57,13 +57,14 @@ export class AuthController {
 
   public getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // payload do token (incompleto)
       const jwtPayload = req.user;
 
       if (!jwtPayload) {
         throw new AuthError("User not authenticated");
       }
 
-      // Buscar perfil completo
+      // Buscar perfil atualizado no banco via service
       const user = await this.authService.getProfile(jwtPayload.id);
 
       res.status(200).json({
