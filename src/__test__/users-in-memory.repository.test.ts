@@ -8,7 +8,7 @@ describe("InMemoryUserRepository soft delete", () => {
     const userId = await repository.create({
       name: "Joao Silva",
       email: "joao@medclinic.com",
-      password: "Senha@123",
+      password: "TestPass123!",
       role: "patient" as any,
       cpf: "123.456.789-10",
       phone: "(11) 98765-4321",
