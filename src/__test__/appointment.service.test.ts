@@ -63,10 +63,16 @@ describe('AppointmentService', () => {
         } as unknown as jest.Mocked<PaymentMockService>;
 
         emailServiceMock = {
-            send: jest.fn().mockImplementation(async () => {})
+            send: jest.fn().mockImplementation(async () => { })
         } as unknown as jest.Mocked<ResendEmailService>;
 
-        appointmentService = new AppointmentService(appointmentRepositoryMock, availabilityRepositoryMock, userRepositoryMock, paymentMockServiceMock, emailServiceMock);
+        appointmentService = new AppointmentService(
+            appointmentRepositoryMock,
+            availabilityRepositoryMock,
+            userRepositoryMock,
+            paymentMockServiceMock,
+            emailServiceMock
+        );
     });
 
     describe('scheduleAppointment', () => {
@@ -282,7 +288,7 @@ describe('AppointmentService', () => {
             // 2026-05-05 is a Tuesday.
             const tuesdayFarAway = '2026-05-05';
             // 2026-01-01 to 2026-05-05 is > 120 days
-            
+
             const farAppointment = { ...validAppointmentData, date: tuesdayFarAway };
 
             availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailability);
@@ -393,12 +399,117 @@ describe('AppointmentService', () => {
         });
 
         it('should throw ValidationError if already cancelled', async () => {
-             const cancelledAppointment = { ...mockAppointment, status: 'cancelled_by_patient' as const };
-             appointmentRepositoryMock.findById.mockResolvedValue(cancelledAppointment);
+            const cancelledAppointment = { ...mockAppointment, status: 'cancelled_by_patient' as const };
+            appointmentRepositoryMock.findById.mockResolvedValue(cancelledAppointment);
 
-             await expect(appointmentService.cancelAppointment(appointmentId, "Reason", 1))
+            await expect(appointmentService.cancelAppointment(appointmentId, "Reason", 1))
                 .rejects
                 .toThrow(new ValidationError("Este agendamento já está cancelado ou concluído.", "status"));
         });
     });
+
+    describe('reschedule - RN-25', () => {
+        const appointmentId = 123;
+        const mockAppointment: Appointment = {
+            id: appointmentId,
+            patient_id: 1,
+            professional_id: 2,
+            date: '2026-03-10',
+            time: '14:30',
+            status: 'scheduled',
+            payment_status: 'paid',
+            price: 150,
+            type: 'presencial'
+        };
+
+        const mockAvailabilityForReschedule = [
+            {
+                id: 1,
+                professional_id: 2,
+                day_of_week: 2, // Tuesday
+                start_time: '08:00',
+                end_time: '18:00'
+            }
+        ];
+
+        beforeEach(() => {
+            appointmentRepositoryMock.findById.mockResolvedValue(mockAppointment);
+            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailabilityForReschedule);
+            availabilityRepositoryMock.isProfessionalAvailable.mockResolvedValue(true);
+            appointmentRepositoryMock.checkConflict.mockResolvedValue(false);
+        });
+
+        it('should reschedule without fee when >=24 hours in advance', async () => {
+            // Set "now" to be 48 hours before the appointment
+            const appointmentDateTime = new Date('2026-03-10T14:30:00');
+            const twoDaysBefore = new Date(appointmentDateTime.getTime() - 48 * 60 * 60 * 1000);
+
+            jest.useFakeTimers();
+            jest.setSystemTime(twoDaysBefore);
+
+            appointmentRepositoryMock.reschedule.mockResolvedValue();
+
+            const newDate = '2026-03-17'; // Tuesday
+            const newTime = '10:00';
+
+            await appointmentService.reschedule({
+                requesterId: 1,
+                requesterRole: 'patient',
+                appointmentId: appointmentId,
+                newDate: newDate,
+                newTime: newTime
+            });
+
+            expect(appointmentRepositoryMock.reschedule).toHaveBeenCalledWith(appointmentId, newDate, newTime);
+
+            jest.useRealTimers();
+        });
+
+        it('should log message about reschedule fee when <24 hours in advance - RN-25', async () => {
+            // Set "now" to be 12 hours before the appointment
+            const appointmentDateTime = new Date('2026-03-10T14:30:00');
+            const twelveHoursBefore = new Date(appointmentDateTime.getTime() - 12 * 60 * 60 * 1000);
+
+            jest.useFakeTimers();
+            jest.setSystemTime(twelveHoursBefore);
+
+            appointmentRepositoryMock.reschedule.mockResolvedValue();
+
+            const newDate = '2026-03-17'; // Tuesday
+            const newTime = '10:00';
+
+            const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+            await appointmentService.reschedule({
+                requesterId: 1,
+                requesterRole: 'patient',
+                appointmentId: appointmentId,
+                newDate: newDate,
+                newTime: newTime
+            });
+
+            // Should reschedule
+            expect(appointmentRepositoryMock.reschedule).toHaveBeenCalledWith(appointmentId, newDate, newTime);
+            // Should log about the fee (TODO in implementation)
+            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('IMPLEMENTAR'));
+
+            consoleLogSpy.mockRestore();
+            jest.useRealTimers();
+        });
+
+        it('should throw NotFoundError if appointment does not exist', async () => {
+            appointmentRepositoryMock.findById.mockResolvedValue(null);
+
+            await expect(appointmentService.reschedule({
+                requesterId: 1,
+                requesterRole: 'patient',
+                appointmentId: 999,
+                newDate: '2026-03-17',
+                newTime: '10:00'
+            }))
+                .rejects
+                .toThrow(NotFoundError);
+        });
+    });
+
 });
