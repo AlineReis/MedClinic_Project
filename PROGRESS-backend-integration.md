@@ -77,6 +77,10 @@
 - Adjusted schedule-appointment availability rendering to consume flat availability arrays and aligned the card layout with the legacy `app.js` markup.
 - Fixed `getProfessionalAvailability` typing to consistently return `ApiResponse<ProfessionalAvailabilityEntry[]>`.
 - Restored the checkout/payment modal from `app.js`, wiring slot buttons to open the modal in `scheduleAppointment.ts`.
+- Reintroduced the appointment status/list panel in `src/pages/scheduleAppointment.ts` so patients can see their next booking status before browsing professionals (Step 3).
+- Added horizontal scroll, appointment count badge, and descriptive header for the Agendamentos panel.
+- Filtered availability previews to future slots and limited the appointment list to the three next upcoming bookings, ignoring past entries.
+- Implemented `appointmentsService.createAppointment` and wired the checkout modal to POST `/appointments`, using backend prices and toast feedback to report success/errors during Step 3.
 
 ## 2026-01-29 Session Notes (Merge + Dashboard)
 

@@ -1,14 +1,91 @@
 import {
+  createAppointment,
+  listAppointments,
+} from "../services/appointmentsService"
+import {
   getProfessionalAvailability,
   listProfessionals,
 } from "../services/professionalsService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
+import type { AppointmentSummary } from "../types/appointments"
 import type { UserSession } from "../types/auth"
 import type {
   ProfessionalAvailabilityEntry,
   ProfessionalSummary,
 } from "../types/professionals"
+function buildAppointmentStatusText(appointments: AppointmentSummary[]) {
+  const next = appointments[0]
+  return next
+    ? `Próximo: ${next.professional_name} • ${formatDate(next.date)} • ${next.time}`
+    : "Nenhum agendamento"
+}
+
+function buildAppointmentsLoadingState() {
+  return `
+    <div class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3">
+      <p class="text-sm text-text-secondary">Sincronizando dados...</p>
+    </div>
+  `
+}
+
+function buildAppointmentsEmptyState(title: string, description: string) {
+  return `
+    <div class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3">
+      <p class="text-sm font-bold text-white">${title}</p>
+      <p class="text-xs text-text-secondary mt-1">${description}</p>
+    </div>
+  `
+}
+
+function renderAppointmentCards(appointments: AppointmentSummary[]) {
+  if (!appointmentsList) return
+
+  appointmentsList.innerHTML = appointments
+    .map(appointment => buildAppointmentCard(appointment))
+    .join("")
+}
+
+function buildAppointmentCard(appointment: AppointmentSummary) {
+  return `
+    <div class="rounded-2xl border border-border-dark bg-background-dark p-4 flex flex-col gap-2">
+      <div class="flex justify-between items-center">
+        <h4 class="text-sm font-bold text-white truncate">${appointment.professional_name}</h4>
+        <span class="text-xs text-text-secondary">${getStatusLabel(appointment.status)}</span>
+      </div>
+      <p class="text-xs text-text-secondary">${appointment.specialty}</p>
+      <div class="flex items-center gap-2 text-xs text-text-secondary">
+        <span class="material-symbols-outlined">calendar_month</span>
+        ${formatDate(appointment.date)}
+      </div>
+      <div class="flex items-center gap-2 text-xs text-text-secondary">
+        <span class="material-symbols-outlined">schedule</span>
+        ${appointment.time}
+      </div>
+    </div>
+  `
+}
+
+function resolveSession() {
+  return (getSessionFromStorage() ?? authStore.getSession()) ??
+    authStore.refreshSession()
+}
+
+function getStatusLabel(status: string) {
+  const map: Record<string, string> = {
+    scheduled: "Agendado",
+    confirmed: "Confirmado",
+    completed: "Realizado",
+    cancelled_by_patient: "Cancelado",
+    cancelled_by_clinic: "Cancelado",
+  }
+  return map[status] ?? status
+}
+
+function getAppointmentDateTime(appointment: AppointmentSummary) {
+  const dateTimeString = `${appointment.date}T${appointment.time}`
+  return new Date(dateTimeString)
+}
 
 const doctorsGrid = document.getElementById("doctors-grid")
 const toastContainer = document.getElementById("toast-container")
@@ -16,6 +93,8 @@ const filtersContainer = document.getElementById("filters-container")
 const searchInput = document.getElementById("search-input") as
   | HTMLInputElement
   | null
+const appointmentsStatus = document.getElementById("appointments-status")
+const appointmentsList = document.getElementById("appointments-list")
 
 type FiltersState = {
   specialty: string
@@ -34,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFilters()
   bindSearchInput()
   loadProfessionals()
+  loadPatientAppointments()
 })
 
 async function loadProfessionals() {
@@ -65,6 +145,77 @@ async function loadProfessionals() {
   professionalsCache = response.data.data
   renderProfessionals(response.data.data)
   updateFiltersOptions(response.data.data)
+}
+
+const appointmentCountLabel = document.getElementById("appointments-count")
+
+async function loadPatientAppointments() {
+  if (!appointmentsList || !appointmentsStatus) return
+
+  appointmentsStatus.textContent = "Sincronizando dados..."
+  appointmentsList.innerHTML = buildAppointmentsLoadingState()
+
+  const session = await resolveSession()
+  if (!session) {
+    redirectToLogin()
+    return
+  }
+
+  const filters = session.role === "patient" ? { patientId: session.id } : {}
+  const response = await listAppointments(filters)
+
+  if (!response.success || !response.data) {
+    uiStore.addToast(
+      "error",
+      response.error?.message ?? "Não foi possível carregar seus agendamentos.",
+    )
+    renderToasts()
+    appointmentsStatus.textContent = "Status indisponível"
+    appointmentsList.innerHTML = buildAppointmentsEmptyState(
+      "Não foi possível sincronizar seus agendamentos.",
+      "Tente novamente em instantes.",
+    )
+    return
+  }
+
+  if (response.data.length === 0) {
+    appointmentsStatus.textContent = "Nenhum agendamento encontrado"
+    appointmentsList.innerHTML = buildAppointmentsEmptyState(
+      "Você ainda não tem agendamentos.",
+      "Agende sua primeira consulta.",
+    )
+    return
+  }
+
+  const now = new Date()
+  const futureAppointments = response.data
+    .map(appointment => ({
+      ...appointment,
+      dateTime: getAppointmentDateTime(appointment),
+    }))
+    .filter(
+      appointment =>
+        !Number.isNaN(appointment.dateTime.getTime()) &&
+        appointment.dateTime >= now,
+    )
+    .sort(
+      (a, b) =>
+        a.dateTime.getTime() - b.dateTime.getTime(),
+    )
+
+  if (futureAppointments.length === 0) {
+    appointmentsStatus.textContent = "Nenhum agendamento futuro"
+    appointmentsList.innerHTML = buildAppointmentsEmptyState(
+      "Você ainda não tem agendamentos futuros.",
+      "Agende sua próxima consulta.",
+    )
+    return
+  }
+
+  const limitedAppointments = futureAppointments.slice(0, 3)
+  appointmentCountLabel!.textContent = `${futureAppointments.length} agendamentos`
+  appointmentsStatus.textContent = buildAppointmentStatusText(limitedAppointments)
+  renderAppointmentCards(limitedAppointments)
 }
 
 function renderProfessionals(professionals: ProfessionalSummary[]) {
@@ -168,6 +319,8 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
   `
 }
 
+let searchDebounceTimer: number | undefined
+
 function renderFilters() {
   if (!filtersContainer) return
 
@@ -255,7 +408,12 @@ function bindSearchInput() {
   if (!searchInput) return
   searchInput.addEventListener("input", async () => {
     filters.name = searchInput.value.trim()
-    await loadProfessionals()
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer)
+    }
+    searchDebounceTimer = window.setTimeout(async () => {
+      await loadProfessionals()
+    }, 300)
   })
 }
 
@@ -281,15 +439,20 @@ async function handleAvailabilityClick(
     return
   }
 
-  const availableSlots = response.data.filter(slot => slot.is_available)
+  const futureSlots = response.data
+    .filter(slot => slot.is_available)
+    .filter(slot => {
+      const slotDate = new Date(`${slot.date}T${slot.time}`)
+      return slotDate.getTime() > Date.now()
+    })
   uiStore.addToast(
     "success",
-    availableSlots.length
-      ? `Encontramos ${availableSlots.length} horários disponíveis.`
-      : "Nenhum horário disponível para este profissional.",
+    futureSlots.length
+      ? `Encontramos ${futureSlots.length} horários futuros disponíveis.`
+      : "Nenhum horário futuro disponível para este profissional.",
   )
   renderToasts()
-  renderAvailabilityHighlight(button, availableSlots, professionalId)
+  renderAvailabilityHighlight(button, futureSlots, professionalId)
 
   button.textContent = "Ver calendário"
   button.disabled = false
@@ -523,7 +686,7 @@ function createCheckoutModal(
           </select>
         </div>
 
-        <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-2">
+        <button data-action="checkout-confirm" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-2">
           <span class="material-symbols-outlined">lock</span>
           Pagar e Confirmar
         </button>
@@ -537,6 +700,54 @@ function createCheckoutModal(
       modal.remove()
     },
   )
+
+  const confirmButton = modal.querySelector(
+    "[data-action='checkout-confirm']",
+  ) as HTMLButtonElement | null
+
+  confirmButton?.addEventListener("click", async () => {
+    if (!confirmButton) return
+    const originalText = confirmButton.textContent
+    confirmButton.disabled = true
+    confirmButton.textContent = "Confirmando..."
+
+    try {
+      const session = await resolveSession()
+      if (!session) {
+        redirectToLogin()
+        return
+      }
+
+      const response = await createAppointment({
+        patientId: session.id,
+        professionalId: professional.id,
+        date,
+        time,
+        type: "presencial",
+        price: professional.consultation_price ?? 0,
+      })
+
+      if (!response.success) {
+        uiStore.addToast(
+          "error",
+          response.error?.message ?? "Não foi possível confirmar o agendamento.",
+        )
+        renderToasts()
+        return
+      }
+
+      uiStore.addToast(
+        "success",
+        `Agendamento confirmado para ${formatDateFull(date)} às ${time}.`,
+      )
+      renderToasts()
+      modal.remove()
+      await loadPatientAppointments()
+    } finally {
+      confirmButton.disabled = false
+      confirmButton.textContent = originalText ?? "Pagar e Confirmar"
+    }
+  })
 
   document.body.appendChild(modal)
 }

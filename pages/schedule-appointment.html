@@ -166,19 +166,25 @@
           class="bg-surface-dark border border-border-dark rounded-2xl p-6 space-y-4"
         >
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-xs uppercase tracking-[0.3em] text-text-secondary">
-                Status do backend
+            <div class="flex flex-col gap-1">
+              <p class="text-xs uppercase tracking-[0.3em] text-text-secondary inline-flex items-center gap-2">
+                Agendamentos
+                <span id="appointments-count" class="text-[11px] font-bold text-primary bg-white/5 rounded-full px-2 py-0.5">
+                  0 agendamentos
+                </span>
               </p>
               <h3 id="appointments-status" class="text-lg font-bold text-white">
-                Aguardando validação...
+                Aguardando sincronização...
               </h3>
             </div>
             <span class="text-xs text-text-secondary"
               >Última atualização automática</span
             >
           </div>
-          <div id="appointments-list" class="grid gap-4 md:grid-cols-3">
+          <div
+            id="appointments-list"
+            class="w-full flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar"
+          >
             <div
               class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3"
             >
