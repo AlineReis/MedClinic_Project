@@ -14,7 +14,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "patient" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -39,7 +39,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "patient" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -57,7 +57,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
       const mockRequest = {
         params: { clinic_id: "1" },
         user: undefined,
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -83,7 +83,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "patient" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let nextCalled = false;
@@ -113,7 +113,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "patient" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -139,7 +139,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "patient" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -162,7 +162,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "receptionist" as const,
           clinic_id: 2,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -185,7 +185,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "health_professional" as const,
           clinic_id: 3,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -208,7 +208,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "clinic_admin" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let capturedError: any;
@@ -233,7 +233,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "system_admin" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let nextCalled = false;
@@ -263,7 +263,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "system_admin" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let nextCalled = false;
@@ -295,7 +295,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "lab_tech" as const,
           clinic_id: 7,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let nextCalled = false;
@@ -319,7 +319,7 @@ describe("Clinic Context Middleware - RN-Phase4.1 Multi-Tenancy", () => {
           role: "system_admin" as const,
           clinic_id: 1,
         },
-      } as Request;
+      } as unknown as Request;
 
       const mockResponse = {} as Response;
       let nextCalled = false;
