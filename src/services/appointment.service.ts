@@ -1,5 +1,5 @@
 import { env } from "@config/config.js";
-import { isMinimumHoursInFuture, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours } from "utils/validators.js";
+import { isMinimumHoursInFuture, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours, isNotSunday, isValid50MinuteSlot } from "utils/validators.js";
 import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams, type RescheduleAppointmentInput } from "../models/appointment.js";
 import { AuthResult } from "../models/user.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
@@ -29,6 +29,16 @@ export class AppointmentService {
         const professional = await this.userRepository.findById(data.professional_id);
         if (!professional) throw new NotFoundError("Profissional não encontrado.");
         if (professional.role !== 'health_professional') throw new ValidationError("O usuário informado não é um profissional de saúde.", "professional");
+
+        // RN-Phase4: Validate no appointments on Sunday
+        if (!isNotSunday(data.date)) {
+            throw new ValidationError("Agendamentos não podem ser feitos aos domingos.", "date");
+        }
+
+        // RN-Phase4: Validate 50-minute time slots
+        if (!isValid50MinuteSlot(data.time)) {
+            throw new ValidationError("O horário deve estar em intervalos de 50 minutos (ex: 09:00, 09:50, 10:40).", "time");
+        }
 
         // Validar data no futuro
         const appointmentDateTime = new Date(`${data.date}T${data.time}`);
@@ -205,6 +215,17 @@ export class AppointmentService {
     if (!isValidDate(newDate) || !isValidTime(newTime)) {
       throw new ValidationError("Data/hora inválidas", "date");
     }
+
+    // RN-Phase4: Validate no appointments on Sunday
+    if (!isNotSunday(newDate)) {
+      throw new ValidationError("Agendamentos não podem ser feitos aos domingos.", "date");
+    }
+
+    // RN-Phase4: Validate 50-minute time slots
+    if (!isValid50MinuteSlot(newTime)) {
+      throw new ValidationError("O horário deve estar em intervalos de 50 minutos (ex: 09:00, 09:50, 10:40).", "time");
+    }
+
     const dateTimeStr = `${newDate}T${newTime}:00`;
     const appointmentDate = new Date(dateTimeStr);
     if (!isMinimumHoursInFuture(appointmentDate, 0)) {

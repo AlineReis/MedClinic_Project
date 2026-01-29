@@ -154,3 +154,33 @@ export const isValidId = (id: any): boolean => {
   const num = Number(id);
   return Number.isFinite(num) && num > 0;
 };
+
+/**
+ * RN-Phase4: Validates if appointment is on Sunday (not allowed)
+ */
+export const isNotSunday = (dateStr: string): boolean => {
+  const date = new Date(`${dateStr}T00:00:00`);
+  const dayOfWeek = date.getDay();
+  return dayOfWeek !== 0; // 0 = Sunday
+};
+
+/**
+ * RN-Phase4: Validates if time slot is in 50-minute intervals
+ * Valid slots: 09:00, 09:50, 10:40, 11:30, etc.
+ */
+export const isValid50MinuteSlot = (time: string): boolean => {
+  const [hours, minutes] = time.split(":").map(Number);
+
+  // Start time is 09:00 (9 * 60 = 540 minutes from midnight)
+  const startMinutes = 9 * 60;
+  const currentMinutes = hours * 60 + minutes;
+
+  // Check if it's after start time
+  if (currentMinutes < startMinutes) return false;
+
+  // Calculate offset from start time
+  const offset = currentMinutes - startMinutes;
+
+  // Check if it's a multiple of 50 minutes
+  return offset % 50 === 0;
+};

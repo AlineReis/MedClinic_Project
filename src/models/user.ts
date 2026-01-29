@@ -33,4 +33,6 @@ export type UserWithDetails = User & {
 
 export type UserWithoutPassword = Omit<User, "password">;
 export type CreateUserPayload = Omit<User, "id" | "created_at" | "updated_at">;
-export type AuthResult = Pick<User, "id" | "name" | "email" | "role" | "clinic_id">;
+export type AuthResult = Pick<User, "id" | "name" | "email" | "role" | "clinic_id"> & {
+  requestedClinicId?: number; // Added for multi-tenancy middleware
+};

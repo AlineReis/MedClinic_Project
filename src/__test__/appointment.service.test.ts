@@ -80,7 +80,7 @@ describe('AppointmentService', () => {
             patient_id: 1,
             professional_id: 2,
             date: '2026-03-10', // A future Tuesday
-            time: '14:30',
+            time: '14:50', // Valid 50-minute slot
             type: 'presencial',
             price: 150
         };
@@ -188,9 +188,11 @@ describe('AppointmentService', () => {
         });
 
         it('should throw ValidationError when time is before start_time', async () => {
-            const earlyAppointment = { ...validAppointmentData, time: '08:30' };
+            // Use a valid 50-minute slot that is before availability start time
+            const earlyAvailability = [{ ...mockAvailability[0], start_time: '10:00', end_time: '18:00' }];
+            const earlyAppointment = { ...validAppointmentData, time: '09:00' }; // Valid slot, but before 10:00
 
-            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailability);
+            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(earlyAvailability);
 
             await expect(appointmentService.scheduleAppointment(earlyAppointment))
                 .rejects
@@ -198,9 +200,11 @@ describe('AppointmentService', () => {
         });
 
         it('should throw ValidationError when time is after end_time', async () => {
-            const lateAppointment = { ...validAppointmentData, time: '18:30' };
+            // Use 17:20 which is a valid 50-minute slot, but set availability to end at 17:00
+            const lateAvailability = [{ ...mockAvailability[0], start_time: '09:00', end_time: '17:00' }];
+            const lateAppointment = { ...validAppointmentData, time: '17:20' }; // Valid slot, but after 17:00
 
-            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailability);
+            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(lateAvailability);
 
             await expect(appointmentService.scheduleAppointment(lateAppointment))
                 .rejects
@@ -208,10 +212,11 @@ describe('AppointmentService', () => {
         });
 
         it('should throw ValidationError when time is exactly equal to end_time', async () => {
-            // Assuming open interval [start, end)
-            const boundaryAppointment = { ...validAppointmentData, time: '18:00' };
+            // Use 16:30 as valid slot, set availability to end exactly at 16:30
+            const boundaryAvailability = [{ ...mockAvailability[0], start_time: '09:00', end_time: '16:30' }];
+            const boundaryAppointment = { ...validAppointmentData, time: '16:30' }; // Valid slot, but exactly at end
 
-            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(mockAvailability);
+            availabilityRepositoryMock.findByProfessionalId.mockResolvedValue(boundaryAvailability);
 
             await expect(appointmentService.scheduleAppointment(boundaryAppointment))
                 .rejects
@@ -331,21 +336,21 @@ describe('AppointmentService', () => {
 
         // RN-05 Tests
         it('should throw ValidationError when appointment time is in the past on the same day', async () => {
-            // 2026-05-10 is a Sunday.
-            // Appointment at 13:00 local time.
-            const sameDay = '2026-05-10';
-            const pastTime = '13:00';
+            // 2026-05-11 is a Monday (changed from Sunday to pass RN-Phase4 validation).
+            // Appointment at 13:10 local time (valid 50-minute slot).
+            const sameDay = '2026-05-11';
+            const pastTime = '13:10';
 
-            // Set "now" to 15:00 local time on the same day.
+            // Set "now" to 15:40 local time on the same day.
             // We use the same string format to ensure consistency with how Service creates the appointment Date.
-            const now = new Date(`${sameDay}T15:00:00`);
+            const now = new Date(`${sameDay}T15:40:00`);
             jest.useFakeTimers();
             jest.setSystemTime(now);
 
-            // Update mock availability to match Sunday (0) to avoid "not available" error masking the date check failure
+            // Update mock availability to match Monday (1) to avoid "not available" error masking the date check failure
             const availabilityForTest = [{
                 ...mockAvailability[0],
-                day_of_week: 0, // Sunday
+                day_of_week: 1, // Monday
                 start_time: '08:00',
                 end_time: '18:00'
             }];
@@ -368,7 +373,7 @@ describe('AppointmentService', () => {
             patient_id: 1,
             professional_id: 2,
             date: '2026-03-10',
-            time: '14:30',
+            time: '14:50', // Valid 50-minute slot
             status: 'scheduled',
             payment_status: 'pending',
             price: 150,
@@ -415,7 +420,7 @@ describe('AppointmentService', () => {
             patient_id: 1,
             professional_id: 2,
             date: '2026-03-10',
-            time: '14:30',
+            time: '14:50', // Valid 50-minute slot
             status: 'scheduled',
             payment_status: 'paid',
             price: 150,
@@ -441,7 +446,7 @@ describe('AppointmentService', () => {
 
         it('should reschedule without fee when >=24 hours in advance', async () => {
             // Set "now" to be 48 hours before the appointment
-            const appointmentDateTime = new Date('2026-03-10T14:30:00');
+            const appointmentDateTime = new Date('2026-03-10T14:50:00');
             const twoDaysBefore = new Date(appointmentDateTime.getTime() - 48 * 60 * 60 * 1000);
 
             jest.useFakeTimers();
@@ -450,7 +455,7 @@ describe('AppointmentService', () => {
             appointmentRepositoryMock.reschedule.mockResolvedValue();
 
             const newDate = '2026-03-17'; // Tuesday
-            const newTime = '10:00';
+            const newTime = '10:40'; // Valid 50-minute slot
 
             await appointmentService.reschedule({
                 requesterId: 1,
@@ -467,7 +472,7 @@ describe('AppointmentService', () => {
 
         it('should log message about reschedule fee when <24 hours in advance - RN-25', async () => {
             // Set "now" to be 12 hours before the appointment
-            const appointmentDateTime = new Date('2026-03-10T14:30:00');
+            const appointmentDateTime = new Date('2026-03-10T14:50:00');
             const twelveHoursBefore = new Date(appointmentDateTime.getTime() - 12 * 60 * 60 * 1000);
 
             jest.useFakeTimers();
@@ -476,7 +481,7 @@ describe('AppointmentService', () => {
             appointmentRepositoryMock.reschedule.mockResolvedValue();
 
             const newDate = '2026-03-17'; // Tuesday
-            const newTime = '10:00';
+            const newTime = '10:40'; // Valid 50-minute slot
 
             const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -505,7 +510,7 @@ describe('AppointmentService', () => {
                 requesterRole: 'patient',
                 appointmentId: 999,
                 newDate: '2026-03-17',
-                newTime: '10:00'
+                newTime: '10:40' // Valid 50-minute slot
             }))
                 .rejects
                 .toThrow(NotFoundError);

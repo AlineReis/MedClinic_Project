@@ -3,11 +3,10 @@ import { PrescriptionRepository } from "@repositories/prescription.repository.js
 import { PrescriptionService } from "@services/prescription.service.js";
 import { Router } from "express";
 import { PrescriptionController } from "../controller/prescription.controller.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const prescriptionRoutes = Router();
 
-prescriptionRoutes.use(authMiddleware);
+// Auth and clinic context middlewares are applied globally in routes/index.ts
 
 const appointmentRepository = new AppointmentRepository();
 const prescriptionRepository = new PrescriptionRepository();
