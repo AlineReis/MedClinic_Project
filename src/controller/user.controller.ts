@@ -67,14 +67,25 @@ export class UserController {
       const requester = req.user;
       const { role, search, page, pageSize } = req.query;
 
+      const pageNum = Number(page);
+      const pageSizeNum = Number(pageSize);
+      const parsedPage = Number.isFinite(pageNum) && pageNum > 0 ? pageNum : 1;
+      const parsedPageSize =
+        Number.isFinite(pageSizeNum) && pageSizeNum > 0 ? pageSizeNum : 10;
+
+      const roleFilter =
+        typeof role === "string" && role.trim() ? role.trim() : undefined;
+      const searchFilter =
+        typeof search === "string" && search.trim() ? search.trim() : undefined;
+
       const users = await this.userService.listUsersByClinic({
         clinicId,
         requester,
         filters: {
-          role: (req.query.role || "health_professional") as string,
-          search: search as string,
-          page: page ? Number(page) : 1, // Converte string para número
-          pageSize: pageSize ? Number(pageSize) : 10, // Converte string para número
+          page: parsedPage,
+          pageSize: parsedPageSize,
+          ...(roleFilter ? { role: roleFilter } : {}),
+          ...(searchFilter ? { search: searchFilter } : {}),
         },
       });
 
