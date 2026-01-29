@@ -90,3 +90,37 @@
 - Hardened `Navigation` to guard against empty names and to compute initials safely.
 - Observed that `/auth/profile` currently returns `{ id, email, role }` without `name`, which is why the header stays blank (backend dependency).
 - Logout toast depends on backend returning `success: false`; offline behavior differs from login because it returns a network error rather than a success envelope.
+
+## 2026-01-29 Session Notes (Cancelamento, Reagendamento e Erros RN)
+
+### Contratos de Erro RN Documentados
+
+| Código de Erro | HTTP Status | Mensagem Amigável |
+|----------------|-------------|-------------------|
+| `SLOT_NOT_AVAILABLE` | 409 | Este horário não está mais disponível. Por favor, escolha outro. |
+| `INSUFFICIENT_NOTICE` | 400 | Agendamento requer antecedência mínima de 2 horas para consultas presenciais. |
+| `DUPLICATE_APPOINTMENT` | 409 | Você já possui um agendamento com este profissional nesta data. |
+| `NEW_SLOT_NOT_AVAILABLE` | 409 | O novo horário selecionado não está disponível. |
+| `CANNOT_CANCEL` | 400 | Não é possível cancelar este agendamento no status atual. |
+| `APPOINTMENT_NOT_FOUND` | 404 | Agendamento não encontrado. |
+| `PROFESSIONAL_NOT_FOUND` | 404 | Profissional não encontrado. |
+| `FORBIDDEN` | 403 | Você não tem permissão para realizar esta ação. |
+| `OVERLAPPING_TIMES` | 409 | Os horários informados se sobrepõem. |
+
+### Implementações Realizadas
+
+- **`appointmentsService.ts`**: Adicionados métodos `cancelAppointment(id, reason?)`, `rescheduleAppointment(id, { newDate, newTime })`, `getAppointment(id)` e helper `getErrorMessage(code, fallback)`.
+- **`scheduleAppointment.ts`**:
+  - Cards de agendamento agora exibem botões "Reagendar" e "Cancelar" para status `scheduled` ou `confirmed`.
+  - Modal de cancelamento com campo de motivo opcional e informações sobre reembolso (70% se <24h).
+  - Modal de reagendamento carrega slots disponíveis do profissional para os próximos 14 dias.
+  - Tratamento de erros atualizado para usar `getErrorMessage()` com mapeamento RN.
+  - Após cancelar ou reagendar, o painel de agendamentos é recarregado via `loadPatientAppointments()`.
+
+### Regras de Negócio Aplicadas
+
+- **RN-01 (Disponibilidade)**: Slots indisponíveis retornam `SLOT_NOT_AVAILABLE`.
+- **RN-02 (Antecedência)**: Mínimo 2h para presencial, erro `INSUFFICIENT_NOTICE`.
+- **RN-03 (Máximo 90 dias)**: Validado pelo backend.
+- **RN-04 (Sem duplicidade)**: Erro `DUPLICATE_APPOINTMENT` quando já existe consulta com mesmo profissional na data.
+- **RN-05 (Cancelamento/Reembolso)**: >24h = 100%, <24h = 70%. Modal exibe informações de reembolso retornadas pelo backend.
