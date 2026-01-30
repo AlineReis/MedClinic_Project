@@ -144,7 +144,7 @@ function renderPrescriptions(
   const prescriptionsContainer = document.getElementById("prescriptions-container")
   if (!prescriptionsContainer) return
 
-  const cardWrapperClass = "bg-surface-dark border border-border-dark rounded-2xl h-full flex flex-col overflow-hidden"
+  const cardWrapperClass = "bg-surface-dark border border-border-dark rounded-2xl h-full max-h-[350px] flex flex-col overflow-hidden"
 
   if (isLoading) {
     prescriptionsContainer.innerHTML = `
@@ -182,53 +182,47 @@ function renderPrescriptions(
     return
   }
 
-  // Show only the 3 most recent prescriptions
-  const recentPrescriptions = prescriptions.slice(0, 3)
+  // Show all prescriptions in a scrollable list
   prescriptionsContainer.innerHTML = `
     <div class="${cardWrapperClass}">
-      <div class="flex-1 w-full flex flex-col justify-center">
-      ${recentPrescriptions.map((p, index) => `
-          <div class="p-5 hover:bg-background-dark/50 transition-all group w-full ${index !== recentPrescriptions.length - 1 ? 'border-b border-border-dark' : ''}">
-            <div class="flex items-center justify-between gap-4">
-              <!-- Icon + Info -->
-              <div class="flex items-center gap-4 flex-1 min-w-0">
-                <div class="size-11 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-amber-500 text-[22px]">medication</span>
+      <div class="flex-1 w-full flex flex-col min-h-0">
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          ${prescriptions.map((p, index) => `
+            <div class="p-5 hover:bg-background-dark/50 transition-all group w-full ${index !== prescriptions.length - 1 ? 'border-b border-border-dark' : ''}">
+              <div class="flex items-center justify-between gap-4">
+                <!-- Icon + Info -->
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <div class="size-11 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-amber-500 text-[22px]">medication</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <!-- Name: Larger, wrapped, no truncate -->
+                    <p class="font-bold text-lg text-white leading-tight mb-1 break-words">${p.medication_name}</p>
+                    
+                    <!-- Dosage -->
+                    ${p.dosage ? `<p class="text-sm text-slate-400 mb-2 line-clamp-2">${p.dosage}</p>` : ""}
+                    
+                    <!-- Date (Smaller) -->
+                    <p class="text-xs text-slate-500 flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-[12px] aligned-icon">calendar_today</span>
+                      ${formatDate(p.created_at)}
+                    </p>
+                  </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <!-- Name: Larger, wrapped, no truncate -->
-                  <p class="font-bold text-lg text-white leading-tight mb-1 break-words">${p.medication_name}</p>
-                  
-                  <!-- Dosage -->
-                  ${p.dosage ? `<p class="text-sm text-slate-400 mb-2 line-clamp-2">${p.dosage}</p>` : ""}
-                  
-                  <!-- Date (Smaller) -->
-                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-[12px] aligned-icon">calendar_today</span>
-                    ${formatDate(p.created_at)}
-                  </p>
-                </div>
+                
+                <!-- Action Button (Small, always visible) -->
+                <button 
+                  data-prescription-id="${p.id}"
+                  class="prescription-details-btn size-9 rounded-xl border border-border-dark bg-transparent text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 flex items-center justify-center transition-all shrink-0 shadow-sm"
+                  title="Ver detalhes"
+                >
+                  <span class="material-symbols-outlined text-[20px]">visibility</span>
+                </button>
               </div>
-              
-              <!-- Action Button (Small, always visible) -->
-              <button 
-                data-prescription-id="${p.id}"
-                class="prescription-details-btn size-9 rounded-xl border border-border-dark bg-transparent text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 flex items-center justify-center transition-all shrink-0 shadow-sm"
-                title="Ver detalhes"
-              >
-                <span class="material-symbols-outlined text-[20px]">visibility</span>
-              </button>
             </div>
-          </div>
-        `).join("")}
-      </div>
-      ${prescriptions.length > 3 ? `
-        <div class="p-4 border-t border-border-dark text-center bg-background-dark/30">
-          <p class="text-xs text-slate-500">
-            +${prescriptions.length - 3} prescrição${prescriptions.length - 3 > 1 ? "ões" : ""} anterior${prescriptions.length - 3 > 1 ? "es" : ""}
-          </p>
+          `).join("")}
         </div>
-      ` : ""}
+      </div>
     </div>
   `
   
