@@ -237,19 +237,19 @@ async function seedAvailabilities(userIds: Map<string, number>): Promise<void> {
     {
       email: "ana@clinica.com",
       day_of_week: 1,
-      start_time: "08:00",
+      start_time: "09:00",
       end_time: "12:00",
     },
     {
       email: "ana@clinica.com",
       day_of_week: 3,
-      start_time: "08:00",
+      start_time: "09:00",
       end_time: "12:00",
     },
     {
       email: "ana@clinica.com",
       day_of_week: 5,
-      start_time: "08:00",
+      start_time: "09:00",
       end_time: "12:00",
     },
     // Dr. João (Cardiologista) - Full week availability for testing
