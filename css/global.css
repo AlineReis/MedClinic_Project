@@ -6,13 +6,16 @@
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #111921;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #2a3441;
   border-radius: 3px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3c4753;
 }
@@ -20,9 +23,12 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .auth-blocker {
@@ -80,6 +86,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -90,6 +97,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -102,4 +110,252 @@
 
 .animate-slide-up {
   animation: slide-up 0.4s ease-out forwards;
+}
+
+/* ========================================
+   Mobile Menu Styles
+   ======================================== */
+
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85%;
+  max-width: 320px;
+  height: 100%;
+  background: #1c242e;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-menu-overlay.open .mobile-menu-container {
+  transform: translateX(0);
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2a3441;
+}
+
+.mobile-menu-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: #9dabb8;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mobile-menu-close:hover {
+  background: #2a3441;
+  color: #fff;
+}
+
+.mobile-menu-nav {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  color: #9dabb8;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+  background: rgba(25, 127, 230, 0.1);
+  color: #197fe6;
+}
+
+.mobile-menu-link .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.mobile-menu-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #2a3441;
+}
+
+.mobile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mobile-menu-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(25, 127, 230, 0.2);
+  color: #197fe6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.875rem;
+  border: 1px solid rgba(25, 127, 230, 0.3);
+}
+
+.mobile-menu-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-user-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.mobile-menu-user-role {
+  font-size: 0.75rem;
+  color: #9dabb8;
+}
+
+.mobile-menu-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #9dabb8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mobile-menu-logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* Hamburger Button */
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: #9dabb8;
+  transition: background 0.2s, color 0.2s;
+}
+
+.hamburger-btn:hover {
+  background: rgba(42, 52, 65, 0.5);
+  color: #fff;
+}
+
+/* Hide hamburger on desktop */
+@media (min-width: 768px) {
+  .hamburger-btn {
+    display: none;
+  }
+}
+
+/* ========================================
+   Mobile Sidebar Styles
+   ======================================== */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Responsive sidebar for mobile */
+@media (max-width: 1023px) {
+  aside.hidden {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  aside.sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* Fix main content when sidebar is hidden */
+  main {
+    width: 100%;
+    padding-left: 0;
+  }
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: #9dabb8;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(42, 52, 65, 0.5);
+  color: #fff;
+}
+
+/* Hide toggle on desktop */
+@media (min-width: 1024px) {
+  .sidebar-toggle-btn {
+    display: none;
+  }
+}
+
+/* Fix body overflow for dashboard pages */
+@media (max-width: 1023px) {
+  body.dashboard-body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
 }

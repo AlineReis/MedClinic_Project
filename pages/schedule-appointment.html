@@ -52,8 +52,12 @@
   class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col overflow-x-hidden antialiased">
   <!-- Header -->
   <header class="bg-surface-dark border-b border-border-dark">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
+        <!-- Hamburger Button (Mobile) -->
+        <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
         <a href="patient-dashboard.html" class="flex items-center gap-2">
           <span class="material-symbols-outlined text-primary">local_hospital</span>
           <span class="font-bold">MedClinic</span>
@@ -65,7 +69,7 @@
           <a href="my-appointments.html" class="text-slate-400 hover:text-white">Consultas</a>
           <a href="exams.html" class="text-slate-400 hover:text-white">Exames</a>
         </nav>
-        <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-3">
           <div
             class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
             <span data-user-initials>U</span>
@@ -162,6 +166,7 @@
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
   <!-- Application Scripts -->
+  <script src="../js/components/mobile-menu.js"></script>
   <script src="../js/components/navigation.js"></script>
 </body>
 
