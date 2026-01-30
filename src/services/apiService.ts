@@ -15,7 +15,7 @@ export interface ApiResponse<T> {
 }
 
 const BASE_URL = (
-  CLINIC_API_HOST ?? "http://localhost:3000/api/v1/clinic-01"
+  CLINIC_API_HOST ?? "http://localhost:3000/api/v1/1"
 ).replace(/\/+$/, "")
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
@@ -78,7 +78,26 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
     }
   }
 
-  return (await response.json()) as ApiResponse<T>
+  const json = await response.json()
+  
+  // Backend may return raw data (arrays or objects) without {success, data} wrapper
+  // Detect and wrap them
+  if (Array.isArray(json)) {
+    return {
+      success: true,
+      data: json as T,
+    }
+  }
+  
+  // If it's a plain object without a 'success' field, it's raw data from backend
+  if (json && typeof json === 'object' && !('success' in json)) {
+    return {
+      success: true,
+      data: json as T,
+    }
+  }
+  
+  return json as ApiResponse<T>
 }
 
 export function handleError(error: unknown): ApiResponse<never> {

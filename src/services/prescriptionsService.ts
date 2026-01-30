@@ -97,7 +97,7 @@ function mapPrescriptionSummary(
 }
 
 export async function getPrescription(id: number) {
-  const response = await request<{ prescription: PrescriptionDetailApiResponse }>(
+  const response = await request<PrescriptionDetailApiResponse | { prescription: PrescriptionDetailApiResponse }>(
     `/prescriptions/${id}`,
   )
 
@@ -105,9 +105,14 @@ export async function getPrescription(id: number) {
     return response
   }
 
+  // Backend may return directly or wrapped in .prescription
+  const rawData: PrescriptionDetailApiResponse = 'prescription' in response.data 
+    ? response.data.prescription 
+    : response.data
+  
   return {
     ...response,
-    data: mapPrescriptionDetail(response.data.prescription),
+    data: mapPrescriptionDetail(rawData),
   }
 }
 
