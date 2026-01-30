@@ -5,3 +5,5 @@ node_modules/
 database/
 dist/
 coverage/
+uploads/exam-results/*
+!uploads/exam-results/.gitkeep

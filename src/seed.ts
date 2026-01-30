@@ -402,6 +402,19 @@ async function seedAppointments(
       payment_status: "pending",
       video_link: "https://meet.medclinic.com/joao-revisao",
     },
+    {
+      patientEmail: "maria@email.com",
+      professionalEmail: "joao@clinica.com",
+      date: "2026-12-12",
+      time: "14:00",
+      duration: 30,
+      type: "presencial",
+      price: 350.0,
+      status: "scheduled",
+      payment_status: "paid",
+      room_number: "Sala 2",
+      notes: "Avaliação anual",
+    },
   ];
 
   const insertedAppointments: {
@@ -562,7 +575,7 @@ async function seedExamRequests(
 
   for (const request of requests) {
     const appointment = appointments.find(
-      appt => appt.date === request.appointmentRefDate,
+      (appt) => appt.date === request.appointmentRefDate,
     );
     if (!appointment) continue;
 
@@ -627,7 +640,7 @@ async function seedPrescriptions(
 
   for (const prescription of prescriptions) {
     const appointment = appointments.find(
-      appt => appt.date === prescription.appointmentDate,
+      (appt) => appt.date === prescription.appointmentDate,
     );
     if (!appointment) continue;
 

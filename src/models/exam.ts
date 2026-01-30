@@ -1,4 +1,5 @@
 export type ExamType = "blood" | "image";
+export type ExamUrgency = "normal" | "urgent" | "critical";
 
 export const EXAM_REQUEST_STATUS = [
   "pending_payment",
@@ -38,6 +39,9 @@ export interface ExamRequest {
   result_file_url?: string;
   result_text?: string;
   lab_tech_id?: number;
+  urgency?: ExamUrgency;
+  patient_name?: string; // Populated via JOIN for lab_tech/admin views
+  exam_name?: string; // From exam_catalog JOIN
   created_at?: string;
   updated_at?: string;
 }
