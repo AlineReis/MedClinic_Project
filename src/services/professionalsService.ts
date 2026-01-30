@@ -274,7 +274,7 @@ function buildProfessionalsQuery(filters: ProfessionalFilters) {
 function buildAvailabilityQuery(filters: AvailabilityFilters) {
   const params = new URLSearchParams()
 
-  if (filters.startDate) params.set("startDate", filters.startDate)
+  if (filters.startDate) params.set("date", filters.startDate)
   if (filters.endDate) params.set("endDate", filters.endDate)
   if (filters.daysAhead) params.set("days_ahead", String(filters.daysAhead))
 

@@ -16,6 +16,12 @@ export type AppointmentFilters = {
 
 type AppointmentApiItem = {
   id: number
+  patient_id?: number
+  patient_name?: string
+  professional_id?: number
+  professional_name?: string
+  professional_specialty?: string
+  // Nested objects (for detailed responses from other endpoints)
   patient?: { id: number; name: string; email?: string; phone?: string }
   professional?: { id: number; name: string; specialty?: string; registration_number?: string }
   date: string
@@ -223,9 +229,10 @@ export async function rescheduleAppointment(
 export async function getAppointment(
   appointmentId: number,
 ): Promise<ApiResponse<AppointmentSummary>> {
-  const response = await request<AppointmentDetailResponse>(`/appointments/${appointmentId}`)
+  // Use 'any' to bypass strict typing because we know the backend returns 'appointment' instead of 'data'
+  const response = await request<any>(`/appointments/${appointmentId}`)
 
-  if (!response.success || !response.data) {
+  if (!response.success) {
     return {
       success: false,
       error: response.error ?? {
@@ -236,9 +243,24 @@ export async function getAppointment(
     }
   }
 
+  // Backend returns { success: true, appointment: {...} }
+  // apiService passes it through. We need to grab .appointment or .data
+  const rawData = response.data || (response as any).appointment
+
+  if (!rawData) {
+    return {
+      success: false,
+      error: {
+        code: "NO_DATA",
+        message: "Dados da consulta não encontrados",
+        statusCode: 404,
+      },
+    }
+  }
+
   return {
     success: true,
-    data: mapAppointmentSummary(response.data.appointment),
+    data: mapAppointmentSummary(rawData),
   }
 }
 
@@ -264,11 +286,12 @@ function buildAppointmentQuery(filters: AppointmentFilters) {
 function mapAppointmentSummary(item: AppointmentApiItem): AppointmentSummary {
   return {
     id: item.id,
-    patient_id: item.patient?.id ?? 0,
-    patient_name: item.patient?.name ?? "",
-    professional_id: item.professional?.id ?? 0,
-    professional_name: item.professional?.name ?? "",
-    specialty: item.professional?.specialty ?? "",
+    // Prioritize flat fields from JOIN, fallback to nested objects
+    patient_id: item.patient_id ?? item.patient?.id ?? 0,
+    patient_name: item.patient_name ?? item.patient?.name ?? "",
+    professional_id: item.professional_id ?? item.professional?.id ?? 0,
+    professional_name: item.professional_name ?? item.professional?.name ?? "",
+    specialty: item.professional_specialty ?? item.professional?.specialty ?? "",
     date: item.date,
     time: item.time,
     status: item.status,

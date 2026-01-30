@@ -102,10 +102,8 @@
                     <span class="material-symbols-outlined text-primary">event</span>
                     Próxima Consulta
                 </h2>
-                <div
-                    class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col md:flex-row gap-6"
-                    data-next-appointment
-                >
+                <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col md:flex-row gap-6"
+                    data-next-appointment>
                     <div class="size-20 rounded-full bg-cover bg-center border-2 border-primary/20 shrink-0"
                         style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDmnbbvRP02hJ7H_zoaKaRiRNKJX1-HGCsPGr0jtGdC-Z-RpxW0PIC4hi9UbGZECqEBJgvX6kMZNaB2B-qtgQq3Y7WLn0d-KK6i7UtIkQtipVRaZzxGHwaTJaOLH3RhQ5bfFecerS4T715D_V5jKKKvdukxXs1GuE__XOYOLbfHkbkHEBnm_9D6hV48EX-iJ-0NFcO0cZF6_ht4OP3GgN7FJhsNpMYNE3d80axsU_5euQIG_v1YcDFmISo1Mk1KGAX6Tmr8oFiyAWo')">
                     </div>
@@ -138,27 +136,14 @@
                 </div>
             </div>
 
-            <!-- Health Summary -->
-            <div class="lg:col-span-1">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">favorite</span>
-                    Minha Saúde
+            <!-- Prescriptions Summary -->
+            <div class="lg:col-span-1 flex flex-col h-full">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 shrink-0">
+                    <span class="material-symbols-outlined text-primary">receipt_long</span>
+                    Minhas Prescrições
                 </h2>
-                <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 space-y-5">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-slate-400">Pressão Arterial</span>
-                        <span class="font-bold text-emerald-500">120/80 mmHg</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-slate-400">Frequência Cardíaca</span>
-                        <span class="font-bold">72 bpm</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-slate-400">Glicemia (Jejum)</span>
-                        <span class="font-bold">95 mg/dL</span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 pt-2 border-t border-border-dark">Última atualização: 10 Out
-                        2024</p>
+                <div id="prescriptions-container" class="flex-1 h-full">
+                    <!-- Will be populated by TypeScript -->
                 </div>
             </div>
 
