@@ -4,6 +4,10 @@ export interface ExamSummary {
   status: string
   created_at: string
   result?: string | null
+  patientName?: string
+  requestingProfessionalName?: string
+  priority?: string
+  isUrgent?: boolean
 }
 
 export interface ExamDetail {

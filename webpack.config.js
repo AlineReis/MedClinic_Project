@@ -29,6 +29,7 @@ module.exports = (env, argv) => {
       receptionDashboard: "./src/pages/receptionDashboard.ts",
       adminDashboard: "./src/pages/adminDashboard.ts",
       usersPage: "./src/pages/usersPage.ts",
+      labDashboard: "./src/pages/labDashboard.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -105,6 +106,7 @@ module.exports = (env, argv) => {
                 ? ["patientDashboard"]
                 : []),
               ...(page === "doctor-dashboard.html" ? ["doctorDashboard"] : []),
+              ...(page === "lab-dashboard.html" ? ["labDashboard"] : []),
               ...(page === "reception-dashboard.html" ? ["receptionDashboard"] : []),
               ...(page === "admin-dashboard.html" ? ["adminDashboard"] : []),
               ...(page === "users.html" ? ["usersPage"] : []),

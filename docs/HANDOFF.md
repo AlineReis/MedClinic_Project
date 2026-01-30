@@ -1,24 +1,26 @@
-\# 🚩 Handoff - 2026-01-29 21:15 BRT
+# 🚩 Handoff - 2026-01-30 03:12 (UTC-3)
 
 ### 🎯 Objetivo da Sessão Anterior
 
-- Corrigir o logout/imediato retorno para `login.html` nos painéis de recepção, médica e administrativa, além de garantir que a página `/pages/users.html` seja gerada e servida pelo build.
+- Conectar a página lab-dashboard.html ao fluxo de dados real do backend, garantindo que os KPIs e a fila de análise consumam `GET /exams` e exibam estados dinâmicos.
 
 ### ✅ Progresso Realizado
 
-- `src/pages/receptionDashboard.ts`, `src/pages/doctorDashboard.ts` e `src/pages/adminDashboard.ts`: agora chamam `authStore.refreshSession()` antes de aplicar o guard de RBAC e só renderizam o layout quando a sessão validada estiver disponível.
-- `webpack.config.js`: adicionou `users.html` à lista de páginas principais e incluiu o chunk `usersPage` no `HtmlWebpackPlugin`, evitando que o CopyWebpackPlugin ignore o HTML, o que garante que `/pages/users.html` seja servido.
-- Fluxo de logout permanece inalterado, mas os dashboards agora refletem o mesmo padrão da tela de paciente para evitar redirecionamentos falsos.
+- Criado `src/pages/labDashboard.ts` que injeta navegação, toasts, autentica `lab_tech`, busca os exames e atualiza KPIs/tabela.
+- Atualizado `src/types/exams.ts` para incluir campos adicionais de paciente, solicitante e prioridade.
+- Modificado `pages/lab-dashboard.html` para usar atributos data para os KPIs e corpo da tabela dinâmico.
+- Registrado a entrada `labDashboard.ts` em `webpack.config.js` e mantido a geração de HTML existente.
 
 ### ⚠️ Estado de Alerta (Bugs e Bloqueios)
 
-- É preciso executar o servidor de desenvolvimento/build (`npm run dev` / `npm run build`) para confirmar que `/pages/users.html` aparece na saída final e que os dashboards carregam corretamente após o login.
+- As ações (iniciar/liberar) são marcadas com toasts informativos; os endpoints `POST /exams/:id/result` ou `POST /exams/:id/release` ainda precisam ser implementados para concluir o fluxo.
+- É necessário rebuildar o projeto (`npm run build`/`npm run dev`) para que o chunk `labDashboard` seja emitido e carregado pela página.
 
 ### 🚀 Próximos Passos Imediatos
 
-1. Levantar o servidor (`npm run dev`) e navegar até os dashboards de recepção, médico, administrativo e `/pages/users.html` para validar que não há redirecionamento indesejado.
-2. Rodar o build (`npm run build`) e inspecionar o diretório `dist/pages` para confirmar que `users.html` foi emitido e está referenciando o chunk correto.
+1. Implementar os handlers reais das ações da fila (liberar resultado/atualizar status) chamando os endpoints de exames que processam resultados.
+2. Adicionar refrescamento da fila e dos KPIs após cada ação e incluir feedbacks de loading/error para cada card.
 
 ---
 
-**Instrução para o Agente:** Ao finalizar os passos acima, associe os resultados relevantes ao `PROGRESS-backend-integration.md` se necessário.
+**Instrução para o Agente:** Ao concluir as tarefas acima, mova este resumo para `PROGRESS-backend-integration.md` se ainda não estiver registrado.
