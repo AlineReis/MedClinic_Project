@@ -38,7 +38,7 @@ export class AppointmentRepository {
   // Buscar consulta por ID
   async findById(id: number): Promise<Appointment | null> {
     const sql = `
-      SELECT 
+      SELECT
         a.*,
         patient.name as patient_name,
         professional.name as professional_name,
@@ -95,9 +95,12 @@ export class AppointmentRepository {
     const params: any[] = [];
 
     // Filtros
-    if (filters.status) {
-      baseQuery += ` AND a.status = ?`;
-      params.push(filters.status);
+    if (filters.status && Array.isArray(filters.status) && filters.status.length > 0) {
+      const placeholders = filters.status.map(() => '?').join(', ');
+
+      baseQuery += ` AND a.status IN (${placeholders})`;
+
+      params.push(...filters.status);
     }
     if (filters.professional_id) {
       baseQuery += ` AND a.professional_id = ?`;
@@ -134,7 +137,7 @@ export class AppointmentRepository {
 
     // Query Dados com JOIN
     let dataSql = `
-      SELECT 
+      SELECT
         a.*,
         patient.name as patient_name,
         professional.name as professional_name,
@@ -203,8 +206,8 @@ export class AppointmentRepository {
   // Atualizar status
   async updateStatus(id: number, status: string): Promise<void> {
     const sql = `
-            UPDATE appointments 
-            SET status = ?, updated_at = CURRENT_TIMESTAMP 
+            UPDATE appointments
+            SET status = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
     await database.run(sql, [status, id]);
