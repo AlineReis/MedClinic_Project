@@ -44,6 +44,12 @@ export async function request<T>(
       body: isFormData ? body : body ? JSON.stringify(body) : undefined,
     });
 
+    if (response.status === 204) {
+      return {
+        success: true,
+      } as ApiResponse<T>;
+    }
+
     const payload = await parseResponse<T>(response);
 
     if (!response.ok) {

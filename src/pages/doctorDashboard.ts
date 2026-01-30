@@ -8,6 +8,9 @@ import {
 } from "../services/prescriptionsService";
 import {
   createProfessionalAvailability,
+  deleteAvailability,
+  getProfessionalAvailability,
+  getProfessionalAvailabilityRules,
   getProfessionalCommissions,
 } from "../services/professionalsService";
 import { authStore } from "../stores/authStore";
@@ -65,6 +68,9 @@ async function initDoctorDashboard() {
 
   // Setup prescription creation
   setupPrescriptionCreation(session.id);
+
+  // Setup agenda modal
+  setupAgendaModal(session.id);
 }
 
 async function loadUpcomingAppointments(professionalId: number) {
@@ -125,15 +131,11 @@ function updateStats(
     (a) => a.status === "completed",
   ).length;
 
-  // Note: 'type' field is not in AppointmentSummary yet, so we'll show 0 for now
-  const telemedicine = 0;
-
   // Update stat cards
   const statsCards = document.querySelectorAll("section.grid h3");
   if (statsCards[0]) statsCards[0].textContent = String(totalToday);
   if (statsCards[1]) statsCards[1].textContent = String(waiting);
   if (statsCards[2]) statsCards[2].textContent = String(completed);
-  if (statsCards[3]) statsCards[3].textContent = String(telemedicine);
 }
 
 function updateNextPatient(appointments: AppointmentSummary[]) {
@@ -430,55 +432,66 @@ function showAvailabilityModal(professionalId: number) {
   modal.innerHTML = `
     <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold">Adicionar Horários de Disponibilidade</h3>
+        <h3 class="text-xl font-bold">Gerenciar Disponibilidade</h3>
         <button id="close-availability-modal" class="text-slate-400 hover:text-white">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="space-y-4">
-        <div id="availability-entries" class="space-y-4">
-          <div class="availability-entry bg-background-dark/50 p-4 rounded-xl border border-border-dark">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label class="block text-xs text-slate-400 mb-2">Dia da Semana</label>
-                <select class="day-select w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white">
-                  <option value="0">Domingo</option>
-                  <option value="1" selected>Segunda</option>
-                  <option value="2">Terça</option>
-                  <option value="3">Quarta</option>
-                  <option value="4">Quinta</option>
-                  <option value="5">Sexta</option>
-                  <option value="6">Sábado</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 mb-2">Início</label>
-                <input type="time" class="start-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="09:00" />
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 mb-2">Fim</label>
-                <input type="time" class="end-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="12:00" />
-              </div>
-              <div class="flex items-end">
-                <button class="remove-entry w-full px-3 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm font-bold hover:bg-red-500/20 transition-colors">
-                  Remover
-                </button>
-              </div>
-            </div>
+      <div class="space-y-6">
+        <!-- Existing Slots Section -->
+        <div>
+          <h4 class="text-sm font-bold text-slate-400 uppercase mb-3">Horários Cadastrados</h4>
+          <div id="existing-availability-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar bg-background-dark/30 p-2 rounded-xl">
+             <p class="text-center text-slate-500 py-4 text-sm">Carregando horários...</p>
           </div>
         </div>
 
-        <button id="add-more-entry" class="w-full px-4 py-3 bg-background-dark border border-dashed border-border-dark rounded-xl text-sm text-slate-400 hover:text-white hover:border-primary transition-colors flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined">add</span> Adicionar Mais Horário
-        </button>
+        <div class="border-t border-border-dark pt-4">
+          <h4 class="text-sm font-bold text-slate-400 uppercase mb-3">Adicionar Novos Horários</h4>
+          <div id="availability-entries" class="space-y-4">
+            <div class="availability-entry bg-background-dark/50 p-4 rounded-xl border border-border-dark">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-2">Dia da Semana</label>
+                  <select class="day-select w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white">
+                    <option value="0">Domingo</option>
+                    <option value="1" selected>Segunda</option>
+                    <option value="2">Terça</option>
+                    <option value="3">Quarta</option>
+                    <option value="4">Quinta</option>
+                    <option value="5">Sexta</option>
+                    <option value="6">Sábado</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-2">Início</label>
+                  <input type="time" class="start-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="09:00" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-2">Fim</label>
+                  <input type="time" class="end-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="12:00" />
+                </div>
+                <div class="flex items-end">
+                  <button class="remove-entry w-full px-3 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm font-bold hover:bg-red-500/20 transition-colors">
+                    Remover
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div class="flex gap-3 pt-4">
+          <button id="add-more-entry" class="w-full mt-4 px-4 py-3 bg-background-dark border border-dashed border-border-dark rounded-xl text-sm text-slate-400 hover:text-white hover:border-primary transition-colors flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">add</span> Adicionar Mais Horário
+          </button>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-border-dark">
           <button id="cancel-availability" class="flex-1 px-6 py-3 bg-background-dark border border-border-dark rounded-xl font-bold hover:bg-border-dark transition-colors">
-            Cancelar
+            Fechar
           </button>
           <button id="save-availability" class="flex-1 px-6 py-3 bg-primary rounded-xl font-bold hover:bg-blue-700 transition-colors">
-            Salvar Horários
+            Salvar Novos
           </button>
         </div>
       </div>
@@ -487,23 +500,99 @@ function showAvailabilityModal(professionalId: number) {
 
   document.body.appendChild(modal);
 
-  const searchInput = modal.querySelector(
-    "#exam-patient-search",
-  ) as HTMLInputElement | null;
-  const searchResultsContainer = modal.querySelector(
-    "#exam-patient-search-results",
-  ) as HTMLElement | null;
-  const selectedPatientLabel = modal.querySelector(
-    "#exam-selected-patient",
-  ) as HTMLElement | null;
-  const hiddenAppointmentInput = modal.querySelector(
-    "#exam-appointment-id",
-  ) as HTMLInputElement | null;
-  const hiddenPatientInput = modal.querySelector(
-    "#exam-patient-id",
-  ) as HTMLInputElement | null;
+  // Load existing availability
+  const loadExisting = async () => {
+    const listContainer = modal.querySelector("#existing-availability-list");
+    if (!listContainer) return;
 
-  let searchTimeout: number | null = null;
+    try {
+      const response = await getProfessionalAvailabilityRules(professionalId);
+
+      if (response.success && response.data && response.data.length > 0) {
+        listContainer.innerHTML = response.data
+          .map((rule: any) => {
+            const days = [
+              "Domingo",
+              "Segunda",
+              "Terça",
+              "Quarta",
+              "Quinta",
+              "Sexta",
+              "Sábado",
+            ];
+            return `
+            <div class="flex items-center justify-between p-3 bg-background-dark/50 rounded-lg border border-border-dark">
+              <div>
+                <span class="font-bold text-white">${days[rule.day_of_week]}</span>
+                <span class="text-slate-400 mx-2">•</span>
+                <span class="text-sm font-mono text-slate-300">
+                  ${rule.start_time.slice(0, 5)} - ${rule.end_time.slice(0, 5)}
+                </span>
+              </div>
+              <button class="delete-rule-btn p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" data-id="${rule.id}">
+                <span class="material-symbols-outlined text-sm">delete</span>
+              </button>
+            </div>
+          `;
+          })
+          .join("");
+
+        // Attach delete handlers
+        listContainer.querySelectorAll(".delete-rule-btn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const ruleId = Number((e.currentTarget as HTMLElement).dataset.id);
+            if (!ruleId) return;
+
+            if (confirm("Tem certeza que deseja remover este horário?")) {
+              try {
+                const delResponse = await deleteAvailability(
+                  professionalId,
+                  ruleId,
+                );
+                if (delResponse.success) {
+                  uiStore.addToast("success", "Horário removido com sucesso");
+                  loadExisting(); // Reload list
+                } else {
+                  uiStore.addToast("error", "Erro ao remover horário");
+                }
+              } catch (err) {
+                console.error(err);
+                uiStore.addToast("error", "Erro ao remover horário");
+              }
+            }
+          });
+        });
+      } else {
+        listContainer.innerHTML = `
+          <div class="text-center py-6 text-slate-500">
+            <span class="material-symbols-outlined text-2xl mb-2 opacity-50">event_busy</span>
+            <p class="text-sm">Nenhum horário cadastrado</p>
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error(err);
+      listContainer.innerHTML =
+        '<p class="text-center text-red-400 py-4 text-sm">Erro ao carregar horários</p>';
+    }
+  };
+
+  loadExisting();
+
+  /* Autocomplete / Search Variables */
+  let searchInput: HTMLInputElement | null = null;
+  let searchResultsContainer: HTMLDivElement | null = null;
+  let hiddenAppointmentInput: HTMLInputElement | null = null;
+  let hiddenPatientInput: HTMLInputElement | null = null;
+  let selectedPatientLabel: HTMLElement | null = null;
+  let searchTimeout: any = null;
+
+  // Initialize elements
+  searchInput = modal.querySelector("#patient-search-input");
+  searchResultsContainer = modal.querySelector("#patient-search-results");
+  hiddenAppointmentInput = modal.querySelector("#prescription-appointment-id");
+  hiddenPatientInput = modal.querySelector("#prescription-patient-id");
+  selectedPatientLabel = modal.querySelector("#selected-patient-label");
 
   const renderMessage = (message: string) => {
     if (!searchResultsContainer) return;
@@ -1023,7 +1112,7 @@ function setupPrescriptionCreation(professionalId: number) {
   );
 }
 
-function showPrescriptionModal(professionalId: number) {
+async function showPrescriptionModal(professionalId: number) {
   const modal = document.createElement("div");
   modal.className =
     "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
@@ -1038,18 +1127,11 @@ function showPrescriptionModal(professionalId: number) {
 
       <form id="prescription-form" class="space-y-4">
         <div>
-          <label class="block text-sm text-slate-400 mb-2">ID da Consulta *</label>
-          <input type="number" id="prescription-appointment-id" required
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Digite o ID da consulta" />
-          <p class="text-xs text-slate-500 mt-1">Obtenha o ID na fila de atendimento ou histórico</p>
-        </div>
-
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">ID do Paciente *</label>
-          <input type="number" id="prescription-patient-id" required
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Digite o ID do paciente" />
+          <label class="block text-sm text-slate-400 mb-2">Selecione a Consulta *</label>
+          <select id="prescription-appointment-select" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+             <option value="">Carregando consultas...</option>
+          </select>
+          <p class="text-xs text-slate-500 mt-1">A prescrição será vinculada ao paciente desta consulta.</p>
         </div>
 
         <div>
@@ -1059,20 +1141,20 @@ function showPrescriptionModal(professionalId: number) {
             placeholder="Ex: Amoxicilina 500mg" />
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Dosagem</label>
-          <input type="text" id="prescription-dosage"
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Ex: 500mg" />
-          <p class="text-xs text-slate-500 mt-1">Opcional - especifique a dosagem do medicamento</p>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-slate-400 mb-2">Dosagem</label>
+              <input type="text" id="prescription-dosage"
+                class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+                placeholder="Ex: 500mg" />
+            </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Frequência</label>
-          <input type="text" id="prescription-frequency"
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Ex: 3x ao dia" />
-          <p class="text-xs text-slate-500 mt-1">Opcional - quantas vezes por dia/semana</p>
+            <div>
+              <label class="block text-sm text-slate-400 mb-2">Frequência</label>
+              <input type="text" id="prescription-frequency"
+                class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+                placeholder="Ex: 3x ao dia" />
+            </div>
         </div>
 
         <div>
@@ -1080,7 +1162,6 @@ function showPrescriptionModal(professionalId: number) {
           <input type="number" id="prescription-duration-days" min="1"
             class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
             placeholder="Ex: 7" />
-          <p class="text-xs text-slate-500 mt-1">Opcional - quantos dias de tratamento</p>
         </div>
 
         <div>
@@ -1088,7 +1169,6 @@ function showPrescriptionModal(professionalId: number) {
           <textarea id="prescription-instructions" rows="3"
             class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary resize-none"
             placeholder="Ex: Tomar após as refeições com água"></textarea>
-          <p class="text-xs text-slate-500 mt-1">Opcional - orientações adicionais para o paciente</p>
         </div>
 
         <div class="flex gap-3 pt-4">
@@ -1104,6 +1184,47 @@ function showPrescriptionModal(professionalId: number) {
   `;
 
   document.body.appendChild(modal);
+
+  // Load Appointments (Context)
+  const appSelect = modal.querySelector(
+    "#prescription-appointment-select",
+  ) as HTMLSelectElement;
+  try {
+    // Reuse listAppointments, filtering by professional and ensuring we get relevant ones
+    // We might want past appointments too if they forgot to request exam during consultation?
+    // Business rule says "Exame vinculado a appointment". Usually this is done during or shortly after.
+    // Let's fetch recent and upcoming.
+    const appResponse = await listAppointments({
+      professionalId,
+      pageSize: 50, // Limit to 50 most recent/upcoming
+    });
+
+    if (
+      appResponse.success &&
+      appResponse.data &&
+      appResponse.data.appointments &&
+      appResponse.data.appointments.length > 0
+    ) {
+      appSelect.innerHTML =
+        '<option value="">Selecione uma consulta...</option>' +
+        appResponse.data.appointments
+          .map(
+            (app) =>
+              // Store patient ID in data attribute for easy access
+              `<option value="${app.id}" data-patient-id="${app.patient_id}">
+                    ${app.date} ${app.time} - ${app.patient_name} (${app.status})
+                </option>`,
+          )
+          .join("");
+    } else {
+      appSelect.innerHTML =
+        '<option value="">Nenhuma consulta encontrada</option>';
+    }
+  } catch (error) {
+    console.error("Error loading appointments for modal:", error);
+    appSelect.innerHTML =
+      '<option value="">Erro ao carregar consultas</option>';
+  }
 
   // Close modal handlers
   const closeButton = modal.querySelector("#close-prescription-modal");
@@ -1125,17 +1246,16 @@ function showPrescriptionModal(professionalId: number) {
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const appointmentId = Number(
-      (
-        document.getElementById(
-          "prescription-appointment-id",
-        ) as HTMLInputElement
-      ).value,
-    );
-    const patientId = Number(
-      (document.getElementById("prescription-patient-id") as HTMLInputElement)
-        .value,
-    );
+    const appSelect = document.getElementById(
+      "prescription-appointment-select",
+    ) as HTMLSelectElement;
+
+    const appointmentId = Number(appSelect.value);
+
+    // Get patient ID from the selected option's data attribute
+    const selectedOption = appSelect.options[appSelect.selectedIndex];
+    const patientId = Number(selectedOption.getAttribute("data-patient-id"));
+
     const medicationName = (
       document.getElementById(
         "prescription-medication-name",
@@ -1218,7 +1338,282 @@ function getPrescriptionErrorMessage(errorCode?: string): string | undefined {
   return errorCode ? errorMessages[errorCode] : undefined;
 }
 
-// Initialize when DOM is ready
+function setupAgendaModal(professionalId: number) {
+  const btn = document.getElementById("open-my-agenda-btn");
+  if (btn) {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showAgendaModal(professionalId);
+    });
+  }
+}
+
+// State for Agenda Modal navigation
+let currentAgendaDate = new Date();
+
+async function showAgendaModal(professionalId: number) {
+  // Remove existing modal if any
+  const existingModal = document.getElementById("agenda-modal");
+  if (existingModal) existingModal.remove();
+
+  // Reset date to today on open
+  currentAgendaDate = new Date();
+
+  // Create Modal HTML
+  const modalHtml = `
+  <div id="agenda-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+      <div class="bg-surface-dark border border-border-dark w-full max-w-6xl h-[85vh] rounded-2xl flex flex-col shadow-2xl overflow-hidden relative">
+          <div class="p-4 border-b border-border-dark flex justify-between items-center bg-surface-dark z-20">
+             <div class="flex items-center gap-4">
+                <h2 class="text-xl font-bold">Minha Agenda Semanal</h2>
+                <div class="flex items-center gap-2 bg-background-dark p-1 rounded-lg border border-border-dark">
+                  <button id="agenda-prev-week" class="p-1 hover:bg-surface-dark rounded text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-lg">chevron_left</span>
+                  </button>
+                  <div class="text-sm font-medium px-2 min-w-[200px] text-center" id="agenda-week-label">Carregando...</div>
+                  <button id="agenda-next-week" class="p-1 hover:bg-surface-dark rounded text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-lg">chevron_right</span>
+                  </button>
+                </div>
+                <button id="agenda-today-btn" class="text-xs font-bold text-primary hover:text-primary-300 px-2 py-1 rounded hover:bg-primary/10 transition">
+                  Hoje
+                </button>
+             </div>
+             <button id="close-agenda-modal" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                 <span class="material-symbols-outlined">close</span>
+             </button>
+          </div>
+          <div class="flex-1 overflow-y-auto overflow-x-auto relative bg-[#0d1116] p-4 custom-scrollbar" id="agenda-grid-container">
+              <div class="min-w-[800px] relative" id="agenda-grid-content">
+                  <!-- Grid content injected here -->
+                  <div class="flex items-center justify-center h-64 text-slate-500">
+                      <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> Carregando agenda...
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+  const modal = document.getElementById("agenda-modal") as HTMLElement;
+  const gridContent = document.getElementById(
+    "agenda-grid-content",
+  ) as HTMLElement;
+  const closeBtn = document.getElementById("close-agenda-modal");
+  const prevBtn = document.getElementById("agenda-prev-week");
+  const nextBtn = document.getElementById("agenda-next-week");
+  const todayBtn = document.getElementById("agenda-today-btn");
+
+  const closeModal = () => modal.remove();
+  closeBtn?.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Navigation Handlers
+  const updateAgenda = () =>
+    loadAgendaForDate(professionalId, currentAgendaDate, modal);
+
+  prevBtn?.addEventListener("click", () => {
+    currentAgendaDate.setDate(currentAgendaDate.getDate() - 7);
+    updateAgenda();
+  });
+
+  nextBtn?.addEventListener("click", () => {
+    currentAgendaDate.setDate(currentAgendaDate.getDate() + 7);
+    updateAgenda();
+  });
+
+  todayBtn?.addEventListener("click", () => {
+    currentAgendaDate = new Date();
+    updateAgenda();
+  });
+
+  // Initial Load
+  updateAgenda();
+}
+
+async function loadAgendaForDate(
+  professionalId: number,
+  date: Date,
+  modal: HTMLElement,
+) {
+  const gridContent = modal.querySelector(
+    "#agenda-grid-content",
+  ) as HTMLElement;
+  const label = modal.querySelector("#agenda-week-label");
+
+  if (!gridContent) return;
+
+  // Show Loading
+  gridContent.innerHTML = `<div class="flex items-center justify-center h-64 text-slate-500"><span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> Carregando...</div>`;
+
+  // Calculate Week Dates (Monday to Saturday)
+  const dayOfWeek = date.getDay(); // 0 = Sun
+  const diffToMon = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+  const startOfWeek = new Date(date);
+  startOfWeek.setDate(diffToMon);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 5); // Sat
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  // Update Label
+  if (label) {
+    label.textContent = `${startOfWeek.toLocaleDateString("pt-BR")} - ${endOfWeek.toLocaleDateString("pt-BR")}`;
+  }
+
+  // Fetch Appointments
+  try {
+    const response = await listAppointments({
+      professionalId,
+      startDate: startOfWeek.toISOString(),
+      endDate: endOfWeek.toISOString(),
+      pageSize: 100,
+    });
+
+    if (response.success && response.data) {
+      renderWeeklyGrid(gridContent, response.data.appointments, startOfWeek, 6); // 6 days (Mon-Sat)
+    } else {
+      gridContent.innerHTML = `<p class="text-center py-10 text-red-400">Erro ao carregar agenda.</p>`;
+    }
+  } catch (error) {
+    console.error("Error fetching agenda:", error);
+    gridContent.innerHTML = `<p class="text-center py-10 text-red-400">Erro inesperado.</p>`;
+  }
+}
+
+function renderWeeklyGrid(
+  container: HTMLElement,
+  appointments: AppointmentSummary[],
+  startDate: Date,
+  daysToShow: number,
+) {
+  const START_HOUR = 7;
+  const END_HOUR = 19;
+  const SLOT_HEIGHT = 80; // px
+  const HEADER_HEIGHT = 50;
+  const TIME_COL_WIDTH = 60;
+
+  // Clear container
+  container.innerHTML = "";
+  container.style.height = `${(END_HOUR - START_HOUR + 1) * SLOT_HEIGHT + HEADER_HEIGHT}px`;
+
+  // Create Grid Wrapper
+  const gridWrapper = document.createElement("div");
+  gridWrapper.className = "flex h-full relative";
+  container.appendChild(gridWrapper);
+
+  // 1. Time Column
+  const timeCol = document.createElement("div");
+  timeCol.className =
+    "flex-shrink-0 flex flex-col border-r border-border-dark bg-[#0d1116] z-10 sticky left-0";
+  timeCol.style.width = `${TIME_COL_WIDTH}px`;
+  timeCol.style.paddingTop = `${HEADER_HEIGHT}px`; // align with grid rows
+
+  for (let h = START_HOUR; h <= END_HOUR; h++) {
+    const slot = document.createElement("div");
+    slot.className =
+      "border-b border-border-dark/50 text-xs text-slate-500 flex items-start justify-center pt-1";
+    slot.style.height = `${SLOT_HEIGHT}px`;
+    slot.textContent = `${String(h).padStart(2, "0")}:00`;
+    timeCol.appendChild(slot);
+  }
+  gridWrapper.appendChild(timeCol);
+
+  // 2. Days Columns
+  const daysWrapper = document.createElement("div");
+  daysWrapper.className = "flex flex-1 relative";
+  gridWrapper.appendChild(daysWrapper);
+
+  const dayWidthPercent = 100 / daysToShow;
+
+  for (let i = 0; i < daysToShow; i++) {
+    const currentDate = new Date(startDate);
+    currentDate.setDate(startDate.getDate() + i);
+    const dateStr = currentDate.toISOString().split("T")[0];
+    const dayName = currentDate.toLocaleDateString("pt-BR", {
+      weekday: "short",
+    });
+    const dayNum = currentDate.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+
+    // Column
+    const dayCol = document.createElement("div");
+    dayCol.className =
+      "flex-shrink-0 border-r border-border-dark/50 relative flex flex-col";
+    dayCol.style.width = `${dayWidthPercent}%`;
+
+    // Header
+    const header = document.createElement("div");
+    header.className =
+      "sticky top-0 z-10 bg-[#0d1116] border-b border-border-dark h-[50px] flex flex-col items-center justify-center";
+    header.innerHTML = `
+      <span class="text-xs uppercase font-bold text-slate-400">${dayName}</span>
+      <span class="text-sm font-bold text-white">${dayNum}</span>
+    `;
+    dayCol.appendChild(header);
+
+    // Slots Background
+    const slotsBg = document.createElement("div");
+    slotsBg.className = "flex-1 relative";
+    // Render horizontal lines
+    for (let h = START_HOUR; h <= END_HOUR; h++) {
+      const line = document.createElement("div");
+      line.className = "border-b border-border-dark/30 w-full absolute";
+      line.style.top = `${(h - START_HOUR) * SLOT_HEIGHT}px`;
+      line.style.height = `${SLOT_HEIGHT}px`; // implied by spacing, but we just need the border
+      // Actually simplest is just to stack divs
+      slotsBg.appendChild(line);
+    }
+
+    // Add appointments
+    const dayApps = appointments.filter((app) => app.date === dateStr);
+    dayApps.forEach((app) => {
+      const [h, m] = app.time.split(":").map(Number);
+      if (h < START_HOUR || h > END_HOUR) return;
+
+      const top = (h - START_HOUR + m / 60) * SLOT_HEIGHT;
+      const height = ((app.duration_minutes || 60) / 60) * SLOT_HEIGHT;
+
+      const card = document.createElement("div");
+      // Status colors
+      let bgClass = "bg-primary/20 border-primary/40 text-primary-100";
+      if (app.status === "completed")
+        bgClass = "bg-emerald-500/20 border-emerald-500/40 text-emerald-100";
+      if (app.status === "cancelled")
+        bgClass = "bg-red-500/20 border-red-500/40 text-red-100";
+
+      card.className = `absolute left-1 right-1 rounded p-2 text-xs border overflow-hidden cursor-pointer hover:brightness-110 transition-all z-10 ${bgClass}`;
+      card.style.top = `${top}px`;
+      card.style.height = `${Math.max(height, 30)}px`; // min height for visibility
+
+      card.innerHTML = `
+        <div class="font-bold truncate">${app.patient_name}</div>
+        <div class="flex items-center gap-1 opacity-80 text-[10px]">
+           <span class="material-symbols-outlined text-[10px]">schedule</span> ${app.time}
+        </div>
+      `;
+
+      card.addEventListener("click", () => {
+        uiStore.addToast(
+          "info",
+          `Consulta: ${app.patient_name} (${app.time}) - ${app.status}`,
+        );
+      });
+
+      slotsBg.appendChild(card);
+    });
+
+    dayCol.appendChild(slotsBg);
+    daysWrapper.appendChild(dayCol);
+  }
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initDoctorDashboard);
 } else {
