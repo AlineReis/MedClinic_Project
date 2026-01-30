@@ -100,7 +100,7 @@ export class UserService {
   private generateToken(user: User): string {
     const secret = env.JWT_SECRET || "default_secret";
     return jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, clinic_id: user.clinic_id },
       secret,
       { expiresIn: "24h" },
     );

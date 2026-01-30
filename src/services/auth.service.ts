@@ -104,7 +104,7 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, clinic_id: user.clinic_id },
       env.JWT_SECRET || "default_secret",
       { expiresIn: (process.env.JWT_EXPIRES_IN || "24h") as any },
     );

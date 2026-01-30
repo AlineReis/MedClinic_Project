@@ -132,8 +132,8 @@ async function seedUsers(): Promise<Map<string, number>> {
 
   for (const user of users) {
     const result = await database.run(
-      `INSERT INTO users (name, email, password, role, cpf, phone, created_at)
-             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+      `INSERT INTO users (name, email, password, role, cpf, phone, clinic_id, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
       [
         user.name,
         user.email,
@@ -141,6 +141,7 @@ async function seedUsers(): Promise<Map<string, number>> {
         user.role,
         user.cpf || null,
         user.phone || null,
+        1, // Default clinic_id
       ],
     );
 
