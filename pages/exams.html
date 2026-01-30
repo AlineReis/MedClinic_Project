@@ -76,10 +76,16 @@
     <main class="flex-1 flex flex-col overflow-hidden">
         <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
             <h2 class="text-xl font-bold">Exames e Laudos</h2>
-            <button
-                class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all">
-                Nova Solicitação
-            </button>
+            <div class="flex items-center gap-3">
+                <button id="toggle-history"
+                    class="bg-border-dark hover:bg-border-dark/70 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                    Histórico
+                </button>
+                <button
+                    class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all">
+                    Nova Solicitação
+                </button>
+            </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
@@ -157,11 +163,8 @@
         </div>
     </main>
 
-    <div
-      id="toast-container"
-      class="fixed top-4 right-4 z-50 flex flex-col gap-2"
-    ></div>
-    <script src="../js/components/navigation.js"></script>
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    <script src="../dist/examsPage.bundle.js"></script>
 </body>
 
 </html>

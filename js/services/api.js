@@ -5,8 +5,8 @@
  */
 
 const API = {
-    BASE_URL: '/api', // Será usado quando backend existir
-    USE_MOCK: true,   // Toggle para usar mock ou API real
+    BASE_URL: 'http://localhost:3000/api', // Será usado quando backend existir
+    USE_MOCK: false,   // Toggle para usar mock ou API real
 
     /**
      * Headers padrão para requisições
