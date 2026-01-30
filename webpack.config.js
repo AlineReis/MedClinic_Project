@@ -28,7 +28,10 @@ module.exports = (env, argv) => {
       doctorDashboard: './src/pages/doctorDashboard.ts',
       receptionDashboard: './src/pages/receptionDashboard.ts',
       adminDashboard: './src/pages/adminDashboard.ts',
-      usersPage: './src/pages/usersPage.ts'
+      usersPage: './src/pages/usersPage.ts',
+      agenda: './src/pages/agenda.ts',
+      dashboard: './src/pages/dashboard.ts',
+      pep: './src/pages/pep.ts'
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -93,6 +96,24 @@ module.exports = (env, argv) => {
         chunks: ['examsPage'],
         publicPath: '/'
       }),
+      new HtmlWebpackPlugin({
+        template: './pages/agenda.html',
+        filename: 'pages/agenda.html',
+        chunks: ['agenda'],
+        publicPath: '/'
+      }),
+      new HtmlWebpackPlugin({
+        template: './pages/dashboard.html',
+        filename: 'pages/dashboard.html',
+        chunks: ['dashboard'],
+        publicPath: '/'
+      }),
+      new HtmlWebpackPlugin({
+        template: './pages/pep.html',
+        filename: 'pages/pep.html',
+        chunks: ['pep'],
+        publicPath: '/'
+      }),
       ...mainPages.map(
         page =>
           new HtmlWebpackPlugin({
@@ -134,6 +155,9 @@ module.exports = (env, argv) => {
                 '**/reception-dashboard.html',
                 '**/admin-dashboard.html',
                 '**/users.html',
+                '**/agenda.html',
+                '**/dashboard.html',
+                '**/pep.html',
                 ...mainPages.map(page => `**/${page}`)
               ]
             }
