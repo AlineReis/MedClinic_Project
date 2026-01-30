@@ -34,18 +34,30 @@
 
 <body
     class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col">
-    <header
-        class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid dark:border-border-dark bg-white dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 md:px-10">
-        <div class="flex items-center gap-4">
-            <a href="../index.html"
-                class="size-8 flex items-center justify-center text-primary cursor-pointer hover:opacity-80">
-                <span class="material-symbols-outlined !text-[32px]">arrow_back</span>
-            </a>
-            <h2 class="text-lg font-bold">Meus Agendamentos</h2>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-border-dark"
-                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8-NfOvJueEz5xLpWl6t6WleQm2J-yuRgfAUypu4DV3iD1abNFFfydkn84U5f3Y5C8IAUloCUWP6D_XkJAjwQRLsEXNXw_7m3K_f66dA7cKnkwzE8Gk-ui1RnjU917r_6FU-2Gn5luCZr_woZTnaSpAulIYCT2eyojkCn-rNn1_28Os3bty_NiKNVXwPPQfduxccfm27TPh5C6Xndx-3ekmErfSShFGS9ZIfHlSMs2Cb7a0oS7is80XxPRUk45TPrjHcJAHfggV9k");'>
+    <!-- Header -->
+    <header class="bg-surface-dark border-b border-border-dark">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="patient-dashboard.html" class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">local_hospital</span>
+                    <span class="font-bold">MedClinic</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-4">
+                <nav class="hidden md:flex items-center gap-6 text-sm">
+                    <a href="patient-dashboard.html" class="text-slate-400 hover:text-white">Inicio</a>
+                    <a href="my-appointments.html" class="text-primary font-medium">Consultas</a>
+                    <a href="exams.html" class="text-slate-400 hover:text-white">Exames</a>
+                </nav>
+                <div class="flex items-center gap-3">
+                    <div
+                        class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+                        <span data-user-initials>U</span>
+                    </div>
+                    <button data-logout-button class="text-sm text-slate-400 hover:text-red-400 transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -59,10 +71,7 @@
         </div>
     </main>
 
-    <div
-      id="toast-container"
-      class="fixed top-4 right-4 z-50 flex flex-col gap-2"
-    ></div>
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
     <script src="../js/components/navigation.js"></script>
 </body>
 
