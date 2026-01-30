@@ -37,7 +37,18 @@ export class AppointmentRepository {
 
   // Buscar consulta por ID
   async findById(id: number): Promise<Appointment | null> {
-    const sql = `SELECT * FROM appointments WHERE id = ?`;
+    const sql = `
+      SELECT 
+        a.*,
+        patient.name as patient_name,
+        professional.name as professional_name,
+        pd.specialty as professional_specialty
+      FROM appointments a
+      LEFT JOIN users patient ON a.patient_id = patient.id
+      LEFT JOIN users professional ON a.professional_id = professional.id
+      LEFT JOIN professional_details pd ON professional.id = pd.user_id
+      WHERE a.id = ?
+    `;
     return await database.queryOne<Appointment>(sql, [id]);
   }
 
@@ -74,36 +85,42 @@ export class AppointmentRepository {
     filters: AppointmentFilters,
     pagination: PaginationParams,
   ): Promise<PaginatedResult<Appointment>> {
-    let baseQuery = `FROM appointments WHERE 1=1`;
+    let baseQuery = `
+      FROM appointments a
+      LEFT JOIN users patient ON a.patient_id = patient.id
+      LEFT JOIN users professional ON a.professional_id = professional.id
+      LEFT JOIN professional_details pd ON professional.id = pd.user_id
+      WHERE 1=1
+    `;
     const params: any[] = [];
 
     // Filtros
     if (filters.status) {
-      baseQuery += ` AND status = ?`;
+      baseQuery += ` AND a.status = ?`;
       params.push(filters.status);
     }
     if (filters.professional_id) {
-      baseQuery += ` AND professional_id = ?`;
+      baseQuery += ` AND a.professional_id = ?`;
       params.push(filters.professional_id);
     }
     if (filters.patient_id) {
-      baseQuery += ` AND patient_id = ?`;
+      baseQuery += ` AND a.patient_id = ?`;
       params.push(filters.patient_id);
     }
     if (filters.date) {
-      baseQuery += ` AND date = ?`;
+      baseQuery += ` AND a.date = ?`;
       params.push(filters.date);
     }
     if (filters.upcoming) {
-      baseQuery += ` AND date >= date('now')`;
+      baseQuery += ` AND a.date >= date('now')`;
     }
     // Opcionais extras
     if (filters.startDate) {
-      baseQuery += ` AND date >= ?`;
+      baseQuery += ` AND a.date >= ?`;
       params.push(filters.startDate);
     }
     if (filters.endDate) {
-      baseQuery += ` AND date <= ?`;
+      baseQuery += ` AND a.date <= ?`;
       params.push(filters.endDate);
     }
 
@@ -115,11 +132,18 @@ export class AppointmentRepository {
     );
     const total = countResult ? countResult.total : 0;
 
-    // Query Dados
-    let dataSql = `SELECT * ${baseQuery}`;
+    // Query Dados com JOIN
+    let dataSql = `
+      SELECT 
+        a.*,
+        patient.name as patient_name,
+        professional.name as professional_name,
+        pd.specialty as professional_specialty
+      ${baseQuery}
+    `;
 
     // Ordenação padrão: Próximas primeiro, depois por horário
-    dataSql += ` ORDER BY date ASC, time ASC`;
+    dataSql += ` ORDER BY a.date ASC, a.time ASC`;
 
     // Paginação
     const offset = (pagination.page - 1) * pagination.pageSize;

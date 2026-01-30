@@ -104,7 +104,7 @@ export class ProfessionalService {
     }
   }
 
-  async getAvailability(professionalId: number, daysAhead: number = 7) {
+  async getAvailability(professionalId: number, daysAhead: number = 7, targetDate?: string) {
     const schedule =
       await this.availabilityRepository.findByProfessionalId(professionalId);
 
@@ -117,11 +117,19 @@ export class ProfessionalService {
       time: string;
       is_available: boolean;
     }[] = [];
-    const today = new Date();
+    
+    // If targetDate is provided, start from there. Otherwise start from today.
+    let baseDate: Date;
+    if (targetDate) {
+        const [y, m, d] = targetDate.split('-').map(Number);
+        baseDate = new Date(y, m - 1, d);
+    } else {
+        baseDate = new Date();
+    }
 
     for (let i = 0; i < daysAhead; i++) {
-      const currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
+      const currentDate = new Date(baseDate);
+      currentDate.setDate(baseDate.getDate() + i);
 
       const dayOfWeek = currentDate.getDay(); // 0=Dom, 1=Seg...
       const dateStr = formatDate(currentDate);
@@ -148,13 +156,13 @@ export class ProfessionalService {
       }
     }
 
-    const startDate = formatDate(today);
-    const endDateDate = new Date(today);
-    endDateDate.setDate(today.getDate() + daysAhead);
-    const endDate = formatDate(endDateDate);
+    const startDateStr = formatDate(baseDate);
+    const endDateDate = new Date(baseDate);
+    endDateDate.setDate(baseDate.getDate() + daysAhead);
+    const endDateStr = formatDate(endDateDate);
 
     const appointments = await this.appointmentRepository.findAll(
-      { professional_id: professionalId, startDate, endDate },
+      { professional_id: professionalId, startDate: startDateStr, endDate: endDateStr },
       { page: 1, pageSize: 1000 },
     );
 
