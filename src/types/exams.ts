@@ -25,10 +25,23 @@ export interface ExamDetail {
   created_at: string;
 }
 
+export interface ExamCatalogItem {
+  id: number;
+  name: string; // Backend field
+  exam_name?: string; // Mapped field if needed, or use name directly
+  type: "blood" | "image";
+  base_price: number;
+  description: string;
+  is_active: boolean;
+}
+
 export interface CreateExamPayload {
   appointment_id: number;
   patient_id: number;
-  exam_name: string;
-  exam_price: number;
+  exam_catalog_id: number;
   clinical_indication: string;
+  urgency: "normal" | "urgent" | "critical";
+  // Legacy fields, optional or removed if unused
+  exam_name?: string;
+  exam_price?: number;
 }

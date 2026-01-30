@@ -49,7 +49,8 @@
                 <span class="material-symbols-outlined">assignment</span>
                 Solicitações
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+            <a id="sidebar-history-link"
+                class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
                 href="#">
                 <span class="material-symbols-outlined">history</span>
                 Histórico
@@ -81,8 +82,8 @@
                     class="bg-border-dark hover:bg-border-dark/70 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
                     Histórico
                 </button>
-                <button
-                    class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all">
+                <button id="new-request-btn"
+                    class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all hidden">
                     Nova Solicitação
                 </button>
             </div>

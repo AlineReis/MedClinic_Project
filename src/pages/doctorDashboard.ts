@@ -1,149 +1,176 @@
-import { listAppointments } from "../services/appointmentsService"
-import { createExam } from "../services/examsService"
-import { createPrescription, listPrescriptions } from "../services/prescriptionsService"
-import { createProfessionalAvailability, getProfessionalCommissions } from "../services/professionalsService"
-import { authStore } from "../stores/authStore"
-import { uiStore } from "../stores/uiStore"
-import type { AppointmentSummary } from "../types/appointments"
-import type { CreateExamPayload } from "../types/exams"
-import type { CreatePrescriptionPayload, PrescriptionSummary } from "../types/prescriptions"
-import type { AvailabilityInput, CommissionsResponse } from "../types/professionals"
+import { listAppointments } from "../services/appointmentsService";
+import { createExam, listCatalog } from "../services/examsService";
+import {
+  createPrescription,
+  listPrescriptions,
+} from "../services/prescriptionsService";
+import {
+  createProfessionalAvailability,
+  getProfessionalCommissions,
+} from "../services/professionalsService";
+import { authStore } from "../stores/authStore";
+import { uiStore } from "../stores/uiStore";
+import type { AppointmentSummary } from "../types/appointments";
+import type { CreateExamPayload } from "../types/exams";
+import type {
+  CreatePrescriptionPayload,
+  PrescriptionSummary,
+} from "../types/prescriptions";
+import type {
+  AvailabilityInput,
+  CommissionsResponse,
+} from "../types/professionals";
 
 async function initDoctorDashboard() {
-  const session = await authStore.refreshSession()
+  const session = await authStore.refreshSession();
 
   if (!session || session.role !== "health_professional") {
-    uiStore.addToast("error", "Acesso negado. Apenas profissionais de saúde podem acessar esta página.")
-    window.location.href = "/pages/login.html"
-    return
+    uiStore.addToast(
+      "error",
+      "Acesso negado. Apenas profissionais de saúde podem acessar esta página.",
+    );
+    window.location.href = "/pages/login.html";
+    return;
   }
 
   // Update header with user info
-  updateHeader(session)
+  updateHeader(session);
 
   // Load upcoming appointments
-  await loadUpcomingAppointments(session.id)
+  await loadUpcomingAppointments(session.id);
 
   // Load commissions data for current month
-  const currentMonth = new Date().getMonth() + 1
-  await loadCommissions(session.id, currentMonth)
+  const currentMonth = new Date().getMonth() + 1;
+  await loadCommissions(session.id, currentMonth);
 
   // Setup commission filter listeners
-  setupCommissionFilters(session.id)
+  setupCommissionFilters(session.id);
 
   // Load recent prescriptions
-  await loadPrescriptions(session.id)
+  await loadPrescriptions(session.id);
 
   // Setup availability management
-  setupAvailabilityManagement(session.id)
+  setupAvailabilityManagement(session.id);
 
   // Setup exam request
-  setupExamRequest(session.id)
+  setupExamRequest(session.id);
 
   // Setup prescription creation
-  setupPrescriptionCreation(session.id)
+  setupPrescriptionCreation(session.id);
 }
 
 function updateHeader(session: { name?: string; role: string; email: string }) {
-  const nameElement = document.querySelector("[data-user-name]")
-  const roleElement = document.querySelector("[data-user-role]")
-  const initialsElement = document.querySelector("[data-user-initials]")
+  const nameElement = document.querySelector("[data-user-name]");
+  const roleElement = document.querySelector("[data-user-role]");
+  const initialsElement = document.querySelector("[data-user-initials]");
 
   if (nameElement) {
-    nameElement.textContent = session.name || session.email.split("@")[0]
+    nameElement.textContent = session.name || session.email.split("@")[0];
   }
 
   if (roleElement) {
-    roleElement.textContent = "Profissional de Saúde"
+    roleElement.textContent = "Profissional de Saúde";
   }
 
   if (initialsElement) {
-    const name = session.name || session.email
+    const name = session.name || session.email;
     const initials = name
       .split(" ")
-      .map(n => n[0])
+      .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-    initialsElement.textContent = initials
+      .slice(0, 2);
+    initialsElement.textContent = initials;
   }
 }
 
 async function loadUpcomingAppointments(professionalId: number) {
   try {
-    const today = new Date()
-    const todayStr = today.toISOString().split("T")[0]
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
 
     // Get today's appointments
     const todayResponse = await listAppointments({
       professionalId,
       date: todayStr,
       status: "scheduled,confirmed",
-    })
+    });
 
     // Get all upcoming appointments
     const upcomingResponse = await listAppointments({
       professionalId,
       upcoming: true,
-    })
+    });
 
-    if (todayResponse.success && upcomingResponse.success && todayResponse.data && upcomingResponse.data) {
-      const todayAppointments = todayResponse.data.appointments
-      const allUpcoming = upcomingResponse.data.appointments
+    if (
+      todayResponse.success &&
+      upcomingResponse.success &&
+      todayResponse.data &&
+      upcomingResponse.data
+    ) {
+      const todayAppointments = todayResponse.data.appointments;
+      const allUpcoming = upcomingResponse.data.appointments;
 
-      updateStats(todayAppointments, allUpcoming)
-      updateNextPatient(todayAppointments)
-      updateWaitingQueue(todayAppointments)
+      updateStats(todayAppointments, allUpcoming);
+      updateNextPatient(todayAppointments);
+      updateWaitingQueue(todayAppointments);
     } else {
-      uiStore.addToast("error", "Erro ao carregar agendamentos")
+      uiStore.addToast("error", "Erro ao carregar agendamentos");
     }
   } catch (error) {
-    console.error("Error loading appointments:", error)
-    uiStore.addToast("error", "Erro ao carregar agendamentos")
+    console.error("Error loading appointments:", error);
+    uiStore.addToast("error", "Erro ao carregar agendamentos");
   }
 }
 
-function updateStats(todayAppointments: AppointmentSummary[], allUpcoming: AppointmentSummary[]) {
+function updateStats(
+  todayAppointments: AppointmentSummary[],
+  allUpcoming: AppointmentSummary[],
+) {
   // Count today's appointments
-  const totalToday = todayAppointments.length
+  const totalToday = todayAppointments.length;
 
   // Count appointments by status
-  const waiting = todayAppointments.filter(a => a.status === "scheduled" || a.status === "confirmed").length
-  const completed = todayAppointments.filter(a => a.status === "completed").length
+  const waiting = todayAppointments.filter(
+    (a) => a.status === "scheduled" || a.status === "confirmed",
+  ).length;
+  const completed = todayAppointments.filter(
+    (a) => a.status === "completed",
+  ).length;
 
   // Note: 'type' field is not in AppointmentSummary yet, so we'll show 0 for now
-  const telemedicine = 0
+  const telemedicine = 0;
 
   // Update stat cards
-  const statsCards = document.querySelectorAll("section.grid h3")
-  if (statsCards[0]) statsCards[0].textContent = String(totalToday)
-  if (statsCards[1]) statsCards[1].textContent = String(waiting)
-  if (statsCards[2]) statsCards[2].textContent = String(completed)
-  if (statsCards[3]) statsCards[3].textContent = String(telemedicine)
+  const statsCards = document.querySelectorAll("section.grid h3");
+  if (statsCards[0]) statsCards[0].textContent = String(totalToday);
+  if (statsCards[1]) statsCards[1].textContent = String(waiting);
+  if (statsCards[2]) statsCards[2].textContent = String(completed);
+  if (statsCards[3]) statsCards[3].textContent = String(telemedicine);
 }
 
 function updateNextPatient(appointments: AppointmentSummary[]) {
   if (appointments.length === 0) {
     // Show empty state
-    const nextPatientCard = document.querySelector(".from-primary")
+    const nextPatientCard = document.querySelector(".from-primary");
     if (nextPatientCard) {
       nextPatientCard.innerHTML = `
         <div class="text-center py-8">
           <span class="material-symbols-outlined text-6xl opacity-20">event_available</span>
           <p class="mt-4 text-lg">Nenhum paciente agendado para hoje</p>
         </div>
-      `
+      `;
     }
-    return
+    return;
   }
 
   // Sort by time and get the next one
   const sortedAppointments = [...appointments].sort((a, b) => {
-    return a.time.localeCompare(b.time)
-  })
+    return a.time.localeCompare(b.time);
+  });
 
-  const nextAppointment = sortedAppointments[0]
-  const nextPatientCard = document.querySelector(".from-primary")
+  const nextAppointment = sortedAppointments[0];
+  const nextPatientCard = document.querySelector(".from-primary");
 
   if (nextPatientCard) {
     nextPatientCard.innerHTML = `
@@ -154,41 +181,45 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
         <span class="flex items-center gap-1">
           <span class="material-symbols-outlined text-sm">schedule</span> ${nextAppointment.time}
         </span>
-        ${nextAppointment.room ? `
+        ${
+          nextAppointment.room
+            ? `
           <span class="flex items-center gap-1">
             <span class="material-symbols-outlined text-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
-        ` : ""}
+        `
+            : ""
+        }
       </div>
       <button onclick="window.location.href='pep.html'"
         class="mt-8 px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-slate-100 transition-all">
         Iniciar Atendimento
       </button>
-    `
+    `;
   }
 }
 
 function updateWaitingQueue(appointments: AppointmentSummary[]) {
-  const queueList = document.querySelector(".bg-surface-dark ul")
-  if (!queueList) return
+  const queueList = document.querySelector(".bg-surface-dark ul");
+  if (!queueList) return;
 
   // Filter appointments that are waiting (after the first one)
   const sortedAppointments = [...appointments]
     .sort((a, b) => a.time.localeCompare(b.time))
-    .slice(1, 5) // Show next 4 appointments
+    .slice(1, 5); // Show next 4 appointments
 
   if (sortedAppointments.length === 0) {
     queueList.innerHTML = `
       <li class="flex items-center justify-center p-6 bg-background-dark/50 rounded-xl">
         <span class="text-sm text-slate-500">Nenhum paciente na fila</span>
       </li>
-    `
-    return
+    `;
+    return;
   }
 
   queueList.innerHTML = sortedAppointments
     .map(
-      appointment => `
+      (appointment) => `
       <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
         <span class="text-sm font-medium">${appointment.patient_name || "Paciente"}</span>
         <span class="text-xs ${appointment.status === "confirmed" ? "text-amber-500" : "text-slate-500"} font-bold">
@@ -197,64 +228,75 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
       </li>
     `,
     )
-    .join("")
+    .join("");
 }
 
-async function loadCommissions(professionalId: number, month?: number, status?: "pending" | "paid") {
+async function loadCommissions(
+  professionalId: number,
+  month?: number,
+  status?: "pending" | "paid",
+) {
   try {
-    const now = new Date()
-    const currentYear = now.getFullYear()
+    const now = new Date();
+    const currentYear = now.getFullYear();
 
     const response = await getProfessionalCommissions(professionalId, {
       month,
       year: currentYear,
       status,
-    })
+    });
 
     if (response.success && response.data) {
-      updateCommissionsPanel(response.data)
+      updateCommissionsPanel(response.data);
     } else {
-      console.error("Failed to load commissions:", response.error)
+      console.error("Failed to load commissions:", response.error);
     }
   } catch (error) {
-    console.error("Error loading commissions:", error)
+    console.error("Error loading commissions:", error);
   }
 }
 
 function setupCommissionFilters(professionalId: number) {
-  const monthFilter = document.getElementById("commissions-month-filter") as HTMLSelectElement
-  const statusFilter = document.getElementById("commissions-status-filter") as HTMLSelectElement
+  const monthFilter = document.getElementById(
+    "commissions-month-filter",
+  ) as HTMLSelectElement;
+  const statusFilter = document.getElementById(
+    "commissions-status-filter",
+  ) as HTMLSelectElement;
 
-  if (!monthFilter || !statusFilter) return
+  if (!monthFilter || !statusFilter) return;
 
   // Set current month as default
-  const currentMonth = new Date().getMonth() + 1
-  monthFilter.value = String(currentMonth)
+  const currentMonth = new Date().getMonth() + 1;
+  monthFilter.value = String(currentMonth);
 
   const handleFilterChange = () => {
-    const month = monthFilter.value ? Number(monthFilter.value) : undefined
-    const status = statusFilter.value ? (statusFilter.value as "pending" | "paid") : undefined
-    loadCommissions(professionalId, month, status)
-  }
+    const month = monthFilter.value ? Number(monthFilter.value) : undefined;
+    const status = statusFilter.value
+      ? (statusFilter.value as "pending" | "paid")
+      : undefined;
+    loadCommissions(professionalId, month, status);
+  };
 
-  monthFilter.addEventListener("change", handleFilterChange)
-  statusFilter.addEventListener("change", handleFilterChange)
+  monthFilter.addEventListener("change", handleFilterChange);
+  statusFilter.addEventListener("change", handleFilterChange);
 }
 
 function updateCommissionsPanel(data: CommissionsResponse) {
-  const totalElement = document.querySelector("[data-commission-total]")
-  const pendingElement = document.querySelector("[data-commission-pending]")
-  const paidElement = document.querySelector("[data-commission-paid]")
-  const detailsSection = document.querySelector("[data-commissions-details]")
+  const totalElement = document.querySelector("[data-commission-total]");
+  const pendingElement = document.querySelector("[data-commission-pending]");
+  const paidElement = document.querySelector("[data-commission-paid]");
+  const detailsSection = document.querySelector("[data-commissions-details]");
 
-  if (!totalElement || !pendingElement || !paidElement || !detailsSection) return
+  if (!totalElement || !pendingElement || !paidElement || !detailsSection)
+    return;
 
-  const { summary, details } = data
+  const { summary, details } = data;
 
   // Update summary values using data attributes
-  totalElement.textContent = `R$ ${formatCurrency(summary.total)}`
-  pendingElement.textContent = `R$ ${formatCurrency(summary.pending)}`
-  paidElement.textContent = `R$ ${formatCurrency(summary.paid)}`
+  totalElement.textContent = `R$ ${formatCurrency(summary.total)}`;
+  pendingElement.textContent = `R$ ${formatCurrency(summary.pending)}`;
+  paidElement.textContent = `R$ ${formatCurrency(summary.paid)}`;
 
   // Update details list
   if (details.length === 0) {
@@ -262,14 +304,14 @@ function updateCommissionsPanel(data: CommissionsResponse) {
       <div class="text-center py-8 text-slate-500 text-sm">
         Nenhuma comissão encontrada
       </div>
-    `
-    return
+    `;
+    return;
   }
 
   // Render all commission details (the container has max-height with scroll)
   detailsSection.innerHTML = details
     .map(
-      commission => `
+      (commission) => `
     <div class="flex items-center justify-between p-3 bg-surface-dark/30 rounded-lg hover:bg-surface-dark/50 transition-colors">
       <div class="flex-1">
         <p class="text-sm font-medium">Consulta #${commission.appointment_id}</p>
@@ -284,55 +326,57 @@ function updateCommissionsPanel(data: CommissionsResponse) {
     </div>
   `,
     )
-    .join("")
+    .join("");
 }
 
 function formatCurrency(value: number): string {
-  return value.toFixed(2).replace(".", ",")
+  return value.toFixed(2).replace(".", ",");
 }
 
 function formatDate(isoDate: string): string {
-  const date = new Date(isoDate)
+  const date = new Date(isoDate);
   return date.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  })
+  });
 }
 
 async function loadPrescriptions(professionalId: number) {
   try {
-    const response = await listPrescriptions({ professionalId })
+    const response = await listPrescriptions({ professionalId });
 
     if (response.success && response.data) {
-      updatePrescriptionsPanel(response.data)
+      updatePrescriptionsPanel(response.data);
     } else {
-      console.error("Failed to load prescriptions:", response.error)
+      console.error("Failed to load prescriptions:", response.error);
     }
   } catch (error) {
-    console.error("Error loading prescriptions:", error)
+    console.error("Error loading prescriptions:", error);
   }
 }
 
 function updatePrescriptionsPanel(prescriptions: PrescriptionSummary[]) {
-  const prescriptionsSection = document.querySelector("[data-prescriptions-list]")
+  const prescriptionsSection = document.querySelector(
+    "[data-prescriptions-list]",
+  );
 
-  if (!prescriptionsSection) return
+  if (!prescriptionsSection) return;
 
   if (prescriptions.length === 0) {
     prescriptionsSection.innerHTML = `
       <div class="text-center py-8 text-slate-500 text-sm">
         Nenhuma prescrição encontrada
       </div>
-    `
-    return
+    `;
+    return;
   }
 
   // Display the 5 most recent prescriptions
   prescriptionsSection.innerHTML = prescriptions
     .slice(0, 5)
     .map(
-      prescription => `
+      (prescription) => `
     <div class="flex items-center justify-between p-3 bg-surface-dark/30 rounded-lg hover:bg-surface-dark/50 transition-colors">
       <div class="flex-1">
         <p class="text-sm font-medium">${prescription.medication_name}</p>
@@ -345,19 +389,22 @@ function updatePrescriptionsPanel(prescriptions: PrescriptionSummary[]) {
     </div>
   `,
     )
-    .join("")
+    .join("");
 }
 
 function setupAvailabilityManagement(professionalId: number) {
-  const addButton = document.getElementById("add-availability-button")
-  if (!addButton) return
+  const addButton = document.getElementById("add-availability-button");
+  if (!addButton) return;
 
-  addButton.addEventListener("click", () => showAvailabilityModal(professionalId))
+  addButton.addEventListener("click", () =>
+    showAvailabilityModal(professionalId),
+  );
 }
 
 function showAvailabilityModal(professionalId: number) {
-  const modal = document.createElement("div")
-  modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  const modal = document.createElement("div");
+  modal.className =
+    "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
   modal.innerHTML = `
     <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between mb-6">
@@ -414,29 +461,30 @@ function showAvailabilityModal(professionalId: number) {
         </div>
       </div>
     </div>
-  `
+  `;
 
-  document.body.appendChild(modal)
+  document.body.appendChild(modal);
 
   // Close modal handlers
-  const closeButton = modal.querySelector("#close-availability-modal")
-  const cancelButton = modal.querySelector("#cancel-availability")
-  const closeModal = () => modal.remove()
+  const closeButton = modal.querySelector("#close-availability-modal");
+  const cancelButton = modal.querySelector("#cancel-availability");
+  const closeModal = () => modal.remove();
 
-  closeButton?.addEventListener("click", closeModal)
-  cancelButton?.addEventListener("click", closeModal)
+  closeButton?.addEventListener("click", closeModal);
+  cancelButton?.addEventListener("click", closeModal);
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal()
-  })
+    if (e.target === modal) closeModal();
+  });
 
   // Add more entry
-  const addMoreButton = modal.querySelector("#add-more-entry")
+  const addMoreButton = modal.querySelector("#add-more-entry");
   addMoreButton?.addEventListener("click", () => {
-    const entriesContainer = modal.querySelector("#availability-entries")
-    if (!entriesContainer) return
+    const entriesContainer = modal.querySelector("#availability-entries");
+    if (!entriesContainer) return;
 
-    const newEntry = document.createElement("div")
-    newEntry.className = "availability-entry bg-background-dark/50 p-4 rounded-xl border border-border-dark"
+    const newEntry = document.createElement("div");
+    newEntry.className =
+      "availability-entry bg-background-dark/50 p-4 rounded-xl border border-border-dark";
     newEntry.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
@@ -465,44 +513,50 @@ function showAvailabilityModal(professionalId: number) {
           </button>
         </div>
       </div>
-    `
-    entriesContainer.appendChild(newEntry)
-    setupRemoveHandlers()
-  })
+    `;
+    entriesContainer.appendChild(newEntry);
+    setupRemoveHandlers();
+  });
 
   // Remove entry handlers
   function setupRemoveHandlers() {
-    const removeButtons = modal.querySelectorAll(".remove-entry")
-    removeButtons.forEach(button => {
+    const removeButtons = modal.querySelectorAll(".remove-entry");
+    removeButtons.forEach((button) => {
       button.addEventListener("click", (e) => {
-        const entry = (e.target as HTMLElement).closest(".availability-entry")
-        const entriesContainer = modal.querySelector("#availability-entries")
+        const entry = (e.target as HTMLElement).closest(".availability-entry");
+        const entriesContainer = modal.querySelector("#availability-entries");
         if (entry && entriesContainer && entriesContainer.children.length > 1) {
-          entry.remove()
+          entry.remove();
         } else {
-          uiStore.addToast("error", "Você precisa manter pelo menos um horário")
+          uiStore.addToast(
+            "error",
+            "Você precisa manter pelo menos um horário",
+          );
         }
-      })
-    })
+      });
+    });
   }
-  setupRemoveHandlers()
+  setupRemoveHandlers();
 
   // Save handler
-  const saveButton = modal.querySelector("#save-availability")
+  const saveButton = modal.querySelector("#save-availability");
   saveButton?.addEventListener("click", async () => {
-    const entries = modal.querySelectorAll(".availability-entry")
-    const availabilities: AvailabilityInput[] = []
+    const entries = modal.querySelectorAll(".availability-entry");
+    const availabilities: AvailabilityInput[] = [];
 
-    entries.forEach(entry => {
-      const daySelect = entry.querySelector(".day-select") as HTMLSelectElement
-      const startTime = entry.querySelector(".start-time") as HTMLInputElement
-      const endTime = entry.querySelector(".end-time") as HTMLInputElement
+    entries.forEach((entry) => {
+      const daySelect = entry.querySelector(".day-select") as HTMLSelectElement;
+      const startTime = entry.querySelector(".start-time") as HTMLInputElement;
+      const endTime = entry.querySelector(".end-time") as HTMLInputElement;
 
       if (daySelect && startTime && endTime) {
         // Validation
         if (startTime.value >= endTime.value) {
-          uiStore.addToast("error", "Horário de início deve ser antes do horário de fim")
-          return
+          uiStore.addToast(
+            "error",
+            "Horário de início deve ser antes do horário de fim",
+          );
+          return;
         }
 
         availabilities.push({
@@ -510,57 +564,73 @@ function showAvailabilityModal(professionalId: number) {
           start_time: startTime.value,
           end_time: endTime.value,
           is_active: true,
-        })
+        });
       }
-    })
+    });
 
     if (availabilities.length === 0) {
-      uiStore.addToast("error", "Adicione pelo menos um horário")
-      return
+      uiStore.addToast("error", "Adicione pelo menos um horário");
+      return;
     }
 
     // Disable save button
     if (saveButton) {
-      saveButton.textContent = "Salvando..."
-      ;(saveButton as HTMLButtonElement).disabled = true
+      saveButton.textContent = "Salvando...";
+      (saveButton as HTMLButtonElement).disabled = true;
     }
 
     try {
-      const response = await createProfessionalAvailability(professionalId, availabilities)
+      const response = await createProfessionalAvailability(
+        professionalId,
+        availabilities,
+      );
 
       if (response.success && response.data) {
-        uiStore.addToast("success", `${response.data.data.length} horário(s) cadastrado(s) com sucesso!`)
-        closeModal()
+        uiStore.addToast(
+          "success",
+          `${response.data.data.length} horário(s) cadastrado(s) com sucesso!`,
+        );
+        closeModal();
         // Refresh availability list (when implemented)
       } else if (response.error) {
         if (response.error.code === "OVERLAPPING_TIMES") {
-          uiStore.addToast("error", "Horários sobrepostos: " + response.error.message)
+          uiStore.addToast(
+            "error",
+            "Horários sobrepostos: " + response.error.message,
+          );
         } else {
-          uiStore.addToast("error", response.error.message || "Erro ao salvar horários")
+          uiStore.addToast(
+            "error",
+            response.error.message || "Erro ao salvar horários",
+          );
         }
       }
     } catch (error) {
-      console.error("Error saving availability:", error)
-      uiStore.addToast("error", "Erro ao salvar horários")
+      console.error("Error saving availability:", error);
+      uiStore.addToast("error", "Erro ao salvar horários");
     } finally {
       if (saveButton) {
-        saveButton.textContent = "Salvar Horários"
-        ;(saveButton as HTMLButtonElement).disabled = false
+        saveButton.textContent = "Salvar Horários";
+        (saveButton as HTMLButtonElement).disabled = false;
       }
     }
-  })
+  });
 }
 
 function setupExamRequest(professionalId: number) {
-  const requestButton = document.getElementById("request-exam-button")
-  if (!requestButton) return
+  const requestButton = document.getElementById("request-exam-button");
+  if (!requestButton) return;
 
-  requestButton.addEventListener("click", () => showExamRequestModal(professionalId))
+  requestButton.addEventListener("click", () =>
+    showExamRequestModal(professionalId),
+  );
 }
 
-function showExamRequestModal(professionalId: number) {
-  const modal = document.createElement("div")
-  modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+async function showExamRequestModal(professionalId: number) {
+  // Prerender modal structure
+  const modal = document.createElement("div");
+  modal.className =
+    "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
   modal.innerHTML = `
     <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between mb-6">
@@ -576,7 +646,6 @@ function showExamRequestModal(professionalId: number) {
           <input type="number" id="exam-appointment-id" required
             class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
             placeholder="Digite o ID da consulta" />
-          <p class="text-xs text-slate-500 mt-1">Obtenha o ID na fila de atendimento ou histórico</p>
         </div>
 
         <div>
@@ -587,25 +656,26 @@ function showExamRequestModal(professionalId: number) {
         </div>
 
         <div>
-          <label class="block text-sm text-slate-400 mb-2">Nome do Exame *</label>
-          <input type="text" id="exam-name" required
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Ex: Hemograma Completo" />
+          <label class="block text-sm text-slate-400 mb-2">Exame *</label>
+          <select id="exam-catalog-id" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+             <option value="">Carregando lista...</option>
+          </select>
         </div>
 
         <div>
-          <label class="block text-sm text-slate-400 mb-2">Valor do Exame (R$) *</label>
-          <input type="number" id="exam-price" required step="0.01" min="0"
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="150.00" />
+           <label class="block text-sm text-slate-400 mb-2">Urgência *</label>
+           <select id="exam-urgency" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+             <option value="normal">Normal</option>
+             <option value="urgent">Urgente</option>
+             <option value="critical">Crítica</option>
+           </select>
         </div>
 
         <div>
           <label class="block text-sm text-slate-400 mb-2">Indicação Clínica *</label>
           <textarea id="exam-clinical-indication" required rows="4"
             class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary resize-none"
-            placeholder="Descreva a justificativa clínica para o exame..."></textarea>
-          <p class="text-xs text-slate-500 mt-1">Justifique clinicamente a necessidade do exame</p>
+            placeholder="Descreva a justificativa clínica..."></textarea>
         </div>
 
         <div class="flex gap-3 pt-4">
@@ -618,75 +688,106 @@ function showExamRequestModal(professionalId: number) {
         </div>
       </form>
     </div>
-  `
+  `;
 
-  document.body.appendChild(modal)
+  document.body.appendChild(modal);
+
+  // Load Catalog
+  const selectEl = modal.querySelector("#exam-catalog-id") as HTMLSelectElement;
+  try {
+    const catResponse = await listCatalog();
+    if (catResponse.success && catResponse.data) {
+      selectEl.innerHTML =
+        '<option value="">Selecione um exame...</option>' +
+        catResponse.data
+          .map(
+            (item) =>
+              `<option value="${item.id}">${item.exam_name} (R$ ${item.base_price})</option>`,
+          )
+          .join("");
+    } else {
+      selectEl.innerHTML = '<option value="">Erro ao carregar exames</option>';
+    }
+  } catch (err) {
+    selectEl.innerHTML = '<option value="">Erro desconhecido</option>';
+  }
 
   // Close modal handlers
-  const closeButton = modal.querySelector("#close-exam-modal")
-  const cancelButton = modal.querySelector("#cancel-exam-request")
-  const closeModal = () => modal.remove()
+  const closeButton = modal.querySelector("#close-exam-modal");
+  const cancelButton = modal.querySelector("#cancel-exam-request");
+  const closeModal = () => modal.remove();
 
-  closeButton?.addEventListener("click", closeModal)
-  cancelButton?.addEventListener("click", closeModal)
+  closeButton?.addEventListener("click", closeModal);
+  cancelButton?.addEventListener("click", closeModal);
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal()
-  })
+    if (e.target === modal) closeModal();
+  });
 
   // Form submission
-  const form = modal.querySelector("#exam-request-form") as HTMLFormElement
-  const submitButton = modal.querySelector("#submit-exam-request") as HTMLButtonElement
+  const form = modal.querySelector("#exam-request-form") as HTMLFormElement;
+  const submitButton = modal.querySelector(
+    "#submit-exam-request",
+  ) as HTMLButtonElement;
 
   form?.addEventListener("submit", async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const appointmentId = Number((document.getElementById("exam-appointment-id") as HTMLInputElement).value)
-    const patientId = Number((document.getElementById("exam-patient-id") as HTMLInputElement).value)
-    const examName = (document.getElementById("exam-name") as HTMLInputElement).value.trim()
-    const examPrice = Number((document.getElementById("exam-price") as HTMLInputElement).value)
-    const clinicalIndication = (document.getElementById("exam-clinical-indication") as HTMLTextAreaElement).value.trim()
+    const appointmentId = Number(
+      (document.getElementById("exam-appointment-id") as HTMLInputElement)
+        .value,
+    );
+    const patientId = Number(
+      (document.getElementById("exam-patient-id") as HTMLInputElement).value,
+    );
+    const examCatalogId = Number(
+      (document.getElementById("exam-catalog-id") as HTMLSelectElement).value,
+    );
+    const urgency = (
+      document.getElementById("exam-urgency") as HTMLSelectElement
+    ).value as any;
+    const clinicalIndication = (
+      document.getElementById("exam-clinical-indication") as HTMLTextAreaElement
+    ).value.trim();
 
     // Validation
-    if (!appointmentId || !patientId || !examName || !examPrice || !clinicalIndication) {
-      uiStore.addToast("error", "Preencha todos os campos obrigatórios")
-      return
-    }
-
-    if (examPrice <= 0) {
-      uiStore.addToast("error", "O valor do exame deve ser maior que zero")
-      return
+    if (!appointmentId || !patientId || !examCatalogId || !clinicalIndication) {
+      uiStore.addToast("error", "Preencha todos os campos obrigatórios");
+      return;
     }
 
     // Disable submit button
-    submitButton.textContent = "Solicitando..."
-    submitButton.disabled = true
+    submitButton.textContent = "Solicitando...";
+    submitButton.disabled = true;
 
     try {
       const payload: CreateExamPayload = {
         appointment_id: appointmentId,
         patient_id: patientId,
-        exam_name: examName,
-        exam_price: examPrice,
+        exam_catalog_id: examCatalogId,
+        urgency: urgency,
         clinical_indication: clinicalIndication,
-      }
+      };
 
-      const response = await createExam(payload)
+      const response = await createExam(payload);
 
       if (response.success && response.data) {
-        uiStore.addToast("success", `Exame "${examName}" solicitado com sucesso!`)
-        closeModal()
+        uiStore.addToast("success", `Exame solicitado com sucesso!`);
+        closeModal();
       } else if (response.error) {
-        const errorMessage = getExamErrorMessage(response.error.code)
-        uiStore.addToast("error", errorMessage || response.error.message || "Erro ao solicitar exame")
+        const errorMessage = getExamErrorMessage(response.error.code);
+        uiStore.addToast(
+          "error",
+          errorMessage || response.error.message || "Erro ao solicitar exame",
+        );
       }
     } catch (error) {
-      console.error("Error creating exam:", error)
-      uiStore.addToast("error", "Erro inesperado ao solicitar exame")
+      console.error("Error creating exam:", error);
+      uiStore.addToast("error", "Erro inesperado ao solicitar exame");
     } finally {
-      submitButton.textContent = "Solicitar Exame"
-      submitButton.disabled = false
+      submitButton.textContent = "Solicitar Exame";
+      submitButton.disabled = false;
     }
-  })
+  });
 }
 
 function getExamErrorMessage(errorCode?: string): string | undefined {
@@ -697,21 +798,24 @@ function getExamErrorMessage(errorCode?: string): string | undefined {
     APPOINTMENT_NOT_FOUND: "Consulta não encontrada",
     PATIENT_NOT_FOUND: "Paciente não encontrado",
     UNAUTHORIZED: "Você precisa estar autenticado",
-  }
+  };
 
-  return errorCode ? errorMessages[errorCode] : undefined
+  return errorCode ? errorMessages[errorCode] : undefined;
 }
 
 function setupPrescriptionCreation(professionalId: number) {
-  const createButton = document.getElementById("create-prescription-button")
-  if (!createButton) return
+  const createButton = document.getElementById("create-prescription-button");
+  if (!createButton) return;
 
-  createButton.addEventListener("click", () => showPrescriptionModal(professionalId))
+  createButton.addEventListener("click", () =>
+    showPrescriptionModal(professionalId),
+  );
 }
 
 function showPrescriptionModal(professionalId: number) {
-  const modal = document.createElement("div")
-  modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  const modal = document.createElement("div");
+  modal.className =
+    "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
   modal.innerHTML = `
     <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between mb-6">
@@ -786,76 +890,107 @@ function showPrescriptionModal(professionalId: number) {
         </div>
       </form>
     </div>
-  `
+  `;
 
-  document.body.appendChild(modal)
+  document.body.appendChild(modal);
 
   // Close modal handlers
-  const closeButton = modal.querySelector("#close-prescription-modal")
-  const cancelButton = modal.querySelector("#cancel-prescription")
-  const closeModal = () => modal.remove()
+  const closeButton = modal.querySelector("#close-prescription-modal");
+  const cancelButton = modal.querySelector("#cancel-prescription");
+  const closeModal = () => modal.remove();
 
-  closeButton?.addEventListener("click", closeModal)
-  cancelButton?.addEventListener("click", closeModal)
+  closeButton?.addEventListener("click", closeModal);
+  cancelButton?.addEventListener("click", closeModal);
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal()
-  })
+    if (e.target === modal) closeModal();
+  });
 
   // Form submission
-  const form = modal.querySelector("#prescription-form") as HTMLFormElement
-  const submitButton = modal.querySelector("#submit-prescription") as HTMLButtonElement
+  const form = modal.querySelector("#prescription-form") as HTMLFormElement;
+  const submitButton = modal.querySelector(
+    "#submit-prescription",
+  ) as HTMLButtonElement;
 
   form?.addEventListener("submit", async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const appointmentId = Number((document.getElementById("prescription-appointment-id") as HTMLInputElement).value)
-    const patientId = Number((document.getElementById("prescription-patient-id") as HTMLInputElement).value)
-    const medicationName = (document.getElementById("prescription-medication-name") as HTMLInputElement).value.trim()
-    const dosage = (document.getElementById("prescription-dosage") as HTMLInputElement).value.trim()
-    const frequency = (document.getElementById("prescription-frequency") as HTMLInputElement).value.trim()
-    const durationDaysInput = (document.getElementById("prescription-duration-days") as HTMLInputElement).value
-    const instructions = (document.getElementById("prescription-instructions") as HTMLTextAreaElement).value.trim()
+    const appointmentId = Number(
+      (
+        document.getElementById(
+          "prescription-appointment-id",
+        ) as HTMLInputElement
+      ).value,
+    );
+    const patientId = Number(
+      (document.getElementById("prescription-patient-id") as HTMLInputElement)
+        .value,
+    );
+    const medicationName = (
+      document.getElementById(
+        "prescription-medication-name",
+      ) as HTMLInputElement
+    ).value.trim();
+    const dosage = (
+      document.getElementById("prescription-dosage") as HTMLInputElement
+    ).value.trim();
+    const frequency = (
+      document.getElementById("prescription-frequency") as HTMLInputElement
+    ).value.trim();
+    const durationDaysInput = (
+      document.getElementById("prescription-duration-days") as HTMLInputElement
+    ).value;
+    const instructions = (
+      document.getElementById(
+        "prescription-instructions",
+      ) as HTMLTextAreaElement
+    ).value.trim();
 
     // Validation for required fields
     if (!appointmentId || !patientId || !medicationName) {
-      uiStore.addToast("error", "Preencha todos os campos obrigatórios")
-      return
+      uiStore.addToast("error", "Preencha todos os campos obrigatórios");
+      return;
     }
 
     // Disable submit button
-    submitButton.textContent = "Criando..."
-    submitButton.disabled = true
+    submitButton.textContent = "Criando...";
+    submitButton.disabled = true;
 
     try {
       const payload: CreatePrescriptionPayload = {
         appointment_id: appointmentId,
         patient_id: patientId,
         medication_name: medicationName,
-      }
+      };
 
       // Add optional fields if provided
-      if (dosage) payload.dosage = dosage
-      if (frequency) payload.frequency = frequency
-      if (durationDaysInput) payload.duration_days = Number(durationDaysInput)
-      if (instructions) payload.instructions = instructions
+      if (dosage) payload.dosage = dosage;
+      if (frequency) payload.frequency = frequency;
+      if (durationDaysInput) payload.duration_days = Number(durationDaysInput);
+      if (instructions) payload.instructions = instructions;
 
-      const response = await createPrescription(payload)
+      const response = await createPrescription(payload);
 
       if (response.success && response.data) {
-        uiStore.addToast("success", `Prescrição de "${medicationName}" criada com sucesso!`)
-        closeModal()
+        uiStore.addToast(
+          "success",
+          `Prescrição de "${medicationName}" criada com sucesso!`,
+        );
+        closeModal();
       } else if (response.error) {
-        const errorMessage = getPrescriptionErrorMessage(response.error.code)
-        uiStore.addToast("error", errorMessage || response.error.message || "Erro ao criar prescrição")
+        const errorMessage = getPrescriptionErrorMessage(response.error.code);
+        uiStore.addToast(
+          "error",
+          errorMessage || response.error.message || "Erro ao criar prescrição",
+        );
       }
     } catch (error) {
-      console.error("Error creating prescription:", error)
-      uiStore.addToast("error", "Erro inesperado ao criar prescrição")
+      console.error("Error creating prescription:", error);
+      uiStore.addToast("error", "Erro inesperado ao criar prescrição");
     } finally {
-      submitButton.textContent = "Criar Prescrição"
-      submitButton.disabled = false
+      submitButton.textContent = "Criar Prescrição";
+      submitButton.disabled = false;
     }
-  })
+  });
 }
 
 function getPrescriptionErrorMessage(errorCode?: string): string | undefined {
@@ -867,14 +1002,14 @@ function getPrescriptionErrorMessage(errorCode?: string): string | undefined {
     PATIENT_NOT_FOUND: "Paciente não encontrado",
     UNAUTHORIZED: "Você precisa estar autenticado",
     INVALID_MEDICATION: "Medicamento inválido",
-  }
+  };
 
-  return errorCode ? errorMessages[errorCode] : undefined
+  return errorCode ? errorMessages[errorCode] : undefined;
 }
 
 // Initialize when DOM is ready
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initDoctorDashboard)
+  document.addEventListener("DOMContentLoaded", initDoctorDashboard);
 } else {
-  initDoctorDashboard()
+  initDoctorDashboard();
 }

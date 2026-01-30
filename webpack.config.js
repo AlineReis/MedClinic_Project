@@ -53,7 +53,7 @@ module.exports = (env, argv) => {
       new webpack.DefinePlugin({
         CLINIC_API_HOST: JSON.stringify(
           process.env.CLINIC_API_HOST ??
-            "http://localhost:3000/api/v1/clinic-01",
+            "http://localhost:3000/api/v1/1",
         ),
       }),
       new MiniCssExtractPlugin({

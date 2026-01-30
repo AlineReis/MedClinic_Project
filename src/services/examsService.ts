@@ -1,5 +1,6 @@
 import type {
   CreateExamPayload,
+  ExamCatalogItem,
   ExamDetail,
   ExamSummary,
 } from "../types/exams";
@@ -11,6 +12,8 @@ type ExamApiItem = {
   status: string;
   created_at: string;
   result?: string | null;
+  patient_name?: string;
+  urgency?: "normal" | "urgent" | "critical";
 };
 
 type ExamDetailApiItem = {
@@ -42,12 +45,7 @@ type ExamFilters = {
 
 export async function listExams(filters: ExamFilters = {}) {
   // Backend uses authenticated user context from JWT cookie, not query params
-  const response = await request<ExamApiItem[]>(
-    `/exams`,
-    "GET",
-    undefined,
-    filters,
-  );
+  const response = await request<ExamApiItem[]>(`/exams`);
 
   if (!response.success || !response.data) {
     return response;
@@ -66,6 +64,8 @@ function mapExamSummary(item: ExamApiItem): ExamSummary {
     status: item.status,
     created_at: item.created_at,
     result: item.result ?? null,
+    patient_name: item.patient_name,
+    urgency: item.urgency,
   };
 }
 
@@ -82,13 +82,29 @@ export async function getExam(id: number) {
   };
 }
 
+export async function listCatalog() {
+  const response = await request<ExamCatalogItem[]>("/exams/catalog");
+
+  if (!response.success || !response.data) {
+    return response;
+  }
+
+  return {
+    ...response,
+    data: response.data.map((item) => ({
+      ...item,
+      exam_name: item.name, // Map name to exam_name for consistency
+    })),
+  };
+}
+
 export async function createExam(payload: CreateExamPayload) {
   const response = await request<CreateExamResponse>("/exams", "POST", {
     appointment_id: payload.appointment_id,
     patient_id: payload.patient_id,
-    exam_name: payload.exam_name,
-    exam_price: payload.exam_price,
+    exam_catalog_id: payload.exam_catalog_id,
     clinical_indication: payload.clinical_indication,
+    urgency: payload.urgency,
   });
 
   if (!response.success || !response.data) {

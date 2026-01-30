@@ -14,9 +14,10 @@ export interface ApiResponse<T> {
   error?: ApiError;
 }
 
-const BASE_URL = (
-  CLINIC_API_HOST ?? "http://localhost:3000/api/v1/clinic-01"
-).replace(/\/+$/, "");
+const BASE_URL = (CLINIC_API_HOST ?? "http://localhost:3000/api/v1/1").replace(
+  /\/+$/,
+  "",
+);
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
@@ -32,26 +33,11 @@ export async function request<T>(
   path: string,
   method: HttpMethod = "GET",
   body?: unknown,
-  params?: Record<string, string | number | boolean>,
 ): Promise<ApiResponse<T>> {
   try {
     const isFormData = body instanceof FormData;
 
-    let url = `${BASE_URL}${path}`;
-    if (params) {
-      const searchParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
-        }
-      });
-      const queryString = searchParams.toString();
-      if (queryString) {
-        url += `${path.includes("?") ? "&" : "?"}${queryString}`;
-      }
-    }
-
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}${path}`, {
       method,
       credentials: "include",
       headers: isFormData ? { Accept: "application/json" } : DEFAULT_HEADERS,
