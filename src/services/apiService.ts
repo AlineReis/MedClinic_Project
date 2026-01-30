@@ -32,11 +32,26 @@ export async function request<T>(
   path: string,
   method: HttpMethod = "GET",
   body?: unknown,
+  params?: Record<string, string | number | boolean>,
 ): Promise<ApiResponse<T>> {
   try {
     const isFormData = body instanceof FormData;
 
-    const response = await fetch(`${BASE_URL}${path}`, {
+    let url = `${BASE_URL}${path}`;
+    if (params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value));
+        }
+      });
+      const queryString = searchParams.toString();
+      if (queryString) {
+        url += `${path.includes("?") ? "&" : "?"}${queryString}`;
+      }
+    }
+
+    const response = await fetch(url, {
       method,
       credentials: "include",
       headers: isFormData ? { Accept: "application/json" } : DEFAULT_HEADERS,

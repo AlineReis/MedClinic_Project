@@ -41,8 +41,13 @@ type ExamFilters = {
 };
 
 export async function listExams(filters: ExamFilters = {}) {
-  const query = buildExamQuery(filters);
-  const response = await request<ExamApiItem[]>(`/exams${query}`);
+  // Backend uses authenticated user context from JWT cookie, not query params
+  const response = await request<ExamApiItem[]>(
+    `/exams`,
+    "GET",
+    undefined,
+    filters,
+  );
 
   if (!response.success || !response.data) {
     return response;
@@ -52,13 +57,6 @@ export async function listExams(filters: ExamFilters = {}) {
     ...response,
     data: response.data.map(mapExamSummary),
   };
-}
-
-function buildExamQuery(filters: ExamFilters) {
-  const params = new URLSearchParams();
-  if (filters.patientId) params.set("patient_id", String(filters.patientId));
-  const query = params.toString();
-  return query ? `?${query}` : "";
 }
 
 function mapExamSummary(item: ExamApiItem): ExamSummary {
