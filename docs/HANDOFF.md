@@ -1,45 +1,24 @@
-# 🚩 Handoff - 2026-01-29 17:15 BRT
+\# 🚩 Handoff - 2026-01-29 21:15 BRT
 
 ### 🎯 Objetivo da Sessão Anterior
 
-- Implementar fluxos de cancelamento e reagendamento de agendamentos no painel do paciente.
-- Adicionar tratamento de erros RN-01 a RN-05 com mensagens amigáveis.
-- Documentar contratos de erro no PROGRESS.
+- Corrigir o logout/imediato retorno para `login.html` nos painéis de recepção, médica e administrativa, além de garantir que a página `/pages/users.html` seja gerada e servida pelo build.
 
 ### ✅ Progresso Realizado
 
-- **`src/services/appointmentsService.ts`**: Adicionados métodos `cancelAppointment(id, reason?)`, `rescheduleAppointment(id, { newDate, newTime })`, `getAppointment(id)` e helper `getErrorMessage(code, fallback)` com mapeamento de códigos RN.
-- **`src/pages/scheduleAppointment.ts`**:
-  - Cards de agendamento agora exibem botões "Reagendar" e "Cancelar" para status `scheduled` ou `confirmed`.
-  - Modal de cancelamento com campo de motivo opcional e informações sobre reembolso (70% se <24h).
-  - Modal de reagendamento carrega slots disponíveis do profissional para os próximos 14 dias.
-  - Tratamento de erros atualizado para usar `getErrorMessage()` com mapeamento RN.
-  - Após cancelar ou reagendar, o painel de agendamentos é recarregado via `loadPatientAppointments()`.
-- **`PROGRESS-backend-integration.md`**: Documentados contratos de erro RN-01 a RN-05 com tabela de códigos e mensagens.
-- **PR #495** criado: `feature/cancel-reschedule-appointments` → `frontend-stitch`
+- `src/pages/receptionDashboard.ts`, `src/pages/doctorDashboard.ts` e `src/pages/adminDashboard.ts`: agora chamam `authStore.refreshSession()` antes de aplicar o guard de RBAC e só renderizam o layout quando a sessão validada estiver disponível.
+- `webpack.config.js`: adicionou `users.html` à lista de páginas principais e incluiu o chunk `usersPage` no `HtmlWebpackPlugin`, evitando que o CopyWebpackPlugin ignore o HTML, o que garante que `/pages/users.html` seja servido.
+- Fluxo de logout permanece inalterado, mas os dashboards agora refletem o mesmo padrão da tela de paciente para evitar redirecionamentos falsos.
 
-### ⚠️ Estado de Alerta (Bugs, Bloqueios e Itens Pendentes)
+### ⚠️ Estado de Alerta (Bugs e Bloqueios)
 
-- Cache de profissionais/slots (`professionalsListCache` e `slotsCache`) ainda não implementado.
-- Filtros avançados (status, data, paginação) via `GET /appointments` com query params pendentes.
-- Deduplicação de agendamentos não implementada.
-- Payment mock (CloudWalk) não está sendo testado end-to-end.
-- `/auth/profile` retorna `{ id, email, role }` sem `name`, header do usuário fica em branco (dependência backend).
+- É preciso executar o servidor de desenvolvimento/build (`npm run dev` / `npm run build`) para confirmar que `/pages/users.html` aparece na saída final e que os dashboards carregam corretamente após o login.
 
 ### 🚀 Próximos Passos Imediatos
 
-1. **Merge do PR #495** após revisão e testes manuais dos fluxos de cancelamento/reagendamento.
-2. **Implementar cache** de profissionais e slots para reduzir chamadas repetidas à API.
-3. **Filtros avançados** no painel de agendamentos (status, data, paginação).
-4. **Testar integração** com backend para validar erros RN em cenários reais (slot ocupado, duplicidade, antecedência).
-5. **Corrigir header do usuário** - aguardar backend retornar `name` no `/auth/profile` ou buscar via `/users/:id`.
-
-### 📁 Branch Ativa
-
-- **Branch:** `feature/cancel-reschedule-appointments`
-- **PR:** https://github.com/AlineReis/MedClinic_Project/pull/495
-- **Base:** `frontend-stitch`
+1. Levantar o servidor (`npm run dev`) e navegar até os dashboards de recepção, médico, administrativo e `/pages/users.html` para validar que não há redirecionamento indesejado.
+2. Rodar o build (`npm run build`) e inspecionar o diretório `dist/pages` para confirmar que `users.html` foi emitido e está referenciando o chunk correto.
 
 ---
 
-**Instrução para o Agente:** Após merge do PR #495, mover dados relevantes para `PROGRESS-backend-integration.md` e focar nos itens pendentes de cache e filtros.
+**Instrução para o Agente:** Ao finalizar os passos acima, associe os resultados relevantes ao `PROGRESS-backend-integration.md` se necessário.

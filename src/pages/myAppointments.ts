@@ -37,7 +37,7 @@ async function loadAppointments() {
     return
   }
 
-  if (response.data.length === 0) {
+  if (response.data.appointments.length === 0) {
     listContainer.innerHTML = buildEmptyState(
       "Nenhum agendamento",
       "Você ainda não tem consultas agendadas.",
@@ -46,7 +46,7 @@ async function loadAppointments() {
     return
   }
 
-  listContainer.innerHTML = response.data
+  listContainer.innerHTML = response.data.appointments
     .map(appointment => buildAppointmentCard(appointment))
     .join("")
 }

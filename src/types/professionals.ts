@@ -36,3 +36,54 @@ export type ProfessionalAvailabilityResponse = {
   }
   data: ProfessionalAvailabilityDay[]
 }
+
+export type CommissionDetail = {
+  id: number
+  appointment_id: number
+  amount: number
+  status: "pending" | "paid"
+  created_at: string
+  paid_at?: string
+}
+
+export type CommissionSummary = {
+  month?: number
+  year?: number
+  pending: number
+  paid: number
+  total: number
+}
+
+export type CommissionsResponse = {
+  professional: {
+    id: number
+    name: string
+  }
+  summary: CommissionSummary
+  details: CommissionDetail[]
+}
+
+export type AvailabilityInput = {
+  day_of_week: number
+  start_time: string
+  end_time: string
+  is_active: boolean
+}
+
+export type AvailabilityRecord = {
+  id: number
+  professional_id: number
+  day_of_week: number
+  start_time: string
+  end_time: string
+  is_active: boolean
+}
+
+export type CreateAvailabilityRequest = {
+  availabilities: AvailabilityInput[]
+}
+
+export type CreateAvailabilityResponse = {
+  data: AvailabilityRecord[]
+  message: string
+}

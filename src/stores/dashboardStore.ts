@@ -44,7 +44,7 @@ class DashboardStore {
       ])
 
       if (appointmentsResponse.success && appointmentsResponse.data) {
-        this.setAppointments(appointmentsResponse.data)
+        this.setAppointments(appointmentsResponse.data.appointments)
       } else {
         uiStore.addToast(
           "warning",
