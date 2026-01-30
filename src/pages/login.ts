@@ -10,7 +10,7 @@ const roleCredentials: Record<UserRole, { email: string; password: string }> = {
   receptionist: { email: "paula@clinica.com", password: "password" },
   lab_tech: { email: "roberto@clinica.com", password: "password" },
   health_professional: {
-    email: "ana@clinica.com",
+    email: "carlos@clinica.com",
     password: "password",
   },
   clinic_admin: { email: "admin@clinica.com", password: "password" },
