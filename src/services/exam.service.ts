@@ -57,6 +57,7 @@ export class ExamService {
       price: catalogItem.base_price, // Congela o preço
       status: "pending_payment" as const,
       payment_status: "pending" as const,
+      urgency: payload.urgency || "normal",
     };
 
     return this.examRepository.createRequest(requestData);

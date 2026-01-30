@@ -8,7 +8,7 @@ export class ExamController {
   public listCatalog = async (req: Request, res: Response) => {
     // GET /exams/catalog
     const catalog = await this.examService.listCatalog();
-    return res.json(catalog);
+    return res.json({ success: true, data: catalog });
   };
 
   public createRequest = async (req: Request, res: Response) => {
@@ -21,7 +21,10 @@ export class ExamController {
     // Apenas profissionais podem solicitar (RN-09)
     if (user.role !== "health_professional") {
       return res.status(403).json({
-        error: "Apenas profissionais de saúde podem solicitar exames.",
+        success: false,
+        error: {
+          message: "Apenas profissionais de saúde podem solicitar exames.",
+        },
       });
     }
 
@@ -31,22 +34,32 @@ export class ExamController {
       requesting_professional_id: user.id, // O profissional logado é quem solicita
       exam_catalog_id: req.body.exam_catalog_id,
       clinical_indication: req.body.clinical_indication,
+      urgency: req.body.urgency,
       // Price vem do service
     };
 
     try {
       const id = await this.examService.createRequest(payload);
-      return res
-        .status(201)
-        .json({ id, message: "Exame solicitado com sucesso." });
+      // NOTE: Frontend expects the full object, but we only have ID here.
+      // Ideally we should return the created object. For now keeping minimal change but wrapping.
+      return res.status(201).json({
+        success: true,
+        data: { id },
+        message: "Exame solicitado com sucesso.",
+      });
     } catch (error: any) {
       if (error.name === "ValidationError")
-        return res.status(400).json({ error: error.message });
+        return res
+          .status(400)
+          .json({ success: false, error: { message: error.message } });
       if (error.name === "NotFoundError")
-        return res.status(404).json({ error: error.message });
-      return res
-        .status(500)
-        .json({ error: "Erro interno ao processar solicitação." });
+        return res
+          .status(404)
+          .json({ success: false, error: { message: error.message } });
+      return res.status(500).json({
+        success: false,
+        error: { message: "Erro interno ao processar solicitação." },
+      });
     }
   };
 
@@ -54,7 +67,7 @@ export class ExamController {
     // GET /exams
     const user = (req as any).user;
     const requests = await this.examService.listRequestsByContext(user);
-    return res.json(requests);
+    return res.json({ success: true, data: requests });
   };
 
   public getRequest = async (req: Request, res: Response) => {
@@ -64,13 +77,19 @@ export class ExamController {
 
     try {
       const request = await this.examService.getRequestById(id, user);
-      return res.json(request);
+      return res.json({ success: true, data: request });
     } catch (error: any) {
       if (error.name === "ForbiddenError")
-        return res.status(403).json({ error: error.message });
+        return res
+          .status(403)
+          .json({ success: false, error: { message: error.message } });
       if (error.name === "NotFoundError")
-        return res.status(404).json({ error: error.message });
-      return res.status(500).json({ error: "Erro interno." });
+        return res
+          .status(404)
+          .json({ success: false, error: { message: error.message } });
+      return res
+        .status(500)
+        .json({ success: false, error: { message: "Erro interno." } });
     }
   };
 

@@ -23,8 +23,8 @@ export class ExamRepository {
     const sql = `
             INSERT INTO exam_requests (
                 appointment_id, patient_id, requesting_professional_id, exam_catalog_id,
-                clinical_indication, price, status, payment_status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                clinical_indication, price, status, payment_status, urgency
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
     const result = await database.run(sql, [
@@ -36,6 +36,7 @@ export class ExamRepository {
       request.price,
       request.status || "pending_payment",
       request.payment_status || "pending",
+      request.urgency || "normal",
     ]);
 
     return result.lastID;
@@ -55,9 +56,10 @@ export class ExamRepository {
 
   async findRequestsByPatientId(patientId: number): Promise<ExamRequest[]> {
     const sql = `
-            SELECT er.*, ec.name as exam_name 
+            SELECT er.*, ec.name as exam_name, u.name as patient_name
             FROM exam_requests er
             JOIN exam_catalog ec ON er.exam_catalog_id = ec.id
+            JOIN users u ON er.patient_id = u.id
             WHERE er.patient_id = ?
             ORDER BY er.created_at DESC
         `;
