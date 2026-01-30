@@ -226,6 +226,21 @@ export async function rescheduleAppointment(
   }
 }
 
+export async function checkInAppointment(
+  appointmentId: number,
+): Promise<ApiResponse<{ message: string }>> {
+  const response = await request<{ message: string }>(
+    `/appointments/${appointmentId}/checkin`,
+    "POST",
+  )
+
+  if (response.success) {
+    clearAppointmentsCache()
+  }
+
+  return response
+}
+
 export async function getAppointment(
   appointmentId: number,
 ): Promise<ApiResponse<AppointmentSummary>> {
