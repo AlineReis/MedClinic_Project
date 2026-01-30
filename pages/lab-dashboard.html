@@ -55,19 +55,19 @@
                 <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl">
                         <p class="text-xs text-amber-500 uppercase font-bold mb-1">Pendentes (RN-09)</p>
-                        <h3 class="text-3xl font-bold text-amber-500">12</h3>
+                        <h3 class="text-3xl font-bold text-amber-500" data-lab-count="pending">0</h3>
                     </div>
                     <div class="bg-blue-500/10 border border-blue-500/20 p-6 rounded-2xl">
                         <p class="text-xs text-blue-500 uppercase font-bold mb-1">Em Análise</p>
-                        <h3 class="text-3xl font-bold text-blue-500">5</h3>
+                        <h3 class="text-3xl font-bold text-blue-500" data-lab-count="analysis">0</h3>
                     </div>
                     <div class="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl">
                         <p class="text-xs text-emerald-500 uppercase font-bold mb-1">Prontos (RN-14)</p>
-                        <h3 class="text-3xl font-bold text-emerald-500">8</h3>
+                        <h3 class="text-3xl font-bold text-emerald-500" data-lab-count="ready">0</h3>
                     </div>
                     <div class="bg-red-500/10 border border-red-500/20 p-6 rounded-2xl">
                         <p class="text-xs text-red-500 uppercase font-bold mb-1">Urgentes</p>
-                        <h3 class="text-3xl font-bold text-red-500">2</h3>
+                        <h3 class="text-3xl font-bold text-red-500" data-lab-count="urgent">0</h3>
                     </div>
                 </section>
 
@@ -86,27 +86,10 @@
                                 <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Ação</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-border-dark">
-                            <tr class="hover:bg-border-dark/10">
-                                <td class="px-6 py-4 font-medium">Ana Beatriz Mendes</td>
-                                <td class="px-6 py-4">Hemograma Completo</td>
-                                <td class="px-6 py-4 text-slate-400">Dra. Camila R.</td>
-                                <td class="px-6 py-4"><span
-                                        class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold">PENDENTE</span>
-                                </td>
-                                <td class="px-6 py-4"><button
-                                        class="px-3 py-1.5 bg-primary text-white text-[10px] font-bold rounded">INICIAR</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-border-dark/10">
-                                <td class="px-6 py-4 font-medium">Carlos Eduardo</td>
-                                <td class="px-6 py-4">Ressonância Magnética</td>
-                                <td class="px-6 py-4 text-slate-400">Dr. Pedro L.</td>
-                                <td class="px-6 py-4"><span
-                                        class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px] font-bold">EM
-                                        ANÁLISE</span></td>
-                                <td class="px-6 py-4"><button
-                                        class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-bold rounded">LIBERAR</button>
+                        <tbody data-lab-queue-body class="divide-y divide-border-dark">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                    Carregando exames...
                                 </td>
                             </tr>
                         </tbody>
