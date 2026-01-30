@@ -34,10 +34,7 @@
                 href="agenda.html">
                 <span class="material-symbols-outlined">calendar_month</span> Minha Agenda
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="pep.html">
-                <span class="material-symbols-outlined">folder_shared</span> Prontuários
-            </a>
+
         </nav>
         <div class="p-4 border-t border-border-dark">
             <button data-logout-button
@@ -81,19 +78,20 @@
                     </div>
                 </section>
 
-                <!-- Next Patient & Queue -->
+                <!-- Next Patient, Queue & Actions -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div
-                        class="lg:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-8 rounded-2xl text-white shadow-xl">
+                        class="lg:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-8 rounded-2xl text-white shadow-xl from-primary">
                         <span class="text-[10px] font-bold uppercase bg-white/20 px-2 py-1 rounded">Próximo
                             Paciente</span>
-                        <h3 class="text-2xl font-bold mt-4">Ricardo Santos Oliveira</h3>
-                        <p class="text-sm opacity-80">Retorno • Cardiologia</p>
+                        <div class="mt-4 space-y-2">
+                            <p class="text-sm text-white/70">Carregando próximo paciente...</p>
+                        </div>
                         <div class="flex gap-4 mt-6 text-sm">
-                            <span class="flex items-center gap-1"><span
-                                    class="material-symbols-outlined text-sm">schedule</span> 14:30</span>
-                            <span class="flex items-center gap-1"><span
-                                    class="material-symbols-outlined text-sm">location_on</span> Sala 3</span>
+                            <span class="flex items-center gap-1 text-white/70"><span
+                                    class="material-symbols-outlined text-sm">schedule</span> --:--</span>
+                            <span class="flex items-center gap-1 text-white/70"><span
+                                    class="material-symbols-outlined text-sm">location_on</span> Sala --</span>
                         </div>
                         <button onclick="window.location.href='pep.html'"
                             class="mt-8 px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-slate-100 transition-all">Iniciar
@@ -103,14 +101,83 @@
                         <h3 class="font-bold mb-4">Fila de Espera</h3>
                         <ul class="space-y-3">
                             <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm font-medium">Maria Clara</span>
-                                <span class="text-xs text-amber-500 font-bold">Aguardando</span>
-                            </li>
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm font-medium">João Pedro</span>
-                                <span class="text-xs text-slate-500">15:00</span>
+                                <span class="text-sm font-medium text-slate-500">Carregando pacientes...</span>
+                                <span class="text-xs text-slate-500 font-bold">--:--</span>
                             </li>
                         </ul>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase font-bold">Comissões</p>
+                                <p class="text-sm text-slate-400">Resumo atual</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="commissions-month-filter"
+                                    class="px-3 py-2 bg-surface-dark border border-border-dark rounded-xl text-sm text-white focus:outline-none">
+                                    <option value="">Selecione um mês</option>
+                                </select>
+                                <select id="commissions-status-filter"
+                                    class="px-3 py-2 bg-surface-dark border border-border-dark rounded-xl text-sm text-white focus:outline-none">
+                                    <option value="">Todos</option>
+                                    <option value="pending">Pendente</option>
+                                    <option value="paid">Pago</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 mt-4 text-center">
+                            <div>
+                                <p class="text-xs text-slate-400">Total</p>
+                                <h3 class="text-2xl font-bold" data-commission-total>R$ 0,00</h3>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400">Pendentes</p>
+                                <h3 class="text-2xl font-bold text-amber-500" data-commission-pending>R$ 0,00</h3>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400">Pagas</p>
+                                <h3 class="text-2xl font-bold text-emerald-500" data-commission-paid>R$ 0,00</h3>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase font-bold">Prescrições</p>
+                                <p class="text-sm text-slate-400">Últimos registros</p>
+                            </div>
+                            <button id="create-prescription-button"
+                                class="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition">Nova
+                                Prescrição</button>
+                        </div>
+                        <div class="mt-4 space-y-4" data-prescriptions-list>
+                            <p class="text-sm text-slate-500">Carregando prescrições...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div
+                        class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold">Disponibilidade</p>
+                            <p class="text-sm text-slate-400">Cadastre novos horários</p>
+                        </div>
+                        <button id="add-availability-button"
+                            class="mt-4 px-4 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition">Gerenciar
+                            Horários</button>
+                    </div>
+                    <div
+                        class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 uppercase font-bold">Exames</p>
+                            <p class="text-sm text-slate-400">Solicite um novo exame</p>
+                        </div>
+                        <button id="request-exam-button"
+                            class="mt-4 px-4 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition">Solicitar
+                            Exame</button>
                     </div>
                 </div>
             </div>

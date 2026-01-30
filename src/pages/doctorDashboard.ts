@@ -1,3 +1,5 @@
+import { Navigation } from "../components/Navigation";
+import { ToastContainer } from "../components/ToastContainer";
 import { listAppointments } from "../services/appointmentsService";
 import { createExam, listCatalog } from "../services/examsService";
 import {
@@ -21,6 +23,9 @@ import type {
   CommissionsResponse,
 } from "../types/professionals";
 
+const MAX_AUTOCOMPLETE_RESULTS = 6;
+let appointmentAutocompleteCache: AppointmentSummary[] = [];
+
 async function initDoctorDashboard() {
   const session = await authStore.refreshSession();
 
@@ -33,8 +38,11 @@ async function initDoctorDashboard() {
     return;
   }
 
-  // Update header with user info
-  updateHeader(session);
+  // Initialize UI Components
+  new Navigation();
+  new ToastContainer();
+
+  populateCommissionMonthOptions();
 
   // Load upcoming appointments
   await loadUpcomingAppointments(session.id);
@@ -57,31 +65,6 @@ async function initDoctorDashboard() {
 
   // Setup prescription creation
   setupPrescriptionCreation(session.id);
-}
-
-function updateHeader(session: { name?: string; role: string; email: string }) {
-  const nameElement = document.querySelector("[data-user-name]");
-  const roleElement = document.querySelector("[data-user-role]");
-  const initialsElement = document.querySelector("[data-user-initials]");
-
-  if (nameElement) {
-    nameElement.textContent = session.name || session.email.split("@")[0];
-  }
-
-  if (roleElement) {
-    roleElement.textContent = "Profissional de Saúde";
-  }
-
-  if (initialsElement) {
-    const name = session.name || session.email;
-    const initials = name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-    initialsElement.textContent = initials;
-  }
 }
 
 async function loadUpcomingAppointments(professionalId: number) {
@@ -111,6 +94,10 @@ async function loadUpcomingAppointments(professionalId: number) {
       const todayAppointments = todayResponse.data.appointments;
       const allUpcoming = upcomingResponse.data.appointments;
 
+      appointmentAutocompleteCache = dedupeAppointments([
+        ...todayAppointments,
+        ...allUpcoming,
+      ]);
       updateStats(todayAppointments, allUpcoming);
       updateNextPatient(todayAppointments);
       updateWaitingQueue(todayAppointments);
@@ -231,6 +218,17 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
     .join("");
 }
 
+function dedupeAppointments(appointments: AppointmentSummary[]) {
+  const seen = new Map<number, AppointmentSummary>();
+  appointments.forEach((appointment) => {
+    if (!appointment.id) return;
+    if (!seen.has(appointment.id)) {
+      seen.set(appointment.id, appointment);
+    }
+  });
+  return Array.from(seen.values());
+}
+
 async function loadCommissions(
   professionalId: number,
   month?: number,
@@ -280,6 +278,30 @@ function setupCommissionFilters(professionalId: number) {
 
   monthFilter.addEventListener("change", handleFilterChange);
   statusFilter.addEventListener("change", handleFilterChange);
+}
+
+function populateCommissionMonthOptions() {
+  const monthFilter = document.getElementById(
+    "commissions-month-filter",
+  ) as HTMLSelectElement | null;
+
+  if (!monthFilter) return;
+
+  const formatter = new Intl.DateTimeFormat("pt-BR", { month: "long" });
+  const options = [
+    "",
+    ...Array.from({ length: 12 }, (_, index) => String(index + 1)),
+  ];
+
+  monthFilter.innerHTML = options
+    .map((value) => {
+      if (value === "") {
+        return `<option value="">Selecione um mês</option>`;
+      }
+      const monthName = formatter.format(new Date(2000, Number(value) - 1, 1));
+      return `<option value="${value}">${monthName}</option>`;
+    })
+    .join("");
 }
 
 function updateCommissionsPanel(data: CommissionsResponse) {
@@ -465,6 +487,153 @@ function showAvailabilityModal(professionalId: number) {
 
   document.body.appendChild(modal);
 
+  const searchInput = modal.querySelector(
+    "#exam-patient-search",
+  ) as HTMLInputElement | null;
+  const searchResultsContainer = modal.querySelector(
+    "#exam-patient-search-results",
+  ) as HTMLElement | null;
+  const selectedPatientLabel = modal.querySelector(
+    "#exam-selected-patient",
+  ) as HTMLElement | null;
+  const hiddenAppointmentInput = modal.querySelector(
+    "#exam-appointment-id",
+  ) as HTMLInputElement | null;
+  const hiddenPatientInput = modal.querySelector(
+    "#exam-patient-id",
+  ) as HTMLInputElement | null;
+
+  let searchTimeout: number | null = null;
+
+  const renderMessage = (message: string) => {
+    if (!searchResultsContainer) return;
+    searchResultsContainer.innerHTML = `<p class="text-xs text-slate-500">${message}</p>`;
+  };
+
+  const doSearch = async () => {
+    if (!searchInput || !searchResultsContainer) return;
+
+    const query = searchInput.value.trim().toLowerCase();
+    if (query.length === 0) {
+      renderMessage("Digite o nome do paciente acima");
+      return;
+    }
+
+    renderMessage("Buscando pacientes...");
+    await ensureAppointmentCache();
+
+    const results = appointmentAutocompleteCache
+      .filter((appointment) =>
+        (appointment.patient_name ?? "").toLowerCase().includes(query),
+      )
+      .sort((a, b) => {
+        const dateCompare = a.date.localeCompare(b.date);
+        if (dateCompare !== 0) return dateCompare;
+        return (a.time ?? "").localeCompare(b.time ?? "");
+      })
+      .slice(0, MAX_AUTOCOMPLETE_RESULTS);
+
+    renderPatientSearchResults(results, searchResultsContainer, query);
+  };
+
+  if (searchInput && searchResultsContainer) {
+    searchInput.addEventListener("input", () => {
+      if (searchTimeout) {
+        window.clearTimeout(searchTimeout);
+      }
+      searchTimeout = window.setTimeout(doSearch, 250);
+    });
+    searchInput.addEventListener("focus", () => {
+      if (!searchInput.value.trim()) {
+        renderMessage("Digite o nome do paciente acima");
+      }
+    });
+  }
+
+  void ensureAppointmentCache();
+
+  async function ensureAppointmentCache() {
+    if (appointmentAutocompleteCache.length > 0) return;
+
+    try {
+      const response = await listAppointments({
+        professionalId,
+        upcoming: true,
+        pageSize: 200,
+      });
+
+      if (response.success && response.data) {
+        appointmentAutocompleteCache = dedupeAppointments(
+          response.data.appointments,
+        );
+      }
+    } catch (error) {
+      console.error("Error loading appointments for search:", error);
+      uiStore.addToast("error", "Não foi possível buscar pacientes no momento");
+    }
+  }
+
+  function renderPatientSearchResults(
+    results: AppointmentSummary[],
+    container: HTMLElement,
+    query: string,
+  ) {
+    container.innerHTML = "";
+
+    if (results.length === 0) {
+      renderMessage("Nenhum paciente encontrado");
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    results.forEach((appointment) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className =
+        "w-full text-left px-3 py-2 rounded-lg hover:bg-background-dark/80 bg-background-dark/30 transition-colors flex flex-col gap-1";
+      const patientName = appointment.patient_name || "Paciente";
+      button.innerHTML = `
+        <span class="font-semibold text-white">${highlightMatch(
+          patientName,
+          query,
+        )}</span>
+        <span class="text-xs text-slate-400">
+          ${appointment.date} • ${appointment.time}
+        </span>
+      `;
+      button.addEventListener("click", () => {
+        selectAppointment(appointment);
+      });
+      fragment.appendChild(button);
+    });
+
+    container.appendChild(fragment);
+  }
+
+  function highlightMatch(text: string, query: string) {
+    if (!query) return text;
+    const index = text.toLowerCase().indexOf(query);
+    if (index === -1) return text;
+    const start = text.slice(0, index);
+    const match = text.slice(index, index + query.length);
+    const end = text.slice(index + query.length);
+    return `${start}<span class="text-primary">${match}</span>${end}`;
+  }
+
+  function selectAppointment(appointment: AppointmentSummary) {
+    console.log("a");
+    if (!hiddenAppointmentInput || !hiddenPatientInput || !selectedPatientLabel)
+      return;
+
+    hiddenAppointmentInput.value = String(appointment.id);
+    hiddenPatientInput.value = String(appointment.patient_id ?? "");
+    selectedPatientLabel.textContent = `Selecionado: ${appointment.patient_name} • Consulta #${appointment.id}`;
+    searchResultsContainer && (searchResultsContainer.innerHTML = "");
+    if (searchInput) {
+      searchInput.value = appointment.patient_name || "";
+    }
+  }
+
   // Close modal handlers
   const closeButton = modal.querySelector("#close-availability-modal");
   const cancelButton = modal.querySelector("#cancel-availability");
@@ -621,9 +790,10 @@ function setupExamRequest(professionalId: number) {
   const requestButton = document.getElementById("request-exam-button");
   if (!requestButton) return;
 
-  requestButton.addEventListener("click", () =>
-    showExamRequestModal(professionalId),
-  );
+  requestButton.addEventListener("click", () => {
+    console.log("Solicitar Exame clicked", { professionalId });
+    showExamRequestModal(professionalId);
+  });
 }
 
 async function showExamRequestModal(professionalId: number) {
@@ -642,17 +812,11 @@ async function showExamRequestModal(professionalId: number) {
 
       <form id="exam-request-form" class="space-y-4">
         <div>
-          <label class="block text-sm text-slate-400 mb-2">ID da Consulta *</label>
-          <input type="number" id="exam-appointment-id" required
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Digite o ID da consulta" />
-        </div>
-
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">ID do Paciente *</label>
-          <input type="number" id="exam-patient-id" required
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
-            placeholder="Digite o ID do paciente" />
+          <label class="block text-sm text-slate-400 mb-2">Selecione a Consulta *</label>
+          <select id="exam-appointment-select" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+             <option value="">Carregando consultas...</option>
+          </select>
+          <p class="text-xs text-slate-500 mt-1">Exames devem estar vinculados a uma consulta.</p>
         </div>
 
         <div>
@@ -692,6 +856,50 @@ async function showExamRequestModal(professionalId: number) {
 
   document.body.appendChild(modal);
 
+  // Load Appointments (Context)
+  const appSelect = modal.querySelector(
+    "#exam-appointment-select",
+  ) as HTMLSelectElement;
+  try {
+    // Reuse listAppointments, filtering by professional and ensuring we get relevant ones
+    // We might want past appointments too if they forgot to request exam during consultation?
+    // Business rule says "Exame vinculado a appointment". Usually this is done during or shortly after.
+    // Let's fetch recent and upcoming.
+    const appResponse = await listAppointments({
+      professionalId,
+      pageSize: 50, // Limit to 50 most recent/upcoming
+      // We don't strictly filter by date here to allow retro-active requests if needed,
+      // but typically we prioritize active ones.
+      // Let's just list them sorted by date (default).
+    });
+
+    if (
+      appResponse.success &&
+      appResponse.data &&
+      appResponse.data.appointments &&
+      appResponse.data.appointments.length > 0
+    ) {
+      appSelect.innerHTML =
+        '<option value="">Selecione uma consulta...</option>' +
+        appResponse.data.appointments
+          .map(
+            (app) =>
+              // Store patient ID in data attribute for easy access
+              `<option value="${app.id}" data-patient-id="${app.patient_id}">
+                  ${app.date} ${app.time} - ${app.patient_name} (${app.status})
+              </option>`,
+          )
+          .join("");
+    } else {
+      appSelect.innerHTML =
+        '<option value="">Nenhuma consulta encontrada</option>';
+    }
+  } catch (error) {
+    console.error("Error loading appointments for modal:", error);
+    appSelect.innerHTML =
+      '<option value="">Erro ao carregar consultas</option>';
+  }
+
   // Load Catalog
   const selectEl = modal.querySelector("#exam-catalog-id") as HTMLSelectElement;
   try {
@@ -700,6 +908,7 @@ async function showExamRequestModal(professionalId: number) {
       selectEl.innerHTML =
         '<option value="">Selecione um exame...</option>' +
         catResponse.data
+          .filter((i) => i.is_active)
           .map(
             (item) =>
               `<option value="${item.id}">${item.exam_name} (R$ ${item.base_price})</option>`,
@@ -732,13 +941,15 @@ async function showExamRequestModal(professionalId: number) {
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const appointmentId = Number(
-      (document.getElementById("exam-appointment-id") as HTMLInputElement)
-        .value,
-    );
-    const patientId = Number(
-      (document.getElementById("exam-patient-id") as HTMLInputElement).value,
-    );
+    const appSelect = document.getElementById(
+      "exam-appointment-select",
+    ) as HTMLSelectElement;
+    const appointmentId = Number(appSelect.value);
+
+    // Get patient ID from the selected option's data attribute
+    const selectedOption = appSelect.options[appSelect.selectedIndex];
+    const patientId = Number(selectedOption.getAttribute("data-patient-id"));
+
     const examCatalogId = Number(
       (document.getElementById("exam-catalog-id") as HTMLSelectElement).value,
     );
