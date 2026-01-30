@@ -1,6 +1,6 @@
 import { Navigation } from "../components/Navigation"
 import { ToastContainer } from "../components/ToastContainer"
-import { listAppointments } from "../services/appointmentsService"
+import { checkInAppointment, listAppointments } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
@@ -200,19 +200,39 @@ function setupCheckInButtons() {
 }
 
 async function handleCheckIn(appointmentId: number) {
-  // For now, just show a success message
-  // In a full implementation, this would call an endpoint like PATCH /appointments/:id/check-in
-  uiStore.addToast(
-    "info",
-    "Funcionalidade de check-in será implementada com endpoint específico",
-  )
+  const button = document.querySelector(
+    `[data-checkin-btn="${appointmentId}"]`,
+  ) as HTMLButtonElement | null
 
-  // TODO: Implement when backend provides PATCH /appointments/:id/check-in endpoint
-  // const response = await updateAppointmentStatus(appointmentId, 'in_progress')
-  // if (response.success) {
-  //   uiStore.addToast('success', 'Check-in realizado com sucesso')
-  //   loadDashboardData() // Refresh data
-  // }
+  if (button) {
+    button.disabled = true
+    button.classList.add("opacity-50", "cursor-wait")
+  }
+
+  try {
+    const response = await checkInAppointment(appointmentId)
+
+    if (response.success) {
+      uiStore.addToast("success", "Check-in realizado com sucesso")
+      await loadDashboardData()
+    } else {
+      uiStore.addToast(
+        "error",
+        response.error?.message || "Não foi possível confirmar o check-in.",
+      )
+    }
+  } catch (error) {
+    console.error("Erro ao confirmar check-in:", error)
+    uiStore.addToast(
+      "error",
+      "Erro de comunicação ao confirmar o check-in. Tente novamente.",
+    )
+  } finally {
+    if (button) {
+      button.disabled = false
+      button.classList.remove("opacity-50", "cursor-wait")
+    }
+  }
 }
 
 function getStatusBadge(status: string): string {
