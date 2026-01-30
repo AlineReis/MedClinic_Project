@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedClinic - Agendamentos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="material-symbols-outlined icon">local_hospital</span>
+          </div>
+          <div class="brand-info">
+            <h1 class="brand-name">MedClinic</h1>
+            <p class="brand-tagline">Gestão Clínica</p>
+          </div>
+        </div>
+        <nav class="nav-menu" id="navMenu">
+          <a href="dashboard.html" class="nav-link" data-page="dashboard">
+            <span class="material-symbols-outlined icon">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+          <a href="appointments.html" class="nav-link active" data-page="appointments">
+            <span class="material-symbols-outlined icon">calendar_month</span>
+            <span>Agendamentos</span>
+          </a>
+          <a href="professionals.html" class="nav-link" data-page="professionals" data-roles="patient">
+            <span class="material-symbols-outlined icon">medical_services</span>
+            <span>Profissionais</span>
+          </a>
+          <a href="patients.html" class="nav-link" data-page="patients" data-roles="health_professional,receptionist,clinic_admin">
+            <span class="material-symbols-outlined icon">groups</span>
+            <span>Pacientes</span>
+          </a>
+          <a href="exams.html" class="nav-link" data-page="exams" data-roles="health_professional,lab_tech,clinic_admin,patient">
+            <span class="material-symbols-outlined icon">biotech</span>
+            <span>Exames</span>
+          </a>
+          <a href="prescriptions.html" class="nav-link" data-page="prescriptions" data-roles="health_professional,clinic_admin,patient">
+            <span class="material-symbols-outlined icon">medication</span>
+            <span>Prescrições</span>
+          </a>
+          <a href="users.html" class="nav-link" data-page="users" data-roles="clinic_admin,system_admin">
+            <span class="material-symbols-outlined icon">manage_accounts</span>
+            <span>Usuários</span>
+          </a>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="btn btn-secondary btn-block" id="newAppointmentBtn">
+          <span class="material-symbols-outlined icon">add_circle</span>
+          <span>Novo Agendamento</span>
+        </button>
+        <div class="user-profile" id="userProfile">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div class="user-info">
+            <p class="user-name" id="userName">Carregando...</p>
+            <p class="user-role" id="userRole">-</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="header">
+        <div class="header-mobile">
+          <button class="btn-ghost" id="menuToggle">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <span style="color: var(--color-text-primary); font-weight: var(--font-weight-bold);">MedClinic</span>
+        </div>
+        <div class="header-title">
+          <h2>Agendamentos</h2>
+          <p id="currentDate"></p>
+        </div>
+        <div class="header-actions">
+          <button class="notification-btn" id="notificationBtn">
+            <span class="material-symbols-outlined">notifications</span>
+          </button>
+          <button class="btn btn-ghost" id="logoutBtn">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content-area scrollbar-hide">
+        <div class="content-wrapper">
+          <!-- Filters -->
+          <div class="card">
+            <div class="filters" style="display: flex; flex-wrap: wrap; gap: var(--spacing-4); align-items: flex-end;">
+              <div class="form-group" style="min-width: 150px;">
+                <label class="form-label">Status</label>
+                <select id="filterStatus" class="form-select">
+                  <option value="">Todos</option>
+                  <option value="scheduled">Agendadas</option>
+                  <option value="confirmed">Confirmadas</option>
+                  <option value="waiting">Em Espera</option>
+                  <option value="in_progress">Em Atendimento</option>
+                  <option value="completed">Realizadas</option>
+                  <option value="no_show">Não Compareceu</option>
+                  <option value="cancelled_by_patient">Canceladas</option>
+                </select>
+              </div>
+              <div class="form-group" style="min-width: 150px;">
+                <label class="form-label">Data</label>
+                <input type="date" id="filterDate" class="form-input">
+              </div>
+              <div class="form-group" style="min-width: 200px;">
+                <label class="form-label">Buscar</label>
+                <input type="text" id="filterSearch" class="form-input" placeholder="Nome do paciente...">
+              </div>
+              <button class="btn btn-primary" id="applyFilters">
+                <span class="material-symbols-outlined icon">filter_list</span>
+                Filtrar
+              </button>
+              <button class="btn btn-ghost" id="clearFilters">Limpar</button>
+            </div>
+          </div>
+
+          <!-- Appointments Table -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Lista de Agendamentos</h3>
+              <span class="text-muted" id="totalCount">0 agendamentos</span>
+            </div>
+            <div class="table-container">
+              <table class="table" id="appointmentsTable">
+                <thead>
+                  <tr>
+                    <th>Paciente</th>
+                    <th>Profissional</th>
+                    <th>Data/Hora</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Pagamento</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="appointmentsTableBody">
+                  <!-- Data loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="margin-top: var(--spacing-4);"></div>
+          </div>
+
+          <footer class="footer">
+            <p>&copy; 2026 MedClinic. Todos os direitos reservados.</p>
+          </footer>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div class="modal-backdrop" id="cancelModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Cancelar Agendamento</h3>
+        <button class="modal-close" id="closeCancelModal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-4);">
+          Tem certeza que deseja cancelar este agendamento?
+        </p>
+        <div class="form-group">
+          <label class="form-label">Motivo do cancelamento (opcional)</label>
+          <textarea id="cancelReason" class="form-textarea" rows="3" placeholder="Informe o motivo..."></textarea>
+        </div>
+        <div id="refundInfo" class="mt-4" style="padding: var(--spacing-3); background: var(--color-warning-light); border-radius: var(--radius-md);">
+          <p style="color: var(--color-warning); font-size: var(--font-size-sm);">
+            <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px;">info</span>
+            Informações de reembolso serão calculadas automaticamente.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelCancelBtn">Voltar</button>
+        <button class="btn btn-danger" id="confirmCancelBtn">Confirmar Cancelamento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reschedule Modal -->
+  <div class="modal-backdrop" id="rescheduleModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Reagendar Consulta</h3>
+        <button class="modal-close" id="closeRescheduleModal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="rescheduleForm">
+          <div class="form-group">
+            <label class="form-label required">Nova Data</label>
+            <input type="date" id="newDate" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Novo Horário</label>
+            <select id="newTime" class="form-select" required disabled>
+              <option value="">Selecione a data primeiro</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelRescheduleBtn">Cancelar</button>
+        <button class="btn btn-primary" id="confirmRescheduleBtn">Reagendar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script type="module" src="appointments.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedClinic - Exames</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="material-symbols-outlined icon">local_hospital</span>
+          </div>
+          <div class="brand-info">
+            <h1 class="brand-name">MedClinic</h1>
+            <p class="brand-tagline">Gestão Clínica</p>
+          </div>
+        </div>
+        <nav class="nav-menu" id="navMenu">
+          <a href="dashboard.html" class="nav-link"><span class="material-symbols-outlined icon">dashboard</span><span>Dashboard</span></a>
+          <a href="appointments.html" class="nav-link"><span class="material-symbols-outlined icon">calendar_month</span><span>Agendamentos</span></a>
+          <a href="professionals.html" class="nav-link" data-roles="patient"><span class="material-symbols-outlined icon">medical_services</span><span>Profissionais</span></a>
+          <a href="patients.html" class="nav-link" data-roles="health_professional,receptionist,clinic_admin"><span class="material-symbols-outlined icon">groups</span><span>Pacientes</span></a>
+          <a href="exams.html" class="nav-link active"><span class="material-symbols-outlined icon">biotech</span><span>Exames</span></a>
+          <a href="prescriptions.html" class="nav-link"><span class="material-symbols-outlined icon">medication</span><span>Prescrições</span></a>
+          <a href="users.html" class="nav-link" data-roles="clinic_admin,system_admin"><span class="material-symbols-outlined icon">manage_accounts</span><span>Usuários</span></a>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="btn btn-secondary btn-block" id="newExamBtn" data-roles="health_professional">
+          <span class="material-symbols-outlined icon">add_circle</span>
+          <span>Solicitar Exame</span>
+        </button>
+        <div class="user-profile">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div class="user-info">
+            <p class="user-name" id="userName">Carregando...</p>
+            <p class="user-role" id="userRole">-</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar"></aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-mobile">
+          <button class="btn-ghost" id="menuToggle"><span class="material-symbols-outlined">menu</span></button>
+          <span style="color: var(--color-text-primary); font-weight: bold;">MedClinic</span>
+        </div>
+        <div class="header-title">
+          <h2>Exames</h2>
+          <p>Gerencie solicitações e resultados de exames</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="logoutBtn"><span class="material-symbols-outlined">logout</span></button>
+        </div>
+      </header>
+
+      <div class="content-area scrollbar-hide">
+        <div class="content-wrapper">
+          <!-- Filters -->
+          <div class="card">
+            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-4); align-items: flex-end;">
+              <div class="form-group" style="min-width: 150px;">
+                <label class="form-label">Status</label>
+                <select id="filterStatus" class="form-select">
+                  <option value="">Todos</option>
+                  <option value="pending_payment">Aguardando Pagamento</option>
+                  <option value="paid_pending_schedule">Aguardando Agendamento</option>
+                  <option value="scheduled">Agendado</option>
+                  <option value="in_analysis">Em Análise</option>
+                  <option value="ready">Resultado Pronto</option>
+                  <option value="released">Liberado</option>
+                </select>
+              </div>
+              <div class="form-group" style="min-width: 150px;">
+                <label class="form-label">Tipo</label>
+                <select id="filterType" class="form-select">
+                  <option value="">Todos</option>
+                  <option value="blood">Sangue</option>
+                  <option value="image">Imagem</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" id="applyFilters">Filtrar</button>
+            </div>
+          </div>
+
+          <!-- Exams Table -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Lista de Exames</h3>
+              <span class="text-muted" id="totalCount">0 exames</span>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Paciente</th>
+                    <th>Exame</th>
+                    <th>Tipo</th>
+                    <th>Solicitante</th>
+                    <th>Status</th>
+                    <th>Data Solicitação</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="examsTableBody"></tbody>
+              </table>
+            </div>
+            <div class="pagination" id="pagination" style="margin-top: var(--spacing-4);"></div>
+          </div>
+
+          <footer class="footer">
+            <p>&copy; 2026 MedClinic. Todos os direitos reservados.</p>
+          </footer>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Exam Modal -->
+  <div class="modal-backdrop" id="newExamModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Solicitar Exame</h3>
+        <button class="modal-close" id="closeNewExamModal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <form id="newExamForm">
+          <div class="form-group">
+            <label class="form-label required">Consulta Relacionada</label>
+            <select id="examAppointment" class="form-select" required>
+              <option value="">Selecione a consulta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Nome do Exame</label>
+            <input type="text" id="examName" class="form-input" placeholder="Ex: Hemograma completo" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Tipo</label>
+            <select id="examType" class="form-select" required>
+              <option value="blood">Exame de Sangue</option>
+              <option value="image">Exame de Imagem</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Indicação Clínica</label>
+            <textarea id="examIndication" class="form-textarea" rows="3" placeholder="Justificativa clínica para o exame..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Valor (R$)</label>
+            <input type="number" id="examPrice" class="form-input" step="0.01" min="0" placeholder="0,00" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelNewExam">Cancelar</button>
+        <button class="btn btn-primary" id="confirmNewExam">Solicitar Exame</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Result Modal (Lab Tech) -->
+  <div class="modal-backdrop" id="uploadResultModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Resultado</h3>
+        <button class="modal-close" id="closeUploadModal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadResultForm">
+          <div class="form-group">
+            <label class="form-label">Resultado (Texto)</label>
+            <textarea id="resultText" class="form-textarea" rows="5" placeholder="Digite o resultado do exame..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL do Arquivo (PDF)</label>
+            <input type="url" id="resultFileUrl" class="form-input" placeholder="https://...">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelUpload">Cancelar</button>
+        <button class="btn btn-primary" id="confirmUpload">Salvar Resultado</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <script type="module" src="exams.js"></script>
+</body>
+</html>

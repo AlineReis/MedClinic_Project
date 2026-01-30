@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedClinic - Prescrições</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="material-symbols-outlined icon">local_hospital</span>
+          </div>
+          <div class="brand-info">
+            <h1 class="brand-name">MedClinic</h1>
+            <p class="brand-tagline">Gestão Clínica</p>
+          </div>
+        </div>
+        <nav class="nav-menu" id="navMenu">
+          <a href="dashboard.html" class="nav-link"><span class="material-symbols-outlined icon">dashboard</span><span>Dashboard</span></a>
+          <a href="appointments.html" class="nav-link"><span class="material-symbols-outlined icon">calendar_month</span><span>Agendamentos</span></a>
+          <a href="professionals.html" class="nav-link" data-roles="patient"><span class="material-symbols-outlined icon">medical_services</span><span>Profissionais</span></a>
+          <a href="patients.html" class="nav-link" data-roles="health_professional,receptionist,clinic_admin"><span class="material-symbols-outlined icon">groups</span><span>Pacientes</span></a>
+          <a href="exams.html" class="nav-link"><span class="material-symbols-outlined icon">biotech</span><span>Exames</span></a>
+          <a href="prescriptions.html" class="nav-link active"><span class="material-symbols-outlined icon">medication</span><span>Prescrições</span></a>
+          <a href="users.html" class="nav-link" data-roles="clinic_admin,system_admin"><span class="material-symbols-outlined icon">manage_accounts</span><span>Usuários</span></a>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="btn btn-secondary btn-block" id="newPrescriptionBtn" data-roles="health_professional">
+          <span class="material-symbols-outlined icon">add_circle</span>
+          <span>Nova Prescrição</span>
+        </button>
+        <div class="user-profile">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div class="user-info">
+            <p class="user-name" id="userName">Carregando...</p>
+            <p class="user-role" id="userRole">-</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar"></aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-mobile">
+          <button class="btn-ghost" id="menuToggle"><span class="material-symbols-outlined">menu</span></button>
+          <span style="color: var(--color-text-primary); font-weight: bold;">MedClinic</span>
+        </div>
+        <div class="header-title">
+          <h2>Prescrições</h2>
+          <p>Receitas e medicamentos prescritos</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="logoutBtn"><span class="material-symbols-outlined">logout</span></button>
+        </div>
+      </header>
+
+      <div class="content-area scrollbar-hide">
+        <div class="content-wrapper">
+          <!-- Prescriptions List -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Minhas Prescrições</h3>
+              <span class="text-muted" id="totalCount">0 prescrições</span>
+            </div>
+            <div id="prescriptionsList" style="display: flex; flex-direction: column; gap: var(--spacing-4);">
+              <!-- Prescriptions loaded dynamically -->
+            </div>
+          </div>
+
+          <footer class="footer">
+            <p>&copy; 2026 MedClinic. Todos os direitos reservados.</p>
+          </footer>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Prescription Modal -->
+  <div class="modal-backdrop" id="newPrescriptionModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Nova Prescrição</h3>
+        <button class="modal-close" id="closeNewPrescriptionModal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <form id="newPrescriptionForm">
+          <div class="form-group">
+            <label class="form-label required">Consulta Relacionada</label>
+            <select id="prescriptionAppointment" class="form-select" required>
+              <option value="">Selecione a consulta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Nome do Medicamento</label>
+            <input type="text" id="medicationName" class="form-input" placeholder="Ex: Dipirona 500mg" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dosagem</label>
+            <input type="text" id="dosage" class="form-input" placeholder="Ex: 1 comprimido">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instruções</label>
+            <textarea id="instructions" class="form-textarea" rows="3" placeholder="Ex: Tomar de 8 em 8 horas por 5 dias"></textarea>
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="isControlled" style="width: 18px; height: 18px;">
+              <span class="form-label" style="margin: 0;">Medicamento controlado</span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelNewPrescription">Cancelar</button>
+        <button class="btn btn-primary" id="confirmNewPrescription">Criar Prescrição</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <script type="module" src="prescriptions.js"></script>
+</body>
+</html>

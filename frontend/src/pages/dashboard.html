@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedClinic - Dashboard">
+  <title>MedClinic - Dashboard</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <!-- Brand -->
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="material-symbols-outlined icon">local_hospital</span>
+          </div>
+          <div class="brand-info">
+            <h1 class="brand-name">MedClinic</h1>
+            <p class="brand-tagline">Gestão Clínica</p>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="nav-menu" id="navMenu">
+          <a href="dashboard.html" class="nav-link active" data-page="dashboard">
+            <span class="material-symbols-outlined icon">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+          <a href="appointments.html" class="nav-link" data-page="appointments">
+            <span class="material-symbols-outlined icon">calendar_month</span>
+            <span>Agendamentos</span>
+          </a>
+          <!-- Patient specific -->
+          <a href="professionals.html" class="nav-link" data-page="professionals" data-roles="patient">
+            <span class="material-symbols-outlined icon">medical_services</span>
+            <span>Profissionais</span>
+          </a>
+          <a href="my-exams.html" class="nav-link" data-page="my-exams" data-roles="patient">
+            <span class="material-symbols-outlined icon">biotech</span>
+            <span>Meus Exames</span>
+          </a>
+          <a href="my-prescriptions.html" class="nav-link" data-page="my-prescriptions" data-roles="patient">
+            <span class="material-symbols-outlined icon">description</span>
+            <span>Prescrições</span>
+          </a>
+          <!-- Professional specific -->
+          <a href="availability.html" class="nav-link" data-page="availability" data-roles="health_professional">
+            <span class="material-symbols-outlined icon">schedule</span>
+            <span>Disponibilidade</span>
+          </a>
+          <a href="patients.html" class="nav-link" data-page="patients" data-roles="health_professional,receptionist,clinic_admin">
+            <span class="material-symbols-outlined icon">groups</span>
+            <span>Pacientes</span>
+          </a>
+          <a href="exams.html" class="nav-link" data-page="exams" data-roles="health_professional,lab_tech,clinic_admin">
+            <span class="material-symbols-outlined icon">biotech</span>
+            <span>Exames</span>
+          </a>
+          <a href="prescriptions.html" class="nav-link" data-page="prescriptions" data-roles="health_professional,clinic_admin">
+            <span class="material-symbols-outlined icon">medication</span>
+            <span>Prescrições</span>
+          </a>
+          <a href="commissions.html" class="nav-link" data-page="commissions" data-roles="health_professional">
+            <span class="material-symbols-outlined icon">payments</span>
+            <span>Comissões</span>
+          </a>
+          <!-- Admin specific -->
+          <a href="users.html" class="nav-link" data-page="users" data-roles="clinic_admin,system_admin">
+            <span class="material-symbols-outlined icon">manage_accounts</span>
+            <span>Usuários</span>
+          </a>
+          <a href="financial.html" class="nav-link" data-page="financial" data-roles="clinic_admin">
+            <span class="material-symbols-outlined icon">account_balance</span>
+            <span>Financeiro</span>
+          </a>
+          <a href="reports.html" class="nav-link" data-page="reports" data-roles="clinic_admin">
+            <span class="material-symbols-outlined icon">bar_chart</span>
+            <span>Relatórios</span>
+          </a>
+          <a href="settings.html" class="nav-link" data-page="settings" data-roles="clinic_admin,system_admin">
+            <span class="material-symbols-outlined icon">settings</span>
+            <span>Configurações</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- User Profile & CTA -->
+      <div class="sidebar-bottom">
+        <button class="btn btn-secondary btn-block" id="newAppointmentBtn">
+          <span class="material-symbols-outlined icon">add_circle</span>
+          <span>Novo Agendamento</span>
+        </button>
+        <div class="user-profile" id="userProfile">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div class="user-info">
+            <p class="user-name" id="userName">Carregando...</p>
+            <p class="user-role" id="userRole">-</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+      <!-- Same content as sidebar, will be cloned via JS -->
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="header">
+        <div class="header-mobile">
+          <button class="btn-ghost" id="menuToggle" aria-label="Abrir menu">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <span style="color: var(--color-text-primary); font-weight: var(--font-weight-bold); font-size: var(--font-size-lg);">MedClinic</span>
+        </div>
+
+        <div class="header-title">
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="currentDate"></p>
+        </div>
+
+        <div class="header-actions">
+          <div class="search-container">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input type="text" class="search-input" placeholder="Buscar paciente..." id="searchInput">
+          </div>
+          <button class="notification-btn" id="notificationBtn" aria-label="Notificações">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="notification-badge" id="notificationBadge"></span>
+          </button>
+          <button class="btn btn-ghost" id="logoutBtn" aria-label="Sair">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Dashboard Content -->
+      <div class="content-area scrollbar-hide">
+        <div class="content-wrapper">
+          <!-- Hero Welcome -->
+          <div class="hero" id="heroSection" style="background-image: linear-gradient(to right, rgba(17, 20, 24, 0.95) 0%, rgba(17, 20, 24, 0.7) 100%), linear-gradient(135deg, #197fe6 0%, #0ea5e9 100%);">
+            <div class="hero-content">
+              <h2 class="hero-title" id="welcomeTitle">Bem-vindo!</h2>
+              <p class="hero-text" id="welcomeText">Carregando informações...</p>
+            </div>
+          </div>
+
+          <!-- Metrics Grid -->
+          <div class="grid-metrics" id="metricsGrid">
+            <!-- Metrics will be inserted dynamically based on role -->
+          </div>
+
+          <!-- Charts & Tables Layout -->
+          <div class="grid-dashboard">
+            <!-- Chart Section -->
+            <div class="card chart-container" id="chartSection">
+              <div class="chart-header">
+                <div class="chart-info">
+                  <h3>Ocupação por Especialidade</h3>
+                  <p>Taxa de agendamentos por especialidade</p>
+                </div>
+                <div class="chart-actions">
+                  <button class="chart-btn active" data-period="today">Hoje</button>
+                  <button class="chart-btn" data-period="week">Semana</button>
+                </div>
+              </div>
+              <div class="chart-area">
+                <div class="bar-chart" id="barChart">
+                  <!-- Chart bars will be inserted dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Appointments List -->
+            <div class="card appointments-panel" id="appointmentsPanel">
+              <div class="appointments-header">
+                <h3>Próximos Atendimentos</h3>
+                <a href="appointments.html">Ver todos</a>
+              </div>
+              <div class="appointments-list scrollbar-hide" id="appointmentsList">
+                <!-- Appointments will be inserted dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <footer class="footer">
+            <p>&copy; 2026 MedClinic. Todos os direitos reservados.</p>
+            <div class="footer-links">
+              <a href="#">Suporte</a>
+              <a href="#">Termos de Uso</a>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Appointment Modal -->
+  <div class="modal-backdrop" id="appointmentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Novo Agendamento</h3>
+        <button class="modal-close" id="closeAppointmentModal" aria-label="Fechar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="appointmentForm">
+          <div class="form-group">
+            <label for="specialty" class="form-label required">Especialidade</label>
+            <select id="specialty" name="specialty" class="form-select" required>
+              <option value="">Selecione uma especialidade</option>
+              <option value="psicologia">Psicologia</option>
+              <option value="nutricao">Nutrição</option>
+              <option value="fonoaudiologia">Fonoaudiologia</option>
+              <option value="fisioterapia">Fisioterapia</option>
+              <option value="clinica_medica">Clínica Médica</option>
+              <option value="cardiologia">Cardiologia</option>
+              <option value="oftalmologia">Oftalmologia</option>
+              <option value="urologia">Urologia</option>
+              <option value="cirurgia_geral">Cirurgia Geral</option>
+              <option value="ortopedia">Ortopedia</option>
+              <option value="neurologia">Neurologia</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="professional" class="form-label required">Profissional</label>
+            <select id="professional" name="professional_id" class="form-select" required disabled>
+              <option value="">Selecione a especialidade primeiro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentDate" class="form-label required">Data</label>
+            <input type="date" id="appointmentDate" name="date" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentTime" class="form-label required">Horário</label>
+            <select id="appointmentTime" name="time" class="form-select" required disabled>
+              <option value="">Selecione a data primeiro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentType" class="form-label required">Tipo de Consulta</label>
+            <select id="appointmentType" name="type" class="form-select" required>
+              <option value="presencial">Presencial</option>
+              <option value="online">Online (Telemedicina)</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="patientSelectGroup" style="display: none;">
+            <label for="patientSelect" class="form-label required">Paciente</label>
+            <select id="patientSelect" name="patient_id" class="form-select">
+              <option value="">Selecione o paciente</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="cancelAppointment">Cancelar</button>
+        <button type="submit" form="appointmentForm" class="btn btn-primary" id="confirmAppointment">
+          <span>Confirmar Agendamento</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="../services/api.js"></script>
+  <script type="module" src="../services/auth.js"></script>
+  <script type="module" src="../utils/toast.js"></script>
+  <script type="module" src="../utils/helpers.js"></script>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "medclinic-frontend",
+  "version": "1.0.0",
+  "description": "MedClinic Frontend - Sistema de Gestão de Clínicas Médicas",
+  "main": "src/index.html",
+  "scripts": {
+    "dev": "npx serve src -l 3001 -C",
+    "start": "npx serve src -l 3001"
+  },
+  "keywords": ["medclinic", "healthcare", "frontend"],
+  "author": "MedClinic Team",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedClinic - Sistema de Gestão de Clínicas Médicas">
+  <title>MedClinic - Login</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-container">
+      <div class="login-card">
+        <!-- Header -->
+        <div class="login-header">
+          <div class="login-logo">
+            <span class="material-symbols-outlined icon">local_hospital</span>
+          </div>
+          <h1 class="login-title">MedClinic</h1>
+          <p class="login-subtitle">Sistema de Gestão de Clínicas Médicas</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="login-form" novalidate>
+          <div class="form-group">
+            <label for="email" class="form-label required">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+            >
+            <span class="form-error" id="emailError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label required">Senha</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="Digite sua senha"
+              autocomplete="current-password"
+              required
+            >
+            <span class="form-error" id="passwordError"></span>
+          </div>
+
+          <div class="form-group" style="margin-top: var(--spacing-2);">
+            <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+              <span class="btn-text">Entrar</span>
+              <span class="loading-spinner" id="loginSpinner" style="display: none;"></span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Footer -->
+        <div class="login-footer">
+          <p>Não tem uma conta? <a href="pages/register.html">Cadastre-se</a></p>
+        </div>
+      </div>
+
+      <!-- Demo credentials hint -->
+      <div style="margin-top: var(--spacing-6); text-align: center;">
+        <p style="color: var(--color-text-muted); font-size: var(--font-size-xs); margin-bottom: var(--spacing-2);">
+          Credenciais de demonstração:
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-2); justify-content: center;">
+          <button type="button" class="demo-login-btn" data-email="maria@email.com" data-password="Paciente@123" style="padding: 4px 8px; font-size: 11px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text-secondary); cursor: pointer;">
+            Paciente
+          </button>
+          <button type="button" class="demo-login-btn" data-email="cardio@clinica.com" data-password="Profissional@123" style="padding: 4px 8px; font-size: 11px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text-secondary); cursor: pointer;">
+            Médico
+          </button>
+          <button type="button" class="demo-login-btn" data-email="gestor@clinica.com" data-password="Gestor@123" style="padding: 4px 8px; font-size: 11px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text-secondary); cursor: pointer;">
+            Admin
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="services/api.js"></script>
+  <script type="module" src="utils/toast.js"></script>
+  <script type="module" src="pages/login.js"></script>
+</body>
+</html>
