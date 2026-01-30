@@ -30,6 +30,11 @@ export class AvailabilityRepository {
     await database.run(sql, [professionalId]);
   }
 
+  async deleteById(id: number, professionalId: number): Promise<void> {
+    const sql = `DELETE FROM availabilities WHERE id = ? AND professional_id = ?`;
+    await database.run(sql, [id, professionalId]);
+  }
+
   public async isProfessionalAvailable(
     professionalId: number,
     date: string,
