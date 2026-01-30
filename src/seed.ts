@@ -252,34 +252,65 @@ async function seedAvailabilities(userIds: Map<string, number>): Promise<void> {
       start_time: "08:00",
       end_time: "12:00",
     },
+    // Dr. João (Cardiologista) - Full week availability for testing
+    {
+      email: "joao@clinica.com",
+      day_of_week: 1, // Monday
+      start_time: "09:00",
+      end_time: "18:00",
+    },
+    {
+      email: "joao@clinica.com",
+      day_of_week: 2, // Tuesday
+      start_time: "09:00",
+      end_time: "18:00",
+    },
+    {
+      email: "joao@clinica.com",
+      day_of_week: 3, // Wednesday
+      start_time: "09:00",
+      end_time: "18:00",
+    },
+    {
+      email: "joao@clinica.com",
+      day_of_week: 4, // Thursday
+      start_time: "09:00",
+      end_time: "18:00",
+    },
+    {
+      email: "joao@clinica.com",
+      day_of_week: 5, // Friday
+      start_time: "09:00",
+      end_time: "18:00",
+    },
     {
       email: "carlos@clinica.com",
       day_of_week: 1,
-      start_time: "07:00",
+      start_time: "09:00",
       end_time: "11:00",
     },
     {
       email: "carlos@clinica.com",
       day_of_week: 2,
-      start_time: "07:00",
+      start_time: "09:00",
       end_time: "11:00",
     },
     {
       email: "carlos@clinica.com",
       day_of_week: 3,
-      start_time: "07:00",
+      start_time: "09:00",
       end_time: "11:00",
     },
     {
       email: "carlos@clinica.com",
       day_of_week: 4,
-      start_time: "07:00",
+      start_time: "09:00",
       end_time: "11:00",
     },
     {
       email: "carlos@clinica.com",
       day_of_week: 5,
-      start_time: "07:00",
+      start_time: "09:00",
       end_time: "11:00",
     },
   ];

@@ -57,7 +57,7 @@ export class ProfessionalController {
   public getAvailability = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { days_ahead } = req.query;
+      const { days_ahead, date } = req.query;
 
       const professionalId = Number(id);
       const daysAhead = Math.min(
@@ -72,6 +72,7 @@ export class ProfessionalController {
       const availability = await this.professionalService.getAvailability(
         professionalId,
         daysAhead,
+        date as string,
       );
       res.json(availability);
     } catch (error: any) {
