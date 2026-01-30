@@ -1,10 +1,10 @@
-import { CommissionStatus } from "@models/commission.js";
-import type { UserRole } from "@models/user.js";
+import { CommissionStatus } from "../models/commission.js";
+import type { UserRole } from "../models/user.js";
 import { Request, Response, type NextFunction } from "express";
 import { ProfessionalService } from "../services/professional.service.js";
 
 export class ProfessionalController {
-  constructor(private professionalService: ProfessionalService) {}
+  constructor(private professionalService: ProfessionalService) { }
 
   public register = async (req: Request, res: Response) => {
     try {

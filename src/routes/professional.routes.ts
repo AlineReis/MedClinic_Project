@@ -1,10 +1,10 @@
-import { authMiddleware } from "@middlewares/auth.middleware.js";
-import { AppointmentRepository } from "@repositories/appointment.repository.js";
-import { AvailabilityRepository } from "@repositories/availability.repository.js";
-import { CommissionRepository } from "@repositories/commission.repository.js";
-import { ProfessionalRepository } from "@repositories/professional.repository.js";
-import { UserRepository } from "@repositories/user.repository.js";
-import { ProfessionalService } from "@services/professional.service.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { AppointmentRepository } from "../repository/appointment.repository.js";
+import { AvailabilityRepository } from "../repository/availability.repository.js";
+import { CommissionRepository } from "../repository/commission.repository.js";
+import { ProfessionalRepository } from "../repository/professional.repository.js";
+import { UserRepository } from "../repository/user.repository.js";
+import { ProfessionalService } from "../services/professional.service.js";
 import { Router } from "express";
 import { ProfessionalController } from "../controller/professional.controller.js";
 

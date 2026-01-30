@@ -5,3 +5,6 @@ node_modules/
 database/
 dist/
 coverage/
+docs/
+PROGRESS-backend-integration.md
+filelist.txt
