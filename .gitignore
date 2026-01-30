@@ -2,3 +2,7 @@ node_modules/
 docs/
 DESIGN.md
 design.md
+dist/
+js.old/
+.env
+database/
