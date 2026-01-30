@@ -36,8 +36,12 @@
 
     <!-- Header -->
     <header class="bg-surface-dark border-b border-border-dark">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
+                <!-- Hamburger Button (Mobile) -->
+                <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
                 <a href="patient-dashboard.html" class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">local_hospital</span>
                     <span class="font-bold">MedClinic</span>
@@ -49,7 +53,7 @@
                     <a href="my-appointments.html" class="text-slate-400 hover:text-white">Consultas</a>
                     <a href="exams.html" class="text-slate-400 hover:text-white">Exames</a>
                 </nav>
-                <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-3">
                     <div
                         class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
                         <span data-user-initials>U</span>
@@ -71,7 +75,7 @@
         </section>
 
         <!-- Quick Actions -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
             <a href="../pages/schedule-appointment.html"
                 class="bg-primary hover:bg-primary-hover p-5 rounded-2xl text-white flex flex-col gap-3 transition-all group shadow-lg shadow-primary/20">
                 <span class="material-symbols-outlined !text-[32px]">calendar_add_on</span>
@@ -86,11 +90,6 @@
                 class="bg-surface-dark hover:border-primary/50 border border-border-dark p-5 rounded-2xl flex flex-col gap-3 transition-all">
                 <span class="material-symbols-outlined !text-[32px] text-slate-400">science</span>
                 <span class="font-bold text-sm">Meus Exames</span>
-            </a>
-            <a href="telemedicine.html"
-                class="bg-surface-dark hover:border-primary/50 border border-border-dark p-5 rounded-2xl flex flex-col gap-3 transition-all">
-                <span class="material-symbols-outlined !text-[32px] text-slate-400">videocam</span>
-                <span class="font-bold text-sm">Telemedicina</span>
             </a>
         </section>
 
@@ -185,6 +184,8 @@
         </section>
 
     </main>
+
+    <script src="../js/components/mobile-menu.js"></script>
 </body>
 
 </html>

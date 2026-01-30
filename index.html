@@ -17,7 +17,7 @@
   <!-- Tailwind CSS (CDN for MVP) -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <!-- Custom CSS -->
-  <!-- Handled by Webpack's injected CSS bundle -->
+  <link rel="stylesheet" href="css/global.css">
 
   <!-- Theme Configuration -->
   <script>
@@ -50,36 +50,34 @@
 
 <body
   class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col overflow-x-hidden antialiased">
-  <!-- Top Navigation -->
-  <header
-    class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid dark:border-border-dark bg-white dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 md:px-10">
-    <div class="flex items-center gap-4">
-      <div class="size-8 flex items-center justify-center text-primary">
-        <span class="material-symbols-outlined !text-[32px]">local_hospital</span>
-      </div>
-      <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">
-        Portal do Paciente
-      </h2>
-    </div>
-    <div class="flex flex-1 justify-end gap-8">
-      <div class="hidden md:flex items-center gap-9">
-        <a class="text-sm font-medium leading-normal text-text-secondary hover:text-primary transition-colors"
-          href="pages/my-appointments.html">Meus Agendamentos</a>
-        <a class="text-sm font-medium leading-normal text-text-secondary hover:text-primary transition-colors"
-          href="#">Exames</a>
-        <a class="text-sm font-medium leading-normal text-text-secondary hover:text-primary transition-colors"
-          href="#">Perfil</a>
+  <!-- Header -->
+  <header class="bg-surface-dark border-b border-border-dark">
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Hamburger Button (Mobile) -->
+        <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <a href="index.html" class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">local_hospital</span>
+          <span class="font-bold">MedClinic</span>
+        </a>
       </div>
       <div class="flex items-center gap-4">
-        <button class="relative text-text-secondary hover:text-white">
-          <span class="material-symbols-outlined">notifications</span>
-          <span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full"></span>
-        </button>
-        <div
-          class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-border-dark cursor-pointer"
-          style="
-              background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuA8-NfOvJueEz5xLpWl6t6WleQm2J-yuRgfAUypu4DV3iD1abNFFfydkn84U5f3Y5C8IAUloCUWP6D_XkJAjwQRLsEXNXw_7m3K_f66dA7cKnkwzE8Gk-ui1RnjU917r_6FU-2Gn5luCZr_woZTnaSpAulIYCT2eyojkCn-rNn1_28Os3bty_NiKNVXwPPQfduxccfm27TPh5C6Xndx-3ekmErfSShFGS9ZIfHlSMs2Cb7a0oS7is80XxPRUk45TPrjHcJAHfggV9k&quot;);
-            "></div>
+        <nav class="hidden md:flex items-center gap-6 text-sm">
+          <a href="pages/patient-dashboard.html" class="text-slate-400 hover:text-white">Inicio</a>
+          <a href="pages/my-appointments.html" class="text-slate-400 hover:text-white">Consultas</a>
+          <a href="pages/exams.html" class="text-slate-400 hover:text-white">Exames</a>
+        </nav>
+        <div class="hidden md:flex items-center gap-3">
+          <div
+            class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+            <span data-user-initials>U</span>
+          </div>
+          <button data-logout-button class="text-sm text-slate-400 hover:text-red-400 transition-colors">
+            <span class="material-symbols-outlined text-[20px]">logout</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -162,6 +160,7 @@
   </div>
 
   <!-- Application Scripts -->
+  <script src="js/components/mobile-menu.js"></script>
   <script src="js/components/navigation.js"></script>
   <script src="js/services/mock_db.js"></script>
   <script src="js/pages/app.js"></script>
