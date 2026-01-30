@@ -230,33 +230,21 @@ async function loadPatientAppointments(useCache = true) {
   }
 
   const appointments = response.data.appointments
-  console.group("🔍 Debug Agendamentos")
-  console.log("Recebido da API:", appointments.length, appointments)
-
   if (appointments.length === 0) {
-    console.warn("API retornou 0 agendamentos")
     appointmentsStatus.textContent = "Nenhum agendamento encontrado"
     appointmentsList.innerHTML = buildAppointmentsEmptyState(
       "Você ainda não tem agendamentos.",
       "Agende sua primeira consulta.",
     )
-    console.groupEnd()
     return
   }
 
   const now = new Date()
-  console.log("Data agora:", now)
-
   const futureAppointments = appointments
-    .map(appointment => {
-      const dateTime = getAppointmentDateTime(appointment)
-      const isFuture = dateTime >= now
-      console.log(`[${appointment.id}] ${appointment.professional_name} - ${appointment.date} ${appointment.time} | Parsed: ${dateTime} | IsFuture: ${isFuture}`)
-      return {
-        ...appointment,
-        dateTime,
-      }
-    })
+    .map(appointment => ({
+      ...appointment,
+      dateTime: getAppointmentDateTime(appointment),
+    }))
     .filter(
       appointment =>
         !Number.isNaN(appointment.dateTime.getTime()) &&
@@ -266,9 +254,6 @@ async function loadPatientAppointments(useCache = true) {
       (a, b) =>
         a.dateTime.getTime() - b.dateTime.getTime(),
     )
-  
-  console.log("Filtrados (Futuros):", futureAppointments.length, futureAppointments)
-  console.groupEnd()
 
   if (futureAppointments.length === 0) {
     appointmentsStatus.textContent = "Nenhum agendamento futuro"

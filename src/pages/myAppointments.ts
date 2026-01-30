@@ -213,7 +213,14 @@ function getInitials(name: string) {
 }
 
 function formatDate(value: string) {
-  const parsed = new Date(value)
+  if (!value) return value
+  
+  // Create date at noon to avoid timezone issues
+  // If string already has time (contains T), use it as is
+  // Otherwise append T12:00:00
+  const dateStr = value.includes('T') ? value : `${value}T12:00:00`
+  const parsed = new Date(dateStr)
+
   if (Number.isNaN(parsed.getTime())) return value
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
