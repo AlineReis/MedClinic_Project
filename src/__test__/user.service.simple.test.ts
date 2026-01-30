@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { UserService } from "../services/user.service.js";
-import type { IUserRepository } from "../repositories/iuser.repository.js";
+import type { IUserRepository } from "../repository/iuser.repository.js";
 import { User, UserRole } from "../models/user.js";
 import {
   AuthError,
@@ -57,9 +57,9 @@ describe("UserService - Testes Simplificados", () => {
     userService = new UserService(mockUserRepository, mockAppointmentRepository);
 
     // 🔧 Mock das validações (simulamos que sempre passam)
-    global.isValidEmail = jest.fn().mockReturnValue(true);
-    global.isValidPassword = jest.fn().mockReturnValue(true);
-    global.isValidCpfLogic = jest.fn().mockReturnValue(true);
+    (global as any).isValidEmail = jest.fn().mockReturnValue(true);
+    (global as any).isValidPassword = jest.fn().mockReturnValue(true);
+    (global as any).isValidCpfLogic = jest.fn().mockReturnValue(true);
   });
 
   describe("🔐 getUserById - Controle de Acesso", () => {
@@ -223,7 +223,10 @@ describe("UserService - Testes Simplificados", () => {
 
     const mockResult = {
       items: [mockUser],
-      pagination: { page: 1, pageSize: 10, total: 1, totalPages: 1 },
+      page: 1,
+      pageSize: 10,
+      total: 1,
+      totalPages: 1,
     };
 
     it("✅ deve listar usuários para clinic_admin", async () => {

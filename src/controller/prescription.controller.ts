@@ -48,6 +48,40 @@ export class PrescriptionController {
     // GET /prescriptions
     const user = (req as any).user;
     const list = await this.prescriptionService.listPrescriptionsByContext(user);
+    
+    // Inject mock data for UI testing (Requested by User)
+    if (user.role === "patient" && Array.isArray(list)) {
+      list.push(
+        {
+          id: 99901,
+          medication_name: "Ibuprofeno 600mg (Teste Scroll)",
+          dosage: "Tomar 1 comp a cada 8h se dor",
+          created_at: new Date().toISOString(),
+          instructions: "Ingerir com alimentos",
+          is_controlled: false,
+          professional_name: "Dr. Mock"
+        } as any,
+        {
+          id: 99902,
+          medication_name: "Vitamina C 1g efervescente",
+          dosage: "1 comprimido ao dia pela manhã",
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          instructions: "Dissolver em água",
+          is_controlled: false,
+          professional_name: "Dr. Mock"
+        } as any,
+        {
+          id: 99903,
+          medication_name: "Xarope Expectorante",
+          dosage: "10ml a cada 6 horas",
+          created_at: new Date(Date.now() - 172800000).toISOString(),
+          instructions: "Agite antes de usar",
+          is_controlled: false,
+          professional_name: "Dr. Mock"
+        } as any
+      );
+    }
+
     return res.json(list);
   }
 
