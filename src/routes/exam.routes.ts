@@ -18,4 +18,8 @@ examRoutes.post("/", examController.createRequest);
 examRoutes.get("/", examController.listRequests);
 examRoutes.get("/:id", examController.getRequest);
 
+// Phase 5: Exam advanced features
+examRoutes.post("/:id/schedule", examController.schedule);
+examRoutes.get("/:id/download", examController.download);
+
 export { examRoutes };

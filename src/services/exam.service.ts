@@ -111,4 +111,76 @@ export class ExamService {
 
     return request;
   }
+
+  /**
+   * Phase 5: Schedule exam collection
+   * paid_pending_schedule → scheduled
+   */
+  async scheduleExam(
+    id: number,
+    scheduledDate: string,
+    user: { id: number; role: string },
+  ): Promise<void> {
+    const request = await this.examRepository.findRequestById(id);
+    if (!request) {
+      throw new NotFoundError("Exame não encontrado.");
+    }
+
+    // Only lab_tech or admins can schedule exams
+    if (!["lab_tech", "clinic_admin", "system_admin"].includes(user.role)) {
+      throw new ForbiddenError(
+        "Apenas técnicos de laboratório ou administradores podem agendar coletas.",
+      );
+    }
+
+    // Validate current status
+    if (request.status !== "paid") {
+      throw new ValidationError(
+        "Apenas exames pagos podem ser agendados.",
+        "status",
+      );
+    }
+
+    // Validate scheduled date is in future
+    const scheduledDateTime = new Date(scheduledDate);
+    if (scheduledDateTime <= new Date()) {
+      throw new ValidationError(
+        "A data agendada deve ser no futuro.",
+        "scheduled_date",
+      );
+    }
+
+    // Update request with scheduled date and status
+    await this.examRepository.updateScheduledDate(id, scheduledDate);
+    await this.examRepository.updateStatus(id, "scheduled");
+  }
+
+  /**
+   * Phase 5: Download exam result
+   * Returns result_file_url or result_text
+   */
+  async downloadResult(
+    id: number,
+    user: { id: number; role: string },
+  ): Promise<{ result_file_url?: string; result_text?: string }> {
+    const request = await this.getRequestById(id, user); // Uses existing RBAC
+
+    // Validate result exists
+    if (!request.result_file_url && !request.result_text) {
+      throw new NotFoundError("Resultado do exame ainda não está disponível.");
+    }
+
+    // Validate status allows download
+    if (!["ready", "delivered"].includes(request.status)) {
+      throw new ValidationError(
+        "O resultado do exame ainda não foi liberado.",
+        "status",
+      );
+    }
+
+    return {
+      result_file_url: request.result_file_url,
+      result_text: request.result_text,
+    };
+  }
 }

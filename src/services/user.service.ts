@@ -350,4 +350,119 @@ export class UserService {
     // deletar
     await this.userRepository.deleteById(targetUserId);
   }
+
+  /**
+   * Phase 5: Create user by admin
+   * Allows clinic_admin or system_admin to create users with any role (except system_admin for clinic_admin)
+   */
+  public async createUserByAdmin(input: {
+    clinicId: number;
+    requester: RequesterUser;
+    data: {
+      name: string;
+      email: string;
+      password?: string;
+      role: UserRole;
+      cpf: string;
+      phone?: string;
+    };
+  }): Promise<{ user: UserWithoutPassword; generatedPassword?: string }> {
+    const { clinicId, requester, data } = input;
+
+    // Only clinic_admin or system_admin can create users
+    const allowed = ["clinic_admin", "system_admin"];
+    if (!allowed.includes(requester.role)) {
+      throw new ForbiddenError("Apenas administradores podem criar usuários.");
+    }
+
+    // clinic_admin can only create users in their own clinic
+    if (requester.role === "clinic_admin") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+
+      // clinic_admin cannot create system_admin users
+      if (data.role === "system_admin") {
+        throw new ForbiddenError(
+          "Administradores de clínica não podem criar administradores de sistema.",
+        );
+      }
+    }
+
+    // Validate input
+    if (!data.name || !data.email || !data.role || !data.cpf) {
+      throw new ValidationError(
+        "Nome, email, role e CPF são obrigatórios.",
+      );
+    }
+
+    if (!Validators.isValidEmail(data.email)) {
+      throw new ValidationError("Formato de email inválido.", "email");
+    }
+
+    if (!Validators.isValidCpfLogic(data.cpf)) {
+      throw new ValidationError("CPF inválido.", "cpf");
+    }
+
+    if (data.phone && !Validators.isValidPhone(data.phone)) {
+      throw new ValidationError("Formato de telefone inválido.", "phone");
+    }
+
+    // Check if email already exists
+    const existingUser = await this.userRepository.findByEmail(data.email);
+    if (existingUser) {
+      throw new ValidationError("Email já está em uso.", "email");
+    }
+
+    // Generate random password if not provided
+    let generatedPassword: string | undefined;
+    let password = data.password;
+
+    if (!password) {
+      // Generate random password: 8 chars, uppercase, lowercase, numbers
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      generatedPassword = Array.from(
+        { length: 12 },
+        () => chars[Math.floor(Math.random() * chars.length)],
+      ).join("");
+      password = generatedPassword;
+    }
+
+    // Validate password
+    if (!Validators.isValidPassword(password)) {
+      throw new ValidationError(
+        "Senha deve ter no mínimo 8 caracteres, incluindo maiúsculas, minúsculas e números.",
+        "password",
+      );
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const userData: User = {
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+      role: data.role,
+      cpf: data.cpf,
+      phone: data.phone,
+      clinic_id: clinicId,
+      id: 0, // Will be set by database
+    };
+
+    const newUserId = await this.userRepository.create(userData);
+
+    const user = await this.userRepository.findById(newUserId);
+    if (!user) {
+      throw new Error("Erro ao recuperar usuário criado.");
+    }
+
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      user: userWithoutPassword,
+      generatedPassword,
+    };
+  }
 }

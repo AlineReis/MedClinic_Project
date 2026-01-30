@@ -157,4 +157,46 @@ export class UserController {
       return next(error);
     }
   };
+
+  /**
+   * Phase 5: POST /api/v1/:clinic_id/users
+   * Create user by admin
+   */
+  public create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const clinicId = Number(req.params.clinic_id);
+
+      if (!isValidId(clinicId)) {
+        throw new ValidationError("clinic_id inválido");
+      }
+
+      const requester = req.user;
+      if (!requester) {
+        throw new AuthError("User not authenticated");
+      }
+
+      const result = await this.userService.createUserByAdmin({
+        clinicId,
+        requester: requester as any,
+        data: {
+          name: req.body.name,
+          email: req.body.email,
+          password: req.body.password,
+          role: req.body.role,
+          cpf: req.body.cpf,
+          phone: req.body.phone,
+        },
+      });
+
+      return res.status(201).json({
+        success: true,
+        user: result.user,
+        message: result.generatedPassword
+          ? `Usuário criado com sucesso. Senha gerada: ${result.generatedPassword}`
+          : "Usuário criado com sucesso.",
+      });
+    } catch (error) {
+      return next(error);
+    }
+  };
 }

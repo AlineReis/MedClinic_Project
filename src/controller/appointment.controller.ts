@@ -167,4 +167,96 @@ export class AppointmentController {
             return next(error)
         }
     }
+
+    /**
+     * Phase 5: POST /appointments/:id/checkin
+     * Check-in appointment (receptionist only)
+     */
+    public checkin = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
+
+            await this.appointmentService.checkinAppointment(
+                id,
+                req.user!.id,
+                req.user!.role
+            );
+
+            res.status(200).json({
+                success: true,
+                message: "Check-in realizado com sucesso."
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Phase 5: POST /appointments/:id/start
+     * Start appointment (health_professional only)
+     */
+    public start = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
+
+            await this.appointmentService.startAppointment(
+                id,
+                req.user!.id,
+                req.user!.role
+            );
+
+            res.status(200).json({
+                success: true,
+                message: "Consulta iniciada com sucesso."
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Phase 5: POST /appointments/:id/complete
+     * Complete appointment (health_professional only)
+     */
+    public complete = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
+
+            await this.appointmentService.completeAppointment(
+                id,
+                req.user!.id,
+                req.user!.role
+            );
+
+            res.status(200).json({
+                success: true,
+                message: "Consulta concluída com sucesso."
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Phase 5: POST /appointments/:id/no-show
+     * Mark appointment as no-show (receptionist only)
+     */
+    public noShow = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
+
+            await this.appointmentService.markNoShow(
+                id,
+                req.user!.id,
+                req.user!.role
+            );
+
+            res.status(200).json({
+                success: true,
+                message: "Agendamento marcado como falta."
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }

@@ -75,4 +75,61 @@ export class ExamController {
       return res.status(500).json({ error: "Erro interno." });
     }
   }
+
+  /**
+   * Phase 5: POST /exams/:id/schedule
+   * Schedule exam collection
+   */
+  public schedule = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const id = parseInt(req.params.id);
+    const { scheduled_date } = req.body;
+
+    if (!scheduled_date) {
+      return res
+        .status(400)
+        .json({ error: "Data agendada é obrigatória." });
+    }
+
+    try {
+      await this.examService.scheduleExam(id, scheduled_date, user);
+      return res
+        .status(200)
+        .json({ success: true, message: "Exame agendado com sucesso." });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: "Erro interno." });
+    }
+  }
+
+  /**
+   * Phase 5: GET /exams/:id/download
+   * Download exam result
+   */
+  public download = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const id = parseInt(req.params.id);
+
+    try {
+      const result = await this.examService.downloadResult(id, user);
+      return res.json({
+        success: true,
+        result_file_url: result.result_file_url,
+        result_text: result.result_text,
+      });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: "Erro interno." });
+    }
+  }
 }
