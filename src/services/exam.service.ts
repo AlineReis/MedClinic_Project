@@ -183,4 +183,71 @@ export class ExamService {
       result_text: request.result_text,
     };
   }
+
+  /**
+   * Issue #506: Upload de laudo
+   */
+  async uploadResult(
+    examId: number,
+    fileUrl: string,
+    user: { id: number; role: string },
+  ): Promise<void> {
+    // RN-14: Apenas lab_tech, clinic_admin ou system_admin pode fazer upload
+    if (!["lab_tech", "clinic_admin", "system_admin"].includes(user.role)) {
+      throw new ForbiddenError(
+        "Apenas técnicos de laboratório ou administradores podem enviar laudos.",
+      );
+    }
+
+    const exam = await this.examRepository.findRequestById(examId);
+    if (!exam) {
+      throw new NotFoundError("Exame não encontrado.");
+    }
+
+    // Validar que o exame não está cancelado
+    if (exam.status === "cancelled") {
+      throw new ValidationError(
+        "Não é possível enviar laudo para exame cancelado.",
+        "status",
+      );
+    }
+
+    await this.examRepository.updateResultFile(examId, fileUrl, user.id);
+  }
+
+  /**
+   * Issue #506: Liberar resultado para paciente
+   */
+  async releaseResult(
+    examId: number,
+    user: { id: number; role: string },
+  ): Promise<void> {
+    const exam = await this.examRepository.findRequestById(examId);
+    if (!exam) {
+      throw new NotFoundError("Exame não encontrado.");
+    }
+
+    // RN-14: Pode liberar: lab_tech, médico solicitante, admin
+    const canRelease =
+      user.role === "system_admin" ||
+      user.role === "clinic_admin" ||
+      user.role === "lab_tech" ||
+      exam.requesting_professional_id === user.id;
+
+    if (!canRelease) {
+      throw new ForbiddenError(
+        "Você não tem permissão para liberar este resultado.",
+      );
+    }
+
+    // Validar que há resultado (PDF ou texto)
+    if (!exam.result_file_url && !exam.result_text) {
+      throw new ValidationError(
+        "Não é possível liberar resultado sem laudo anexado.",
+        "result",
+      );
+    }
+
+    await this.examRepository.releaseResult(examId);
+  }
 }

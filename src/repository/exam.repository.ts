@@ -2,7 +2,6 @@ import { database } from "../config/database.js";
 import { ExamCatalog, ExamRequest, ExamRequestStatus } from "../models/exam.js";
 
 export class ExamRepository {
-
   async findAllCatalog(): Promise<ExamCatalog[]> {
     const sql = `SELECT * FROM exam_catalog WHERE is_active = 1 ORDER BY type, name`;
     return await database.query<ExamCatalog>(sql);
@@ -69,22 +68,24 @@ export class ExamRepository {
     professionalId: number,
   ): Promise<ExamRequest[]> {
     const sql = `
-             SELECT er.*, ec.name as exam_name 
-            FROM exam_requests er
-            JOIN exam_catalog ec ON er.exam_catalog_id = ec.id
-            WHERE er.requesting_professional_id = ?
-            ORDER BY er.created_at DESC
-        `;
+      SELECT er.*, ec.name as exam_name, u.name as patient_name
+      FROM exam_requests er
+      JOIN exam_catalog ec ON er.exam_catalog_id = ec.id
+      JOIN users u ON er.patient_id = u.id
+      WHERE er.requesting_professional_id = ?
+      ORDER BY er.created_at DESC
+    `;
     return await database.query<ExamRequest>(sql, [professionalId]);
   }
 
   async findAllRequests(): Promise<ExamRequest[]> {
     const sql = `
-             SELECT er.*, ec.name as exam_name 
-            FROM exam_requests er
-            JOIN exam_catalog ec ON er.exam_catalog_id = ec.id
-            ORDER BY er.created_at DESC
-        `;
+      SELECT er.*, ec.name as exam_name, u.name as patient_name
+      FROM exam_requests er
+      JOIN exam_catalog ec ON er.exam_catalog_id = ec.id
+      JOIN users u ON er.patient_id = u.id
+      ORDER BY er.created_at DESC
+    `;
     return await database.query<ExamRequest>(sql);
   }
 
@@ -101,10 +102,10 @@ export class ExamRepository {
     labTechId: number,
   ): Promise<void> {
     const sql = `
-            UPDATE exam_requests
-            SET result_file_url = ?, result_text = ?, lab_tech_id = ?, status = 'ready', updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        `;
+      UPDATE exam_requests
+      SET result_file_url = ?, result_text = ?, lab_tech_id = ?, status = 'ready', updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
     await database.run(sql, [resultUrl, resultText, labTechId, id]);
   }
 
@@ -114,5 +115,33 @@ export class ExamRepository {
   async updateScheduledDate(id: number, scheduledDate: string): Promise<void> {
     const sql = `UPDATE exam_requests SET scheduled_date = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     await database.run(sql, [scheduledDate, id]);
+  }
+
+  /**
+   * Issue #506: Upload de arquivo de resultado
+   */
+  async updateResultFile(
+    id: number,
+    fileUrl: string,
+    labTechId: number,
+  ): Promise<void> {
+    const sql = `
+      UPDATE exam_requests 
+      SET result_file_url = ?, lab_tech_id = ?, status = 'ready', updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `;
+    await database.run(sql, [fileUrl, labTechId, id]);
+  }
+
+  /**
+   * Issue #506: Liberar resultado para paciente
+   */
+  async releaseResult(id: number): Promise<void> {
+    const sql = `
+      UPDATE exam_requests 
+      SET status = 'delivered', updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `;
+    await database.run(sql, [id]);
   }
 }

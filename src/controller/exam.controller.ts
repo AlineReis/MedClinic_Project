@@ -9,7 +9,7 @@ export class ExamController {
     // GET /exams/catalog
     const catalog = await this.examService.listCatalog();
     return res.json(catalog);
-  }
+  };
 
   public createRequest = async (req: Request, res: Response) => {
     // POST /exams
@@ -20,11 +20,9 @@ export class ExamController {
 
     // Apenas profissionais podem solicitar (RN-09)
     if (user.role !== "health_professional") {
-      return res
-        .status(403)
-        .json({
-          error: "Apenas profissionais de saúde podem solicitar exames.",
-        });
+      return res.status(403).json({
+        error: "Apenas profissionais de saúde podem solicitar exames.",
+      });
     }
 
     const payload: CreateExamRequestPayload = {
@@ -50,14 +48,14 @@ export class ExamController {
         .status(500)
         .json({ error: "Erro interno ao processar solicitação." });
     }
-  }
+  };
 
   public listRequests = async (req: Request, res: Response) => {
     // GET /exams
     const user = (req as any).user;
     const requests = await this.examService.listRequestsByContext(user);
     return res.json(requests);
-  }
+  };
 
   public getRequest = async (req: Request, res: Response) => {
     // GET /exams/:id
@@ -74,7 +72,7 @@ export class ExamController {
         return res.status(404).json({ error: error.message });
       return res.status(500).json({ error: "Erro interno." });
     }
-  }
+  };
 
   /**
    * Phase 5: POST /exams/:id/schedule
@@ -86,9 +84,7 @@ export class ExamController {
     const { scheduled_date } = req.body;
 
     if (!scheduled_date) {
-      return res
-        .status(400)
-        .json({ error: "Data agendada é obrigatória." });
+      return res.status(400).json({ error: "Data agendada é obrigatória." });
     }
 
     try {
@@ -105,7 +101,7 @@ export class ExamController {
         return res.status(400).json({ error: error.message });
       return res.status(500).json({ error: "Erro interno." });
     }
-  }
+  };
 
   /**
    * Phase 5: GET /exams/:id/download
@@ -131,5 +127,58 @@ export class ExamController {
         return res.status(400).json({ error: error.message });
       return res.status(500).json({ error: "Erro interno." });
     }
-  }
+  };
+
+  // Issue #506: Upload de laudo
+  public uploadResult = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const examId = parseInt(req.params.id);
+    const file = (req as any).file; // Vem do multer
+
+    if (!file) {
+      return res.status(400).json({ error: "Arquivo não enviado." });
+    }
+
+    // Construir URL do arquivo (simplificado)
+    const fileUrl = `/uploads/exam-results/${file.filename}`;
+
+    try {
+      await this.examService.uploadResult(examId, fileUrl, user);
+      return res.json({
+        success: true,
+        message: "Laudo enviado com sucesso.",
+        file_url: fileUrl,
+      });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: "Erro ao processar upload." });
+    }
+  };
+
+  // Issue #506: Liberar resultado
+  public releaseResult = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const examId = parseInt(req.params.id);
+
+    try {
+      await this.examService.releaseResult(examId, user);
+      return res.json({
+        success: true,
+        message: "Resultado liberado com sucesso.",
+      });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: "Erro ao liberar resultado." });
+    }
+  };
 }

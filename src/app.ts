@@ -11,7 +11,11 @@ export const createApp = () => {
   app.use(helmet());
   app.use(
     cors({
-      origin: "http://localhost:3001",
+      origin: [
+        "http://localhost:8081", 
+        "http://localhost:8000", 
+        "http://localhost:3000"
+      ],
       credentials: true,
     }),
   );
