@@ -13,8 +13,8 @@ export const createApp = () => {
     cors({
       origin: [
         "http://localhost:8081", 
-        "http://localhost:8000", 
-        "http://localhost:3000"
+        "http://localhost:8080", 
+        "http://localhost:3000",
       ],
       credentials: true,
     }),
