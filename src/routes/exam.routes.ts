@@ -4,7 +4,7 @@ import { ExamService } from "@services/exam.service.js";
 import { Router } from "express";
 import { ExamController } from "../controller/exam.controller.js";
 
-const examRoutes = Router();
+const examRoutes = Router({ mergeParams: true });
 
 // Auth and clinic context middlewares are applied globally in routes/index.ts
 

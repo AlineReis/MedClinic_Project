@@ -7,7 +7,7 @@ import { ProfessionalService } from "@services/professional.service.js";
 import { Router } from "express";
 import { ProfessionalController } from "../controller/professional.controller.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 const usersRepository = new UserRepository();
 const availabilityRepository = new AvailabilityRepository();

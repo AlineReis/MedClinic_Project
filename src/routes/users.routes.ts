@@ -5,7 +5,7 @@ import { UserRepository } from "../repository/user.repository.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { UserService } from "../services/user.service.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 const userRepository = new UserRepository();
 const appointmentRepository = new AppointmentRepository();

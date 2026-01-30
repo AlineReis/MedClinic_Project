@@ -4,7 +4,7 @@ import { PrescriptionService } from "@services/prescription.service.js";
 import { Router } from "express";
 import { PrescriptionController } from "../controller/prescription.controller.js";
 
-const prescriptionRoutes = Router();
+const prescriptionRoutes = Router({ mergeParams: true });
 
 // Auth and clinic context middlewares are applied globally in routes/index.ts
 

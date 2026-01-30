@@ -50,8 +50,8 @@ export class UserRepository implements IUserRepository {
 
   async create(userData: CreateUserPayload): Promise<number> {
     const sql = `
-      INSERT INTO users (name, email, password, role, cpf, phone, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      INSERT INTO users (name, email, password, role, cpf, phone, clinic_id, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
     const password = userData.password || "";
@@ -63,6 +63,7 @@ export class UserRepository implements IUserRepository {
       userData.role,
       userData.cpf,
       userData.phone,
+      userData.clinic_id ?? null,
     ]);
 
     return result.lastID;

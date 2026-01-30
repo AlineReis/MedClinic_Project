@@ -9,7 +9,7 @@ import { PaymentMockService } from "../services/payment-mock.service.js";
 import { AppointmentService } from "../services/appointment.service.js";
 import { ResendEmailService } from "../services/email.service.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // Injeção de dependência manual (idealmente usaríamos um container)
 const appointmentRepository = new AppointmentRepository();
