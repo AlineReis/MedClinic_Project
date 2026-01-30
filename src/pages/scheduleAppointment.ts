@@ -9,6 +9,7 @@ import {
   listProfessionals,
 } from "../services/professionalsService"
 import { authStore } from "../stores/authStore"
+import { dashboardStore } from "../stores/dashboardStore"
 import { uiStore } from "../stores/uiStore"
 import type { AppointmentSummary } from "../types/appointments"
 import type { UserSession } from "../types/auth"
@@ -199,7 +200,7 @@ async function loadProfessionals() {
 
 const appointmentCountLabel = document.getElementById("appointments-count")
 
-async function loadPatientAppointments() {
+async function loadPatientAppointments(useCache = true) {
   if (!appointmentsList || !appointmentsStatus) return
 
   appointmentsStatus.textContent = "Sincronizando dados..."
@@ -212,7 +213,7 @@ async function loadPatientAppointments() {
   }
 
   const filters = session.role === "patient" ? { patientId: session.id } : {}
-  const response = await listAppointments(filters)
+  const response = await listAppointments(filters, useCache)
 
   if (!response.success || !response.data) {
     uiStore.addToast(
@@ -229,21 +230,33 @@ async function loadPatientAppointments() {
   }
 
   const appointments = response.data.appointments
+  console.group("🔍 Debug Agendamentos")
+  console.log("Recebido da API:", appointments.length, appointments)
+
   if (appointments.length === 0) {
+    console.warn("API retornou 0 agendamentos")
     appointmentsStatus.textContent = "Nenhum agendamento encontrado"
     appointmentsList.innerHTML = buildAppointmentsEmptyState(
       "Você ainda não tem agendamentos.",
       "Agende sua primeira consulta.",
     )
+    console.groupEnd()
     return
   }
 
   const now = new Date()
+  console.log("Data agora:", now)
+
   const futureAppointments = appointments
-    .map(appointment => ({
-      ...appointment,
-      dateTime: getAppointmentDateTime(appointment),
-    }))
+    .map(appointment => {
+      const dateTime = getAppointmentDateTime(appointment)
+      const isFuture = dateTime >= now
+      console.log(`[${appointment.id}] ${appointment.professional_name} - ${appointment.date} ${appointment.time} | Parsed: ${dateTime} | IsFuture: ${isFuture}`)
+      return {
+        ...appointment,
+        dateTime,
+      }
+    })
     .filter(
       appointment =>
         !Number.isNaN(appointment.dateTime.getTime()) &&
@@ -253,6 +266,9 @@ async function loadPatientAppointments() {
       (a, b) =>
         a.dateTime.getTime() - b.dateTime.getTime(),
     )
+  
+  console.log("Filtrados (Futuros):", futureAppointments.length, futureAppointments)
+  console.groupEnd()
 
   if (futureAppointments.length === 0) {
     appointmentsStatus.textContent = "Nenhum agendamento futuro"
@@ -341,25 +357,15 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
 
       <div class="h-px bg-border-dark mx-5"></div>
 
-      <div class="p-5 flex flex-col gap-3">
-        <div class="flex justify-between items-center">
-          <p class="text-sm font-medium text-white">Horários hoje</p>
-          <button
-            class="text-xs text-primary hover:text-white transition-colors"
-            data-action="view-availability"
-            data-professional-id="${professional.id}"
-          >
-            Ver calendário
-          </button>
-        </div>
-        <div
-          class="availability-preview flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1"
+      <div class="px-5 py-4 flex flex-col gap-3">
+        <button
+          class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+          data-action="view-availability"
           data-professional-id="${professional.id}"
         >
-          <span class="text-xs text-text-secondary italic py-2">
-            Selecione “Ver calendário” para carregar os horários.
-          </span>
-        </div>
+          <span class="material-symbols-outlined text-[20px]">calendar_add_on</span>
+          Agendar Consulta
+        </button>
       </div>
 
       <div class="px-5 pb-5 pt-0">
@@ -473,8 +479,9 @@ async function handleAvailabilityClick(
   button: HTMLButtonElement,
   professionalId: number,
 ) {
+  const originalText = button.innerHTML
   button.disabled = true
-  button.textContent = "Carregando..."
+  button.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">sync</span> Agendando...`
 
   const response = await getProfessionalAvailability(professionalId, {
     daysAhead: 7,
@@ -486,7 +493,7 @@ async function handleAvailabilityClick(
       response.error?.message ?? "Não foi possível carregar os horários.",
     )
     renderToasts()
-    button.textContent = "Ver Horários"
+    button.innerHTML = originalText
     button.disabled = false
     return
   }
@@ -500,68 +507,23 @@ async function handleAvailabilityClick(
   uiStore.addToast(
     "success",
     futureSlots.length
-      ? `Encontramos ${futureSlots.length} horários futuros disponíveis.`
-      : "Nenhum horário futuro disponível para este profissional.",
+      ? `Encontramos ${futureSlots.length} horários disponíveis.`
+      : "Nenhum horário disponível para os próximos dias.",
   )
   renderToasts()
-  renderAvailabilityHighlight(button, futureSlots, professionalId)
+  
+  const professional = professionalsCache.find(p => p.id === professionalId)
+  if (!professional) return
 
-  button.textContent = "Ver calendário"
+  createAvailabilityModal(professional, futureSlots)
+
+  button.innerHTML = originalText
   button.disabled = false
 }
 
-function renderAvailabilityHighlight(
-  button: HTMLButtonElement,
-  availability: ProfessionalAvailabilityEntry[],
-  professionalId: number,
-) {
-  const card = button.closest(".group")
-  if (!card) return
 
-  const container = card.querySelector(
-    ".availability-preview",
-  ) as HTMLDivElement | null
-  if (!container) return
 
-  if (availability.length === 0) {
-    container.innerHTML =
-      "<span class=\"text-xs text-text-secondary italic py-2\">Sem horários disponíveis.</span>"
-    return
-  }
 
-  const preview = availability.slice(0, 6)
-  container.innerHTML = preview
-    .map(
-      slot =>
-        `<button
-          class="shrink-0 px-4 py-2 bg-background-dark border border-border-dark hover:border-primary hover:bg-primary hover:text-white text-white rounded-lg text-sm font-medium transition-all"
-          data-action="select-slot"
-          data-professional-id="${professionalId}"
-          data-slot-date="${slot.date}"
-          data-slot-time="${slot.time}"
-        >
-          ${formatDate(slot.date)} • ${slot.time}
-        </button>`,
-    )
-    .join("")
-
-  container.querySelectorAll("[data-action='select-slot']").forEach(button => {
-    button.addEventListener("click", event => {
-      const target = event.currentTarget as HTMLButtonElement
-      const selectedProfessionalId = Number(target.dataset.professionalId)
-      const selectedDate = target.dataset.slotDate
-      const selectedTime = target.dataset.slotTime
-      if (!selectedDate || !selectedTime) return
-
-      const professional = professionalsCache.find(
-        item => item.id === selectedProfessionalId,
-      )
-      if (!professional) return
-
-      createCheckoutModal(professional, selectedDate, selectedTime)
-    })
-  })
-}
 
 function buildEmptyState(message: string) {
   return `
@@ -794,7 +756,12 @@ function createCheckoutModal(
       )
       renderToasts()
       modal.remove()
-      await loadPatientAppointments()
+      
+      // Force reload of appointments list with fresh data
+      await loadPatientAppointments(false)
+      
+      // Reload dashboard for patient dashboard page
+      await dashboardStore.loadData()
     } finally {
       confirmButton.disabled = false
       confirmButton.textContent = originalText ?? "Pagar e Confirmar"
@@ -828,16 +795,115 @@ async function handleCancelAppointment(appointmentId: number) {
 
   uiStore.addToast("success", `Agendamento cancelado com sucesso.${refundInfo}`)
   renderToasts()
-  await loadPatientAppointments()
+  await loadPatientAppointments(false)
+  
+  // Reload dashboard for patient dashboard page
+  await dashboardStore.loadData()
 }
 
 function formatDateFull(date: string) {
-  const parsed = new Date(`${date}T00:00:00`)
+  const parsed = new Date(`${date}T12:00:00`)
   return parsed.toLocaleDateString("pt-BR", {
+    weekday: "long",
     day: "2-digit",
     month: "long",
     year: "numeric",
   })
+}
+
+function createAvailabilityModal(
+  professional: ProfessionalSummary,
+  availability: ProfessionalAvailabilityEntry[],
+) {
+  const existing = document.getElementById("availability-modal")
+  if (existing) existing.remove()
+
+  // Group slots by date
+  const slotsByDate = availability.reduce((acc, slot) => {
+    if (!acc[slot.date]) {
+      acc[slot.date] = []
+    }
+    acc[slot.date].push(slot)
+    return acc
+  }, {} as Record<string, typeof availability>)
+
+  const modal = document.createElement("div")
+  modal.id = "availability-modal"
+  modal.className =
+    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  
+  // Generate HTML for grouped slots
+  const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
+    <div class="mb-6 last:mb-0">
+      <h4 class="text-white font-medium mb-3 sticky top-0 bg-surface-dark py-2 border-b border-border-dark flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+        <span class="capitalize">${formatDateFull(date)}</span>
+      </h4>
+      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+        ${slots.map(slot => `
+          <button
+            class="p-2 bg-background-dark border border-border-dark hover:border-primary hover:bg-primary/10 text-white rounded-lg text-sm font-bold transition-all shadow-sm hover:shadow-md group"
+            data-action="select-slot"
+            data-slot-date="${slot.date}"
+            data-slot-time="${slot.time}"
+          >
+            <span class="group-hover:scale-110 block transition-transform text-primary">${slot.time}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `).join("")
+
+  modal.innerHTML = `
+    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark z-10 relative">
+        <div class="flex items-center gap-3">
+           <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20">
+              ${getInitials(professional.name)}
+           </div>
+           <div>
+              <h3 class="text-white font-bold text-lg">Agendar com ${professional.name}</h3>
+              <p class="text-primary text-xs font-medium">${professional.specialty}</p>
+           </div>
+        </div>
+        <button data-action="close-availability" class="text-text-secondary hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4">
+        <p class="text-sm text-text-secondary">
+          Selecione um horário para confirmar seu agendamento:
+        </p>
+
+        <div class="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          ${availability.length > 0 ? slotsHtml : `<div class="text-center text-text-secondary py-8">Nenhum horário disponível para os próximos dias.</div>`}
+        </div>
+      </div>
+    </div>
+  `
+
+  modal.querySelector("[data-action='close-availability']")?.addEventListener(
+    "click",
+    () => {
+      modal.remove()
+    },
+  )
+
+  modal.querySelectorAll("[data-action='select-slot']").forEach(button => {
+    button.addEventListener("click", event => {
+      const target = event.currentTarget as HTMLButtonElement
+      const selectedDate = target.dataset.slotDate
+      const selectedTime = target.dataset.slotTime
+      
+      if (!selectedDate || !selectedTime) return
+
+      createCheckoutModal(professional, selectedDate, selectedTime)
+      modal.remove()
+    })
+  })
+
+  document.body.appendChild(modal)
 }
 
 async function handleRescheduleClick(appointmentId: number, professionalId: number) {
@@ -970,7 +1036,10 @@ async function handleRescheduleConfirm(
   )
   renderToasts()
   modal.remove()
-  await loadPatientAppointments()
+  await loadPatientAppointments(false)
+  
+  // Reload dashboard for patient dashboard page
+  await dashboardStore.loadData()
 }
 
 (window as Window & { clearFilters?: () => void }).clearFilters = clearFilters

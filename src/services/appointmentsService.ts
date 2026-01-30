@@ -104,7 +104,9 @@ export async function listAppointments(
       appointments: response.data.map(mapAppointmentSummary),
       pagination: { total: response.data.length, page: 1, pageSize: response.data.length, totalPages: 1 },
     }
-    appointmentsCache.set(cacheKey, result, 2 * 60 * 1000) // 2 minute TTL for appointments
+    if (useCache) {
+      appointmentsCache.set(cacheKey, result, 2 * 60 * 1000) // 2 minute TTL for appointments
+    }
     return {
       ...response,
       data: result,
@@ -115,7 +117,9 @@ export async function listAppointments(
     appointments: response.data.data.map(mapAppointmentSummary),
     pagination: response.data.pagination,
   }
-  appointmentsCache.set(cacheKey, result, 2 * 60 * 1000) // 2 minute TTL for appointments
+  if (useCache) {
+    appointmentsCache.set(cacheKey, result, 2 * 60 * 1000) // 2 minute TTL for appointments
+  }
   return {
     ...response,
     data: result,
