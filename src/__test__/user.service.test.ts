@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { UserService } from "../services/user.service.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
-import type { IUserRepository } from "../repositories/iuser.repository.js";
+import type { IUserRepository } from "../repository/iuser.repository.js";
 import { User, UserRole } from "../models/user.js";
 import {
   AuthError,
@@ -435,7 +435,10 @@ describe("UserService", () => {
 
     const mockResult = {
       items: [mockUser],
-      pagination: { page: 1, pageSize: 10, total: 1, totalPages: 1 },
+      page: 1,
+      pageSize: 10,
+      total: 1,
+      totalPages: 1,
     };
 
     it("deve listar usuários para clinic_admin", async () => {
