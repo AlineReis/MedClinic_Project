@@ -53,7 +53,7 @@ if (registerForm) {
         try {
             const response = await request("/auth/register", "POST", {
                 name,
-                cpf: cpf.replace(/\D/g, ""), // clean masks
+                cpf, // clean masks
                 email,
                 phone,
                 password,

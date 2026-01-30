@@ -1,16 +1,16 @@
-import { authStore } from "../stores/authStore"
 import { listAppointments } from "../services/appointmentsService"
-import { getProfessionalCommissions, createProfessionalAvailability } from "../services/professionalsService"
 import { createExam } from "../services/examsService"
 import { createPrescription, listPrescriptions } from "../services/prescriptionsService"
+import { createProfessionalAvailability, getProfessionalCommissions } from "../services/professionalsService"
+import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
 import type { AppointmentSummary } from "../types/appointments"
-import type { CommissionsResponse, AvailabilityInput } from "../types/professionals"
 import type { CreateExamPayload } from "../types/exams"
 import type { CreatePrescriptionPayload, PrescriptionSummary } from "../types/prescriptions"
+import type { AvailabilityInput, CommissionsResponse } from "../types/professionals"
 
 async function initDoctorDashboard() {
-  const session = authStore.getSession()
+  const session = await authStore.refreshSession()
 
   if (!session || session.role !== "health_professional") {
     uiStore.addToast("error", "Acesso negado. Apenas profissionais de saúde podem acessar esta página.")

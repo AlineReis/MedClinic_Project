@@ -1,3 +1,5 @@
+import { Navigation } from "../components/Navigation"
+import { ToastContainer } from "../components/ToastContainer"
 import { listAppointments } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
@@ -10,9 +12,15 @@ import type { AppointmentSummary } from "../types/appointments"
  * Consumes GET /appointments with filters for status and date
  */
 
-function initReceptionDashboard() {
+let toastContainer: ToastContainer | null = null
+let navigation: Navigation | null = null
+
+async function initReceptionDashboard() {
   // RBAC check: only receptionist, clinic_admin, and system_admin can access
-  const session = authStore.getSession()
+  toastContainer = new ToastContainer()
+  navigation = new Navigation()
+  const session = await authStore.refreshSession()
+
   if (
     !session ||
     (session.role !== "receptionist" &&
@@ -22,6 +30,7 @@ function initReceptionDashboard() {
     window.location.href = "/pages/login.html"
     return
   }
+
 
   setupUserProfile()
   setupLogoutButton()

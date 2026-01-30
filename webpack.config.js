@@ -13,6 +13,7 @@ module.exports = (env, argv) => {
     "lab-dashboard.html",
     "manager-dashboard.html",
     "admin-dashboard.html",
+    "users.html",
   ]
 
   return {

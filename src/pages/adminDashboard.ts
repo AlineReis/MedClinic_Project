@@ -1,9 +1,9 @@
+import { listAppointments } from "../services/appointmentsService"
+import { logout } from "../services/authService"
+import { listProfessionals } from "../services/professionalsService"
+import { listUsers } from "../services/usersService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
-import { listUsers } from "../services/usersService"
-import { listAppointments } from "../services/appointmentsService"
-import { listProfessionals } from "../services/professionalsService"
-import { logout } from "../services/authService"
 
 interface DashboardStats {
   totalUsers: number
@@ -21,8 +21,31 @@ let currentStats: DashboardStats = {
   appointmentsByStatus: {},
 }
 
-export function initAdminDashboard() {
-  const session = authStore.getSession()
+
+// não implementada:
+// agenda
+// checkout
+// dashboard
+// doctors
+// exams
+// financial
+// manager-dashboard
+// onboarding.html
+// password-recovery
+// pep
+// prescription
+// schedule-appointment.html
+// slots
+// telemedicine
+// users
+
+
+
+
+
+
+export async function initAdminDashboard() {
+  const session = await authStore.refreshSession()
 
   if (!session) {
     window.location.href = "/pages/login.html"
