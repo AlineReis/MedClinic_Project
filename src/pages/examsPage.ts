@@ -1,13 +1,13 @@
-import {
-  uploadExamResult,
-  releaseExamResult,
-  listExams,
-  listCatalog,
-  createExam,
-} from "../services/examsService";
 import { listAppointments } from "../services/appointmentsService";
-import { authStore } from "../stores/authStore";
 import { logout } from "../services/authService";
+import {
+  createExam,
+  listCatalog,
+  listExams,
+  releaseExamResult,
+  uploadExamResult,
+} from "../services/examsService";
+import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
 import type { UserSession } from "../types/auth";
 import type { ExamSummary } from "../types/exams";
@@ -614,7 +614,7 @@ function getBasePath() {
 
 function formatStatus(status: string) {
   const map: Record<string, string> = {
-    pending_payment: "Pendente Pagamento",
+    pending_payment: "Pendente",
     paid: "Pago",
     scheduled: "Agendado",
     sample_collected: "Coletado",
