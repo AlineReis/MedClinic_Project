@@ -26,20 +26,26 @@ class DashboardStore {
       return
     }
 
-    const patientId = session.role === "patient" ? session.id : undefined
-    await this.fetchPatientDashboardData(patientId)
+    // Backend RBAC automatically filters by patient ID for patient role
+    // No need to send patient_id parameter
+    await this.fetchPatientDashboardData()
   }
 
-  private async fetchPatientDashboardData(patientId?: number) {
+  async loadData() {
+    await this.fetchPatientDashboardData()
+  }
+
+  private async fetchPatientDashboardData() {
     this.setLoading(true)
     this.setError(false)
 
-    const appointmentFilters = patientId ? { patientId } : {}
-    const prescriptionFilters = patientId ? { patientId } : {}
+    // Empty filters - backend will apply RBAC filtering based on JWT token
+    const appointmentFilters = {}
+    const prescriptionFilters = {}
 
     try {
       const [appointmentsResponse, prescriptionsResponse] = await Promise.all([
-        listAppointments(appointmentFilters),
+        listAppointments(appointmentFilters, false), // Force refresh
         listPrescriptions(prescriptionFilters),
       ])
 
