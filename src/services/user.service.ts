@@ -45,7 +45,7 @@ export class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly appointmentRepository: AppointmentRepository,
-  ) {}
+  ) { }
 
   async registerPatient(
     userData: User,
@@ -98,7 +98,7 @@ export class UserService {
   }
 
   private generateToken(user: User): string {
-    const secret = env.JWT_SECRET || "default_secret";
+    const secret = env.JWT_SECRET;
     return jwt.sign(
       { id: user.id, email: user.email, role: user.role, clinic_id: user.clinic_id },
       secret,
