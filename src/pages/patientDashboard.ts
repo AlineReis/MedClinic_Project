@@ -72,7 +72,6 @@ function hydrateSessionUser() {
 
 function handleDashboardUpdate(event: CustomEvent<DashboardEventDetail>) {
   const detail = event.detail
-  console.log("[DEBUG] Dashboard update event received:", detail)
   if (!detail) return
 
   renderNextAppointment(detail.appointments, detail.isLoading, detail.hasError)
@@ -275,6 +274,7 @@ function renderActivity(
   }
 
   const items = buildActivityItems(appointments, prescriptions)
+  
   if (items.length === 0) {
     activityList.innerHTML = buildActivityRow(
       "calendar_month",
@@ -295,14 +295,33 @@ function buildActivityItems(
   appointments: AppointmentSummary[],
   prescriptions: PrescriptionSummary[],
 ) {
-  const appointmentItems = appointments.map(appointment => ({
-    icon: appointment.status === "completed" ? "check_circle" : "event",
-    color:
-      appointment.status === "completed" ? "text-emerald-500" : "text-blue-400",
-    date: formatDate(appointment.date),
-    label: `Consulta ${formatStatus(appointment.status)}${appointment.professional_name ? ` com ${appointment.professional_name}` : ""}`,
-    timestamp: toTimestamp(appointment.date),
-  }))
+  // Filter out cancelled appointments from activity feed
+  const activeAppointments = appointments.filter(
+    appointment => 
+      appointment.status !== 'cancelled_by_patient' && 
+      appointment.status !== 'cancelled_by_clinic'
+  )
+  
+  const appointmentItems = activeAppointments.map(appointment => {
+    let icon = "event"
+    let color = "text-blue-400"
+    
+    if (appointment.status === "completed") {
+      icon = "check_circle"
+      color = "text-emerald-500"
+    } else if (appointment.status === "confirmed") {
+      icon = "event_available"
+      color = "text-green-400"
+    }
+    
+    return {
+      icon,
+      color,
+      date: formatDate(appointment.date),
+      label: `Consulta ${formatStatus(appointment.status)}${appointment.professional_name ? ` com ${appointment.professional_name}` : ""}`,
+      timestamp: toTimestamp(appointment.date),
+    }
+  })
 
   const prescriptionItems = prescriptions.map(prescription => ({
     icon: "receipt_long",
@@ -463,9 +482,22 @@ function getStatusTagClass(status: string) {
 }
 
 function formatDate(value: string) {
-  // Fix timezone issue: append T12:00:00 to ensure we are in the middle of the day
+  if (!value) return value
+  
+  // Handle both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS formats
+  let dateStr = value
+  
+  // If it's a datetime string (has time component), extract just the date part
+  if (value.includes(' ')) {
+    dateStr = value.split(' ')[0]
+  }
+  
+  // Append T12:00:00 to ensure we are in the middle of the day
   // preventing timezone shifts from T00:00:00 UTC to previous day
-  const dateStr = value.includes('T') ? value : `${value}T12:00:00`
+  if (!dateStr.includes('T')) {
+    dateStr = `${dateStr}T12:00:00`
+  }
+  
   const parsed = new Date(dateStr)
   
   if (Number.isNaN(parsed.getTime())) return value

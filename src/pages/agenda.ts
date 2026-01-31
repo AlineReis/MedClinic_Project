@@ -4,6 +4,9 @@ import { listProfessionals } from "../services/professionalsService";
 import { uiStore } from "../stores/uiStore";
 import type { AppointmentSummary } from "../types/appointments";
 import type { ProfessionalSummary } from "../types/professionals";
+import { Navigation } from "../components/Navigation";
+import { ToastContainer } from "../components/ToastContainer";
+import "../../css/global.css";
 
 // Constants
 const START_HOUR = 8;
@@ -15,15 +18,42 @@ function formatDate(dateString: string): string {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  new ToastContainer();
+  new Navigation();
+
   const session = await authStore.refreshSession();
   if (!session) {
     window.location.href = "/pages/login.html";
     return;
   }
 
+  hydrateSessionUser(session);
+
   // Initial load
   loadAgenda();
 });
+
+function hydrateSessionUser(session: any) {
+  document.querySelectorAll("[data-user-name]").forEach((element) => {
+    element.textContent = session.name || "Usuário";
+  });
+
+  document.querySelectorAll("[data-user-initials]").forEach((element) => {
+    element.textContent = getInitials(session.name || "U");
+  });
+}
+
+function getInitials(name: string) {
+  if (!name) return "U";
+
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
 
 async function loadAgenda() {
   try {

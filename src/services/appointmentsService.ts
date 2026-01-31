@@ -120,7 +120,9 @@ export async function listAppointments(
         totalPages: 1,
       },
     };
-    appointmentsCache.set(cacheKey, result, 2 * 60 * 1000); // 2 minute TTL for appointments
+    if (useCache) {
+      appointmentsCache.set(cacheKey, result, 2 * 60 * 1000); // 2 minute TTL for appointments
+    }
     return {
       ...response,
       data: result,
@@ -131,7 +133,9 @@ export async function listAppointments(
     appointments: response.data.data.map(mapAppointmentSummary),
     pagination: response.data.pagination,
   };
-  appointmentsCache.set(cacheKey, result, 2 * 60 * 1000); // 2 minute TTL for appointments
+  if (useCache) {
+    appointmentsCache.set(cacheKey, result, 2 * 60 * 1000); // 2 minute TTL for appointments
+  }
   return {
     ...response,
     data: result,

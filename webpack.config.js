@@ -30,6 +30,8 @@ module.exports = (env, argv) => {
       adminDashboard: "./src/pages/adminDashboard.ts",
       usersPage: "./src/pages/usersPage.ts",
       agenda: "./src/pages/agenda.ts",
+      dashboard: "./src/pages/dashboard.ts",
+      pep: "./src/pages/pep.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -100,6 +102,18 @@ module.exports = (env, argv) => {
         chunks: ["agenda"],
         publicPath: "/",
       }),
+      new HtmlWebpackPlugin({
+        template: "./pages/dashboard.html",
+        filename: "pages/dashboard.html",
+        chunks: ["dashboard"],
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/pep.html",
+        filename: "pages/pep.html",
+        chunks: ["pep"],
+        publicPath: "/",
+      }),
       ...mainPages.map(
         (page) =>
           new HtmlWebpackPlugin({
@@ -142,6 +156,8 @@ module.exports = (env, argv) => {
                 "**/admin-dashboard.html",
                 "**/users.html",
                 "**/agenda.html",
+                "**/dashboard.html",
+                "**/pep.html",
                 ...mainPages.map((page) => `**/${page}`),
               ],
             },
