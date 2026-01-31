@@ -4,6 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import path from "path";
 import { fileURLToPath } from "url";
+import { env } from "./config/config.js";
 import { errorHandler } from "./middlewares/error.handler.js";
 import routes from "./routes/index.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,14 +15,7 @@ export const createApp = () => {
   app.use(helmet());
   app.use(
     cors({
-      origin: [
-        "http://localhost:8081",
-        "http://localhost:8080",
-        "http://localhost:3001",
-        "http://localhost:3000",
-        "http://localhost:80",
-        "https://localhost:443",
-      ],
+      origin: env.ALLOWED_ORIGINS,
       credentials: true,
     }),
   );
