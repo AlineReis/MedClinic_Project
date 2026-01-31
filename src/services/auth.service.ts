@@ -9,6 +9,7 @@ import { SecurityUtils } from "../utils/security.js";
 import {
   getPasswordMissingRequirements,
   isValidCpfFormat,
+  isValidCpfLogic,
   isValidEmail,
   isValidPhone,
   isValidRole,
@@ -63,6 +64,9 @@ export class AuthService {
     }
     if (!isValidCpfFormat(cpf)) {
       throw new ValidationError("Formato do CPF é inválido", "cpf");
+    }
+    if (!isValidCpfLogic(cpf)) {
+      throw new ValidationError("CPF inválido", "cpf");
     }
     if (!isValidEmail(email)) {
       throw new ValidationError("Email no formato inválido", "email");
