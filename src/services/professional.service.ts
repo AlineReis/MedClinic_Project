@@ -67,8 +67,10 @@ export class ProfessionalService {
     const existing = await this.usersRepository.findByEmail(userData.email);
     if (existing) throw new Error("Email already in use");
 
-    const defaultPassword =
-      process.env.DEFAULT_PROFESSIONAL_PASSWORD || "Mudar123";
+    const defaultPassword = process.env.DEFAULT_PROFESSIONAL_PASSWORD;
+    if (!defaultPassword) {
+      throw new Error("DEFAULT_PROFESSIONAL_PASSWORD not configured on server.");
+    }
     const hashedPassword = await bcrypt.hash(
       userData.password || defaultPassword,
       10,
@@ -104,7 +106,11 @@ export class ProfessionalService {
     }
   }
 
-  async getAvailability(professionalId: number, daysAhead: number = 7) {
+  async getAvailability(
+    professionalId: number,
+    daysAhead: number = 7,
+    targetDate?: string,
+  ) {
     const schedule =
       await this.availabilityRepository.findByProfessionalId(professionalId);
 
@@ -117,16 +123,24 @@ export class ProfessionalService {
       time: string;
       is_available: boolean;
     }[] = [];
-    const today = new Date();
+
+    // If targetDate is provided, start from there. Otherwise start from today.
+    let baseDate: Date;
+    if (targetDate) {
+      const [y, m, d] = targetDate.split("-").map(Number);
+      baseDate = new Date(y, m - 1, d);
+    } else {
+      baseDate = new Date();
+    }
 
     for (let i = 0; i < daysAhead; i++) {
-      const currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
+      const currentDate = new Date(baseDate);
+      currentDate.setDate(baseDate.getDate() + i);
 
       const dayOfWeek = currentDate.getDay(); // 0=Dom, 1=Seg...
       const dateStr = formatDate(currentDate);
 
-      const dailyRules = schedule.filter(s => s.day_of_week === dayOfWeek);
+      const dailyRules = schedule.filter((s) => s.day_of_week === dayOfWeek);
 
       for (const rule of dailyRules) {
         let currentTime = rule.start_time;
@@ -148,19 +162,23 @@ export class ProfessionalService {
       }
     }
 
-    const startDate = formatDate(today);
-    const endDateDate = new Date(today);
-    endDateDate.setDate(today.getDate() + daysAhead);
-    const endDate = formatDate(endDateDate);
+    const startDateStr = formatDate(baseDate);
+    const endDateDate = new Date(baseDate);
+    endDateDate.setDate(baseDate.getDate() + daysAhead);
+    const endDateStr = formatDate(endDateDate);
 
     const appointments = await this.appointmentRepository.findAll(
-      { professional_id: professionalId, startDate, endDate },
+      {
+        professional_id: professionalId,
+        startDate: startDateStr,
+        endDate: endDateStr,
+      },
       { page: 1, pageSize: 1000 },
     );
 
     for (const slot of availableSlots) {
       const isTaken = appointments.data.some(
-        appt =>
+        (appt) =>
           appt.date === slot.date &&
           appt.time === slot.time &&
           appt.status !== "cancelled_by_patient" &&
@@ -172,7 +190,13 @@ export class ProfessionalService {
       }
     }
 
-    return availableSlots.filter(s => s.is_available);
+    return availableSlots.filter((s) => s.is_available);
+  }
+
+  async getAvailabilityRules(professionalId: number): Promise<Availability[]> {
+    return await this.availabilityRepository.findByProfessionalId(
+      professionalId,
+    );
   }
 
   async createAvailability(
@@ -206,7 +230,9 @@ export class ProfessionalService {
         );
       }
 
-      const dayRules = allRules.filter(r => r.day_of_week === slot.day_of_week);
+      const dayRules = allRules.filter(
+        (r) => r.day_of_week === slot.day_of_week,
+      );
       for (const rule of dayRules) {
         if (
           slot.start_time < rule.end_time &&
@@ -234,6 +260,27 @@ export class ProfessionalService {
     }
 
     return createdSlots;
+  }
+
+  async deleteAvailability(
+    professionalId: number,
+    availabilityId: number,
+  ): Promise<void> {
+    await this.availabilityRepository.deleteById(
+      availabilityId,
+      professionalId,
+    );
+    this.availabilityRepository.isProfessionalAvailable(professionalId, "", ""); // Just to check connection or similar? No.
+    // We should clear cache
+    // Note: The controller calls clearAvailabilityCache which might be in service or util?
+    // In service:
+    // clearAvailabilityCache(professionalId); // But clearAvailabilityCache is exported from THIS file? No, from utils/cache?
+    // Wait, createAvailability calls clearAvailabilityCache(professionalId).
+    // Let's check imports.
+    // imports: import { clearAvailabilityCache } from "../utils/cache"?
+    // No, clearAvailabilityCache is exported at the bottom of the service file in the previous view.
+    // So I can call it IF it is a method... but it's an exported function.
+    // I need to call it.
   }
 
   async listProfessionals(

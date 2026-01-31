@@ -8,8 +8,8 @@ export class ExamController {
   public listCatalog = async (req: Request, res: Response) => {
     // GET /exams/catalog
     const catalog = await this.examService.listCatalog();
-    return res.json(catalog);
-  }
+    return res.json({ success: true, data: catalog });
+  };
 
   public createRequest = async (req: Request, res: Response) => {
     // POST /exams
@@ -20,11 +20,12 @@ export class ExamController {
 
     // Apenas profissionais podem solicitar (RN-09)
     if (user.role !== "health_professional") {
-      return res
-        .status(403)
-        .json({
-          error: "Apenas profissionais de saúde podem solicitar exames.",
-        });
+      return res.status(403).json({
+        success: false,
+        error: {
+          message: "Apenas profissionais de saúde podem solicitar exames.",
+        },
+      });
     }
 
     const payload: CreateExamRequestPayload = {
@@ -33,31 +34,41 @@ export class ExamController {
       requesting_professional_id: user.id, // O profissional logado é quem solicita
       exam_catalog_id: req.body.exam_catalog_id,
       clinical_indication: req.body.clinical_indication,
+      urgency: req.body.urgency,
       // Price vem do service
     };
 
     try {
       const id = await this.examService.createRequest(payload);
-      return res
-        .status(201)
-        .json({ id, message: "Exame solicitado com sucesso." });
+      // NOTE: Frontend expects the full object, but we only have ID here.
+      // Ideally we should return the created object. For now keeping minimal change but wrapping.
+      return res.status(201).json({
+        success: true,
+        data: { id },
+        message: "Exame solicitado com sucesso.",
+      });
     } catch (error: any) {
       if (error.name === "ValidationError")
-        return res.status(400).json({ error: error.message });
+        return res
+          .status(400)
+          .json({ success: false, error: { message: error.message } });
       if (error.name === "NotFoundError")
-        return res.status(404).json({ error: error.message });
-      return res
-        .status(500)
-        .json({ error: "Erro interno ao processar solicitação." });
+        return res
+          .status(404)
+          .json({ success: false, error: { message: error.message } });
+      return res.status(500).json({
+        success: false,
+        error: { message: "Erro interno ao processar solicitação." },
+      });
     }
-  }
+  };
 
   public listRequests = async (req: Request, res: Response) => {
     // GET /exams
     const user = (req as any).user;
     const requests = await this.examService.listRequestsByContext(user);
-    return res.json(requests);
-  }
+    return res.json({ success: true, data: requests });
+  };
 
   public getRequest = async (req: Request, res: Response) => {
     // GET /exams/:id
@@ -66,15 +77,21 @@ export class ExamController {
 
     try {
       const request = await this.examService.getRequestById(id, user);
-      return res.json(request);
+      return res.json({ success: true, data: request });
     } catch (error: any) {
       if (error.name === "ForbiddenError")
-        return res.status(403).json({ error: error.message });
+        return res
+          .status(403)
+          .json({ success: false, error: { message: error.message } });
       if (error.name === "NotFoundError")
-        return res.status(404).json({ error: error.message });
-      return res.status(500).json({ error: "Erro interno." });
+        return res
+          .status(404)
+          .json({ success: false, error: { message: error.message } });
+      return res
+        .status(500)
+        .json({ success: false, error: { message: "Erro interno." } });
     }
-  }
+  };
 
   /**
    * Phase 5: POST /exams/:id/schedule
@@ -86,9 +103,7 @@ export class ExamController {
     const { scheduled_date } = req.body;
 
     if (!scheduled_date) {
-      return res
-        .status(400)
-        .json({ error: "Data agendada é obrigatória." });
+      return res.status(400).json({ error: "Data agendada é obrigatória." });
     }
 
     try {
@@ -105,7 +120,7 @@ export class ExamController {
         return res.status(400).json({ error: error.message });
       return res.status(500).json({ error: "Erro interno." });
     }
-  }
+  };
 
   /**
    * Phase 5: GET /exams/:id/download
@@ -131,5 +146,58 @@ export class ExamController {
         return res.status(400).json({ error: error.message });
       return res.status(500).json({ error: "Erro interno." });
     }
-  }
+  };
+
+  // Issue #506: Upload de laudo
+  public uploadResult = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const examId = parseInt(req.params.id);
+    const file = (req as any).file; // Vem do multer
+
+    if (!file) {
+      return res.status(400).json({ error: "Arquivo não enviado." });
+    }
+
+    // Construir URL do arquivo (simplificado)
+    const fileUrl = `/uploads/exam-results/${file.filename}`;
+
+    try {
+      await this.examService.uploadResult(examId, fileUrl, user);
+      return res.json({
+        success: true,
+        message: "Laudo enviado com sucesso.",
+        file_url: fileUrl,
+      });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: "Erro ao processar upload." });
+    }
+  };
+
+  // Issue #506: Liberar resultado
+  public releaseResult = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const examId = parseInt(req.params.id);
+
+    try {
+      await this.examService.releaseResult(examId, user);
+      return res.json({
+        success: true,
+        message: "Resultado liberado com sucesso.",
+      });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: "Erro ao liberar resultado." });
+    }
+  };
 }
