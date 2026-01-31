@@ -32,6 +32,14 @@ router.post("/", professionalController.register);
 router.get("/", professionalController.list);
 router.get("/:id/availability", professionalController.getAvailability);
 router.post("/:id/availability", professionalController.createAvailability);
+router.delete(
+  "/:id/availability/:availabilityId",
+  professionalController.deleteAvailability,
+);
+router.get(
+  "/:id/availability/rules",
+  professionalController.getAvailabilityRules,
+);
 router.get("/:id/commissions", professionalController.listCommissions);
 
 export { router as professionalRoutes };

@@ -167,4 +167,35 @@ export class ProfessionalController {
       return next(error);
     }
   };
+
+  public deleteAvailability = async (req: Request, res: Response) => {
+    try {
+      const professionalId = Number(req.params.id);
+      const availabilityId = Number(req.params.availabilityId);
+
+      if (!professionalId || !availabilityId) {
+        return res.status(400).json({ error: "Invalid IDs" });
+      }
+
+      await this.professionalService.deleteAvailability(
+        professionalId,
+        availabilityId,
+      );
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  public getAvailabilityRules = async (req: Request, res: Response) => {
+    try {
+      const professionalId = Number(req.params.id);
+      if (!professionalId) return res.status(400).json({ error: "Invalid ID" });
+
+      const rules =
+        await this.professionalService.getAvailabilityRules(professionalId);
+      res.json({ success: true, data: rules });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 }
