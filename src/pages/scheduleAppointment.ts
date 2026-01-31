@@ -28,17 +28,17 @@ function buildAppointmentStatusText(appointments: AppointmentSummary[]) {
 
 function buildAppointmentsLoadingState() {
   return `
-    <div class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3">
-      <p class="text-sm text-text-secondary">Sincronizando dados...</p>
+    <div class="appointment-card-plain u-flex-center">
+      <p class="u-text-secondary u-fs-sm">Sincronizando dados...</p>
     </div>
   `
 }
 
 function buildAppointmentsEmptyState(title: string, description: string) {
   return `
-    <div class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3">
-      <p class="text-sm font-bold text-white">${title}</p>
-      <p class="text-xs text-text-secondary mt-1">${description}</p>
+    <div class="appointment-card-plain">
+      <p class="u-fw-700 text-white">${title}</p>
+      <p class="u-text-secondary u-fs-xs u-mt-05">${description}</p>
     </div>
   `
 }
@@ -80,24 +80,34 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
   const canModify = appointment.status === "scheduled" || appointment.status === "confirmed"
 
   return `
-    <div class="rounded-2xl border border-border-dark bg-background-dark p-4 flex flex-col gap-2">
-      <div class="flex justify-between items-center">
-        <h4 class="text-sm font-bold text-white truncate">${appointment.professional_name}</h4>
-        <span class="text-xs text-text-secondary">${getStatusLabel(appointment.status)}</span>
+    <div class="appointment-card">
+      <div class="doctor-info-group">
+        <div class="doctor-img" style="background-image: url('${appointment.professional_image || ''}')">
+          ${!appointment.professional_image ? getInitials(appointment.professional_name) : ''}
+        </div>
+        <div class="appointment-main-info">
+          <div class="u-flex u-justify-between u-items-center">
+            <h3 class="doctor-name">${appointment.professional_name}</h3>
+            <span class="appointment-status status-${appointment.status}">${getStatusLabel(appointment.status)}</span>
+          </div>
+          <p class="doctor-specialty">${appointment.specialty}</p>
+          <div class="appointment-schedule-info">
+            <div class="schedule-item">
+              <span class="material-symbols-outlined schedule-icon">calendar_month</span>
+              ${formatDate(appointment.date)}
+            </div>
+            <div class="schedule-item">
+              <span class="material-symbols-outlined schedule-icon">schedule</span>
+              ${appointment.time}
+            </div>
+          </div>
+        </div>
       </div>
-      <p class="text-xs text-text-secondary">${appointment.specialty}</p>
-      <div class="flex items-center gap-2 text-xs text-text-secondary">
-        <span class="material-symbols-outlined">calendar_month</span>
-        ${formatDate(appointment.date)}
-      </div>
-      <div class="flex items-center gap-2 text-xs text-text-secondary">
-        <span class="material-symbols-outlined">schedule</span>
-        ${appointment.time}
-      </div>
+      
       ${canModify ? `
-        <div class="mt-2 flex gap-2">
+        <div class="appointment-actions">
           <button
-            class="flex-1 px-3 py-1.5 text-xs font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors"
+            class="btn-pill-outline btn-pill-primary"
             data-action="reschedule-appointment"
             data-appointment-id="${appointment.id}"
             data-professional-id="${appointment.professional_id}"
@@ -105,7 +115,7 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
             Reagendar
           </button>
           <button
-            class="flex-1 px-3 py-1.5 text-xs font-medium text-red-400 border border-red-400/30 rounded-lg hover:bg-red-400/10 transition-colors"
+            class="btn-pill-outline btn-pill-danger"
             data-action="cancel-appointment"
             data-appointment-id="${appointment.id}"
           >
@@ -299,63 +309,47 @@ function renderProfessionals(professionals: ProfessionalSummary[]) {
 }
 
 function buildProfessionalCard(professional: ProfessionalSummary) {
-  const price = professional.consultation_price
-    ? formatCurrency(professional.consultation_price)
-    : "A confirmar"
-  const registration = professional.registration_number
-    ? `CRM ${professional.registration_number}`
-    : "Registro disponível"
   const council = professional.council ? `• ${professional.council}` : ""
-  const registrationLabel =
-    registration === "Registro disponível" && !council
-      ? "Registro a confirmar"
-      : `${registration} ${council}`.trim()
+  const registrationLabel = professional.registration_number
+    ? `CRM ${professional.registration_number} ${council}`.trim()
+    : "Registro a confirmar"
 
   return `
-    <div class="group flex flex-col bg-surface-dark border border-border-dark rounded-xl overflow-hidden hover:border-primary/50 transition-all shadow-sm hover:shadow-md hover:shadow-primary/5">
-      <div class="p-5 flex gap-4 items-start">
-        <div class="size-20 rounded-full bg-primary/10 border border-border-dark flex items-center justify-center text-primary text-lg font-bold">
-          ${getInitials(professional.name)}
+    <div class="professional-card">
+      <div class="prof-card-top">
+        <div class="prof-avatar" style="background-image: url('${professional.image || ''}')">
+          ${!professional.image ? getInitials(professional.name) : ''}
         </div>
-        <div class="flex flex-col flex-1 min-w-0">
-          <div class="flex justify-between items-start">
+        <div class="prof-info">
+          <div class="u-flex u-justify-between u-items-start">
             <div>
-              <h3 class="text-white text-lg font-bold leading-tight truncate">${professional.name}</h3>
-              <p class="text-primary text-sm font-medium mt-1">${professional.specialty}</p>
+              <h3>${professional.name}</h3>
+              <p class="prof-specialty">${professional.specialty}</p>
             </div>
-            <div class="flex items-center gap-1 bg-background-dark px-2 py-1 rounded-md">
-              <span class="material-symbols-outlined text-yellow-400 text-[16px]">star</span>
-              <span class="text-white text-xs font-bold">4.9</span>
+            <div class="prof-rating">
+              <span class="material-symbols-outlined star-icon">star</span>
+              <span class="rating-value">4.9</span>
             </div>
           </div>
-          <p class="text-text-secondary text-xs mt-1">${registrationLabel}</p>
-          <div class="flex items-center gap-2 mt-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-              Disponível hoje
-            </span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-border-dark text-text-secondary">
-              ${professional.specialty}
-            </span>
+          <p class="u-text-secondary u-fs-xs u-mt-05">${registrationLabel}</p>
+          <div class="prof-tags u-mt-10">
+            <span class="prof-tag">Disponível hoje</span>
+            <span class="prof-tag">${professional.specialty}</span>
           </div>
         </div>
       </div>
 
-      <div class="h-px bg-border-dark mx-5"></div>
-
-      <div class="px-5 py-4 flex flex-col gap-3">
+      <div class="prof-card-footer">
+        <div class="prof-price">
+          <span class="price-label">Consulta</span>
+          <span class="price-value">${professional.consultation_price ? formatCurrency(professional.consultation_price) : "A confirmar"}</span>
+        </div>
         <button
-          class="w-full py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group-hover:scale-[1.02]"
+          class="btn-book"
           data-action="view-availability"
           data-professional-id="${professional.id}"
         >
-          <span class="material-symbols-outlined text-[20px]">calendar_add_on</span>
-          Agendar Consulta
-        </button>
-      </div>
-
-      <div class="px-5 pb-5 pt-0">
-        <button class="w-full py-2 rounded-lg border border-border-dark text-sm font-medium text-text-secondary hover:text-white hover:bg-border-dark transition-colors">
-          Ver Perfil Completo
+          Agendar
         </button>
       </div>
     </div>
@@ -573,8 +567,7 @@ function renderToasts() {
   toastContainer.innerHTML = ""
   uiStore.getToasts().forEach(toast => {
     const toastElement = document.createElement("div")
-    toastElement.className =
-      "rounded-lg px-4 py-2 text-sm shadow-lg border border-border-dark bg-surface-dark"
+    toastElement.className = `toast-item toast-item-${toast.level || 'info'}`
     toastElement.textContent = toast.text
     toastContainer.appendChild(toastElement)
   })

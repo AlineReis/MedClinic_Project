@@ -5,89 +5,67 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Usuários e Acessos - MedClinic</title>
-
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#197fe6",
-                        "background-dark": "#111418",
-                        "surface-dark": "#1a1f26",
-                        "border-dark": "#2a3441",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                },
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="../css/admin-common.css">
+    <link rel="stylesheet" href="../css/users.css">
 </head>
 
-<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
-
-    <!-- Sidebar (Shared Admin Style) -->
-    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark shrink-0 h-full">
-        <div class="h-16 flex items-center px-6 border-b border-border-dark">
-            <div class="flex items-center gap-3">
-                <div class="size-8 rounded bg-primary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+<body class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="#" class="admin-sidebar-brand">
+                <div class="brand-icon-box">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
                 </div>
-                <h1 class="text-base font-bold tracking-tight">MedClinic Admin</h1>
-            </div>
+                <span class="brand-name">MedClinic Admin</span>
+            </a>
         </div>
-
-        <nav class="flex-1 px-4 py-6 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white transition-colors"
-                href="dashboard.html">
+        <nav class="admin-sidebar-nav">
+            <a class="admin-nav-item" href="dashboard.html">
                 <span class="material-symbols-outlined">dashboard</span>
                 Dashboard
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
+            <a class="admin-nav-item active" href="#">
                 <span class="material-symbols-outlined">group</span>
                 Usuários
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white transition-colors"
-                href="financial.html">
+            <a class="admin-nav-item" href="financial.html">
                 <span class="material-symbols-outlined">payments</span>
                 Financeiro
             </a>
         </nav>
+        <div class="admin-sidebar-footer">
+            <a href="login.html" class="admin-logout-link">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </a>
+        </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header
-            class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark shrink-0">
-            <h2 class="text-xl font-bold">Gestão de Equipe</h2>
-            <button
-                class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">person_add</span>
+    <main class="admin-main">
+        <header class="admin-header">
+            <h2 class="admin-header-title">Gestão de Equipe</h2>
+            <button class="btn-admin-primary">
+                <span class="material-symbols-outlined u-fs-lg">person_add</span>
                 Novo Usuário
             </button>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div class="max-w-[1400px] mx-auto space-y-6">
+        <div class="admin-content-viewport custom-scrollbar">
+            <div class="admin-container-max u-flex-column u-gap-large">
 
                 <!-- Filters -->
-                <div class="bg-surface-dark p-4 rounded-xl border border-border-dark flex flex-wrap items-center gap-4">
-                    <div class="relative flex-1 min-w-[300px]">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[20px]">search</span>
-                        <input
-                            class="w-full pl-10 pr-4 py-2 bg-background-dark border-border-dark rounded-lg text-sm focus:ring-1 focus:ring-primary text-white outline-none"
-                            placeholder="Buscar por nome ou e-mail..." type="text" />
+                <div class="users-filters-panel">
+                    <div class="search-input-wrapper">
+                        <span class="material-symbols-outlined">search</span>
+                        <input class="admin-input" placeholder="Buscar por nome ou e-mail..." type="text" />
                     </div>
-                    <select
-                        class="bg-background-dark border-border-dark text-slate-400 rounded-lg text-sm focus:ring-primary outline-none px-3 py-2">
+                    <select class="admin-select">
                         <option>Todos os Níveis</option>
                         <option>Médico</option>
                         <option>Admin</option>
@@ -96,70 +74,75 @@
                 </div>
 
                 <!-- Users Table -->
-                <div class="bg-surface-dark border border-border-dark rounded-xl overflow-hidden shadow-sm">
-                    <table class="w-full text-left">
+                <section class="admin-table-panel">
+                    <table class="admin-table">
                         <thead>
-                            <tr class="bg-border-dark/30">
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Usuário</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">E-mail</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Acesso</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Ações</th>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>E-mail</th>
+                                <th>Acesso</th>
+                                <th>Status</th>
+                                <th class="u-text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-border-dark">
-                            <tr class="hover:bg-border-dark/10 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
-                                            CR</div>
-                                        <div>
-                                            <p class="text-sm font-bold">Dra. Camila Rodrigues</p>
-                                            <p class="text-[10px] text-slate-500">ID: #84920</p>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="user-info-row">
+                                        <div class="user-avatar-initials">CR</div>
+                                        <div class="user-profile-data">
+                                            <p class="user-name">Dra. Camila Rodrigues</p>
+                                            <p class="user-id">ID: #84920</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-slate-400">camila.r@medclinic.com</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold">MÉDICO</span>
+                                <td class="u-text-secondary">camila.r@medclinic.com</td>
+                                <td>
+                                    <span class="access-badge badge-med">MÉDICO</span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="flex items-center gap-1.5 text-xs text-emerald-500 font-bold">
-                                        <span class="size-1.5 rounded-full bg-emerald-500"></span> Ativo
+                                <td>
+                                    <span class="status-indicator u-text-emerald">
+                                        <span class="dot dot-emerald"></span> Ativo
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button class="text-slate-500 hover:text-white transition-colors"><span
-                                            class="material-symbols-outlined">edit_square</span></button>
+                                <td class="u-text-right">
+                                    <button class="btn-icon-action">
+                                        <span class="material-symbols-outlined">edit_square</span>
+                                    </button>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-border-dark/10 transition-colors">
-                                <td class="px-6 py-4 text-sm">Ricardo Silva</td>
-                                <td class="px-6 py-4 text-sm text-slate-400">ricardo.s@medclinic.com</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="px-2 py-1 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold">ADMIN</span>
+                            <tr>
+                                <td>
+                                    <div class="user-info-row">
+                                        <div class="user-avatar-initials avatar-initials-purple">RS</div>
+                                        <div class="user-profile-data">
+                                            <p class="user-name">Ricardo Silva</p>
+                                            <p class="user-id">ID: #84921</p>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="flex items-center gap-1.5 text-xs text-emerald-500 font-bold">
-                                        <span class="size-1.5 rounded-full bg-emerald-500"></span> Ativo
+                                <td class="u-text-secondary">ricardo.s@medclinic.com</td>
+                                <td>
+                                    <span class="access-badge badge-admin">ADMIN</span>
+                                </td>
+                                <td>
+                                    <span class="status-indicator u-text-emerald">
+                                        <span class="dot dot-emerald"></span> Ativo
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button class="text-slate-500 hover:text-white transition-colors"><span
-                                            class="material-symbols-outlined">edit_square</span></button>
+                                <td class="u-text-right">
+                                    <button class="btn-icon-action">
+                                        <span class="material-symbols-outlined">edit_square</span>
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </section>
 
             </div>
         </div>
     </main>
-
     <script src="../js/components/navigation.js"></script>
     <script src="../js/services/mock_db.js"></script>
 </body>

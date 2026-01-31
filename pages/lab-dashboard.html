@@ -5,90 +5,94 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Laboratório - MedClinic</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: { extend: { colors: { "primary": "#197fe6", "background-dark": "#111418", "surface-dark": "#1a1f26", "border-dark": "#2a3441" }, fontFamily: { "display": ["Manrope", "sans-serif"] } } }
-        }
-    </script>
+    <link rel="stylesheet" href="../css/admin-common.css">
+    <link rel="stylesheet" href="../css/lab-dashboard.css">
 </head>
 
-<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
-    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
-        <div class="h-16 flex items-center px-6 border-b border-border-dark">
-            <span class="material-symbols-outlined text-primary mr-2">science</span>
-            <h1 class="text-base font-bold">MedClinic Labs</h1>
+<body class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="#" class="admin-sidebar-brand">
+                <div class="brand-icon-box">
+                    <span class="material-symbols-outlined">science</span>
+                </div>
+                <span class="brand-name">MedClinic Labs</span>
+            </a>
         </div>
-        <nav class="flex-1 p-4 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
-                <span class="material-symbols-outlined">dashboard</span> Painel
+        <nav class="admin-sidebar-nav">
+            <a class="admin-nav-item active" href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                Painel
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="exams.html">
-                <span class="material-symbols-outlined">assignment</span> Solicitações
+            <a class="admin-nav-item" href="exams.html">
+                <span class="material-symbols-outlined">assignment</span>
+                Solicitações
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="#">
-                <span class="material-symbols-outlined">history</span> Histórico
+            <a class="admin-nav-item" href="#">
+                <span class="material-symbols-outlined">history</span>
+                Histórico
             </a>
         </nav>
-        <div class="p-4 border-t border-border-dark">
-            <a href="login.html" class="flex items-center gap-2 text-sm text-slate-500 hover:text-white"><span
-                    class="material-symbols-outlined text-sm">logout</span> Sair</a>
+        <div class="admin-sidebar-footer">
+            <a href="login.html" class="admin-logout-link">
+                <span class="material-symbols-outlined">logout</span>
+                Sair
+            </a>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
-            <h2 class="text-xl font-bold">Central de Exames</h2>
-            <span class="text-sm text-slate-400">Terça, 15 Out 2024</span>
+    <main class="admin-main">
+        <header class="admin-header">
+            <h2 class="admin-header-title">Central de Exames</h2>
+            <span class="admin-header-subtitle">Terça, 15 Out 2024</span>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div class="max-w-[1400px] mx-auto space-y-8">
-                <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl">
-                        <p class="text-xs text-amber-500 uppercase font-bold mb-1">Pendentes (RN-09)</p>
-                        <h3 class="text-3xl font-bold text-amber-500" data-lab-count="pending">0</h3>
+        <div class="admin-content-viewport custom-scrollbar">
+            <div class="admin-container-max u-flex-column u-gap-large" style="gap: 2rem;">
+                <section class="admin-stats-grid">
+                    <div class="admin-stats-card lab-status-pending">
+                        <p class="card-label">Pendentes (RN-09)</p>
+                        <h3 class="card-value" data-lab-count="pending">0</h3>
                     </div>
-                    <div class="bg-blue-500/10 border border-blue-500/20 p-6 rounded-2xl">
-                        <p class="text-xs text-blue-500 uppercase font-bold mb-1">Em Análise</p>
-                        <h3 class="text-3xl font-bold text-blue-500" data-lab-count="analysis">0</h3>
+                    <div class="admin-stats-card lab-status-analysis">
+                        <p class="card-label">Em Análise</p>
+                        <h3 class="card-value" data-lab-count="analysis">0</h3>
                     </div>
-                    <div class="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl">
-                        <p class="text-xs text-emerald-500 uppercase font-bold mb-1">Prontos (RN-14)</p>
-                        <h3 class="text-3xl font-bold text-emerald-500" data-lab-count="ready">0</h3>
+                    <div class="admin-stats-card lab-status-ready">
+                        <p class="card-label">Prontos (RN-14)</p>
+                        <h3 class="card-value" data-lab-count="ready">0</h3>
                     </div>
-                    <div class="bg-red-500/10 border border-red-500/20 p-6 rounded-2xl">
-                        <p class="text-xs text-red-500 uppercase font-bold mb-1">Urgentes</p>
-                        <h3 class="text-3xl font-bold text-red-500" data-lab-count="urgent">0</h3>
+                    <div class="admin-stats-card lab-status-urgent">
+                        <p class="card-label">Urgentes</p>
+                        <h3 class="card-value" data-lab-count="urgent">0</h3>
                     </div>
                 </section>
 
-                <section class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden">
-                    <div class="px-6 py-4 border-b border-border-dark flex items-center justify-between">
-                        <h3 class="font-bold">Fila de Análise</h3>
-                        <a href="exams.html" class="text-xs text-primary font-bold">Ver Todos</a>
+                <section class="admin-table-panel">
+                    <div class="table-panel-header">
+                        <h3 class="u-fw-700 u-margin-0">Fila de Análise</h3>
+                        <a href="exams.html" class="admin-link">Ver Todos</a>
                     </div>
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-border-dark/30">
+                    <table class="admin-table">
+                        <thead>
                             <tr>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Paciente</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Exame</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Solicitante</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Status</th>
-                                <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Ação</th>
+                                <th>Paciente</th>
+                                <th>Exame</th>
+                                <th>Solicitante</th>
+                                <th>Status</th>
+                                <th>Ação</th>
                             </tr>
                         </thead>
-                        <tbody data-lab-queue-body class="divide-y divide-border-dark">
+                        <tbody data-lab-queue-body id="lab-queue">
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                <td colspan="5" class="u-text-center u-text-secondary" style="padding: 2rem;">
                                     Carregando exames...
                                 </td>
                             </tr>

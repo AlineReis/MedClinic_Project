@@ -10,72 +10,54 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/global.css">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#197fe6",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#111921",
-                        "surface-dark": "#1c242e",
-                        "border-dark": "#2a3441",
-                        "text-secondary": "#9dabb8",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] }
-                },
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="../css/patient-common.css">
+    <link rel="stylesheet" href="../css/my-appointments.css">
 </head>
 
-<body
-    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col">
+<body class="dashboard-body">
     <!-- Header -->
-    <header class="bg-surface-dark border-b border-border-dark">
-        <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
+    <header class="patient-header">
+        <div class="header-container">
+            <div class="header-actions">
                 <!-- Hamburger Button (Mobile) -->
-                <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
+                <button id="mobile-menu-btn" class="hamburger-btn-mobile" aria-label="Abrir menu">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                <a href="patient-dashboard.html" class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">local_hospital</span>
-                    <span class="font-bold">MedClinic</span>
+                <a href="patient-dashboard.html" class="header-brand">
+                    <span class="material-symbols-outlined brand-icon">local_hospital</span>
+                    <span class="brand-name">MedClinic</span>
                 </a>
             </div>
-            <div class="flex items-center gap-4">
-                <nav class="hidden md:flex items-center gap-6 text-sm">
-                    <a href="patient-dashboard.html" class="text-slate-400 hover:text-white">Inicio</a>
-                    <a href="my-appointments.html" class="text-primary font-medium">Consultas</a>
-                    <a href="exams.html" class="text-slate-400 hover:text-white">Exames</a>
+            <div class="header-actions">
+                <nav class="header-nav">
+                    <a href="patient-dashboard.html" class="nav-link">Inicio</a>
+                    <a href="my-appointments.html" class="nav-link nav-link-active">Consultas</a>
+                    <a href="exams.html" class="nav-link">Exames</a>
                 </nav>
-                <div class="hidden md:flex items-center gap-3">
-                    <div
-                        class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+                <div class="desktop-user-actions">
+                    <div class="user-badge">
                         <span data-user-initials>U</span>
                     </div>
-                    <button data-logout-button class="text-sm text-slate-400 hover:text-red-400 transition-colors">
-                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                    <button data-logout-button class="logout-btn" aria-label="Sair">
+                        <span class="material-symbols-outlined">logout</span>
                     </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 w-full max-w-3xl mx-auto p-4 md:p-8">
-        <div class="flex flex-col gap-6" id="appointments-list">
+    <main class="main-content-narrow">
+        <div class="appointments-list" id="appointments-list">
             <!-- List rendered via JS -->
-            <div class="text-center py-20">
-                <span class="material-symbols-outlined text-4xl text-text-secondary animate-pulse">sync</span>
+            <div class="loading-container">
+                <span class="material-symbols-outlined sync-icon-animate">sync</span>
             </div>
         </div>
     </main>
 
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="toast-container"></div>
     <script src="../js/components/mobile-menu.js"></script>
     <script src="../js/components/navigation.js"></script>
 </body>

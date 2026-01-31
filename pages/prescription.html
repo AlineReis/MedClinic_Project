@@ -5,132 +5,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prescrição Digital - MedClinic</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/prescription.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#00C896',
-                        'background-dark': '#0D1117',
-                        'surface-dark': '#161B22',
-                        'border-dark': '#30363D'
-                    },
-                    fontFamily: { display: ['Manrope', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400;
-        }
-    </style>
 </head>
 
-<body class="bg-background-dark text-white font-display min-h-screen">
+<body class="bg-background-dark text-white font-display">
     <!-- Header -->
-    <header class="bg-surface-dark border-b border-border-dark sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="doctor-dashboard.html" class="text-slate-400 hover:text-white transition-colors">
+    <header class="focus-header">
+        <div class="focus-header-inner">
+            <div class="presc-header-left">
+                <a href="doctor-dashboard.html" class="presc-back-link">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </a>
-                <div class="flex items-center gap-2 text-primary">
+                <div class="presc-brand">
                     <span class="material-symbols-outlined">local_hospital</span>
-                    <span class="font-bold text-xl text-white">MedClinic</span>
+                    <span class="presc-brand-name">MedClinic</span>
                 </div>
             </div>
-            <h1 class="text-lg font-semibold">Nova Prescrição</h1>
-            <div></div>
+            <h1 class="presc-view-title">Nova Prescrição</h1>
+            <div class="u-fs-lg u-w-40"></div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <main class="prescription-container">
         <!-- Patient Selection -->
-        <section class="bg-surface-dark border border-border-dark rounded-xl p-6 mb-6">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">person</span>
+        <section class="prescription-section">
+            <h2 class="section-title">
+                <span class="material-symbols-outlined u-text-primary">person</span>
                 Paciente
             </h2>
-            <div class="flex items-center gap-4">
-                <select id="patient-select"
-                    class="flex-1 bg-background-dark border border-border-dark rounded-lg px-4 py-3 focus:border-primary focus:outline-none">
+            <div class="u-flex u-items-center u-gap-medium">
+                <select id="patient-select" class="pep-select">
                     <option value="">Selecione o paciente...</option>
                 </select>
-                <div id="patient-info" class="hidden bg-background-dark rounded-lg p-4 flex-1">
-                    <p class="font-semibold" id="patient-name"></p>
-                    <p class="text-sm text-slate-400" id="patient-details"></p>
+                <div id="patient-info" class="patient-info-display u-hidden">
+                    <p id="patient-name" class="patient-name-text"></p>
+                    <p id="patient-details" class="patient-details-text"></p>
                 </div>
             </div>
         </section>
 
         <!-- Medications -->
-        <section class="bg-surface-dark border border-border-dark rounded-xl p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">medication</span>
+        <section class="prescription-section">
+            <div class="medications-header-flex">
+                <h2 class="section-title u-margin-0">
+                    <span class="material-symbols-outlined u-text-primary">medication</span>
                     Medicamentos
                 </h2>
-                <button onclick="addMedication()"
-                    class="text-primary hover:text-white transition-colors text-sm flex items-center gap-1">
-                    <span class="material-symbols-outlined text-lg">add_circle</span>
+                <button onclick="addMedication()" class="btn-add-med">
+                    <span class="material-symbols-outlined u-fs-lg">add_circle</span>
                     Adicionar
                 </button>
             </div>
 
-            <div id="medications-list" class="space-y-4">
+            <div id="medications-list">
                 <!-- Medications will be added here -->
             </div>
         </section>
 
         <!-- Notes -->
-        <section class="bg-surface-dark border border-border-dark rounded-xl p-6 mb-6">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">notes</span>
+        <section class="prescription-section">
+            <h2 class="section-title">
+                <span class="material-symbols-outlined u-text-primary">notes</span>
                 Observações
             </h2>
             <textarea id="prescription-notes" rows="4" placeholder="Orientações adicionais para o paciente..."
-                class="w-full bg-background-dark border border-border-dark rounded-lg px-4 py-3 focus:border-primary focus:outline-none resize-none"></textarea>
+                class="pep-textarea"></textarea>
         </section>
 
         <!-- Actions -->
-        <div class="flex gap-4">
-            <button onclick="savePrescription(false)"
-                class="flex-1 bg-surface-dark border border-border-dark text-white py-4 rounded-xl font-semibold hover:bg-border-dark transition-colors">
+        <div class="u-flex u-gap-medium">
+            <button onclick="savePrescription(false)" class="btn-save-draft">
                 Salvar Rascunho
             </button>
-            <button onclick="savePrescription(true)"
-                class="flex-1 bg-primary text-background-dark py-4 rounded-xl font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2">
+            <button onclick="savePrescription(true)" class="btn-issue-digital">
                 <span class="material-symbols-outlined">verified</span>
                 Emitir Prescrição Digital
             </button>
         </div>
 
         <!-- Preview Modal -->
-        <div id="preview-modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4">
-            <div
-                class="bg-surface-dark border border-border-dark rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-                <div class="p-6 border-b border-border-dark flex items-center justify-between">
-                    <h3 class="text-xl font-bold">Pré-visualização da Prescrição</h3>
-                    <button onclick="closePreview()" class="text-slate-400 hover:text-white">
+        <div id="preview-modal" class="preview-modal-overlay u-hidden">
+            <div class="preview-modal-content">
+                <div class="preview-modal-header">
+                    <h3 class="u-fs-lg u-fw-700 u-margin-0">Pré-visualização</h3>
+                    <button onclick="closePreview()" class="btn-icon-action">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <div id="preview-content" class="p-6 bg-white text-black">
+                <div id="preview-content" class="preview-modal-body">
                     <!-- Preview content will be injected here -->
                 </div>
-                <div class="p-6 border-t border-border-dark flex gap-4">
-                    <button onclick="closePreview()"
-                        class="flex-1 bg-surface-dark border border-border-dark py-3 rounded-xl hover:bg-border-dark transition-colors">
+                <div class="preview-modal-footer">
+                    <button onclick="closePreview()" class="btn-save-draft u-padding-medium">
                         Editar
                     </button>
-                    <button onclick="confirmAndDownload()"
-                        class="flex-1 bg-primary text-background-dark py-3 rounded-xl font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                    <button onclick="confirmAndDownload()" class="btn-issue-digital u-padding-medium">
                         <span class="material-symbols-outlined">download</span>
                         Baixar PDF
                     </button>
@@ -141,22 +116,18 @@
 
     <!-- Medication Template -->
     <template id="medication-template">
-        <div class="medication-item bg-background-dark rounded-xl p-4 border border-border-dark">
-            <div class="flex items-center justify-between mb-3">
-                <span class="font-medium text-primary">Medicamento</span>
-                <button type="button" onclick="removeMedication(this)" class="text-red-400 hover:text-red-300">
-                    <span class="material-symbols-outlined text-lg">delete</span>
+        <div class="medication-item">
+            <div class="medication-header">
+                <span class="u-fw-600 u-text-primary">Medicamento</span>
+                <button type="button" onclick="removeMedication(this)" class="btn-icon-action u-text-red">
+                    <span class="material-symbols-outlined u-fs-lg">delete</span>
                 </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" placeholder="Nome do medicamento"
-                    class="med-name bg-surface-dark border border-border-dark rounded-lg px-4 py-2 focus:border-primary focus:outline-none">
-                <input type="text" placeholder="Dosagem (ex: 50mg)"
-                    class="med-dosage bg-surface-dark border border-border-dark rounded-lg px-4 py-2 focus:border-primary focus:outline-none">
-                <input type="text" placeholder="Frequência (ex: 12/12h)"
-                    class="med-frequency bg-surface-dark border border-border-dark rounded-lg px-4 py-2 focus:border-primary focus:outline-none">
-                <input type="text" placeholder="Duração (ex: 7 dias)"
-                    class="med-duration bg-surface-dark border border-border-dark rounded-lg px-4 py-2 focus:border-primary focus:outline-none">
+            <div class="medication-grid">
+                <input type="text" placeholder="Nome do medicamento" class="pep-input med-name">
+                <input type="text" placeholder="Dosagem (ex: 50mg)" class="pep-input med-dosage">
+                <input type="text" placeholder="Frequência (ex: 12/12h)" class="pep-input med-frequency">
+                <input type="text" placeholder="Duração (ex: 7 dias)" class="pep-input med-duration">
             </div>
         </div>
     </template>

@@ -1,93 +1,44 @@
 <!doctype html>
 <html class="dark" lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <meta name="theme-color" content="#00C896" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta
-      name="description"
-      content="MedClinic - Sistema de Gestão de Clínicas Médicas"
-    />
-    <title>Login - MedClinic</title>
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <link rel="stylesheet" href="../css/global.css" />
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#197fe6",
-              "background-dark": "#111921",
-              "surface-dark": "#1c242e",
-              "border-dark": "#2a3441",
-            },
-            fontFamily: { display: ["Manrope", "sans-serif"] },
-          },
-        },
-      }
-    </script>
-  </head>
 
-  <body
-    class="bg-background-dark text-white font-display min-h-screen flex items-center justify-center p-4"
-  >
-    <div
-      class="w-full max-w-md bg-surface-dark border border-border-dark rounded-xl p-8 shadow-2xl"
-    >
-      <div class="flex flex-col items-center mb-8">
-        <div class="text-primary mb-3">
-          <span class="material-symbols-outlined !text-[48px]"
-            >local_hospital</span
-          >
-        </div>
-        <h1 class="text-2xl font-bold">MedClinic</h1>
-        <p class="text-slate-400 text-sm">Acesse sua conta</p>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta name="theme-color" content="#00C896" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="MedClinic - Sistema de Gestão de Clínicas Médicas" />
+  <title>Login - MedClinic</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+  <link href="../css/tailwind-built.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
+</head>
+
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="material-symbols-outlined auth-logo-icon">local_hospital</span>
+        <h1 class="auth-title">MedClinic</h1>
+        <p class="auth-subtitle">Acesse sua conta</p>
       </div>
 
-      <form id="login-form" class="flex flex-col gap-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1"
-            >Email</label
-          >
-          <input
-            type="email"
-            id="email"
-            class="w-full bg-background-dark border border-border-dark rounded-lg px-4 py-2 focus:ring-primary focus:border-primary"
-            placeholder="seu@email.com"
-          />
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="form-input" placeholder="seu@email.com" />
         </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1"
-            >Senha</label
-          >
-          <input
-            type="password"
-            id="password"
-            class="w-full bg-background-dark border border-border-dark rounded-lg px-4 py-2 focus:ring-primary focus:border-primary"
-            placeholder="••••••••"
-          />
+        <div class="form-group">
+          <label class="form-label" for="password">Senha</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••" />
         </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1"
-            >Tipo de Acesso</label
-          >
-          <select
-            id="role"
-            class="w-full bg-background-dark border border-border-dark rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-white"
-          >
+        <div class="form-group">
+          <label class="form-label" for="role">Tipo de Acesso</label>
+          <select id="role" class="form-select">
             <option value="patient">Paciente</option>
             <option value="receptionist">Recepcionista</option>
             <option value="lab_tech">Setor de Exames</option>
@@ -96,43 +47,35 @@
             <option value="system_admin">Administrador do Sistema</option>
           </select>
         </div>
-        <button
-          type="submit"
-          class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg transition-colors mt-2"
-        >
+        <button type="submit" class="btn-auth-primary">
           Entrar
         </button>
       </form>
 
-      <div class="mt-6 text-center text-xs text-slate-500">
+      <div class="auth-footer">
         <p>
           Ainda não tem conta?
-          <a href="register.html" class="text-primary hover:underline"
-            >Cadastre-se</a
-          >
+          <a href="register.html" class="auth-link">Cadastre-se</a>
         </p>
       </div>
     </div>
+  </div>
 
-    <div
-      id="toast-container"
-      class="fixed top-4 right-4 z-50 flex flex-col gap-2"
-    ></div>
+  <div id="toast-container" class="toast-container"></div>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-      rel="stylesheet"
-    />
-    <script>
-      // Register Service Worker for PWA
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("/sw.js")
-            .then(reg => console.log("[PWA] Service Worker registered"))
-            .catch(err => console.log("[PWA] SW registration failed:", err))
-        })
-      }
-    </script>
-  </body>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script>
+    // Register Service Worker for PWA
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then(reg => console.log("[PWA] Service Worker registered"))
+          .catch(err => console.log("[PWA] SW registration failed:", err))
+      })
+    }
+  </script>
+</body>
+
 </html>

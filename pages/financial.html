@@ -5,192 +5,163 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Dashboard Financeiro - MedClinic</title>
-
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#197fe6",
-                        "success": "#10b981",
-                        "danger": "#ef4444",
-                        "background-dark": "#111418",
-                        "surface-dark": "#1a1f26",
-                        "border-dark": "#2a3441",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                },
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="../css/admin-common.css">
+    <link rel="stylesheet" href="../css/financial.css">
 </head>
 
-<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
-
+<body class="admin-layout">
     <!-- Sidebar -->
-    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark shrink-0 h-full">
-        <div class="h-16 flex items-center px-6 border-b border-border-dark">
-            <div class="flex items-center gap-3">
-                <div class="size-8 rounded bg-primary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">payments</span>
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="#" class="admin-sidebar-brand">
+                <div class="brand-icon-box">
+                    <span class="material-symbols-outlined">payments</span>
                 </div>
-                <h1 class="text-base font-bold">MedClinic Finance</h1>
-            </div>
+                <span class="brand-name">MedClinic Finance</span>
+            </a>
         </div>
-        <nav class="flex-1 p-4 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="dashboard.html">
+        <nav class="admin-sidebar-nav">
+            <a class="admin-nav-item" href="dashboard.html">
                 <span class="material-symbols-outlined">dashboard</span>
                 KPIs
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium shadow-lg shadow-primary/20"
-                href="#">
+            <a class="admin-nav-item active" href="#">
                 <span class="material-symbols-outlined">receipt_long</span>
                 Faturamento
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="#">
+            <a class="admin-nav-item" href="#">
                 <span class="material-symbols-outlined">account_balance_wallet</span>
                 Repasses
             </a>
         </nav>
+        <div class="admin-sidebar-footer">
+            <a href="login.html" class="admin-logout-link">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </a>
+        </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header
-            class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark shrink-0">
-            <h2 class="text-xl font-bold">Gestão Financeira</h2>
-            <div class="flex items-center gap-4">
-                <button
-                    class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all">
-                    Nova Transação
-                </button>
-            </div>
+    <main class="admin-main">
+        <header class="admin-header">
+            <h2 class="admin-header-title">Gestão Financeira</h2>
+            <button class="btn-admin-primary btn-large">
+                Nova Transação
+            </button>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div class="max-w-[1400px] mx-auto space-y-8">
-
+        <div class="admin-content-viewport custom-scrollbar">
+            <div class="admin-container-max u-flex-column u-gap-large">
                 <!-- Performance Grid -->
-                <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark shadow-sm">
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Faturamento Bruto
-                        </p>
-                        <h3 class="text-2xl font-bold">R$ 142.580,00</h3>
-                        <span
-                            class="text-[10px] font-bold text-success bg-success/10 px-2 py-0.5 rounded mt-2 inline-block">+12.5%</span>
+                <section class="financial-performance-grid">
+                    <div class="financial-card">
+                        <p class="card-label">Faturamento Bruto</p>
+                        <h3 class="card-value">R$ 142.580,00</h3>
+                        <span class="badge-success">+12.5%</span>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark shadow-sm">
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Total a Repassar</p>
-                        <h3 class="text-2xl font-bold">R$ 85.548,00</h3>
-                        <p class="text-[10px] text-slate-500 mt-2">60% média do faturamento</p>
+                    <div class="financial-card">
+                        <p class="card-label">Total a Repassar</p>
+                        <h3 class="card-value">R$ 85.548,00</h3>
+                        <p class="u-fs-xs u-text-secondary u-margin-0">60% média do faturamento</p>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark shadow-sm">
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Taxas ADM</p>
-                        <h3 class="text-2xl font-bold">R$ 7.129,00</h3>
-                        <p class="text-[10px] text-slate-500 mt-2">5% (Taxa do Sistema)</p>
+                    <div class="financial-card">
+                        <p class="card-label">Taxas ADM</p>
+                        <h3 class="card-value">R$ 7.129,00</h3>
+                        <p class="u-fs-xs u-text-secondary u-margin-0">5% (Taxa do Sistema)</p>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark shadow-sm">
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Lucro Médio</p>
-                        <h3 class="text-2xl font-bold">R$ 49.903,00</h3>
-                        <p class="text-[10px] text-slate-500 mt-2">Líquido após splits</p>
+                    <div class="financial-card">
+                        <p class="card-label">Lucro Médio</p>
+                        <h3 class="card-value">R$ 49.903,00</h3>
+                        <p class="u-fs-xs u-text-secondary u-margin-0">Líquido após splits</p>
                     </div>
                 </section>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Chart -->
-                    <div class="lg:col-span-2 bg-surface-dark p-6 rounded-2xl border border-border-dark shadow-sm">
-                        <div class="flex items-center justify-between mb-8">
-                            <div>
-                                <h3 class="text-base font-bold text-white">Consolidado vs Líquido</h3>
-                                <p class="text-xs text-slate-500">Comparativo semanal dos últimos 2 meses</p>
-                            </div>
+                <div class="financial-main-grid">
+                    <div class="chart-panel">
+                        <div class="chart-header-group">
+                            <h3 class="chart-title">Consolidado vs Líquido</h3>
+                            <p class="chart-subtitle">Comparativo semanal dos últimos 2 meses</p>
                         </div>
-                        <div class="h-64 flex items-end justify-between gap-4 px-2 border-b border-border-dark pb-4">
-                            <!-- Bars (Mock UI) -->
-                            <div class="flex-1 flex items-end justify-center gap-1 h-full">
-                                <div class="w-3 bg-primary/40 h-[60%] rounded-t-sm"></div>
-                                <div class="w-3 bg-primary h-[25%] rounded-t-sm"></div>
+                        <div class="chart-container">
+                            <div class="chart-bar-group">
+                                <div class="bar-primary-light" style="height: 60%;"></div>
+                                <div class="bar-primary" style="height: 25%;"></div>
                             </div>
-                            <div class="flex-1 flex items-end justify-center gap-1 h-full">
-                                <div class="w-3 bg-primary/40 h-[85%] rounded-t-sm"></div>
-                                <div class="w-3 bg-primary h-[35%] rounded-t-sm"></div>
+                            <div class="chart-bar-group">
+                                <div class="bar-primary-light" style="height: 85%;"></div>
+                                <div class="bar-primary" style="height: 35%;"></div>
                             </div>
-                            <!-- ... more bars -->
+                            <div class="chart-bar-group">
+                                <div class="bar-primary-light" style="height: 70%;"></div>
+                                <div class="bar-primary" style="height: 30%;"></div>
+                            </div>
+                            <div class="chart-bar-group">
+                                <div class="bar-primary-light" style="height: 95%;"></div>
+                                <div class="bar-primary" style="height: 45%;"></div>
+                            </div>
+                            <div class="chart-bar-group">
+                                <div class="bar-primary-light" style="height: 75%;"></div>
+                                <div class="bar-primary" style="height: 40%;"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Split Config -->
-                    <div class="bg-slate-900 p-6 rounded-2xl flex flex-col shadow-xl">
-                        <h3 class="text-sm font-bold mb-6">Regras de Split (RN-18)</h3>
-                        <div class="space-y-4">
-                            <div
-                                class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-xs font-medium">Médico (Profissional)</span>
-                                <span class="text-lg font-bold">60%</span>
-                            </div>
-                            <div
-                                class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-xs font-medium">Clínica (Sede)</span>
-                                <span class="text-lg font-bold">35%</span>
-                            </div>
-                            <div
-                                class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-                                <span class="text-xs font-medium">Taxas (Sistema)</span>
-                                <span class="text-lg font-bold">5%</span>
-                            </div>
+                    <div class="split-rules-panel">
+                        <h3 class="u-fs-md u-fw-700 u-mb-15">Regras de Split (RN-18)</h3>
+                        <div class="split-rule-item">
+                            <span class="split-rule-label">Médico (Profissional)</span>
+                            <span class="split-rule-value">60%</span>
                         </div>
-                        <button
-                            class="mt-auto w-full py-3 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-slate-100 transition-colors">
+                        <div class="split-rule-item">
+                            <span class="split-rule-label">Clínica (Sede)</span>
+                            <span class="split-rule-value">35%</span>
+                        </div>
+                        <div class="split-rule-item">
+                            <span class="split-rule-label">Taxas (Sistema)</span>
+                            <span class="split-rule-value">5%</span>
+                        </div>
+                        <button class="btn-admin-light u-mt-auto">
                             Editar Regras
                         </button>
                     </div>
                 </div>
 
                 <!-- Transactions Table -->
-                <section class="bg-surface-dark rounded-2xl border border-border-dark overflow-hidden">
-                    <table class="w-full text-left">
+                <section class="admin-table-panel">
+                    <table class="admin-table">
                         <thead>
-                            <tr class="bg-border-dark/30">
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Paciente</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Valor</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Valor</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-border-dark">
-                            <tr class="hover:bg-border-dark/10 transition-colors">
-                                <td class="px-6 py-4 text-sm">Arthur B. Oliveira</td>
-                                <td class="px-6 py-4 text-sm font-bold">R$ 450,00</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">LIQUIDADO</span>
+                        <tbody>
+                            <tr>
+                                <td>Arthur B. Oliveira</td>
+                                <td class="u-fw-700">R$ 450,00</td>
+                                <td>
+                                    <span class="transaction-status status-liquidated">LIQUIDADO</span>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-border-dark/10 transition-colors">
-                                <td class="px-6 py-4 text-sm">Juliana Cavalcanti</td>
-                                <td class="px-6 py-4 text-sm font-bold">R$ 1.200,00</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="px-2 py-1 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold">AGUARDANDO</span>
+                            <tr>
+                                <td>Juliana Cavalcanti</td>
+                                <td class="u-fw-700">R$ 1.200,00</td>
+                                <td>
+                                    <span class="transaction-status status-waiting">AGUARDANDO</span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </section>
-
             </div>
         </div>
     </main>
-
     <script src="../js/components/navigation.js"></script>
     <script src="../js/services/mock_db.js"></script>
 </body>

@@ -6,192 +6,109 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Gestão de Exames - MedClinic</title>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#197fe6",
-                        "background-dark": "#111418",
-                        "surface-dark": "#1a1f26",
-                        "border-dark": "#2a3441",
-                        "danger": "#ef4444",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                },
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="../css/admin-common.css">
+    <link rel="stylesheet" href="../css/exams.css">
 </head>
 
-<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex flex-col">
+<body class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="#" class="admin-sidebar-brand" data-dynamic-brand-link>
+                <div class="brand-icon-box">
+                    <span class="material-symbols-outlined" data-dynamic-brand-icon>local_hospital</span>
+                </div>
+                <span class="brand-name" data-dynamic-brand-name>MedClinic</span>
+            </a>
+        </div>
+        <nav class="admin-sidebar-nav" data-nav-container>
+            <!-- Dynamic Navigation Items -->
+        </nav>
+        <div class="admin-sidebar-footer">
+            <a href="login.html" class="admin-logout-link">
+                <span class="material-symbols-outlined">logout</span>
+                Sair
+            </a>
+        </div>
+    </aside>
 
-    <!-- Header -->
-    <header class="bg-surface-dark border-b border-border-dark">
-        <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <!-- Hamburger Button (Mobile) -->
-                <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <a href="patient-dashboard.html" class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">local_hospital</span>
-                    <span class="font-bold">MedClinic</span>
-                </a>
-            </div>
-            <div class="flex items-center gap-4">
-                <nav class="hidden md:flex items-center gap-6 text-sm">
-                    <a href="patient-dashboard.html" class="text-slate-400 hover:text-white">Inicio</a>
-                    <a href="my-appointments.html" class="text-slate-400 hover:text-white">Consultas</a>
-                    <a href="exams.html" class="text-primary font-medium">Exames</a>
-                </nav>
-                <div class="hidden md:flex items-center gap-3">
-                    <div
-                        class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
-                        <span data-user-initials>U</span>
+    <main class="admin-main">
+        <header class="admin-header">
+            <h2 class="admin-header-title">Meus Exames</h2>
+            <div class="header-actions">
+                <div class="desktop-user-actions u-flex u-items-center u-gap-medium">
+                    <span class="u-text-secondary u-fs-sm" data-user-name>Maria Silva</span>
+                    <div class="user-badge">
+                        <span data-user-initials>MS</span>
                     </div>
-                    <button data-logout-button class="text-sm text-slate-400 hover:text-red-400 transition-colors">
-                        <span class="material-symbols-outlined text-[20px]">logout</span>
-                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content-viewport custom-scrollbar">
+            <div class="admin-container-max">
+                <section class="lab-content-header u-mb-20">
+                    <h3 class="u-fs-18 u-fw-700 u-margin-0">Exames e Laudos</h3>
+                    <div class="u-flex u-gap-small">
+                        <button id="toggle-history" class="btn-lab-secondary">Histórico</button>
+                        <button id="new-request-btn" class="btn-lab-primary u-hidden">Nova Solicitação</button>
+                    </div>
+                </section>
+
+                <div class="admin-table-panel">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Exame</th>
+                                <th>Status</th>
+                                <th class="u-text-center">Urgência</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <p class="u-fw-700 u-margin-0">Ana Beatriz Mendes</p>
+                                    <p class="u-text-secondary u-fs-xs">ID: 4492-0</p>
+                                </td>
+                                <td>Hemograma Completo</td>
+                                <td><span class="status-indicator">Pendente</span></td>
+                                <td class="u-text-center">
+                                    <span
+                                        class="material-symbols-outlined u-text-secondary u-fs-lg">priority_high</span>
+                                </td>
+                                <td><button class="admin-link">UPLOAD LAUDO</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p class="u-fw-700 u-margin-0">Carlos Eduardo Lima</p>
+                                    <p class="u-text-secondary u-fs-xs">ID: 8810-2</p>
+                                </td>
+                                <td>Ressonância Magnética</td>
+                                <td><span class="status-indicator"
+                                        style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;">Em
+                                        Análise</span></td>
+                                <td class="u-text-center">
+                                    <span class="material-symbols-outlined u-text-red u-fs-lg">priority_high</span>
+                                </td>
+                                <td><button class="admin-link">LIBERAR</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </header>
+    </main>
 
-    <div class="flex-1 flex overflow-hidden">
-        <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark shrink-0 h-full">
-            <div class="h-16 flex items-center px-6 border-b border-border-dark">
-                <div class="flex items-center gap-3">
-                    <div class="size-8 rounded bg-primary flex items-center justify-center">
-                        <span class="material-symbols-outlined text-xl">science</span>
-                    </div>
-                    <h1 class="text-base font-bold">MedClinic Labs</h1>
-                </div>
-            </div>
-            <nav class="flex-1 p-4 space-y-1">
-                <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
-                    <span class="material-symbols-outlined">assignment</span>
-                    Solicitações
-                </a>
-                <a id="sidebar-history-link"
-                    class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                    href="#">
-                    <span class="material-symbols-outlined">history</span>
-                    Histórico
-                </a>
-            </nav>
-            <div class="p-4 border-t border-border-dark mt-auto">
-                <div class="flex items-center gap-3 mb-3">
-                    <div
-                        class="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
-                        <span data-user-initials>U</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold text-white" data-user-name>Usuario</span>
-                        <span class="text-xs text-slate-400" data-user-role>Laboratorio</span>
-                    </div>
-                </div>
-                <button data-logout-button
-                    class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition-colors">
-                    <span class="material-symbols-outlined text-sm">logout</span> Sair
-                </button>
-            </div>
-        </aside>
-
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
-                <h2 class="text-xl font-bold">Exames e Laudos</h2>
-                <div class="flex items-center gap-3">
-                    <button id="toggle-history"
-                        class="bg-border-dark hover:bg-border-dark/70 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
-                        Histórico
-                    </button>
-                    <button id="new-request-btn"
-                        class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all hidden">
-                        Nova Solicitação
-                    </button>
-                </div>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                <div class="max-w-[1400px] mx-auto">
-
-                    <div class="bg-surface-dark border border-border-dark rounded-xl overflow-hidden shadow-sm">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="bg-border-dark/30">
-                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Paciente</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Exame</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Urgência</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-border-dark">
-                                <tr class="hover:bg-border-dark/10 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <p class="text-sm font-bold">Ana Beatriz Mendes</p>
-                                        <p class="text-xs text-slate-500">ID: 4492-0</p>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <p class="text-sm">Hemograma Completo</p>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">Pendente</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="material-symbols-outlined text-slate-600">priority_high</span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button
-                                            class="text-primary hover:text-white flex items-center gap-1 text-xs font-bold underline">
-                                            UPLOAD LAUDO
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-border-dark/10 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <p class="text-sm font-bold">Carlos Eduardo Lima</p>
-                                        <p class="text-xs text-slate-500">ID: 8810-2</p>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <p class="text-sm">Ressonância Magnética</p>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">Em
-                                            Análise</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="material-symbols-outlined text-danger animate-pulse">priority_high</span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button
-                                            class="bg-primary text-white px-3 py-1.5 rounded text-[10px] font-bold">LIBERAR</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="../js/components/mobile-menu.js"></script>
-</body>
 
 </html>

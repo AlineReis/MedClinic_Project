@@ -16,7 +16,14 @@ const toastContainer = document.getElementById("toast-container");
 let currentView: "all" | "history" = "all";
 
 document.addEventListener("DOMContentLoaded", () => {
-  hydrateSessionUser();
+  const session = getSessionFromStorage() ?? authStore.getSession();
+  if (!session) {
+    redirectToLogin();
+    return;
+  }
+  
+  hydrateSessionUser(session);
+  renderNavigation(session);
   loadExams();
   setupEventListeners();
 });
@@ -39,12 +46,14 @@ function setupEventListeners() {
   document
     .getElementById("toggle-history")
     ?.addEventListener("click", toggleHistory);
-  document
-    .getElementById("sidebar-history-link")
-    ?.addEventListener("click", (e) => {
-      e.preventDefault(); // Prevent anchor navigation
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    const historyLink = target.closest("#sidebar-history-link");
+    if (historyLink) {
+      e.preventDefault();
       toggleHistory();
-    });
+    }
+  });
 }
 
 async function loadExams() {
@@ -569,8 +578,7 @@ async function loadModalData() {
   }
 }
 
-function hydrateSessionUser() {
-  const session = getSessionFromStorage() ?? authStore.getSession();
+function hydrateSessionUser(session: UserSession) {
   if (!session) return;
 
   document.querySelectorAll("[data-user-name]").forEach((element) => {
@@ -592,6 +600,83 @@ function hydrateSessionUser() {
     };
     element.textContent = roleMap[session.role] ?? "Usuário";
   });
+}
+
+function renderNavigation(session: UserSession) {
+  const navContainer = document.querySelector("[data-nav-container]");
+  if (!navContainer) return;
+
+  const basePath = getBasePath();
+  let navItems = "";
+
+  if (session.role === "patient") {
+    navItems = `
+      <a class="admin-nav-item" href="${basePath}patient-dashboard.html">
+        <span class="material-symbols-outlined">dashboard</span>
+        Inicio
+      </a>
+      <a class="admin-nav-item" href="${basePath}my-appointments.html">
+        <span class="material-symbols-outlined">event_note</span>
+        Consultas
+      </a>
+      <a class="admin-nav-item active" href="${basePath}exams.html">
+        <span class="material-symbols-outlined">science</span>
+        Exames
+      </a>
+    `;
+  } else if (session.role === "lab_tech") {
+    navItems = `
+      <a class="admin-nav-item" href="${basePath}lab-dashboard.html">
+        <span class="material-symbols-outlined">dashboard</span>
+        Painel
+      </a>
+      <a class="admin-nav-item active" href="${basePath}exams.html">
+        <span class="material-symbols-outlined">assignment</span>
+        Solicitações
+      </a>
+      <a class="admin-nav-item" id="sidebar-history-link" href="#">
+        <span class="material-symbols-outlined">history</span>
+        Histórico
+      </a>
+    `;
+    // Update Branding for Lab Tech
+    const brandName = document.querySelector("[data-dynamic-brand-name]");
+    const brandIcon = document.querySelector("[data-dynamic-brand-icon]");
+    const brandLink = document.querySelector("[data-dynamic-brand-link]");
+    if (brandName) brandName.textContent = "MedClinic Labs";
+    if (brandIcon) brandIcon.textContent = "science";
+    if (brandLink) brandLink.setAttribute("href", `${basePath}lab-dashboard.html`);
+    
+    const headerTitle = document.querySelector(".admin-header-title");
+    if (headerTitle) headerTitle.textContent = "Solicitações de Exames";
+  } else {
+    // Default fallback for other roles
+    const dashboardLink = getDashboardForRole(session.role);
+    navItems = `
+      <a class="admin-nav-item" href="${basePath}${dashboardLink}">
+        <span class="material-symbols-outlined">dashboard</span>
+        Inicio
+      </a>
+      <a class="admin-nav-item active" href="${basePath}exams.html">
+        <span class="material-symbols-outlined">science</span>
+        Exames
+      </a>
+    `;
+    const brandLink = document.querySelector("[data-dynamic-brand-link]");
+    if (brandLink) brandLink.setAttribute("href", `${basePath}${dashboardLink}`);
+  }
+
+  navContainer.innerHTML = navItems;
+}
+
+function getDashboardForRole(role: string): string {
+  const map: Record<string, string> = {
+    receptionist: "reception-dashboard.html",
+    health_professional: "doctor-dashboard.html",
+    clinic_admin: "manager-dashboard.html",
+    system_admin: "admin-dashboard.html",
+  };
+  return map[role] ?? "dashboard.html";
 }
 
 function getSessionFromStorage(): UserSession | null {

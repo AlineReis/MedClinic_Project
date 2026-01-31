@@ -5,127 +5,121 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Admin Sistema - MedClinic</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: { extend: { colors: { "primary": "#197fe6", "background-dark": "#111418", "surface-dark": "#1a1f26", "border-dark": "#2a3441" }, fontFamily: { "display": ["Manrope", "sans-serif"] } } }
-        }
-    </script>
+    <link rel="stylesheet" href="../css/admin-dashboard.css">
 </head>
 
-<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
-    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
-        <div class="h-16 flex items-center px-6 border-b border-border-dark">
-            <span class="material-symbols-outlined text-primary mr-2">admin_panel_settings</span>
-            <h1 class="text-base font-bold">MedClinic Admin</h1>
+<body class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <span class="material-symbols-outlined sidebar-logo-icon">admin_panel_settings</span>
+            <h1 class="sidebar-logo-text">MedClinic Admin</h1>
         </div>
-        <nav class="flex-1 p-4 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
+        <nav class="sidebar-nav">
+            <a class="nav-item nav-item-active" href="#">
                 <span class="material-symbols-outlined">dashboard</span> Sistema
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="users.html">
+            <a class="nav-item" href="users.html">
                 <span class="material-symbols-outlined">group</span> Usuários
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="#">
+            <a class="nav-item" href="#">
                 <span class="material-symbols-outlined">settings</span> Configurações
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="#">
+            <a class="nav-item" href="#">
                 <span class="material-symbols-outlined">database</span> Database
             </a>
         </nav>
-        <div class="p-4 border-t border-border-dark">
-            <a href="login.html" class="flex items-center gap-2 text-sm text-slate-500 hover:text-white"><span
-                    class="material-symbols-outlined text-sm">logout</span> Sair</a>
+        <div class="sidebar-footer">
+            <a href="login.html" class="logout-link">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </a>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark">
-            <h2 class="text-xl font-bold">Administração do Sistema</h2>
-            <span
-                class="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-xs font-bold rounded-full flex items-center gap-1">
-                <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Online
+    <main class="admin-main">
+        <header class="main-header">
+            <h2 class="header-title">Administração do Sistema</h2>
+            <span class="status-indicator">
+                <span class="pulse-dot"></span> Sistema Online
             </span>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div class="max-w-[1400px] mx-auto space-y-8">
-                <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl">
-                        <p class="text-xs text-emerald-500 uppercase font-bold mb-1">API Status</p>
-                        <h3 class="text-2xl font-bold text-emerald-500">Healthy</h3>
-                        <span class="text-[10px] text-slate-400">Uptime: 99.98%</span>
+        <div class="main-content custom-scrollbar">
+            <div class="main-container">
+                <section class="stats-grid">
+                    <div class="stats-card-healthy">
+                        <p class="stats-label">API Status</p>
+                        <h3 class="stats-value">Healthy</h3>
+                        <span class="stats-subtext">Uptime: 99.98%</span>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Usuários Ativos</p>
-                        <h3 class="text-2xl font-bold">48</h3>
-                        <span class="text-[10px] text-slate-400">6 roles cadastrados</span>
+                    <div class="stats-card">
+                        <p class="stats-label">Usuários Ativos</p>
+                        <h3 class="stats-value">48</h3>
+                        <span class="stats-subtext">6 roles cadastrados</span>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">DB Size</p>
-                        <h3 class="text-2xl font-bold">1.2 GB</h3>
+                    <div class="stats-card">
+                        <p class="stats-label">DB Size</p>
+                        <h3 class="stats-value">1.2 GB</h3>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Requests/Day</p>
-                        <h3 class="text-2xl font-bold">12.4K</h3>
+                    <div class="stats-card">
+                        <p class="stats-label">Requests/Day</p>
+                        <h3 class="stats-value">12.4K</h3>
                     </div>
                 </section>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
-                        <h3 class="font-bold mb-4">Usuários por Role (RN-03)</h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm">patient</span><span class="font-bold">32</span>
+                <div class="content-grid">
+                    <div class="panel-card">
+                        <h3 class="panel-title">Usuários por Role (RN-03)</h3>
+                        <ul class="panel-list">
+                            <li class="list-item-row">
+                                <span class="list-item-name">patient</span>
+                                <span class="list-item-count">32</span>
                             </li>
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm">health_professional</span><span class="font-bold">8</span>
+                            <li class="list-item-row">
+                                <span class="list-item-name">health_professional</span>
+                                <span class="list-item-count">8</span>
                             </li>
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm">receptionist</span><span class="font-bold">3</span>
+                            <li class="list-item-row">
+                                <span class="list-item-name">receptionist</span>
+                                <span class="list-item-count">3</span>
                             </li>
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm">lab_tech</span><span class="font-bold">2</span>
+                            <li class="list-item-row">
+                                <span class="list-item-name">lab_tech</span>
+                                <span class="list-item-count">2</span>
                             </li>
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm">clinic_admin</span><span class="font-bold">2</span>
+                            <li class="list-item-row">
+                                <span class="list-item-name">clinic_admin</span>
+                                <span class="list-item-count">2</span>
                             </li>
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-                                <span class="text-sm">system_admin</span><span class="font-bold">1</span>
+                            <li class="list-item-row">
+                                <span class="list-item-name">system_admin</span>
+                                <span class="list-item-count">1</span>
                             </li>
                         </ul>
                     </div>
-                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
-                        <h3 class="font-bold mb-4">Ações Rápidas</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <a href="users.html"
-                                class="p-4 bg-background-dark rounded-xl hover:border-primary border border-border-dark transition-all flex flex-col items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">person_add</span>
-                                <span class="text-xs font-bold">Novo Usuário</span>
+                    <div class="panel-card">
+                        <h3 class="panel-title">Ações Rápidas</h3>
+                        <div class="actions-grid">
+                            <a href="users.html" class="quick-action-btn">
+                                <span class="material-symbols-outlined action-btn-icon">person_add</span>
+                                <span class="action-btn-label">Novo Usuário</span>
                             </a>
-                            <button
-                                class="p-4 bg-background-dark rounded-xl hover:border-primary border border-border-dark transition-all flex flex-col items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">backup</span>
-                                <span class="text-xs font-bold">Backup DB</span>
+                            <button class="quick-action-btn">
+                                <span class="material-symbols-outlined action-btn-icon">backup</span>
+                                <span class="action-btn-label">Backup DB</span>
                             </button>
-                            <button
-                                class="p-4 bg-background-dark rounded-xl hover:border-primary border border-border-dark transition-all flex flex-col items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">sync</span>
-                                <span class="text-xs font-bold">Seed Data</span>
+                            <button class="quick-action-btn">
+                                <span class="material-symbols-outlined action-btn-icon">sync</span>
+                                <span class="action-btn-label">Seed Data</span>
                             </button>
-                            <button
-                                class="p-4 bg-background-dark rounded-xl hover:border-primary border border-border-dark transition-all flex flex-col items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">description</span>
-                                <span class="text-xs font-bold">Gerar Logs</span>
+                            <button class="quick-action-btn">
+                                <span class="material-symbols-outlined action-btn-icon">description</span>
+                                <span class="action-btn-label">Gerar Logs</span>
                             </button>
                         </div>
                     </div>

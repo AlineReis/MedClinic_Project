@@ -11,4 +11,5 @@ export interface AppointmentSummary {
   price?: number;
   room?: string | null;
   duration_minutes?: number;
+  professional_image?: string;
 }

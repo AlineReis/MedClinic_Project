@@ -123,8 +123,7 @@ function renderToasts() {
 
   uiStore.getToasts().forEach(toast => {
     const toastElement = document.createElement("div")
-    toastElement.className =
-      "rounded-lg px-4 py-2 text-sm shadow-lg border border-border-dark bg-surface-dark"
+    toastElement.className = `toast-item toast-item-${toast.level || 'info'}`
     toastElement.textContent = toast.text
     toastContainer.appendChild(toastElement)
   })

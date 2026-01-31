@@ -5,152 +5,160 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Dashboard Médico - MedClinic</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: { extend: { colors: { "primary": "#197fe6", "background-dark": "#111418", "surface-dark": "#1a1f26", "border-dark": "#2a3441" }, fontFamily: { "display": ["Manrope", "sans-serif"] } } }
-        }
-    </script>
+    <link rel="stylesheet" href="../css/specialist-common.css">
+    <link rel="stylesheet" href="../css/doctor-dashboard.css">
 </head>
 
-<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex dashboard-body">
+<body class="specialist-layout">
     <!-- Sidebar -->
-    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
-        <div class="h-16 flex items-center px-6 border-b border-border-dark">
-            <span class="material-symbols-outlined text-primary mr-2">local_hospital</span>
-            <h1 class="text-base font-bold">MedClinic Pro</h1>
+    <aside class="specialist-sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand-link">
+                <span class="material-symbols-outlined filled">local_hospital</span>
+            </a>
+            <div class="sidebar-brand-info">
+                <h1 class="brand-title">MedClinic</h1>
+                <p class="brand-subtitle">Portal Médico</p>
+            </div>
         </div>
-        <nav class="flex-1 p-4 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
-                <span class="material-symbols-outlined">dashboard</span> Visão Geral
+        <nav class="sidebar-nav">
+            <a class="nav-item nav-item-active" href="doctor-dashboard.html">
+                <span class="material-symbols-outlined filled">dashboard</span>
+                <span class="nav-text">Visão Geral</span>
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white cursor-pointer"
-                id="open-my-agenda-btn">
-                <span class="material-symbols-outlined">calendar_month</span> Minha Agenda
+            <a class="nav-item nav-item-inactive cursor-pointer" id="open-my-agenda-btn">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span class="nav-text">Minha Agenda</span>
             </a>
-
         </nav>
-        <div class="p-4 border-t border-border-dark">
-            <button data-logout-button
-                class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition-colors">
-                <span class="material-symbols-outlined text-sm">logout</span> Sair
+        <div class="sidebar-footer">
+            <div class="user-profile-widget">
+                <div class="user-avatar-circle">
+                    <span data-user-initials>US</span>
+                </div>
+                <div class="user-info-text">
+                    <p class="user-name" data-user-name>Profissional</p>
+                    <p class="user-role" data-user-role>Especialista</p>
+                </div>
+            </div>
+            <button data-logout-button class="btn-sidebar-logout">
+                <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+                <span class="nav-text">Sair</span>
             </button>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header class="h-16 border-b border-border-dark flex items-center justify-between px-4 md:px-8 bg-surface-dark">
-            <div class="flex items-center gap-3">
-                <!-- Sidebar Toggle Button (Mobile) -->
-                <button id="sidebar-toggle-btn" class="sidebar-toggle-btn lg:hidden" aria-label="Abrir menu">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <h2 class="text-lg md:text-xl font-bold">Bem-vindo(a), <span data-user-name>Profissional</span>!</h2>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-slate-400 hidden md:inline" data-user-role>Profissional de Saude</span>
-                <div class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm"
-                    data-user-initials>US</div>
+    <main class="flex-column flex-1 min-w-0 overflow-hidden">
+        <header class="main-header">
+            <div class="header-inner">
+                <div class="header-title-group">
+                    <h2 class="header-title">Bem-vindo(a), <span data-user-name>Profissional</span>!</h2>
+                    <p class="header-subtitle" data-user-role>Profissional de Saude</p>
+                </div>
+                <div class="header-stats">
+                    <!-- Sidebar Toggle Button (Mobile) - Keep it for functionality -->
+                    <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Abrir menu"
+                        style="display: none;">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <div class="user-avatar-circle" data-user-initials>US</div>
+                </div>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
-            <div class="max-w-[1400px] mx-auto space-y-8">
+        <div class="content-scroll custom-scrollbar">
+            <div class="content-container">
                 <!-- Stats -->
-                <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Consultas Hoje</p>
-                        <h3 class="text-3xl font-bold">8</h3>
+                <section class="stats-grid">
+                    <div class="stats-card">
+                        <p class="stats-label">Consultas Hoje</p>
+                        <h3 class="stats-value">8</h3>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Pacientes na Fila</p>
-                        <h3 class="text-3xl font-bold text-amber-500">3</h3>
+                    <div class="stats-card">
+                        <p class="stats-label">Pacientes na Fila</p>
+                        <h3 class="stats-value stats-value-amber">3</h3>
                     </div>
-                    <div class="bg-surface-dark p-6 rounded-2xl border border-border-dark">
-                        <p class="text-xs text-slate-500 uppercase font-bold mb-1">Realizadas</p>
-                        <h3 class="text-3xl font-bold text-emerald-500">5</h3>
+                    <div class="stats-card">
+                        <p class="stats-label">Realizadas</p>
+                        <h3 class="stats-value stats-value-emerald">5</h3>
                     </div>
                 </section>
 
                 <!-- Next Patient, Queue & Actions -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div
-                        class="lg:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-8 rounded-2xl text-white shadow-xl from-primary">
-                        <span class="text-[10px] font-bold uppercase bg-white/20 px-2 py-1 rounded">Próximo
-                            Paciente</span>
-                        <div class="mt-4 space-y-2">
+                <div class="dashboard-feat-card">
+                    <div class="next-patient-card">
+                        <span class="next-patient-badge">Próximo Paciente</span>
+                        <div class="next-patient-meta">
                             <p class="text-sm text-white/70">Carregando próximo paciente...</p>
                         </div>
-                        <div class="flex gap-4 mt-6 text-sm">
-                            <span class="flex items-center gap-1 text-white/70"><span
-                                    class="material-symbols-outlined text-sm">schedule</span> --:--</span>
-                            <span class="flex items-center gap-1 text-white/70"><span
-                                    class="material-symbols-outlined text-sm">location_on</span> Sala --</span>
+                        <div class="next-patient-time-loc">
+                            <span class="time-loc-item">
+                                <span class="material-symbols-outlined">schedule</span> --:--
+                            </span>
+                            <span class="time-loc-item">
+                                <span class="material-symbols-outlined">location_on</span> Sala --
+                            </span>
                         </div>
-                        <button onclick="window.location.href='pep.html'"
-                            class="mt-8 px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-slate-100 transition-all">Iniciar
+                        <button onclick="window.location.href='pep.html'" class="btn-patient-start">Iniciar
                             Atendimento</button>
                     </div>
-                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
-                        <h3 class="font-bold mb-4">Fila de Espera</h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
+                    <div class="panel-card">
+                        <h3 class="panel-title">Fila de Espera</h3>
+                        <ul class="panel-list">
+                            <li class="queue-patient-row">
                                 <span class="text-sm font-medium text-slate-500">Carregando pacientes...</span>
                                 <span class="text-xs text-slate-500 font-bold">--:--</span>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
-                        <div class="flex items-center justify-between">
+                <div class="panel-grid-2">
+                    <div class="panel-card">
+                        <div class="panel-header">
                             <div>
-                                <p class="text-xs text-slate-500 uppercase font-bold">Comissões</p>
+                                <p class="stats-label">Comissões</p>
                                 <p class="text-sm text-slate-400">Resumo atual</p>
                             </div>
-                            <div class="flex gap-2">
-                                <select id="commissions-month-filter"
-                                    class="px-3 py-2 bg-surface-dark border border-border-dark rounded-xl text-sm text-white focus:outline-none">
+                            <div class="flex-item-center gap-sm">
+                                <select id="commissions-month-filter" class="select-round">
                                     <option value="">Selecione um mês</option>
                                 </select>
-                                <select id="commissions-status-filter"
-                                    class="px-3 py-2 bg-surface-dark border border-border-dark rounded-xl text-sm text-white focus:outline-none">
+                                <select id="commissions-status-filter" class="select-round">
                                     <option value="">Todos</option>
                                     <option value="pending">Pendente</option>
                                     <option value="paid">Pago</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-4 mt-4 text-center">
-                            <div>
-                                <p class="text-xs text-slate-400">Total</p>
-                                <h3 class="text-2xl font-bold" data-commission-total>R$ 0,00</h3>
+                        <div class="commission-summary">
+                            <div class="commission-item">
+                                <p class="commission-label">Total</p>
+                                <h3 class="commission-value" data-commission-total>R$ 0,00</h3>
                             </div>
-                            <div>
-                                <p class="text-xs text-slate-400">Pendentes</p>
-                                <h3 class="text-2xl font-bold text-amber-500" data-commission-pending>R$ 0,00</h3>
+                            <div class="commission-item">
+                                <p class="commission-label">Pendentes</p>
+                                <h3 class="commission-value stats-value-amber" data-commission-pending>R$ 0,00</h3>
                             </div>
-                            <div>
-                                <p class="text-xs text-slate-400">Pagas</p>
-                                <h3 class="text-2xl font-bold text-emerald-500" data-commission-paid>R$ 0,00</h3>
+                            <div class="commission-item">
+                                <p class="commission-label">Pagas</p>
+                                <h3 class="commission-value stats-value-emerald" data-commission-paid>R$ 0,00</h3>
                             </div>
                         </div>
 
                     </div>
-                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
-                        <div class="flex items-center justify-between">
+                    <div class="panel-card">
+                        <div class="panel-header">
                             <div>
-                                <p class="text-xs text-slate-500 uppercase font-bold">Prescrições</p>
+                                <p class="stats-label">Prescrições</p>
                                 <p class="text-sm text-slate-400">Últimos registros</p>
                             </div>
-                            <button id="create-prescription-button"
-                                class="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition">Nova
+                            <button id="create-prescription-button" class="btn-primary-sm">Nova
                                 Prescrição</button>
                         </div>
                         <div class="mt-4 space-y-4" data-prescriptions-list>
@@ -158,25 +166,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div
-                        class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col justify-between">
+                <div class="actions-row">
+                    <div class="panel-card action-card">
                         <div>
-                            <p class="text-xs text-slate-500 uppercase font-bold">Disponibilidade</p>
+                            <p class="stats-label">Disponibilidade</p>
                             <p class="text-sm text-slate-400">Cadastre novos horários</p>
                         </div>
-                        <button id="add-availability-button"
-                            class="mt-4 px-4 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition">Gerenciar
+                        <button id="add-availability-button" class="btn-availability">Gerenciar
                             Horários</button>
                     </div>
-                    <div
-                        class="bg-surface-dark border border-border-dark rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="panel-card action-card">
                         <div>
-                            <p class="text-xs text-slate-500 uppercase font-bold">Exames</p>
+                            <p class="stats-label">Exames</p>
                             <p class="text-sm text-slate-400">Solicite um novo exame</p>
                         </div>
-                        <button id="request-exam-button"
-                            class="mt-4 px-4 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition">Solicitar
+                        <button id="request-exam-button" class="btn-exam-request">Solicitar
                             Exame</button>
                     </div>
                 </div>

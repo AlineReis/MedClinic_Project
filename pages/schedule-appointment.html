@@ -1,4 +1,3 @@
-<!-- Portal de Agendamento do Paciente -->
 <!doctype html>
 <html class="dark" lang="pt-BR">
 
@@ -15,155 +14,120 @@
     rel="stylesheet" />
 
   <!-- Tailwind CSS (CDN for MVP) -->
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <!-- Custom CSS -->
-  <!-- Handled by Webpack's injected CSS bundle -->
-
-  <!-- Theme Configuration -->
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#197fe6",
-            "background-light": "#f6f7f8",
-            "background-dark": "#111921",
-            "surface-dark": "#1c242e",
-            "border-dark": "#2a3441",
-            "text-secondary": "#9dabb8",
-          },
-          fontFamily: {
-            display: ["Manrope", "sans-serif"],
-          },
-          borderRadius: {
-            DEFAULT: "0.25rem",
-            lg: "0.5rem",
-            xl: "0.75rem",
-            full: "9999px",
-          },
-        },
-      },
-    }
-  </script>
+  <link href="../css/tailwind-built.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/patient-common.css">
+  <link rel="stylesheet" href="../css/schedule-appointment.css">
 </head>
 
-<body
-  class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col overflow-x-hidden antialiased">
+<body class="dashboard-body">
   <!-- Header -->
-  <header class="bg-surface-dark border-b border-border-dark">
-    <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+  <header class="patient-header">
+    <div class="header-container">
+      <div class="header-actions">
         <!-- Hamburger Button (Mobile) -->
-        <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
+        <button id="mobile-menu-btn" class="hamburger-btn-mobile" aria-label="Abrir menu">
           <span class="material-symbols-outlined">menu</span>
         </button>
-        <a href="patient-dashboard.html" class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-primary">local_hospital</span>
-          <span class="font-bold">MedClinic</span>
+        <a href="patient-dashboard.html" class="header-brand">
+          <span class="material-symbols-outlined brand-icon">local_hospital</span>
+          <span class="brand-name">MedClinic</span>
         </a>
       </div>
-      <div class="flex items-center gap-4">
-        <nav class="hidden md:flex items-center gap-6 text-sm">
-          <a href="patient-dashboard.html" class="text-slate-400 hover:text-white">Inicio</a>
-          <a href="my-appointments.html" class="text-slate-400 hover:text-white">Consultas</a>
-          <a href="exams.html" class="text-slate-400 hover:text-white">Exames</a>
+      <div class="header-actions">
+        <nav class="header-nav">
+          <a href="patient-dashboard.html" class="nav-link">Inicio</a>
+          <a href="my-appointments.html" class="nav-link">Consultas</a>
+          <a href="exams.html" class="nav-link">Exames</a>
         </nav>
-        <div class="hidden md:flex items-center gap-3">
-          <div
-            class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+        <div class="desktop-user-actions">
+          <div class="user-avatar-small">
             <span data-user-initials>U</span>
           </div>
-          <button data-logout-button class="text-sm text-slate-400 hover:text-red-400 transition-colors">
-            <span class="material-symbols-outlined text-[20px]">logout</span>
+          <button data-logout-button class="logout-icon-btn" aria-label="Sair">
+            <span class="material-symbols-outlined schedule-icon">logout</span>
           </button>
         </div>
       </div>
     </div>
   </header>
 
-  <div class="flex flex-1 w-full max-w-[1440px] mx-auto">
+  <div class="schedule-layout-wide">
     <!-- Sidebar Filters -->
-    <aside
-      class="hidden lg:flex w-72 flex-col gap-6 p-6 border-r border-border-dark sticky top-[73px] h-[calc(100vh-73px)] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-white">Filtros</h3>
-        <button class="text-sm text-primary hover:underline" onclick="clearFilters()">
+    <aside class="filters-sidebar">
+      <div class="sidebar-header">
+        <h3 class="sidebar-title">Filtros</h3>
+        <button class="btn-link-primary" onclick="clearFilters()">
           Limpar
         </button>
       </div>
 
       <!-- Filters Container -->
-      <div class="flex flex-col gap-4" id="filters-container">
+      <div class="filters-content" id="filters-container">
         <!-- Filters will be rendered here by JS -->
-        <div class="animate-pulse flex flex-col gap-4">
-          <div class="h-12 bg-surface-dark rounded-lg"></div>
-          <div class="h-32 bg-surface-dark rounded-lg"></div>
-          <div class="h-32 bg-surface-dark rounded-lg"></div>
+        <div class="filters-content">
+          <div class="skeleton-card skeleton-h-3"></div>
+          <div class="skeleton-card skeleton-h-8"></div>
+          <div class="skeleton-card skeleton-h-8"></div>
         </div>
       </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col p-4 md:p-8 gap-8 overflow-y-auto h-[calc(100vh-73px)]">
+    <main class="schedule-main">
       <!-- Search & Filters Header -->
-      <section class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2">
-          <h1 class="text-3xl font-bold tracking-tight text-white">
+      <section class="search-section">
+        <div class="notif-label-group">
+          <h1 class="section-title">
             Agende sua consulta
           </h1>
-          <p class="text-text-secondary">
+          <p class="section-subtitle search-desc">
             Encontre o especialista ideal e agende com facilidade.
           </p>
         </div>
-        <div class="flex flex-col md:flex-row gap-4">
-          <!-- Search Bar -->
-          <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <span class="material-symbols-outlined text-text-secondary">search</span>
-            </div>
-            <input id="search-input"
-              class="block w-full h-12 pl-12 pr-4 rounded-lg bg-surface-dark border border-border-dark text-white placeholder-text-secondary focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              placeholder="Busque por nome do médico ou especialidade" type="text" />
+        <div class="search-bar-wrapper">
+          <div class="search-icon-fixed">
+            <span class="material-symbols-outlined">search</span>
           </div>
+          <input id="search-input" class="search-input-field" placeholder="Busque por nome do médico ou especialidade"
+            type="text" />
         </div>
       </section>
 
-      <section class="bg-surface-dark border border-border-dark rounded-2xl p-6 space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="flex flex-col gap-1">
-            <p class="text-xs uppercase tracking-[0.3em] text-text-secondary inline-flex items-center gap-2">
+      <section class="notification-panel">
+        <div class="notif-header">
+          <div class="notif-label-group">
+            <p class="notif-tag">
               Agendamentos
-              <span id="appointments-count"
-                class="text-[11px] font-bold text-primary bg-white/5 rounded-full px-2 py-0.5">
+              <span id="appointments-count" class="notif-badge">
                 0 agendamentos
               </span>
             </p>
-            <h3 id="appointments-status" class="text-lg font-bold text-white">
+            <h3 id="appointments-status" class="notif-title">
               Aguardando sincronização...
             </h3>
           </div>
-          <span class="text-xs text-text-secondary">Última atualização automática</span>
+          <span class="notif-timestamp">Última atualização automática</span>
         </div>
-        <div id="appointments-list" class="w-full flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 no-scrollbar">
-          <div class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3">
-            <p class="text-sm text-text-secondary">Sincronizando dados...</p>
+        <div id="appointments-list" class="notif-list-horizontal">
+          <div class="notif-item-small">
+            <p>Sincronizando dados...</p>
           </div>
         </div>
       </section>
 
       <!-- Doctor Cards Grid -->
-      <section id="doctors-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <section id="doctors-grid" class="doctors-grid">
         <!-- Loading State -->
-        <div class="col-span-full flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-          <p class="text-text-secondary mt-4">Carregando especialistas...</p>
+        <div class="loading-state-full">
+          <span class="material-symbols-outlined u-spin u-fs-36 u-text-primary">progress_activity</span>
+          <p class="section-subtitle u-mb-10 u-text-center">Carregando especialistas...</p>
         </div>
       </section>
     </main>
   </div>
 
-  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+  <div id="toast-container" class="toast-container"></div>
 
   <!-- Application Scripts -->
   <script src="../js/components/mobile-menu.js"></script>

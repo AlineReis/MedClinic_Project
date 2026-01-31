@@ -6,6 +6,7 @@ export type ProfessionalSummary = {
   registration_number?: string;
   council?: string;
   avatar_url?: string;
+  image?: string;
 };
 
 export type ProfessionalAvailabilitySlot = {

@@ -5,8 +5,7 @@ export class ToastContainer {
 
     constructor() {
         this.container = document.createElement("div")
-        this.container.className =
-            "fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"
+        this.container.className = "toast-container"
         document.body.appendChild(this.container)
 
         uiStore.subscribe(this.render.bind(this))
@@ -17,17 +16,7 @@ export class ToastContainer {
 
         toasts.forEach(toast => {
             const toastEl = document.createElement("div")
-            toastEl.className = `
-        pointer-events-auto min-w-[300px] max-w-sm p-4 rounded-xl shadow-lg border border-border-dark flex items-start gap-3 animate-slide-in
-        ${toast.level === "error"
-                    ? "bg-red-500/10 border-red-500/20 text-red-200"
-                    : toast.level === "success"
-                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-200"
-                        : toast.level === "warning"
-                            ? "bg-amber-500/10 border-amber-500/20 text-amber-200"
-                            : "bg-surface-dark text-slate-200"
-                }
-      `
+            toastEl.className = `toast-item toast-item-${toast.level || "info"} u-flex u-items-start u-gap-medium`
 
             const icon =
                 toast.level === "error"
@@ -39,10 +28,12 @@ export class ToastContainer {
                             : "info"
 
             toastEl.innerHTML = `
-        <span class="material-symbols-outlined text-xl shrink-0">${icon}</span>
-        <p class="text-sm font-medium leading-tight pt-0.5">${toast.text}</p>
-        <button class="ml-auto text-current opacity-70 hover:opacity-100 transition-opacity" onclick="this.closest('div').remove()">
-          <span class="material-symbols-outlined text-lg">close</span>
+        <span class="material-symbols-outlined u-text-inherit u-fs-lg">${icon}</span>
+        <div class="u-flex-column u-gap-xs">
+          <p class="u-fs-sm u-fw-600">${toast.text}</p>
+        </div>
+        <button class="u-ml-auto u-opacity-70 hover:u-opacity-100" aria-label="Fechar">
+          <span class="material-symbols-outlined u-fs-md">close</span>
         </button>
       `
 

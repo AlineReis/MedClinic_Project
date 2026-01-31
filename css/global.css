@@ -1,6 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+:root {
+  --primary: #197fe6;
+  --primary-hover: #1669c1;
+  --background-light: #f6f7f8;
+  --background-dark: #111921;
+  --surface-dark: #1c242e;
+  --border-dark: #2a3441;
+  --text-secondary: #9dabb8;
+  --text-primary: #ffffff;
+}
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
@@ -8,11 +15,11 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #111921;
+  background: var(--background-dark);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #2a3441;
+  background: var(--border-dark);
   border-radius: 3px;
 }
 
@@ -60,6 +67,41 @@
   border: 1px solid #2a3441;
   border-radius: 0.75rem;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-dark);
+  background-color: var(--surface-dark);
+  color: #ffffff;
+  animation: slide-up 0.3s ease-out;
+}
+
+.toast-item-warning {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.toast-item-error {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.toast-item-success {
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .auth-blocker__spinner {
@@ -123,7 +165,9 @@
   z-index: 9998;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .mobile-menu-overlay.open {
@@ -166,7 +210,9 @@
   height: 40px;
   border-radius: 8px;
   color: #9dabb8;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .mobile-menu-close:hover {
@@ -188,7 +234,9 @@
   color: #9dabb8;
   font-size: 1rem;
   font-weight: 500;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .mobile-menu-link:hover,
@@ -253,7 +301,9 @@
   color: #9dabb8;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .mobile-menu-logout:hover {
@@ -270,7 +320,9 @@
   height: 40px;
   border-radius: 8px;
   color: #9dabb8;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .hamburger-btn:hover {
@@ -296,7 +348,9 @@
   z-index: 998;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .sidebar-overlay.open {
@@ -336,7 +390,9 @@
   height: 40px;
   border-radius: 8px;
   color: #9dabb8;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .sidebar-toggle-btn:hover {
@@ -357,5 +413,10 @@
     height: auto;
     min-height: 100vh;
     overflow-y: auto;
+    background-color: var(--background-dark);
   }
+}
+
+body.dashboard-body {
+  background-color: var(--background-dark);
 }

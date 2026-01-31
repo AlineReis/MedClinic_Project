@@ -6,135 +6,119 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Checkout e Pagamento - MedClinic</title>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#197fe6",
-                        "primary-hover": "#166cc4",
-                        "background-dark": "#111418",
-                        "surface-dark": "#1a1f26",
-                        "border-dark": "#2a3441",
-                    },
-                    fontFamily: { "display": ["Manrope", "sans-serif"] },
-                },
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="../css/patient-common.css">
+    <link rel="stylesheet" href="../css/checkout.css">
 </head>
 
-<body class="bg-background-dark text-white font-display min-h-screen flex flex-col">
+<body class="dashboard-body">
 
-    <header
-        class="sticky top-0 z-50 flex items-center justify-between border-b border-border-dark bg-surface-dark px-6 py-4 md:px-10">
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 text-primary">
-                <span class="material-symbols-outlined !text-[32px]">local_hospital</span>
-                <span class="text-lg font-bold">MedClinic</span>
+    <header class="patient-header">
+        <div class="header-container">
+            <div class="header-actions">
+                <a href="patient-dashboard.html" class="header-brand">
+                    <span class="material-symbols-outlined brand-icon" style="font-size: 32px;">local_hospital</span>
+                    <span class="brand-name" style="font-size: 1.125rem;">MedClinic</span>
+                </a>
             </div>
-        </div>
-        <div class="flex items-center gap-6">
-            <div class="hidden md:flex items-center gap-8 text-slate-400">
-                <a class="text-sm font-semibold hover:text-white transition-colors" href="#">Ajuda</a>
-            </div>
-            <div class="flex items-center gap-3 pl-6 border-l border-border-dark">
-                <div class="flex flex-col items-end hidden sm:flex text-xs">
-                    <span class="font-bold text-white">João Silva</span>
-                    <span class="text-slate-400">Paciente</span>
-                </div>
-                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-border-dark shadow-sm"
-                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8-NfOvJueEz5xLpWl6t6WleQm2J-yuRgfAUypu4DV3iD1abNFFfydkn84U5f3Y5C8IAUloCUWP6D_XkJAjwQRLsEXNXw_7m3K_f66dA7cKnkwzE8Gk-ui1RnjU917r_6FU-2Gn5luCZr_woZTnaSpAulIYCT2eyojkCn-rNn1_28Os3bty_NiKNVXwPPQfduxccfm27TPh5C6Xndx-3ekmErfSShFGS9ZIfHlSMs2Cb7a0oS7is80XxPRUk45TPrjHcJAHfggV9k");'>
+            <div class="header-actions">
+                <nav class="header-nav">
+                    <a class="nav-link" href="#">Ajuda</a>
+                </nav>
+                <div class="desktop-user-actions"
+                    style="padding-left: 1.5rem; border-left: 1px solid var(--border-dark);">
+                    <div class="profile-info" style="align-items: flex-end; margin-right: 0.75rem;">
+                        <span class="profile-name">João Silva</span>
+                        <span class="profile-role">Paciente</span>
+                    </div>
+                    <div class="user-avatar-small"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA8-NfOvJueEz5xLpWl6t6WleQm2J-yuRgfAUypu4DV3iD1abNFFfydkn84U5f3Y5C8IAUloCUWP6D_XkJAjwQRLsEXNXw_7m3K_f66dA7cKnkwzE8Gk-ui1RnjU917r_6FU-2Gn5luCZr_woZTnaSpAulIYCT2eyojkCn-rNn1_28Os3bty_NiKNVXwPPQfduxccfm27TPh5C6Xndx-3ekmErfSShFGS9ZIfHlSMs2Cb7a0oS7is80XxPRUk45TPrjHcJAHfggV9k'); background-size: cover;">
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 w-full max-w-6xl mx-auto p-4 md:p-10">
-        <div class="mb-8">
-            <button onclick="window.location.href='../index.html'"
-                class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-4">
-                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                <span class="text-sm font-medium">Voltar para busca</span>
+    <main class="main-content-wide" style="display: block; padding: 2.5rem;">
+        <div style="margin-bottom: 2rem;">
+            <button onclick="window.location.href='../index.html'" class="btn-link-primary"
+                style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back</span>
+                <span>Voltar para busca</span>
             </button>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">Finalizar Agendamento</h1>
-            <p class="text-slate-400 mt-1">Revise os detalhes da sua consulta e realize o pagamento.</p>
+            <h1 class="section-title" style="font-size: 1.875rem;">Finalizar Agendamento</h1>
+            <p class="section-subtitle">Revise os detalhes da sua consulta e realize o pagamento.</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="checkout-grid">
             <!-- Left: Summary -->
-            <div class="lg:col-span-5 space-y-6">
-                <div class="bg-surface-dark rounded-xl border border-border-dark shadow-sm overflow-hidden">
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+            <div class="checkout-summary-column">
+                <div class="summary-card">
+                    <div class="summary-content">
+                        <h3 class="summary-heading">
                             <span class="material-symbols-outlined text-primary">event_available</span>
                             Resumo do Agendamento
                         </h3>
 
-                        <div
-                            class="flex items-center gap-4 mb-8 p-4 bg-background-dark/50 rounded-lg border border-border-dark">
-                            <div class="size-16 rounded-full bg-cover bg-center shrink-0 border-2 border-primary/20"
-                                id="doctor-img"
+                        <div class="doctor-profile-strip">
+                            <div class="doctor-strip-img" id="doctor-img"
                                 style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDmnbbvRP02hJ7H_zoaKaRiRNKJX1-HGCsPGr0jtGdC-Z-RpxW0PIC4hi9UbGZECqEBJgvX6kMZNaB2B-qtgQq3Y7WLn0d-KK6i7UtIkQtipVRaZzxGHwaTJaOLH3RhQ5bfFecerS4T715D_V5jKKKvdukxXs1GuE__XOYOLbfHkbkHEBnm_9D6hV48EX-iJ-0NFcO0cZF6_ht4OP3GgN7FJhsNpMYNE3d80axsU_5euQIG_v1YcDFmISo1Mk1KGAX6Tmr8oFiyAWo')">
                             </div>
                             <div>
-                                <h4 class="font-bold text-white" id="doctor-name">Drª. Camila Rodrigues</h4>
-                                <p class="text-sm text-primary font-semibold" id="doctor-spec">Cardiologia</p>
-                                <p class="text-xs text-slate-400 mt-0.5">CRM/SP 123456</p>
+                                <h4 class="doctor-strip-name" id="doctor-name">Drª. Camila Rodrigues</h4>
+                                <p class="doctor-strip-spec" id="doctor-spec">Cardiologia</p>
+                                <p class="doctor-strip-meta">CRM/SP 123456</p>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <div class="flex items-start gap-4">
-                                <div class="bg-background-dark p-2 rounded-lg text-slate-400">
-                                    <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                        <div class="appointment-info-list">
+                            <div class="info-item-box">
+                                <div class="info-item-icon-box">
+                                    <span class="material-symbols-outlined"
+                                        style="font-size: 20px;">calendar_today</span>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Data e Hora</p>
-                                    <p class="text-sm font-semibold text-white">Quinta-feira, 24 de Outubro às 14:00</p>
+                                    <p class="info-item-label">Data e Hora</p>
+                                    <p class="info-item-value">Quinta-feira, 24 de Outubro às 14:00</p>
                                 </div>
                             </div>
-                            <div class="flex items-start gap-4">
-                                <div class="bg-background-dark p-2 rounded-lg text-slate-400">
-                                    <span class="material-symbols-outlined text-[20px]">location_on</span>
+                            <div class="info-item-box">
+                                <div class="info-item-icon-box">
+                                    <span class="material-symbols-outlined" style="font-size: 20px;">location_on</span>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tipo de
-                                        Atendimento</p>
-                                    <p class="text-sm font-semibold text-white">Presencial - Unidade Jardins</p>
-                                    <p class="text-xs text-slate-400">Alameda Campinas, 450 - São Paulo</p>
+                                    <p class="info-item-label">Tipo de Atendimento</p>
+                                    <p class="info-item-value">Presencial - Unidade Jardins</p>
+                                    <p class="info-item-subvalue">Alameda Campinas, 450 - São Paulo</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mt-8 pt-6 border-t border-border-dark">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-slate-400 font-medium">Valor da consulta</span>
-                                <span class="text-white font-bold" id="total-val">R$ 450,00</span>
+                        <div class="totals-section">
+                            <div class="total-line">
+                                <span class="total-label">Valor da consulta</span>
+                                <span class="total-value" id="total-val">R$ 450,00</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-slate-400 font-medium">Taxa de agendamento</span>
-                                <span class="text-emerald-500 font-bold">Grátis</span>
+                            <div class="total-line">
+                                <span class="total-label">Taxa de agendamento</span>
+                                <span class="total-free">Grátis</span>
                             </div>
-                            <div class="flex justify-between items-center mt-4 pt-4 border-t border-border-dark">
-                                <span class="text-lg font-bold text-white">Total</span>
-                                <span class="text-2xl font-extrabold text-primary" id="grand-total">R$ 450,00</span>
+                            <div class="grand-total-line">
+                                <span class="grand-total-label">Total</span>
+                                <span class="grand-total-value" id="grand-total">R$ 450,00</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-primary/10 border border-primary/20 rounded-lg p-4 flex gap-3">
-                    <span class="material-symbols-outlined text-primary">info</span>
-                    <p class="text-xs text-blue-300 leading-relaxed">
+                <div class="policy-card" style="margin-top: 1.5rem;">
+                    <span class="material-symbols-outlined policy-icon">info</span>
+                    <p class="policy-text">
                         <strong>Política de Cancelamento:</strong> Cancelamentos feitos com até 24h de antecedência
                         possuem reembolso integral do valor.
                     </p>
@@ -142,67 +126,54 @@
             </div>
 
             <!-- Right: Payment -->
-            <div class="lg:col-span-7">
-                <div class="bg-surface-dark rounded-xl border border-border-dark shadow-sm overflow-hidden">
-                    <div class="p-6 md:p-8">
-                        <div class="flex items-center justify-between mb-8">
-                            <h3 class="text-lg font-bold">Informações de Pagamento</h3>
-                            <div class="flex gap-2 opacity-50">
-                                <span class="material-symbols-outlined">credit_card</span>
-                            </div>
+            <div class="checkout-payment-column">
+                <div class="payment-card">
+                    <div class="payment-content">
+                        <div class="payment-header">
+                            <h3 class="payment-title">Informações de Pagamento</h3>
+                            <span class="material-symbols-outlined opacity-50">credit_card</span>
                         </div>
-                        <form class="space-y-6"
+                        <form class="payment-form"
                             onsubmit="event.preventDefault(); window.location.href='my-appointments.html';">
-                            <div class="flex flex-col gap-2">
-                                <label class="text-sm font-bold text-slate-300">Nome no Cartão</label>
-                                <input
-                                    class="w-full h-12 px-4 rounded-lg border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                    placeholder="Ex: JOAO A SILVA" type="text" />
+                            <div class="payment-input-group">
+                                <label class="payment-label">Nome no Cartão</label>
+                                <input class="payment-input" placeholder="Ex: JOAO A SILVA" type="text" />
                             </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="text-sm font-bold text-slate-300">Número do Cartão</label>
-                                <div class="relative">
-                                    <input
-                                        class="w-full h-12 pl-4 pr-12 rounded-lg border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                        placeholder="0000 0000 0000 0000" type="text" />
-                                    <span
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500">credit_card</span>
+                            <div class="payment-input-group">
+                                <label class="payment-label">Número do Cartão</label>
+                                <div class="relative-input-wrapper">
+                                    <input class="payment-input" placeholder="0000 0000 0000 0000" type="text"
+                                        style="padding-right: 3rem;" />
+                                    <span class="material-symbols-outlined input-icon-end">credit_card</span>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="flex flex-col gap-2">
-                                    <label class="text-sm font-bold text-slate-300">Validade (MM/AA)</label>
-                                    <input
-                                        class="w-full h-12 px-4 rounded-lg border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                        placeholder="MM/AA" type="text" />
+                            <div class="payment-grid-2col">
+                                <div class="payment-input-group">
+                                    <label class="payment-label">Validade (MM/AA)</label>
+                                    <input class="payment-input" placeholder="MM/AA" type="text" />
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <label class="text-sm font-bold text-slate-300">CVV</label>
-                                    <input
-                                        class="w-full h-12 px-4 rounded-lg border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                        placeholder="123" type="text" />
+                                <div class="payment-input-group">
+                                    <label class="payment-label">CVV</label>
+                                    <input class="payment-input" placeholder="123" type="text" />
                                 </div>
                             </div>
-                            <div class="flex flex-col gap-2">
-                                <label class="text-sm font-bold text-slate-300">Parcelamento</label>
-                                <select
-                                    class="w-full h-12 px-4 rounded-lg border border-border-dark bg-background-dark text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none">
+                            <div class="payment-input-group">
+                                <label class="payment-label">Parcelamento</label>
+                                <select class="payment-select">
                                     <option value="1">À vista - R$ 450,00</option>
                                     <option value="2">2x de R$ 225,00 sem juros</option>
                                     <option value="3">3x de R$ 150,00 sem juros</option>
                                 </select>
                             </div>
-                            <div class="pt-6">
-                                <button
-                                    class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                            <div style="padding-top: 1.5rem;">
+                                <button class="btn-checkout-submit">
                                     Finalizar Pagamento
-                                    <span class="material-symbols-outlined">lock</span>
+                                    <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
                                 </button>
-                                <p
-                                    class="text-center text-xs text-slate-500 mt-4 flex items-center justify-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]">security</span>
-                                    Pagamento 100% seguro e criptografado
-                                </p>
+                                <div class="security-footer">
+                                    <span class="material-symbols-outlined security-icon-small">security</span>
+                                    <span>Pagamento 100% seguro e criptografado</span>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -211,13 +182,13 @@
         </div>
     </main>
 
-    <footer class="mt-auto border-t border-border-dark bg-surface-dark py-8 px-10">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-2 opacity-50">
+    <footer class="checkout-footer">
+        <div class="footer-container">
+            <div class="footer-brand-low">
                 <span class="material-symbols-outlined">local_hospital</span>
-                <span class="text-sm font-bold">MedClinic</span>
+                <span class="brand-name" style="font-size: 0.875rem;">MedClinic</span>
             </div>
-            <p class="text-sm text-slate-500">© 2024 MedClinic Healthcare. Todos os direitos reservados.</p>
+            <p class="footer-copy">© 2024 MedClinic Healthcare. Todos os direitos reservados.</p>
         </div>
     </footer>
 

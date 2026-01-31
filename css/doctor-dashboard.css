@@ -1,0 +1,483 @@
+/* Doctor Dashboard - Semantic Styles */
+
+/* 1. Base Layout */
+.doctor-layout {
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  font-family: 'Manrope', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+}
+
+/* 2. Sidebar Component */
+.doctor-sidebar {
+  display: none;
+  flex-direction: column;
+  width: 16rem; /* w-64 */
+  border-right: 1px solid var(--border-dark);
+  background-color: var(--surface-dark);
+  height: 100%;
+}
+
+@media (min-width: 1024px) {
+  .doctor-sidebar {
+    display: flex;
+  }
+}
+
+.sidebar-header {
+  height: 4rem; /* h-16 */
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.sidebar-logo-icon {
+  color: var(--primary);
+  margin-right: 0.5rem;
+}
+
+.sidebar-logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sidebar-nav {
+  flex: 1 1 0%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border-dark);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background-color: var(--border-dark);
+  color: var(--text-primary);
+}
+
+.nav-item-active {
+  background-color: var(--primary);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0.5rem;
+}
+
+.logout-btn:hover {
+  color: #f87171; /* red-400 */
+}
+
+/* 3. Main Content & Header */
+.doctor-main {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-header {
+  height: 4rem; /* h-16 */
+  border-bottom: 1px solid var(--border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  background-color: var(--surface-dark);
+}
+
+@media (min-width: 768px) {
+  .main-header {
+    padding: 0 2rem;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .header-title {
+    font-size: 1.25rem;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-role-label {
+  display: none;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+  .user-role-label {
+    display: inline;
+  }
+}
+
+.user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: rgba(25, 127, 230, 0.2);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.content-scroll {
+  flex: 1 1 0%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .content-scroll {
+    padding: 2rem;
+  }
+}
+
+.content-container {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* 4. Stats Cards Component */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.stats-card {
+  background-color: var(--surface-dark);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-dark);
+}
+
+.stats-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.stats-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stats-value-amber {
+  color: #f59e0b;
+}
+
+.stats-value-emerald {
+  color: #10b981;
+}
+
+/* 5. Next Patient Feature */
+.dashboard-feat-card {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-feat-card {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.next-patient-card {
+  grid-column: span 1 / span 1;
+  background-color: var(--primary);
+  background-image: linear-gradient(to bottom right, var(--primary), #1a56db);
+  padding: 2rem;
+  border-radius: 1rem;
+  color: #ffffff;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .next-patient-card {
+    grid-column: span 2 / span 2;
+  }
+}
+
+.next-patient-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.next-patient-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  width: fit-content;
+}
+
+.next-patient-time-loc {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.time-loc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-patient-start {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #ffffff;
+  color: var(--primary);
+  font-weight: 700;
+  border-radius: 0.75rem;
+  border: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.btn-patient-start:hover {
+  background-color: #f1f5f9;
+}
+
+/* 6. Panel Components */
+.panel-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .panel-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.panel-card {
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.panel-title {
+  font-weight: 700;
+  margin: 0;
+}
+
+.panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.queue-patient-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: rgba(17, 25, 33, 0.5);
+  border-radius: 0.75rem;
+}
+
+.commission-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.commission-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.commission-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.commission-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* 7. Action Sections */
+.actions-row {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .actions-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 8. Utility Components (Internal) */
+.flex-item-center {
+  display: flex;
+  align-items: center;
+}
+
+.gap-sm {
+  gap: 0.5rem;
+}
+
+.gap-md {
+  gap: 1rem;
+}
+
+.btn-primary-sm {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  border-radius: 0.75rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.btn-primary-sm:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-availability {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #10b981;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  border: none;
+  font-weight: 700;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.btn-availability:hover {
+  background-color: #059669;
+}
+
+.btn-exam-request {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f97316;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  border: none;
+  font-weight: 700;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.btn-exam-request:hover {
+  background-color: #ea580c;
+}
+
+.select-round {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  outline: none;
+}
