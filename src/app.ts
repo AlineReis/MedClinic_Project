@@ -2,25 +2,30 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "fs";
+import { env } from "./config/config.js";
 import { errorHandler } from "./middlewares/error.handler.js";
 import routes from "./routes/index.js";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const createApp = () => {
   const app = express();
 
+  // Ensure uploads directory exists
+  const uploadsDir = env.UPLOADS_PATH;
+  if (!fs.existsSync(uploadsDir)) {
+    try {
+      console.log(`Creating uploads directory at: ${uploadsDir}`);
+      fs.mkdirSync(uploadsDir, { recursive: true, mode: 0o755 });
+    } catch (error: any) {
+      console.error(`❌ FATAL: Cannot create uploads directory: ${uploadsDir}`);
+      throw new Error(`Uploads directory not writable: ${error.message}`);
+    }
+  }
+
   app.use(helmet());
   app.use(
     cors({
-      origin: [
-        "http://localhost:8081",
-        "http://localhost:8080",
-        "http://localhost:3000",
-        "http://localhost:80",
-        "https://localhost:443",
-      ],
+      origin: env.ALLOWED_ORIGINS,
       credentials: true,
     }),
   );
@@ -28,7 +33,7 @@ export const createApp = () => {
   app.use(express.json());
 
   // Serve uploaded files statically
-  app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+  app.use("/uploads", express.static(uploadsDir));
 
   app.use(routes);
 
