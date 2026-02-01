@@ -20,8 +20,8 @@ Para cada arquivo, seguimos este processo:
 | `admin-dashboard.html`      | `admin-dashboard.css`      | ✅ Concluído | 100% Semântico (Auditado). |
 | `doctor-dashboard.html`     | `doctor-dashboard.css`     | ✅ Concluído | 100% Semântico (Auditado). |
 | `reception-dashboard.html`  | `reception-dashboard.css`  | ✅ Concluído | 100% Semântico.            |
-| `login.html`                | -                          | ⏳ Próximo   |                            |
-| `register.html`             | -                          | 📅 Planejado |                            |
+| `login.html`                | `auth.css`                 | ✅ Concluído | 100% Semântico.            |
+| `register.html`             | `auth.css`                 | ✅ Concluído | 100% Semântico.            |
 | `password-recovery.html`    | `auth.css`                 | ✅ Concluído | 100% Semântico.            |
 | `my-appointments.html`      | `my-appointments.css`      | ✅ Concluído | 100% Semântico.            |
 | `schedule-appointment.html` | `schedule-appointment.css` | ✅ Concluído | 100% Semântico.            |

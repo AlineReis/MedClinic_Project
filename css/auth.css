@@ -15,7 +15,8 @@
 /* 2. Auth Card */
 .auth-container {
   width: 100%;
-  max-width: 28rem; /* max-w-md */
+  max-width: 28rem;
+  /* max-w-md */
 }
 
 .auth-card {
@@ -69,12 +70,13 @@
 .form-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #cbd5e1; /* slate-300 */
+  color: #cbd5e1;
+  /* slate-300 */
 }
 
 .form-input,
 .form-select {
-  width: 100%;
+  /* width: 100%; Refatorado para teste */
   background-color: var(--background-dark);
   border: 1px solid var(--border-dark);
   border-radius: 0.5rem;
@@ -155,10 +157,14 @@
 
 .req-valid {
   color: #34d399;
-} /* emerald-400 */
+}
+
+/* emerald-400 */
 .req-invalid {
   color: #f87171;
-} /* red-400 */
+}
+
+/* red-400 */
 
 .code-inputs-group {
   display: flex;
