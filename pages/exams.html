@@ -32,7 +32,6 @@
         <nav class="admin-sidebar-nav" data-nav-container>
             <!-- Dynamic Navigation Items -->
         </nav>
-        <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
         <div class="admin-sidebar-footer">
             <a href="login.html" class="admin-logout-link">
                 <span class="material-symbols-outlined">logout</span>
@@ -44,13 +43,17 @@
     <main class="admin-main">
         <header class="admin-header">
             <h2 class="admin-header-title">Meus Exames</h2>
+
             <div class="header-actions">
+                <div class="header-info-right">
+                <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
                 <div class="desktop-user-actions">
                     <span class="header-user-name" data-user-name>Maria Silva</span>
                     <div class="user-badge">
                         <span data-user-initials>MS</span>
                     </div>
                 </div>
+            </div>
             </div>
         </header>
 
@@ -106,6 +109,7 @@
             </div>
         </div>
     </main>
+    </body>
 
     <div id="toast-container" class="toast-container"></div>
 

@@ -1,7 +1,6 @@
-import "../../css/pages/exams.css"
+import "../../css/pages/exams.css";
 import { Navigation } from "../components/Navigation";
 import { listAppointments } from "../services/appointmentsService";
-import { logout } from "../services/authService";
 import {
   createExam,
   listCatalog,
@@ -633,10 +632,10 @@ function renderNavigation(session: UserSession) {
         <span class="material-symbols-outlined">assignment</span>
         Solicitações
       </a>
-      <a class="admin-nav-item" id="sidebar-history-link" href="#">
+      <!-- <a class="admin-nav-item" id="sidebar-history-link" href="#">
         <span class="material-symbols-outlined">history</span>
         Histórico
-      </a>
+      </a> -->
     `;
     // Update Branding for Lab Tech
     const brandName = document.querySelector("[data-dynamic-brand-name]");
