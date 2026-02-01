@@ -1,4 +1,4 @@
-:root {
+:root[data-theme="dark"] {
   --primary: #197fe6;
   --primary-hover: #1669c1;
   --background-light: #f6f7f8;
@@ -7,6 +7,17 @@
   --border-dark: #2a3441;
   --text-secondary: #9dabb8;
   --text-primary: #ffffff;
+}
+
+:root[data-theme="light"] {
+  --primary: #197fe6;
+  --primary-hover: #1669c1;
+  --background-light: #ffffff;
+  --background-dark: #f6f7f8;
+  --surface-dark: #ffffff;
+  --border-dark: #e1e4e8;
+  --text-secondary: #57606a;
+  --text-primary: #24292f;
 }
 
 /* Custom Scrollbar */
@@ -624,4 +635,36 @@ body.dashboard-body {
   50% {
     opacity: 0.5;
   }
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+.header-info-right {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-content: center;
+}
+
+.header-info-right .admin-header-subtitle,
+.header-info-right .manager-header-subtitle {
+  align-content: center;
 }

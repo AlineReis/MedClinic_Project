@@ -1,5 +1,6 @@
 import "../../css/pages/auth.css"
 import { roleRoutes } from "../config/roleRoutes"
+import { initTheme } from "../config/theme"
 import { handleError } from "../services/apiService"
 import { login as authLogin } from "../services/authService"
 import { authStore } from "../stores/authStore"
@@ -27,6 +28,8 @@ const passwordInput = document.getElementById(
   "password",
 ) as HTMLInputElement | null
 const roleSelect = document.getElementById("role") as HTMLSelectElement | null
+
+initTheme();
 
 console.log("login.ts bundle loaded")
 

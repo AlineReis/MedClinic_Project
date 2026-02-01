@@ -15,7 +15,7 @@
 .page-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -49,7 +49,8 @@
 }
 
 .exams-table__header {
-  background-color: rgba(17, 25, 33, 0.5); /* slightly darker header */
+  background-color: rgba(17, 25, 33, 0.5);
+  /* slightly darker header */
 }
 
 .exams-table__th {
@@ -78,7 +79,7 @@
 .exams-table__td {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-dark);
-  color: #fff;
+  color: var(--text-primary);
   font-size: 0.875rem;
   vertical-align: middle;
 }
@@ -153,9 +154,11 @@
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
+
   100% {
     opacity: 1;
   }
@@ -180,7 +183,7 @@
 }
 
 .action-btn--view:hover {
-  color: #fff;
+  color: var(--text-primary);
   text-decoration: underline;
 }
 
@@ -213,7 +216,7 @@
 .empty-state__title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
