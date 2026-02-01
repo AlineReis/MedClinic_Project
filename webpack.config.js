@@ -32,6 +32,7 @@ module.exports = (env, argv) => {
       agenda: "./src/pages/agenda.ts",
       dashboard: "./src/pages/dashboard.ts",
       pep: "./src/pages/pep.ts",
+      patients: "./src/pages/patients.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -114,6 +115,12 @@ module.exports = (env, argv) => {
         chunks: ["pep"],
         publicPath: "/",
       }),
+      new HtmlWebpackPlugin({
+        template: "./pages/patients.html",
+        filename: "pages/patients.html",
+        chunks: ["patients"],
+        publicPath: "/",
+      }),
       ...mainPages.map(
         (page) =>
           new HtmlWebpackPlugin({
@@ -158,6 +165,7 @@ module.exports = (env, argv) => {
                 "**/agenda.html",
                 "**/dashboard.html",
                 "**/pep.html",
+                "**/patients.html",
                 ...mainPages.map((page) => `**/${page}`),
               ],
             },

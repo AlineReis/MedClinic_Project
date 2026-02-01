@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pacientes - MedClinic</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../css/global.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "primary-hover": "#166cc4",
+                        "background-dark": "#111418",
+                        "surface-dark": "#1a1f26",
+                        "border-dark": "#2a3441",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
+
+    <!-- Sidebar (Inject via JS or Component) -->
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
+        <div class="h-16 flex items-center px-6 border-b border-border-dark">
+            <span class="material-symbols-outlined text-primary mr-2">local_hospital</span>
+            <h1 class="text-base font-bold">MedClinic</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="reception-dashboard.html">
+                <span class="material-symbols-outlined">dashboard</span> Painel
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium"
+                href="patients.html">
+                <span class="material-symbols-outlined">person</span> Pacientes
+            </a>
+        </nav>
+        <div class="p-4 border-t border-border-dark">
+            <div class="flex items-center gap-3 mb-3">
+                <div
+                    class="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+                    <span data-user-initials>U</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-white" data-user-name>Usuario</span>
+                    <span class="text-xs text-slate-400" data-user-role>Recepcionista</span>
+                </div>
+            </div>
+            <button data-logout-button
+                class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span> Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 border-b border-border-dark flex items-center justify-between px-4 md:px-8 bg-surface-dark">
+            <div class="flex items-center gap-3">
+                <button id="sidebar-toggle-btn" class="sidebar-toggle-btn lg:hidden" aria-label="Abrir menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h2 class="text-lg md:text-xl font-bold">Gerenciar Pacientes</h2>
+            </div>
+            <span class="text-sm text-slate-400" data-user-role>Recepcionista</span>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+
+            <!-- Actions Bar -->
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
+                <div class="relative w-full md:w-96">
+                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">search</span>
+                    <input type="text" id="search-input" placeholder="Buscar por nome ou CPF..."
+                        class="w-full pl-10 pr-4 py-2 bg-surface-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary placeholder-slate-500">
+                </div>
+
+                <button id="add-patient-btn"
+                    class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl transition-all shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    Novo Paciente
+                </button>
+            </div>
+
+            <!-- Patients List -->
+            <div class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-background-dark/50 border-b border-border-dark">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-400">Nome</th>
+                                <th class="px-6 py-4 font-bold text-slate-400">CPF</th>
+                                <th class="px-6 py-4 font-bold text-slate-400">Email</th>
+                                <th class="px-6 py-4 font-bold text-slate-400">Telefone</th>
+                                <th class="px-6 py-4 font-bold text-slate-400 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patients-list-body" class="divide-y divide-border-dark">
+                            <!-- Dynamic Content -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                    Carregando pacientes...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination (Simple implementation) -->
+                <div class="flex items-center justify-center p-4 border-t border-border-dark gap-2">
+                    <button id="prev-page-btn"
+                        class="p-2 hover:bg-white/5 rounded-lg text-slate-400 disabled:opacity-50">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <span id="page-indicator" class="text-sm font-medium">Página 1</span>
+                    <button id="next-page-btn"
+                        class="p-2 hover:bg-white/5 rounded-lg text-slate-400 disabled:opacity-50">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+    </main>
+
+    <!-- Patient Modal (Create/Edit) -->
+    <div id="patient-modal"
+        class="hidden fixed inset-0 z-50 bg-black/80 items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-surface-dark border border-border-dark w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between p-6 border-b border-border-dark bg-background-dark/50">
+                <h3 class="text-xl font-bold" id="modal-title">Novo Paciente</h3>
+                <button class="close-modal-btn text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="patient-form" class="p-6 space-y-4">
+                <input type="hidden" name="id" id="patient-id">
+
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Nome Completo</label>
+                    <input type="text" name="name" id="patient-name" required placeholder="João Silva"
+                        class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Email</label>
+                    <input type="email" name="email" id="patient-email" required placeholder="joao@email.com"
+                        class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                </div>
+
+                <div id="password-section">
+                    <label class="block text-sm text-slate-400 mb-1">Senha de Acesso</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="generated-password" name="password" readonly
+                            placeholder="Clique em gerar..."
+                            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white font-mono text-center focus:outline-none focus:border-primary">
+                        <button type="button" id="generate-password-btn"
+                            class="px-4 py-2 bg-border-dark hover:bg-surface-dark border border-border-dark rounded-xl text-white font-bold transition-colors">
+                            Gerar
+                        </button>
+                        <button type="button" id="copy-password-btn"
+                            class="px-3 py-2 bg-border-dark hover:bg-surface-dark border border-border-dark rounded-xl text-slate-400 hover:text-white transition-colors flex items-center justify-center">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Gere a senha e informe ao paciente.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">CPF</label>
+                        <input type="text" name="cpf" id="patient-cpf" required placeholder="000.000.000-00"
+                            maxlength="14"
+                            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Telefone</label>
+                        <input type="tel" name="phone" id="patient-phone" placeholder="(00) 00000-0000" maxlength="15"
+                            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+
+                <!-- History Section (Visible only on Edit) -->
+                <div id="history-section" class="hidden pt-4 border-t border-border-dark mt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-sm text-slate-300">Histórico de Agendamentos</h4>
+                    </div>
+                    <div class="max-h-40 overflow-y-auto space-y-2" id="appointments-history">
+                        <!-- Dynamic history -->
+                        <p class="text-xs text-slate-500">Nenhum agendamento encontrado.</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button"
+                        class="close-modal-btn px-4 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-primary/20">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/components/mobile-sidebar.js"></script>
+</body>
+
+</html>
