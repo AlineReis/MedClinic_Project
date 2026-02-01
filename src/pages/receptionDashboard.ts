@@ -2,7 +2,6 @@ import "../../css/pages/reception-dashboard.css"
 import { Navigation } from "../components/Navigation"
 import { ToastContainer } from "../components/ToastContainer"
 import { checkInAppointment, listAppointments } from "../services/appointmentsService"
-import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
 import type { AppointmentSummary } from "../types/appointments"
@@ -15,6 +14,9 @@ import type { AppointmentSummary } from "../types/appointments"
 
 let toastContainer: ToastContainer | null = null
 let navigation: Navigation | null = null
+// State for pagination
+let checkInPage = 1;
+const checkInPageSize = 10;
 
 async function initReceptionDashboard() {
   // RBAC check: only receptionist, clinic_admin, and system_admin can access
@@ -64,36 +66,98 @@ function setupUserProfile() {
   }
 }
 
-
-
-async function loadDashboardData() {
-  const today = new Date().toISOString().split("T")[0]
-
+async function loadStats() {
+  const today = new Date().toISOString().split("T")[0];
   try {
-    // Load today's appointments
-    const response = await listAppointments({
+    const statsResponse = await listAppointments({
       date: today,
-      pageSize: 100, // Get all appointments for today
-    })
+      pageSize: 100,
+    });
 
-    if (response.success && response.data) {
-      const appointments = response.data.appointments
-      updateStatistics(appointments)
-      updateUpcomingCheckIns(appointments)
-    } else {
-      uiStore.addToast(
-        "error",
-        "Não foi possível carregar os agendamentos. Tente novamente.",
-      )
+    if (statsResponse.success && statsResponse.data) {
+      updateStatistics(statsResponse.data.appointments);
     }
   } catch (error) {
-    console.error("Error loading reception dashboard:", error)
-    uiStore.addToast(
-      "error",
-      "Erro ao carregar dados do painel. Tente novamente.",
-    )
+    console.error("Error loading stats:", error);
   }
 }
+
+async function loadUpcomingCheckIns() {
+  try {
+    const response = await listAppointments({
+      upcoming: true,
+      page: checkInPage,
+      pageSize: checkInPageSize,
+    });
+
+    if (response.success && response.data) {
+      updateUpcomingCheckIns(response.data.appointments);
+      updatePaginationControls(response.data.appointments.length);
+    }
+  } catch (error) {
+    console.error("Error loading upcoming checkins:", error);
+  }
+}
+
+function updatePaginationControls(count: number) {
+  const prevBtn = document.getElementById("prev-page-btn") as HTMLButtonElement;
+  const nextBtn = document.getElementById("next-page-btn") as HTMLButtonElement;
+  const pageSpan = document.getElementById("current-page-span");
+
+  if (pageSpan) pageSpan.textContent = String(checkInPage);
+
+  if (prevBtn) {
+    prevBtn.disabled = checkInPage <= 1;
+    prevBtn.onclick = () => {
+      if (checkInPage > 1) {
+        checkInPage--;
+        loadUpcomingCheckIns();
+      }
+    };
+  }
+
+  if (nextBtn) {
+    nextBtn.disabled = count < checkInPageSize;
+    nextBtn.onclick = () => {
+      checkInPage++;
+      loadUpcomingCheckIns();
+    };
+  }
+}
+
+async function loadDashboardData() {
+  await loadStats();
+  await loadUpcomingCheckIns();
+}
+
+// async function loadDashboardData() {
+//   const today = new Date().toISOString().split("T")[0]
+
+//   try {
+//     // Load today's appointments
+//     const response = await listAppointments({
+//       date: today,
+//       pageSize: 100, // Get all appointments for today
+//     })
+
+//     if (response.success && response.data) {
+//       const appointments = response.data.appointments
+//       updateStatistics(appointments)
+//       updateUpcomingCheckIns(appointments)
+//     } else {
+//       uiStore.addToast(
+//         "error",
+//         "Não foi possível carregar os agendamentos. Tente novamente.",
+//       )
+//     }
+//   } catch (error) {
+//     console.error("Error loading reception dashboard:", error)
+//     uiStore.addToast(
+//       "error",
+//       "Erro ao carregar dados do painel. Tente novamente.",
+//     )
+//   }
+// }
 
 function updateStatistics(appointments: AppointmentSummary[]) {
   // Calculate statistics based on appointment status
@@ -119,12 +183,14 @@ function updateStatistics(appointments: AppointmentSummary[]) {
 
 function updateUpcomingCheckIns(appointments: AppointmentSummary[]) {
   // Filter appointments that need check-in (scheduled or confirmed) and sort by time
-  const upcomingAppointments = appointments
-    .filter(
-      (apt) => apt.status === "scheduled" || apt.status === "confirmed",
-    )
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .slice(0, 10) // Show next 10 appointments
+  const upcomingAppointments = appointments.sort((a, b) => {
+    if (a.date === b.date) {
+      return a.time.localeCompare(b.time);
+    }
+    return a.date.localeCompare(b.date);
+  });
+  console.log({ upcomingAppointments })
+
 
   const tbody = document.querySelector("tbody")
   if (!tbody) return
@@ -150,14 +216,14 @@ function updateUpcomingCheckIns(appointments: AppointmentSummary[]) {
 
       return `
       <tr class="table__row" data-appointment-id="${apt.id}">
-        <td class="table__cell font-medium">${apt.patient_name}</td>
-        <td class="table__cell table__cell--muted">${apt.time}</td>
+        <td class="table-cell cell-patient-name">${apt.patient_name}</td>
+        <td class="table-cell cell-time">${apt.time}</td>
         <td class="table__cell">${apt.professional_name}</td>
-        <td class="table__cell">${statusBadge}</td>
+        <td class="table__cell"><span class="status-badge status-badge-amber">${getStatusBadge(statusBadge)}</span></td>
         <td class="table__cell">
           <button
-            class="btn btn--sm ${isReady ? "btn--primary" : "btn--outline"}"
-            ${!isReady ? "disabled" : ""}
+            class="btn-checkin ${isReady ? "btn--primary" : "btn-checkin-disabled"}"
+            ${!isReady ? "disabled" : "true"}
             data-checkin-btn="${apt.id}"
           >
             CHECK-IN
@@ -171,6 +237,7 @@ function updateUpcomingCheckIns(appointments: AppointmentSummary[]) {
   // Setup check-in button handlers
   setupCheckInButtons()
 }
+
 
 function setupCheckInButtons() {
   const buttons = document.querySelectorAll("[data-checkin-btn]")
