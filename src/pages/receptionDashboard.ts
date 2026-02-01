@@ -34,7 +34,6 @@ async function initReceptionDashboard() {
 
 
   setupUserProfile()
-  setupLogoutButton()
   loadDashboardData()
 }
 
@@ -65,17 +64,7 @@ function setupUserProfile() {
   }
 }
 
-function setupLogoutButton() {
-  const logoutBtn = document.querySelector("[data-logout-button]")
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault()
-      await logout()
-      authStore.clearSession()
-      window.location.href = "/pages/login.html"
-    })
-  }
-}
+
 
 async function loadDashboardData() {
   const today = new Date().toISOString().split("T")[0]

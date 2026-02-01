@@ -32,7 +32,8 @@ module.exports = (env, argv) => {
       usersPage: './src/pages/usersPage.ts',
       agenda: './src/pages/agenda.ts',
       dashboard: './src/pages/dashboard.ts',
-      pep: './src/pages/pep.ts'
+      pep: './src/pages/pep.ts',
+      labDashboard: './src/pages/labDashboard.ts'
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -136,6 +137,7 @@ module.exports = (env, argv) => {
                 ? ['receptionDashboard']
                 : []),
               ...(page === 'admin-dashboard.html' ? ['adminDashboard'] : []),
+              ...(page === 'lab-dashboard.html' ? ['labDashboard'] : []),
               ...(page === 'users.html' ? ['usersPage'] : [])
             ],
             publicPath: '/'

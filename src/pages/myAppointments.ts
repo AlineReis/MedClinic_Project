@@ -1,4 +1,5 @@
 import "../../css/pages/my-appointments.css"
+import { Navigation } from "../components/Navigation"
 import { listAppointments, cancelAppointment } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
@@ -10,7 +11,10 @@ import { openAppointmentModal } from "./appointmentModal"
 const listContainer = document.getElementById("appointments-list")
 const toastContainer = document.getElementById("toast-container")
 
+let navigation: Navigation | null = null
+
 document.addEventListener("DOMContentLoaded", () => {
+  navigation = new Navigation()
   hydrateSessionUser()
   loadAppointments()
 
@@ -188,22 +192,7 @@ function hydrateSessionUser() {
     element.textContent = getInitials(session.name)
   })
 
-  // Logout handler
-  const logoutBtn = document.querySelector("[data-logout-button]")
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-      try {
-        await logout()
-        authStore.clearSession()
-        redirectToLogin()
-      } catch (error) {
-        console.error("Logout failed", error)
-        // Force redirect anyway
-        authStore.clearSession()
-        redirectToLogin()
-      }
-    })
-  }
+  // Logout handler is managed by Navigation component
 }
 
 function redirectToLogin() {

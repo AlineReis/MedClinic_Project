@@ -1,4 +1,5 @@
 import "../../css/pages/admin-dashboard.css"
+import { Navigation } from "../components/Navigation"
 import { listAppointments } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { listProfessionals } from "../services/professionalsService"
@@ -46,6 +47,7 @@ let currentStats: DashboardStats = {
 
 
 export async function initAdminDashboard() {
+  new Navigation()
   const session = await authStore.refreshSession()
 
   if (!session) {
@@ -63,7 +65,6 @@ export async function initAdminDashboard() {
   }
 
   setupUserProfile()
-  setupLogoutButton()
   loadDashboardData()
 }
 
@@ -80,24 +81,6 @@ function setupUserProfile() {
   if (profileInitials) {
     const initials = getInitials(session.name || "Admin")
     profileInitials.textContent = initials
-  }
-}
-
-function setupLogoutButton() {
-  const logoutBtn = document.querySelector('[data-logout-btn]')
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async e => {
-      e.preventDefault()
-      try {
-        await logout()
-        authStore.clearSession()
-        window.location.href = "/pages/login.html"
-      } catch (error) {
-        console.error("Logout error:", error)
-        authStore.clearSession()
-        window.location.href = "/pages/login.html"
-      }
-    })
   }
 }
 

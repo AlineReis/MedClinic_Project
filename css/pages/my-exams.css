@@ -4,7 +4,7 @@
 .my-exams-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding-bottom: 3rem;
+  padding: 3rem;
 }
 
 /* Page Header (reused structure but specific alignment if needed) */
@@ -49,7 +49,8 @@
 }
 
 .exams-table__header {
-  background-color: rgba(17, 25, 33, 0.5); /* slightly darker header */
+  background-color: rgba(17, 25, 33, 0.5);
+  /* slightly darker header */
 }
 
 .exams-table__th {
@@ -153,9 +154,11 @@
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
+
   100% {
     opacity: 1;
   }

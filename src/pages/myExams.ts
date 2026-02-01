@@ -1,4 +1,5 @@
 import "../../css/pages/my-exams.css"
+import { Navigation } from "../components/Navigation";
 import { listExams } from "../services/examsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -11,6 +12,7 @@ const examsListContainer = document.getElementById("exams-list");
 const toastContainer = document.getElementById("toast-container");
 
 document.addEventListener("DOMContentLoaded", () => {
+    new Navigation();
     hydrateSessionUser();
     loadMyExams();
 
@@ -39,16 +41,7 @@ async function hydrateSessionUser() {
         el.textContent = getInitials(session.name || "U");
     });
 
-    // Logout Logic
-    const logoutButtons = document.querySelectorAll("[data-logout-button], .logout-btn");
-    logoutButtons.forEach(btn => {
-        btn.addEventListener("click", async () => {
-            const { logout } = await import("../services/authService");
-            await logout();
-            authStore.clearSession();
-            window.location.href = "login.html";
-        });
-    });
+    // Logout Logic is managed by Navigation component
 }
 
 async function loadMyExams() {
