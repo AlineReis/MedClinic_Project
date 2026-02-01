@@ -217,7 +217,12 @@ function updateUpcomingCheckIns(appointments: AppointmentSummary[]) {
       return `
       <tr class="table__row" data-appointment-id="${apt.id}">
         <td class="table-cell cell-patient-name">${apt.patient_name}</td>
-        <td class="table-cell cell-time">${apt.time}</td>
+        <td class="table-cell cell-time">
+          <div class="date-time-reception">
+          <span class="sm-wt">${formatDate(apt.date)}</span>
+          <span>${apt.time}</span>
+          </div>
+        </td>
         <td class="table__cell">${apt.professional_name}</td>
         <td class="table__cell"><span class="status-badge status-badge-amber">${getStatusBadge(statusBadge)}</span></td>
         <td class="table__cell">
@@ -287,6 +292,12 @@ async function handleCheckIn(appointmentId: number) {
       button.classList.remove("btn--loading")
     }
   }
+}
+
+function formatDate(dateString: string): string {
+  if (!dateString) return "";
+  const [y, m, d] = dateString.split("-");
+  return `${d}/${m}/${y}`;
 }
 
 function getStatusBadge(status: string): string {

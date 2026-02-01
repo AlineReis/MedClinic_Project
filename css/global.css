@@ -668,3 +668,13 @@ body.dashboard-body {
 .header-info-right .manager-header-subtitle {
   align-content: center;
 }
+
+.date-time-reception {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-time-reception .sm-wt {
+  font-size: 11px;
+  color: color-mix(in srgb, var(--text-primary) 50%, var(--text-secondary) 20%)
+}
