@@ -16,7 +16,7 @@ import {
 } from "../utils/validators.js";
 
 export class AuthService {
-  constructor(private readonly userRepository: IUserRepository) { }
+  constructor(private readonly userRepository: IUserRepository) {}
   // ... (rest of methods) keep them if possible or replace block
 
   public async registerPatient(input: CreateUserPayload): Promise<AuthResult> {
@@ -104,7 +104,12 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role, clinic_id: user.clinic_id },
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        clinic_id: user.clinic_id,
+      },
       env.JWT_SECRET || "default_secret",
       { expiresIn: (process.env.JWT_EXPIRES_IN || "24h") as any },
     );
@@ -116,6 +121,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
+        clinic_id: user.clinic_id,
       },
     };
   }
@@ -132,6 +138,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       role: user.role,
+      clinic_id: user.clinic_id,
     };
   }
 }

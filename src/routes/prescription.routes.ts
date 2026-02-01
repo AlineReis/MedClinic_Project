@@ -10,7 +10,10 @@ const prescriptionRoutes = Router();
 
 const appointmentRepository = new AppointmentRepository();
 const prescriptionRepository = new PrescriptionRepository();
-const prescriptionService = new PrescriptionService(prescriptionRepository, appointmentRepository);
+const prescriptionService = new PrescriptionService(
+  prescriptionRepository,
+  appointmentRepository,
+);
 const prescriptionController = new PrescriptionController(prescriptionService);
 
 prescriptionRoutes.post("/", prescriptionController.create);
