@@ -27,3 +27,5 @@ coverage/
 .gitignore
 .DS_Store
 Thumbs.dbprd.json
+
+CREDENCIAIS_TESTE.txt
