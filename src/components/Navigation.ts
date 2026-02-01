@@ -9,9 +9,10 @@ export class Navigation {
   }
 
   private initLogout() {
-    const logoutBtn = document.querySelector("[data-logout-button]");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
+    const logoutBtns = document.querySelectorAll("[data-logout-button], .logout-btn");
+    logoutBtns.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.preventDefault();
         if (!confirm("Tem certeza que deseja sair?")) return;
 
         try {
@@ -30,23 +31,24 @@ export class Navigation {
           uiStore.addToast("error", "Erro ao realizar logout");
         }
       });
-    }
+    });
   }
 
   private initUserInitials() {
-    const userEl = document.querySelector("[data-user-initials]");
-    const userNameEl = document.querySelector("[data-user-name]");
-    const userRoleEl = document.querySelector("[data-user-role]");
+    const userEls = document.querySelectorAll("[data-user-initials]");
+    const userNameEls = document.querySelectorAll("[data-user-name]");
+    const userRoleEls = document.querySelectorAll("[data-user-role]");
 
     authStore.subscribe((state) => {
       const session = state.session;
       const name = session?.name?.trim();
       if (!name) return;
 
-      if (userEl) userEl.textContent = this.getInitials(name);
-      if (userNameEl) userNameEl.textContent = name.split(" ")[0];
-      if (userRoleEl && session?.role)
-        userRoleEl.textContent = this.formatRole(session.role);
+      userEls.forEach(el => el.textContent = this.getInitials(name));
+      userNameEls.forEach(el => el.textContent = name.split(" ")[0]);
+      if (session?.role) {
+        userRoleEls.forEach(el => el.textContent = this.formatRole(session.role));
+      }
     });
   }
 

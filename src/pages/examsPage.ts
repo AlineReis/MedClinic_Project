@@ -1,4 +1,5 @@
 import "../../css/pages/exams.css"
+import { Navigation } from "../components/Navigation";
 import { listAppointments } from "../services/appointmentsService";
 import { logout } from "../services/authService";
 import {
@@ -17,6 +18,7 @@ const toastContainer = document.getElementById("toast-container");
 let currentView: "all" | "history" = "all";
 
 document.addEventListener("DOMContentLoaded", () => {
+  new Navigation();
   const session = getSessionFromStorage() ?? authStore.getSession();
   if (!session) {
     redirectToLogin();
@@ -30,14 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function setupEventListeners() {
-  // Logout button
-  document
-    .querySelector("[data-logout-button]")
-    ?.addEventListener("click", async () => {
-      await logout();
-      window.location.href = getBasePath() + "login.html";
-    });
-
   // History toggle
   const toggleHistory = () => {
     currentView = currentView === "all" ? "history" : "all";
