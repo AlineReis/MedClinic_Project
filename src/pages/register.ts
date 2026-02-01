@@ -48,13 +48,6 @@ if (registerForm) {
         const phone = (document.getElementById("phone") as HTMLInputElement).value
         const password = (document.getElementById("password") as HTMLInputElement).value
         const confirmPassword = (document.getElementById("confirm-password") as HTMLInputElement).value
-        const terms = (document.getElementById("terms") as HTMLInputElement).checked
-
-        if (!terms) {
-            uiStore.addToast("warning", "Você precisa aceitar os termos de uso.")
-            return
-        }
-
         if (password !== confirmPassword) {
             uiStore.addToast("warning", "As senhas não coincidem.")
             return
