@@ -99,8 +99,8 @@ function renderQueueRows(exams: ExamSummary[]) {
   if (exams.length === 0) {
     queueBody.innerHTML = `
       <tr>
-        <td colspan="5" class="px-6 py-8 text-center text-slate-400">
-          Nenhum exame cadastrado no momento
+        <td colspan="5" class="table__empty">
+          <p class="table__empty-text">Nenhum exame cadastrado no momento</p>
         </td>
       </tr>
     `;
@@ -122,8 +122,8 @@ function renderQueueLoading() {
   if (!queueBody) return;
   queueBody.innerHTML = `
     <tr>
-      <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-        Carregando exames...
+      <td colspan="5" class="table__empty">
+        <p class="table__empty-text">Carregando exames...</p>
       </td>
     </tr>
   `;
@@ -133,8 +133,8 @@ function renderQueueError() {
   if (!queueBody) return;
   queueBody.innerHTML = `
     <tr>
-      <td colspan="5" class="px-6 py-8 text-center text-red-400">
-        Erro ao carregar a fila. Tente novamente mais tarde.
+      <td colspan="5" class="table__empty">
+        <p class="table__empty-text u-text-error">Erro ao carregar a fila. Tente novamente mais tarde.</p>
       </td>
     </tr>
   `;
@@ -147,14 +147,14 @@ function buildExamRow(exam: ExamSummary) {
   const action = getActionForStatus(exam.status);
 
   return `
-    <tr class="hover:bg-border-dark/10" data-exam-row="${exam.id}">
-      <td class="px-6 py-4 font-medium">${patient}</td>
-      <td class="px-6 py-4">${exam.exam_name}</td>
-      <td class="px-6 py-4 text-slate-400">${requester}</td>
-      <td class="px-6 py-4">${badge}</td>
-      <td class="px-6 py-4">
+    <tr class="table__row" data-exam-row="${exam.id}">
+      <td class="table__cell font-medium">${patient}</td>
+      <td class="table__cell">${exam.exam_name}</td>
+      <td class="table__cell table__cell--muted">${requester}</td>
+      <td class="table__cell">${badge}</td>
+      <td class="table__cell">
         <button
-          class="px-3 py-1.5 ${action.className} text-white text-[10px] font-bold rounded"
+          class="btn btn--sm ${action.className}"
           data-exam-action="${exam.id}"
           data-action-type="${action.type}"
         >
@@ -168,32 +168,32 @@ function buildExamRow(exam: ExamSummary) {
 function getStatusBadge(status: string | undefined) {
   const normalized = (status ?? "").toLowerCase();
   const map: Record<string, { label: string; color: string }> = {
-    pending: { label: "PENDENTE", color: "amber" },
-    in_analysis: { label: "EM ANÁLISE", color: "blue" },
-    ready: { label: "PRONTO", color: "emerald" },
-    urgent: { label: "URGENTE", color: "red" },
+    pending: { label: "PENDENTE", color: "warning" },
+    in_analysis: { label: "EM ANÁLISE", color: "info" },
+    ready: { label: "PRONTO", color: "success" },
+    urgent: { label: "URGENTE", color: "error" },
   };
 
   const badge = map[normalized] || {
     label: normalized.toUpperCase() || "PENDENTE",
-    color: "slate",
+    color: "neutral",
   };
 
-  return `<span class="px-2 py-0.5 rounded bg-${badge.color}-500/10 text-${badge.color}-500 text-[10px] font-bold">${badge.label}</span>`;
+  return `<span class="badge badge--${badge.color}">${badge.label}</span>`;
 }
 
 function getActionForStatus(status: string | undefined) {
   const normalized = (status ?? "").toLowerCase();
   if (normalized === "pending") {
-    return { label: "INICIAR", type: "start", className: "bg-primary" };
+    return { label: "INICIAR", type: "start", className: "btn--primary" };
   }
   if (normalized === "in_analysis") {
-    return { label: "LIBERAR", type: "release", className: "bg-emerald-600" };
+    return { label: "LIBERAR", type: "release", className: "btn--success" };
   }
   return {
     label: "DETALHES",
     type: "details",
-    className: "bg-border-dark text-slate-200",
+    className: "btn--outline",
   };
 }
 

@@ -142,10 +142,10 @@ function updateUpcomingCheckIns(appointments: AppointmentSummary[]) {
   if (upcomingAppointments.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="px-6 py-8 text-center text-slate-400">
+        <td colspan="5" class="table__empty">
           <div class="flex flex-col items-center gap-2">
-            <span class="material-symbols-outlined text-4xl">check_circle</span>
-            <p>Nenhum check-in pendente no momento</p>
+            <span class="material-symbols-outlined table__empty-icon">check_circle</span>
+            <p class="table__empty-text">Nenhum check-in pendente no momento</p>
           </div>
         </td>
       </tr>
@@ -159,18 +159,15 @@ function updateUpcomingCheckIns(appointments: AppointmentSummary[]) {
       const isReady = apt.status === "confirmed"
 
       return `
-      <tr class="hover:bg-border-dark/10" data-appointment-id="${apt.id}">
-        <td class="px-6 py-4 font-medium">${apt.patient_name}</td>
-        <td class="px-6 py-4 text-slate-400">${apt.time}</td>
-        <td class="px-6 py-4">${apt.professional_name}</td>
-        <td class="px-6 py-4">${statusBadge}</td>
-        <td class="px-6 py-4">
+      <tr class="table__row" data-appointment-id="${apt.id}">
+        <td class="table__cell font-medium">${apt.patient_name}</td>
+        <td class="table__cell table__cell--muted">${apt.time}</td>
+        <td class="table__cell">${apt.professional_name}</td>
+        <td class="table__cell">${statusBadge}</td>
+        <td class="table__cell">
           <button
-            class="px-3 py-1.5 ${
-              isReady
-                ? "bg-primary text-white"
-                : "bg-border-dark text-slate-400"
-            } text-[10px] font-bold rounded"
+            class="btn btn--sm ${isReady ? "btn--primary" : "btn--outline"}"
+            ${!isReady ? "disabled" : ""}
             data-checkin-btn="${apt.id}"
           >
             CHECK-IN
@@ -206,7 +203,7 @@ async function handleCheckIn(appointmentId: number) {
 
   if (button) {
     button.disabled = true
-    button.classList.add("opacity-50", "cursor-wait")
+    button.classList.add("btn--loading")
   }
 
   try {
@@ -230,25 +227,25 @@ async function handleCheckIn(appointmentId: number) {
   } finally {
     if (button) {
       button.disabled = false
-      button.classList.remove("opacity-50", "cursor-wait")
+      button.classList.remove("btn--loading")
     }
   }
 }
 
 function getStatusBadge(status: string): string {
   const badges: Record<string, { color: string; label: string }> = {
-    scheduled: { color: "slate", label: "PENDENTE" },
-    confirmed: { color: "amber", label: "AGUARDANDO" },
-    in_progress: { color: "emerald", label: "EM ATENDIMENTO" },
-    completed: { color: "blue", label: "CONCLUÍDO" },
-    cancelled_by_patient: { color: "red", label: "CANCELADO" },
-    cancelled_by_clinic: { color: "red", label: "CANCELADO" },
-    no_show: { color: "red", label: "AUSENTE" },
+    scheduled: { color: "neutral", label: "PENDENTE" },
+    confirmed: { color: "warning", label: "AGUARDANDO" },
+    in_progress: { color: "success", label: "EM ATENDIMENTO" },
+    completed: { color: "info", label: "CONCLUÍDO" },
+    cancelled_by_patient: { color: "error", label: "CANCELADO" },
+    cancelled_by_clinic: { color: "error", label: "CANCELADO" },
+    no_show: { color: "error", label: "AUSENTE" },
   }
 
-  const badge = badges[status] || { color: "slate", label: status.toUpperCase() }
+  const badge = badges[status] || { color: "neutral", label: status.toUpperCase() }
 
-  return `<span class="px-2 py-0.5 rounded bg-${badge.color}-500/10 text-${badge.color}-500 text-[10px] font-bold">${badge.label}</span>`
+  return `<span class="badge badge--${badge.color}">${badge.label}</span>`
 }
 
 function getRoleDisplay(role: string): string {

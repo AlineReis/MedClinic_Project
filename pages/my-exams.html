@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Meus Exames - MedClinic</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+
+  <!-- Base CSS -->
+  <link rel="stylesheet" href="../css/base/reset.css">
+  <link rel="stylesheet" href="../css/base/variables.css">
+  <link rel="stylesheet" href="../css/base/typography.css">
+  <link rel="stylesheet" href="../css/base/utilities.css">
+
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/layout/patient-common.css">
+  <link rel="stylesheet" href="../css/pages/my-exams.css">
+
+  <!-- Shared Modal CSS -->
+  <link rel="stylesheet" href="../css/components/modal.css">
+</head>
+
+<body class="dashboard-body">
+
+  <header class="patient-header">
+    <div class="header-container">
+      <div class="header-actions">
+        <button id="mobile-menu-btn" class="hamburger-btn-mobile" aria-label="Abrir menu">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <a href="patient-dashboard.html" class="header-brand">
+          <span class="material-symbols-outlined brand-icon">local_hospital</span>
+          <span class="brand-name">MedClinic</span>
+        </a>
+      </div>
+      <div class="header-actions">
+        <nav class="header-nav">
+          <a href="patient-dashboard.html" class="nav-link">Inicio</a>
+          <a href="my-appointments.html" class="nav-link">Consultas</a>
+          <a href="my-exams.html" class="nav-link nav-link-active">Exames</a>
+        </nav>
+        <div class="desktop-user-actions">
+          <div class="user-badge">
+            <span data-user-initials>U</span>
+          </div>
+          <button data-logout-button class="logout-btn" aria-label="Sair">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content-wide my-exams-container">
+    <div class="page-header">
+      <h1 class="page-title">Meus Exames</h1>
+      <p class="page-subtitle">Acompanhe o status e resultados dos seus exames laboratoriais.</p>
+    </div>
+
+    <!-- Rendered Content -->
+    <div id="exams-list" class="exams-list">
+      <!-- Loading State -->
+      <div style="display: flex; justify-content: center; padding: 4rem;">
+        <div class="u-spin" style="font-size: 2rem; color: var(--primary);">
+          <span class="material-symbols-outlined">progress_activity</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toast-container" class="toast-container"></div>
+
+</body>
+
+</html>

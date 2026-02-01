@@ -5,14 +5,17 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Dashboard Financeiro - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/admin-common.css">
-    <link rel="stylesheet" href="../css/financial.css">
+    <link rel="stylesheet" href="../css/layout/admin-common.css">
+    <link rel="stylesheet" href="../css/pages/financial.css">
 </head>
 
 <body class="admin-layout">
@@ -56,7 +59,7 @@
         </header>
 
         <div class="admin-content-viewport custom-scrollbar">
-            <div class="admin-container-max u-flex-column u-gap-large">
+            <div class="admin-container-max admin-content-stack">
                 <!-- Performance Grid -->
                 <section class="financial-performance-grid">
                     <div class="financial-card">
@@ -67,17 +70,17 @@
                     <div class="financial-card">
                         <p class="card-label">Total a Repassar</p>
                         <h3 class="card-value">R$ 85.548,00</h3>
-                        <p class="u-fs-xs u-text-secondary u-margin-0">60% média do faturamento</p>
+                        <p class="card-meta">60% média do faturamento</p>
                     </div>
                     <div class="financial-card">
                         <p class="card-label">Taxas ADM</p>
                         <h3 class="card-value">R$ 7.129,00</h3>
-                        <p class="u-fs-xs u-text-secondary u-margin-0">5% (Taxa do Sistema)</p>
+                        <p class="card-meta">5% (Taxa do Sistema)</p>
                     </div>
                     <div class="financial-card">
                         <p class="card-label">Lucro Médio</p>
                         <h3 class="card-value">R$ 49.903,00</h3>
-                        <p class="u-fs-xs u-text-secondary u-margin-0">Líquido após splits</p>
+                        <p class="card-meta">Líquido após splits</p>
                     </div>
                 </section>
 
@@ -112,7 +115,7 @@
                     </div>
 
                     <div class="split-rules-panel">
-                        <h3 class="u-fs-md u-fw-700 u-mb-15">Regras de Split (RN-18)</h3>
+                        <h3 class="panel-section-title panel-section-title--spaced">Regras de Split (RN-18)</h3>
                         <div class="split-rule-item">
                             <span class="split-rule-label">Médico (Profissional)</span>
                             <span class="split-rule-value">60%</span>
@@ -125,14 +128,16 @@
                             <span class="split-rule-label">Taxas (Sistema)</span>
                             <span class="split-rule-value">5%</span>
                         </div>
-                        <button class="btn-admin-light u-mt-auto">
-                            Editar Regras
-                        </button>
+                        <div class="rule-list-footer">
+                            <button class="btn-admin-light">
+                                Editar Regras
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Transactions Table -->
-                <section class="admin-table-panel">
+                <section class="admin-table-panel admin-table-panel--padded">
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -144,14 +149,14 @@
                         <tbody>
                             <tr>
                                 <td>Arthur B. Oliveira</td>
-                                <td class="u-fw-700">R$ 450,00</td>
+                                <td>R$ 450,00</td>
                                 <td>
                                     <span class="transaction-status status-liquidated">LIQUIDADO</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Juliana Cavalcanti</td>
-                                <td class="u-fw-700">R$ 1.200,00</td>
+                                <td>R$ 1.200,00</td>
                                 <td>
                                     <span class="transaction-status status-waiting">AGUARDANDO</span>
                                 </td>

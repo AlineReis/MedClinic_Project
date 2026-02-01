@@ -1,0 +1,218 @@
+/* Shared styles for Patient Flow pages */
+
+/* 1. Common Header (Patient-facing pages) */
+/* 1. Common Header (Standardized for all Patient Pages) */
+.patient-header {
+  background-color: var(--surface-dark);
+  border-bottom: 1px solid var(--border-dark);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 4rem; /* Standardized height */
+  display: flex;
+  align-items: center;
+}
+
+/* Container matching dashboard width logic */
+.header-container {
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .header-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* Brand Styles */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-icon {
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.brand-name {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+/* Navigation */
+.header-nav {
+  display: none;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .header-nav {
+    display: flex;
+  }
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+}
+
+.nav-link-active {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.desktop-user-actions {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .desktop-user-actions {
+    display: flex;
+  }
+}
+
+.user-badge {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background-color: rgba(25, 127, 230, 0.2);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 1px solid rgba(25, 127, 230, 0.3);
+}
+
+.logout-btn {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn:hover {
+  color: #f87171;
+}
+
+/* Mobile Menu Button */
+.hamburger-btn-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .hamburger-btn-mobile {
+    display: none;
+  }
+}
+
+/* 2. Common Layout Wrappers */
+.main-content-narrow {
+  flex: 1;
+  width: 100%;
+  max-width: 48rem; /* max-w-3xl */
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: var(--background-dark);
+}
+
+@media (min-width: 768px) {
+  .main-content-narrow {
+    padding: 2rem;
+  }
+}
+
+.main-content-wide {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.checkout-main-padding {
+  padding: 2.5rem;
+}
+
+.checkout-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.checkout-back-link:hover {
+  text-decoration: underline;
+}
+
+/* 3. Common Components */
+.card-panel {
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.875rem; /* 3xl */
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,170 @@
+/* ========================================
+   Prescription Detail Component (BEM)
+   ======================================== */
+
+.prescription-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Professional Summary Card */
+.professional-summary {
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.professional-summary__container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.professional-summary__avatar {
+  width: 3rem; /* size-12 */
+  height: 3rem;
+  border-radius: 9999px;
+  background-color: rgba(25, 127, 230, 0.1); /* bg-primary/10 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.professional-summary__avatar .material-symbols-outlined {
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.professional-summary__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.professional-summary__name {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.125rem;
+}
+
+.professional-summary__specialty {
+  font-size: 0.75rem; /* text-xs */
+  color: #94a3b8; /* text-slate-400 */
+}
+
+.professional-summary__crm {
+  font-size: 0.75rem; /* text-xs */
+  color: #64748b; /* text-slate-500 */
+  margin-top: 0.125rem;
+}
+
+/* Section Headers */
+.prescription-detail__section-title {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.prescription-detail__section-title .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.prescription-detail__section-title--medication .material-symbols-outlined {
+  color: #f59e0b; /* text-amber-500 */
+}
+
+.prescription-detail__section-title--instructions .material-symbols-outlined {
+  color: #60a5fa; /* text-blue-400 */
+}
+
+/* Medication Grid */
+.prescription-detail__grid-wrapper {
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.prescription-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .prescription-detail__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.prescription-detail__item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-dark);
+  border-right: 1px solid var(--border-dark);
+}
+
+@media (min-width: 768px) {
+  .prescription-detail__item {
+    border-bottom: none;
+  }
+  .prescription-detail__item:last-child {
+    border-right: none;
+  }
+}
+@media (max-width: 767px) {
+  /* Last 2 items (bottom row) no bottom border */
+  .prescription-detail__item:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
+  /* Even items (right column) no right border */
+  .prescription-detail__item:nth-child(even) {
+    border-right: none;
+  }
+}
+
+.prescription-detail__label {
+  font-size: 0.625rem; /* text-[10px] */
+  color: #64748b; /* text-slate-500 */
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+.prescription-detail__value {
+  font-weight: 600;
+  font-size: 0.875rem; /* text-sm */
+  color: var(--text-primary);
+}
+
+/* Instructions Box */
+.prescription-detail__instructions {
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.prescription-detail__text {
+  font-size: 0.875rem; /* text-sm */
+  color: #cbd5e1; /* text-slate-300 */
+  line-height: 1.625;
+}
+
+/* Metadata Footer */
+.prescription-detail__footer {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-dark);
+  font-size: 0.75rem; /* text-xs */
+  color: #64748b; /* text-slate-500 */
+}
+
+.prescription-detail__date {
+  color: #94a3b8; /* text-slate-400 */
+  font-weight: 700;
+}

@@ -5,14 +5,17 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Gestão da Clínica - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/admin-common.css">
-    <link rel="stylesheet" href="../css/manager-dashboard.css">
+    <link rel="stylesheet" href="../css/layout/admin-common.css">
+    <link rel="stylesheet" href="../css/pages/manager-dashboard.css">
 </head>
 
 <body class="admin-layout">
@@ -54,31 +57,35 @@
         </header>
 
         <div class="admin-content-viewport custom-scrollbar">
-            <div class="admin-container-max u-flex-column u-gap-large">
+            <div class="admin-container-max admin-content-stack">
+                <!-- Stats Grid -->
                 <section class="admin-stats-grid">
                     <div class="admin-stats-card">
                         <p class="card-label">Faturamento Bruto (RN-18)</p>
                         <h3 class="card-value">R$ 142.580</h3>
-                        <span class="trend-label trend-emerald">+12% vs mês anterior</span>
+                        <span class="trend-label trend-label--success">+12% vs mês anterior</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Repasses Pendentes</p>
-                        <h3 class="card-value u-text-amber">R$ 85.548</h3>
-                        <span class="trend-label trend-secondary">60% para profissionais</span>
+                        <h3 class="card-value card-value--warning">R$ 85.548</h3>
+                        <span class="trend-label trend-label--neutral">60% para profissionais</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Consultas do Mês</p>
                         <h3 class="card-value">312</h3>
+                        <span class="trend-label trend-label--neutral">Meta: 400</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Taxa de No-Show</p>
-                        <h3 class="card-value u-text-red">4.2%</h3>
+                        <h3 class="card-value card-value--error">4.2%</h3>
+                        <span class="trend-label trend-label--neutral">Média mercado: 15%</span>
                     </div>
                 </section>
 
                 <div class="manager-main-grid">
-                    <div class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-10">Splits Pendentes (RN-18)</h3>
+                    <!-- Splits Panel -->
+                    <div class="admin-table-panel admin-table-panel--padded">
+                        <h3 class="panel-section-title">Splits Pendentes (RN-18)</h3>
                         <div class="split-list">
                             <div class="split-item">
                                 <div class="split-item-info">
@@ -98,20 +105,21 @@
                         <button class="btn-primary-full">Processar Repasses</button>
                     </div>
 
-                    <div class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-10">Alertas</h3>
-                        <div class="u-flex-column u-gap-medium">
+                    <!-- Alerts Panel -->
+                    <div class="admin-table-panel admin-table-panel--padded">
+                        <h3 class="panel-section-title">Alertas do Sistema</h3>
+                        <div class="admin-content-stack">
                             <div class="manager-alert-card alert-red">
                                 <span class="material-symbols-outlined alert-icon-red">warning</span>
                                 <div>
-                                    <p class="alert-title u-text-red">3 Reembolsos Pendentes</p>
+                                    <p class="alert-title alert-title--error">3 Reembolsos Pendentes</p>
                                     <p class="alert-subtitle">Cancelamentos há mais de 5 dias úteis</p>
                                 </div>
                             </div>
                             <div class="manager-alert-card alert-amber">
                                 <span class="material-symbols-outlined alert-icon-amber">schedule</span>
                                 <div>
-                                    <p class="alert-title u-text-amber">Relatório Mensal</p>
+                                    <p class="alert-title alert-title--warning">Relatório Mensal</p>
                                     <p class="alert-subtitle">Prazo para fechamento: 5 dias</p>
                                 </div>
                             </div>

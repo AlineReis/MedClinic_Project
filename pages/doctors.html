@@ -5,14 +5,17 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Encontre seu Especialista - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/patient-common.css">
-    <link rel="stylesheet" href="../css/doctors.css">
+    <link rel="stylesheet" href="../css/layout/patient-common.css">
+    <link rel="stylesheet" href="../css/pages/doctors.css">
 </head>
 
 <body class="patient-layout">
@@ -35,7 +38,7 @@
                 <aside class="filters-sidebar">
                     <section class="filter-section">
                         <div class="filters-header">
-                            <span class="filter-title u-margin-0">Filtros</span>
+                            <span class="filter-title filter-title--compact">Filtros</span>
                             <button class="btn-clear-filters">Limpar</button>
                         </div>
                         <div class="filter-section">
@@ -67,9 +70,9 @@
                 <!-- Results Area -->
                 <section>
                     <div class="professional-results-header">
-                        <h2 class="admin-header-title u-fs-lg">
+                        <h2 class="results-title">
                             Profissionais Encontrados
-                            <span class="results-count u-fw-600" style="margin-left: 0.5rem;">(24)</span>
+                            <span class="results-count">(24)</span>
                         </h2>
                     </div>
 
@@ -84,7 +87,7 @@
                                     <span class="prof-specialty">Cardiologia</span>
                                     <h3>Dra. Ana Silva</h3>
                                     <div class="prof-rating">
-                                        <span class="material-symbols-outlined u-fs-lg" style="fill: 1;">star</span>
+                                        <span class="material-symbols-outlined star-icon star-icon--gold">star</span>
                                         <span class="rating-value">4.9</span>
                                     </div>
                                 </div>

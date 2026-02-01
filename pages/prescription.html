@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prescrição Digital - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/prescription.css">
+    <link rel="stylesheet" href="../css/layout/patient-common.css">
+    <link rel="stylesheet" href="../css/pages/prescription.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
-<body class="bg-background-dark text-white font-display">
+<body class="prescription-body">
     <!-- Header -->
     <header class="focus-header">
         <div class="focus-header-inner">
@@ -28,7 +31,7 @@
                 </div>
             </div>
             <h1 class="presc-view-title">Nova Prescrição</h1>
-            <div class="u-fs-lg u-w-40"></div>
+            <div class="header-spacer"></div>
         </div>
     </header>
 
@@ -36,10 +39,10 @@
         <!-- Patient Selection -->
         <section class="prescription-section">
             <h2 class="section-title">
-                <span class="material-symbols-outlined u-text-primary">person</span>
+                <span class="material-symbols-outlined section-icon">person</span>
                 Paciente
             </h2>
-            <div class="u-flex u-items-center u-gap-medium">
+            <div class="patient-selection-row">
                 <select id="patient-select" class="pep-select">
                     <option value="">Selecione o paciente...</option>
                 </select>
@@ -53,12 +56,12 @@
         <!-- Medications -->
         <section class="prescription-section">
             <div class="medications-header-flex">
-                <h2 class="section-title u-margin-0">
-                    <span class="material-symbols-outlined u-text-primary">medication</span>
+                <h2 class="section-title section-title--no-margin">
+                    <span class="material-symbols-outlined section-icon">medication</span>
                     Medicamentos
                 </h2>
                 <button onclick="addMedication()" class="btn-add-med">
-                    <span class="material-symbols-outlined u-fs-lg">add_circle</span>
+                    <span class="material-symbols-outlined btn-icon-large">add_circle</span>
                     Adicionar
                 </button>
             </div>
@@ -71,7 +74,7 @@
         <!-- Notes -->
         <section class="prescription-section">
             <h2 class="section-title">
-                <span class="material-symbols-outlined u-text-primary">notes</span>
+                <span class="material-symbols-outlined section-icon">notes</span>
                 Observações
             </h2>
             <textarea id="prescription-notes" rows="4" placeholder="Orientações adicionais para o paciente..."
@@ -79,7 +82,7 @@
         </section>
 
         <!-- Actions -->
-        <div class="u-flex u-gap-medium">
+        <div class="form-actions">
             <button onclick="savePrescription(false)" class="btn-save-draft">
                 Salvar Rascunho
             </button>
@@ -93,7 +96,7 @@
         <div id="preview-modal" class="preview-modal-overlay u-hidden">
             <div class="preview-modal-content">
                 <div class="preview-modal-header">
-                    <h3 class="u-fs-lg u-fw-700 u-margin-0">Pré-visualização</h3>
+                    <h3 class="panel-section-title panel-section-title--no-margin">Pré-visualização</h3>
                     <button onclick="closePreview()" class="btn-icon-action">
                         <span class="material-symbols-outlined">close</span>
                     </button>
@@ -102,10 +105,10 @@
                     <!-- Preview content will be injected here -->
                 </div>
                 <div class="preview-modal-footer">
-                    <button onclick="closePreview()" class="btn-save-draft u-padding-medium">
+                    <button onclick="closePreview()" class="btn-save-draft">
                         Editar
                     </button>
-                    <button onclick="confirmAndDownload()" class="btn-issue-digital u-padding-medium">
+                    <button onclick="confirmAndDownload()" class="btn-issue-digital">
                         <span class="material-symbols-outlined">download</span>
                         Baixar PDF
                     </button>
@@ -118,9 +121,9 @@
     <template id="medication-template">
         <div class="medication-item">
             <div class="medication-header">
-                <span class="u-fw-600 u-text-primary">Medicamento</span>
-                <button type="button" onclick="removeMedication(this)" class="btn-icon-action u-text-red">
-                    <span class="material-symbols-outlined u-fs-lg">delete</span>
+                <span class="medication-title">Medicamento</span>
+                <button type="button" onclick="removeMedication(this)" class="btn-icon-action btn-icon-delete">
+                    <span class="material-symbols-outlined btn-icon-large">delete</span>
                 </button>
             </div>
             <div class="medication-grid">
@@ -243,53 +246,55 @@
             const content = document.getElementById('preview-content');
 
             content.innerHTML = `
-                <div class="text-center border-b pb-4 mb-4">
-                    <h2 class="text-2xl font-bold text-emerald-600">MedClinic</h2>
-                    <p class="text-sm text-gray-500">Prescrição Médica Digital</p>
-                </div>
-                
-                <div class="mb-4">
-                    <p class="text-sm text-gray-500">Data: ${Utils.formatDate(currentPrescription.date)}</p>
-                </div>
-                
-                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <p class="font-semibold">${currentPrescription.patient_name}</p>
-                </div>
-                
-                <div class="mb-6">
-                    <h3 class="font-bold mb-3 border-b pb-2">Medicamentos</h3>
-                    ${currentPrescription.medications.map((m, i) => `
-                        <div class="mb-3 pl-4 border-l-2 border-emerald-500">
-                            <p class="font-semibold">${i + 1}. ${m.name} ${m.dosage}</p>
-                            <p class="text-sm text-gray-600">Tomar ${m.frequency} por ${m.duration}</p>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                ${currentPrescription.notes ? `
-                    <div class="mb-6 p-4 bg-amber-50 rounded-lg">
-                        <h3 class="font-bold mb-2">Observações</h3>
-                        <p class="text-sm">${currentPrescription.notes}</p>
+                <div class="document-container">
+                    <div class="document-header">
+                        <h2 class="document-brand">MedClinic</h2>
+                        <p class="document-subtitle">Prescrição Médica Digital</p>
                     </div>
-                ` : ''}
-                
-                <div class="mt-8 pt-4 border-t text-center">
-                    <p class="font-semibold">${currentPrescription.professional_name}</p>
-                    <p class="text-sm text-gray-500">CRM/SP 123456</p>
-                    <div class="mt-4 p-3 bg-emerald-50 rounded-lg">
-                        <p class="text-xs text-emerald-700">✓ Prescrição assinada digitalmente</p>
+                    
+                    <div class="document-date">
+                        <p>Data: ${Utils.formatDate(currentPrescription.date)}</p>
+                    </div>
+                    
+                    <div class="document-patient-card">
+                        <p class="document-signature-name">${currentPrescription.patient_name}</p>
+                    </div>
+                    
+                    <div class="document-medications-group">
+                        <h3 class="document-signature-name document-medications-title">Medicamentos</h3>
+                        ${currentPrescription.medications.map((m, i) => `
+                            <div class="document-medication-item">
+                                <p class="document-signature-name">${i + 1}. ${m.name} ${m.dosage}</p>
+                                <p class="document-signature-role">Tomar ${m.frequency} por ${m.duration}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    ${currentPrescription.notes ? `
+                        <div class="document-notes-card">
+                            <h3 class="document-signature-name document-notes-title">Observações</h3>
+                            <p class="document-signature-role document-notes-text">${currentPrescription.notes}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="document-footer">
+                        <p class="document-signature-name">${currentPrescription.professional_name}</p>
+                        <p class="document-signature-role">CRM/SP 123456</p>
+                        <div class="document-verified-badge">
+                            <p class="document-verified-text">✓ Prescrição assinada digitalmente</p>
+                        </div>
                     </div>
                 </div>
             `;
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.classList.remove('u-hidden');
+            // modal.classList.add('flex'); // Not needed if CSS has display:flex by default
         }
 
         function closePreview() {
             const modal = document.getElementById('preview-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            modal.classList.add('u-hidden');
+            // modal.classList.remove('flex');
         }
 
         async function confirmAndDownload() {

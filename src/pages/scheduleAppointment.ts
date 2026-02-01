@@ -28,76 +28,46 @@ function buildAppointmentStatusText(appointments: AppointmentSummary[]) {
 
 function buildAppointmentsLoadingState() {
   return `
-    <div class="appointment-card-plain u-flex-center">
-      <p class="u-text-secondary u-fs-sm">Sincronizando dados...</p>
+    <div class="state-card state-card--transparent state-card--small">
+      <span class="material-symbols-outlined state-card__icon state-card__icon--small u-spin">sync</span>
+      <p class="state-card__description">Sincronizando dados...</p>
     </div>
   `
 }
 
 function buildAppointmentsEmptyState(title: string, description: string) {
   return `
-    <div class="appointment-card-plain">
-      <p class="u-fw-700 text-white">${title}</p>
-      <p class="u-text-secondary u-fs-xs u-mt-05">${description}</p>
+    <div class="state-card state-card--transparent state-card--small">
+      <p class="state-card__title">${title}</p>
+      <p class="state-card__description">${description}</p>
     </div>
   `
 }
 
-function renderAppointmentCards(appointments: AppointmentSummary[]) {
-  if (!appointmentsList) return
 
-  appointmentsList.innerHTML = appointments
-    .map(appointment => buildAppointmentCard(appointment))
-    .join("")
-
-  appointmentsList.querySelectorAll("[data-action='cancel-appointment']").forEach(
-    button => {
-      button.addEventListener("click", async event => {
-        const target = event.currentTarget as HTMLButtonElement
-        const appointmentId = Number(target.dataset.appointmentId)
-        if (!appointmentId) return
-
-        await handleCancelAppointment(appointmentId)
-      })
-    },
-  )
-
-  appointmentsList.querySelectorAll("[data-action='reschedule-appointment']").forEach(
-    button => {
-      button.addEventListener("click", async event => {
-        const target = event.currentTarget as HTMLButtonElement
-        const appointmentId = Number(target.dataset.appointmentId)
-        const professionalId = Number(target.dataset.professionalId)
-        if (!appointmentId || !professionalId) return
-
-        await handleRescheduleClick(appointmentId, professionalId)
-      })
-    },
-  )
-}
 
 function buildAppointmentCard(appointment: AppointmentSummary) {
   const canModify = appointment.status === "scheduled" || appointment.status === "confirmed"
 
   return `
     <div class="appointment-card">
-      <div class="doctor-info-group">
-        <div class="doctor-img" style="background-image: url('${appointment.professional_image || ''}')">
+      <div class="appointment-card__doctor-group">
+        <div class="appointment-card__avatar" style="background-image: url('${appointment.professional_image || ''}')">
           ${!appointment.professional_image ? getInitials(appointment.professional_name) : ''}
         </div>
-        <div class="appointment-main-info">
-          <div class="u-flex u-justify-between u-items-center">
-            <h3 class="doctor-name">${appointment.professional_name}</h3>
-            <span class="appointment-status status-${appointment.status}">${getStatusLabel(appointment.status)}</span>
+        <div class="appointment-card__info">
+          <div class="appointment-card__header">
+            <h3 class="appointment-card__name">${appointment.professional_name}</h3>
+            <span class="status-badge status-badge--${appointment.status}">${getStatusLabel(appointment.status)}</span>
           </div>
-          <p class="doctor-specialty">${appointment.specialty}</p>
-          <div class="appointment-schedule-info">
-            <div class="schedule-item">
-              <span class="material-symbols-outlined schedule-icon">calendar_month</span>
+          <p class="appointment-card__specialty">${appointment.specialty}</p>
+          <div class="appointment-card__meta">
+            <div class="appointment-card__meta-item">
+              <span class="material-symbols-outlined appointment-card__meta-icon">calendar_month</span>
               ${formatDate(appointment.date)}
             </div>
-            <div class="schedule-item">
-              <span class="material-symbols-outlined schedule-icon">schedule</span>
+            <div class="appointment-card__meta-item">
+              <span class="material-symbols-outlined appointment-card__meta-icon">schedule</span>
               ${appointment.time}
             </div>
           </div>
@@ -105,9 +75,9 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
       </div>
       
       ${canModify ? `
-        <div class="appointment-actions">
+        <div class="appointment-card__actions">
           <button
-            class="btn-pill-outline btn-pill-primary"
+            class="appointment-card__btn appointment-card__btn--outline"
             data-action="reschedule-appointment"
             data-appointment-id="${appointment.id}"
             data-professional-id="${appointment.professional_id}"
@@ -115,7 +85,7 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
             Reagendar
           </button>
           <button
-            class="btn-pill-outline btn-pill-danger"
+            class="appointment-card__btn appointment-card__btn--danger"
             data-action="cancel-appointment"
             data-appointment-id="${appointment.id}"
           >
@@ -140,6 +110,7 @@ function getStatusLabel(status: string) {
     cancelled_by_patient: "Cancelado",
     cancelled_by_clinic: "Cancelado",
   }
+
   return map[status] ?? status
 }
 
@@ -278,7 +249,109 @@ async function loadPatientAppointments(useCache = true) {
   const limitedAppointments = futureAppointments.filter(a => a.status !== 'cancelled_by_patient')
   appointmentCountLabel!.textContent = `${limitedAppointments.length} agendamentos`
   appointmentsStatus.textContent = buildAppointmentStatusText(limitedAppointments)
-  renderAppointmentCards(limitedAppointments)
+  
+  // Setup pagination
+  currentAppointmentPage = 0
+  appointmentPageSize = 4 // Limit to 4 per page
+  cachedAppointments = limitedAppointments
+  
+  renderPaginatedAppointments()
+}
+
+let currentAppointmentPage = 0
+let appointmentPageSize = 4
+let cachedAppointments: AppointmentSummary[] = []
+
+function renderPaginatedAppointments() {
+  if (!appointmentsList) return
+  
+  const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
+  const start = currentAppointmentPage * appointmentPageSize
+  const end = start + appointmentPageSize
+  const pageItems = cachedAppointments.slice(start, end)
+  
+  // Use a grid container for the cards
+  const gridHtml = `
+    <div class="appointments-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; width: 100%;">
+      ${pageItems.map(app => buildAppointmentCard(app)).join("")}
+    </div>
+  `
+  
+  // Pagination controls
+  let paginationHtml = ''
+  if (totalPages > 1) {
+    paginationHtml = `
+      <div class="pagination-controls" style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; justify-content: center;">
+        <button 
+          class="pagination-btn" 
+          ${currentAppointmentPage === 0 ? 'disabled' : ''}
+          style="background: none; border: none; color: ${currentAppointmentPage === 0 ? 'var(--text-secondary)' : 'var(--primary)'}; cursor: ${currentAppointmentPage === 0 ? 'default' : 'pointer'};"
+          onclick="window.prevAppointmentPage()"
+        >
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <span class="pagination-info" style="color: var(--text-secondary); font-size: 0.875rem;">
+          ${currentAppointmentPage + 1} de ${totalPages}
+        </span>
+        <button 
+          class="pagination-btn" 
+          ${currentAppointmentPage >= totalPages - 1 ? 'disabled' : ''}
+          style="background: none; border: none; color: ${currentAppointmentPage >= totalPages - 1 ? 'var(--text-secondary)' : 'var(--primary)'}; cursor: ${currentAppointmentPage >= totalPages - 1 ? 'default' : 'pointer'};"
+          onclick="window.nextAppointmentPage()"
+        >
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    `
+  }
+  
+  appointmentsList.innerHTML = gridHtml + paginationHtml
+  
+  // Re-attach event listeners
+  bindAppointmentCardEvents(appointmentsList)
+}
+
+// Expose pagination functions to window
+;(window as any).prevAppointmentPage = () => {
+  if (currentAppointmentPage > 0) {
+    currentAppointmentPage--
+    renderPaginatedAppointments()
+  }
+}
+
+;(window as any).nextAppointmentPage = () => {
+  const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
+  if (currentAppointmentPage < totalPages - 1) {
+    currentAppointmentPage++
+    renderPaginatedAppointments()
+  }
+}
+
+function bindAppointmentCardEvents(container: HTMLElement) {
+  container.querySelectorAll("[data-action='cancel-appointment']").forEach(
+    button => {
+      button.addEventListener("click", async event => {
+        const target = event.currentTarget as HTMLButtonElement
+        const appointmentId = Number(target.dataset.appointmentId)
+        if (!appointmentId) return
+
+        await handleCancelAppointment(appointmentId)
+      })
+    },
+  )
+
+  container.querySelectorAll("[data-action='reschedule-appointment']").forEach(
+    button => {
+      button.addEventListener("click", async event => {
+        const target = event.currentTarget as HTMLButtonElement
+        const appointmentId = Number(target.dataset.appointmentId)
+        const professionalId = Number(target.dataset.professionalId)
+        if (!appointmentId || !professionalId) return
+
+        await handleRescheduleClick(appointmentId, professionalId)
+      })
+    },
+  )
 }
 
 function renderProfessionals(professionals: ProfessionalSummary[]) {
@@ -316,36 +389,36 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
 
   return `
     <div class="professional-card">
-      <div class="prof-card-top">
-        <div class="prof-avatar" style="background-image: url('${professional.image || ''}')">
+      <div class="professional-card__top">
+        <div class="professional-card__avatar" style="background-image: url('${professional.image || ''}')">
           ${!professional.image ? getInitials(professional.name) : ''}
         </div>
-        <div class="prof-info">
-          <div class="u-flex u-justify-between u-items-start">
+        <div class="professional-card__info">
+          <div class="professional-card__header">
             <div>
-              <h3>${professional.name}</h3>
-              <p class="prof-specialty">${professional.specialty}</p>
+              <h3 class="professional-card__name">${professional.name}</h3>
+              <p class="professional-card__specialty">${professional.specialty}</p>
             </div>
-            <div class="prof-rating">
-              <span class="material-symbols-outlined star-icon">star</span>
-              <span class="rating-value">4.9</span>
+            <div class="professional-card__rating">
+              <span class="material-symbols-outlined professional-card__rating-icon">star</span>
+              <span class="professional-card__rating-value">4.9</span>
             </div>
           </div>
-          <p class="u-text-secondary u-fs-xs u-mt-05">${registrationLabel}</p>
-          <div class="prof-tags u-mt-10">
-            <span class="prof-tag">Disponível hoje</span>
-            <span class="prof-tag">${professional.specialty}</span>
+          <p class="professional-card__crm">${registrationLabel}</p>
+          <div class="professional-card__tags">
+            <span class="professional-card__tag">Disponível hoje</span>
+            <span class="professional-card__tag">${professional.specialty}</span>
           </div>
         </div>
       </div>
 
-      <div class="prof-card-footer">
-        <div class="prof-price">
-          <span class="price-label">Consulta</span>
-          <span class="price-value">${professional.consultation_price ? formatCurrency(professional.consultation_price) : "A confirmar"}</span>
+      <div class="professional-card__footer">
+        <div class="professional-card__price">
+          <span class="professional-card__price-label">Consulta</span>
+          <span class="professional-card__price-value">${professional.consultation_price ? formatCurrency(professional.consultation_price) : "A confirmar"}</span>
         </div>
         <button
-          class="btn-book"
+          class="professional-card__book-btn"
           data-action="view-availability"
           data-professional-id="${professional.id}"
         >
@@ -359,59 +432,13 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
 let searchDebounceTimer: number | undefined
 
 function renderFilters() {
-  if (!filtersContainer) return
-
-  filtersContainer.innerHTML = `
-    <div class="flex flex-col gap-3">
-      <label class="text-xs uppercase text-text-secondary">Especialidade</label>
-      <select
-        id="filter-specialty"
-        class="h-12 rounded-lg bg-surface-dark border border-border-dark text-white px-3"
-      >
-        <option value="">Todas</option>
-      </select>
-    </div>
-    <div class="flex flex-col gap-3">
-      <label class="text-xs uppercase text-text-secondary">Nome do médico</label>
-      <input
-        id="filter-name"
-        class="h-12 rounded-lg bg-surface-dark border border-border-dark text-white px-3"
-        placeholder="Ex: Ana, João..."
-        type="text"
-      />
-    </div>
-    <button
-      id="apply-filters"
-      class="h-12 rounded-lg bg-primary text-white text-sm font-bold"
-    >
-      Aplicar filtros
-    </button>
-  `
-
   const specialtySelect = document.getElementById(
-    "filter-specialty",
+    "header-filter-specialty",
   ) as HTMLSelectElement | null
-  const nameInput = document.getElementById(
-    "filter-name",
-  ) as HTMLInputElement | null
-  const applyButton = document.getElementById(
-    "apply-filters",
-  ) as HTMLButtonElement | null
 
   if (specialtySelect) {
-    specialtySelect.addEventListener("change", () => {
+    specialtySelect.addEventListener("change", async () => {
       filters.specialty = specialtySelect.value
-    })
-  }
-
-  if (nameInput) {
-    nameInput.addEventListener("input", () => {
-      filters.name = nameInput.value.trim()
-    })
-  }
-
-  if (applyButton) {
-    applyButton.addEventListener("click", async () => {
       await loadProfessionals()
     })
   }
@@ -419,7 +446,7 @@ function renderFilters() {
 
 function updateFiltersOptions(professionals: ProfessionalSummary[]) {
   const specialtySelect = document.getElementById(
-    "filter-specialty",
+    "header-filter-specialty",
   ) as HTMLSelectElement | null
 
   if (!specialtySelect) return
@@ -431,7 +458,7 @@ function updateFiltersOptions(professionals: ProfessionalSummary[]) {
 
   const currentValue = specialtySelect.value
   specialtySelect.innerHTML = [
-    "<option value=\"\">Todas</option>",
+    "<option value=\"\">Todas Especialidades</option>",
     ...specialties.map(
       specialty =>
         `<option value="${specialty}">${specialty}</option>`,
@@ -460,7 +487,7 @@ async function handleAvailabilityClick(
 ) {
   const originalText = button.innerHTML
   button.disabled = true
-  button.innerHTML = `<span class="material-symbols-outlined animate-spin text-[20px]">sync</span> Agendando...`
+  button.innerHTML = `<span class="material-symbols-outlined u-spin" style="font-size: 20px;">sync</span> Agendando...`
 
   const response = await getProfessionalAvailability(professionalId, {
     daysAhead: 7,
@@ -506,10 +533,10 @@ async function handleAvailabilityClick(
 
 function buildEmptyState(message: string) {
   return `
-    <div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
-      <span class="material-symbols-outlined text-4xl text-text-secondary mb-2">search_off</span>
-      <h3 class="text-lg font-bold text-white">${message}</h3>
-      <p class="text-text-secondary">Tente novamente em instantes.</p>
+    <div class="doctors-grid__empty-state">
+      <span class="material-symbols-outlined doctors-grid__empty-icon">search_off</span>
+      <h3 class="doctors-grid__empty-title">${message}</h3>
+      <p class="doctors-grid__empty-desc">Tente novamente em instantes.</p>
     </div>
   `
 }
@@ -599,7 +626,6 @@ function clearFilters() {
 
   loadProfessionals()
 }
-
 function createCheckoutModal(
   professional: ProfessionalSummary,
   date: string,
@@ -610,45 +636,45 @@ function createCheckoutModal(
 
   const modal = document.createElement("div")
   modal.id = "checkout-modal"
-  modal.className =
-    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  modal.className = "checkout-modal-overlay"
+  
   modal.innerHTML = `
-    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark">
-        <h3 class="text-white font-bold">Resumo do Agendamento</h3>
-        <button data-action="close-checkout" class="text-text-secondary hover:text-white">
+    <div class="checkout-modal">
+      <div class="checkout-modal__header">
+        <h3 class="checkout-modal__title">Resumo do Agendamento</h3>
+        <button data-action="close-checkout" class="checkout-modal__close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="p-6 flex flex-col gap-6">
-        <div class="flex gap-4 items-center">
-          <div class="size-16 rounded-full bg-primary/10 border border-border-dark flex items-center justify-center text-primary text-lg font-bold">
+      <div class="checkout-modal__content">
+        <div class="checkout-summary">
+          <div class="checkout-summary__avatar">
             ${getInitials(professional.name)}
           </div>
-          <div>
-            <h4 class="text-white font-bold text-lg">${professional.name}</h4>
-            <p class="text-primary text-sm">${professional.specialty}</p>
+          <div class="checkout-summary__info">
+            <h4>${professional.name}</h4>
+            <p>${professional.specialty}</p>
           </div>
         </div>
 
-        <div class="bg-background-dark rounded-lg p-4 border border-border-dark space-y-2">
-          <div class="flex justify-between text-sm">
-            <span class="text-text-secondary">Data</span>
-            <span class="text-white font-medium">${formatDateFull(date)}</span>
+        <div class="checkout-details">
+          <div class="checkout-details__row">
+            <span class="checkout-details__label">Data</span>
+            <span class="checkout-details__value">${formatDateFull(date)}</span>
           </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-text-secondary">Horário</span>
-            <span class="text-white font-medium">${time}</span>
+          <div class="checkout-details__row">
+            <span class="checkout-details__label">Horário</span>
+            <span class="checkout-details__value">${time}</span>
           </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-text-secondary">Local</span>
-            <span class="text-white font-medium">Unidade principal</span>
+          <div class="checkout-details__row">
+            <span class="checkout-details__label">Local</span>
+            <span class="checkout-details__value">Unidade principal</span>
           </div>
-          <div class="h-px bg-border-dark my-2"></div>
-          <div class="flex justify-between text-base">
-            <span class="text-white font-bold">Valor Total</span>
-            <span class="text-primary font-bold">${
+          <div class="checkout-details__divider"></div>
+          <div class="checkout-details__row">
+            <span class="checkout-details__total-label">Valor Total</span>
+            <span class="checkout-details__total-value">${
               professional.consultation_price
                 ? formatCurrency(professional.consultation_price)
                 : "A confirmar"
@@ -657,13 +683,13 @@ function createCheckoutModal(
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-text-secondary uppercase mb-2">Forma de Pagamento</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button class="flex items-center justify-center gap-2 p-3 rounded-lg border border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary">
+          <label class="checkout-payment__label">Forma de Pagamento</label>
+          <div class="checkout-payment__grid">
+            <button class="checkout-payment__btn checkout-payment__btn--active">
               <span class="material-symbols-outlined">credit_card</span>
               Crédito
             </button>
-            <button class="flex items-center justify-center gap-2 p-3 rounded-lg border border-border-dark bg-background-dark text-text-secondary hover:text-white hover:border-text-secondary transition-colors">
+            <button class="checkout-payment__btn">
               <span class="material-symbols-outlined">pix</span>
               PIX
             </button>
@@ -671,14 +697,14 @@ function createCheckoutModal(
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-text-secondary uppercase mb-2">Parcelamento</label>
-          <select class="w-full bg-background-dark border border-border-dark text-white rounded-lg p-2.5 text-sm focus:ring-primary focus:border-primary">
+          <label class="checkout-installments__label">Parcelamento</label>
+          <select class="filters-control"> <!-- Reusing filters-control for consistent input style -->
             <option value="1">1x sem juros</option>
             <option value="2">2x sem juros</option>
           </select>
         </div>
 
-        <button data-action="checkout-confirm" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-2">
+        <button data-action="checkout-confirm" class="checkout-confirm-btn">
           <span class="material-symbols-outlined">lock</span>
           Pagar e Confirmar
         </button>
@@ -807,25 +833,25 @@ function createAvailabilityModal(
 
   const modal = document.createElement("div")
   modal.id = "availability-modal"
-  modal.className =
-    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  modal.className = "availability-modal-overlay"
   
   // Generate HTML for grouped slots
+  // Generate HTML for grouped slots
   const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
-    <div class="mb-6 last:mb-0">
-      <h4 class="text-white font-medium mb-3 sticky top-0 bg-surface-dark py-2 border-b border-border-dark flex items-center gap-2">
-        <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
-        <span class="capitalize">${formatDateFull(date)}</span>
+    <div class="slots-group">
+      <h4 class="slots-date-header">
+        <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">calendar_month</span>
+        <span style="text-transform: capitalize;">${formatDateFull(date)}</span>
       </h4>
-      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+      <div class="slots-grid">
         ${slots.map(slot => `
           <button
-            class="p-2 bg-background-dark border border-border-dark hover:border-primary hover:bg-primary/10 text-white rounded-lg text-sm font-bold transition-all shadow-sm hover:shadow-md group"
+            class="slot-btn"
             data-action="select-slot"
             data-slot-date="${slot.date}"
             data-slot-time="${slot.time}"
           >
-            <span class="group-hover:scale-110 block transition-transform text-primary">${slot.time}</span>
+            <span>${slot.time}</span>
           </button>
         `).join("")}
       </div>
@@ -833,29 +859,29 @@ function createAvailabilityModal(
   `).join("")
 
   modal.innerHTML = `
-    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark z-10 relative">
-        <div class="flex items-center gap-3">
-           <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20">
+    <div class="availability-modal">
+      <div class="availability-modal__header">
+        <div class="availability-modal__title-group">
+           <div class="availability-modal__avatar">
               ${getInitials(professional.name)}
            </div>
            <div>
-              <h3 class="text-white font-bold text-lg">Agendar com ${professional.name}</h3>
-              <p class="text-primary text-xs font-medium">${professional.specialty}</p>
+              <h3 class="availability-modal__title">Agendar com ${professional.name}</h3>
+              <p class="availability-modal__subtitle">${professional.specialty}</p>
            </div>
         </div>
-        <button data-action="close-availability" class="text-text-secondary hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+        <button data-action="close-availability" class="availability-modal__close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="p-6 flex flex-col gap-4">
-        <p class="text-sm text-text-secondary">
+      <div class="availability-modal__content">
+        <p class="availability-modal__instruction">
           Selecione um horário para confirmar seu agendamento:
         </p>
 
-        <div class="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-          ${availability.length > 0 ? slotsHtml : `<div class="text-center text-text-secondary py-8">Nenhum horário disponível para os próximos dias.</div>`}
+        <div class="custom-scrollbar" style="max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;">
+          ${availability.length > 0 ? slotsHtml : `<div class="state-card state-card--transparent"><p class="state-card__description">Nenhum horário disponível para os próximos dias.</p></div>`}
         </div>
       </div>
     </div>
@@ -924,39 +950,65 @@ function createRescheduleModal(
   const existing = document.getElementById("reschedule-modal")
   if (existing) existing.remove()
 
+  // Group slots by date
+  const slotsByDate = availability.reduce((acc, slot) => {
+    if (!acc[slot.date]) {
+      acc[slot.date] = []
+    }
+    acc[slot.date].push(slot)
+    return acc
+  }, {} as Record<string, typeof availability>)
+
   const modal = document.createElement("div")
   modal.id = "reschedule-modal"
-  modal.className =
-    "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  modal.className = "availability-modal-overlay"
+  
+  // Generate HTML for grouped slots
+  const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
+    <div class="slots-group">
+      <h4 class="slots-date-header">
+        <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">calendar_month</span>
+        <span style="text-transform: capitalize;">${formatDateFull(date)}</span>
+      </h4>
+      <div class="slots-grid">
+        ${slots.map(slot => `
+          <button
+            class="slot-btn"
+            data-action="select-reschedule-slot"
+            data-slot-date="${slot.date}"
+            data-slot-time="${slot.time}"
+          >
+            <span>${slot.time}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `).join("")
+
   modal.innerHTML = `
-    <div class="bg-surface-dark border border-border-dark rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-      <div class="p-4 border-b border-border-dark flex justify-between items-center bg-background-dark">
-        <h3 class="text-white font-bold">Reagendar Consulta</h3>
-        <button data-action="close-reschedule" class="text-text-secondary hover:text-white">
+    <div class="availability-modal">
+      <div class="availability-modal__header">
+        <div class="availability-modal__title-group">
+           <div class="availability-modal__avatar">
+              <span class="material-symbols-outlined">edit_calendar</span>
+           </div>
+           <div>
+              <h3 class="availability-modal__title">Reagendar Consulta</h3>
+              <p class="availability-modal__subtitle">Selecione um novo horário</p>
+           </div>
+        </div>
+        <button data-action="close-reschedule" class="availability-modal__close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="p-6 flex flex-col gap-4">
-        <p class="text-sm text-text-secondary">
+      <div class="availability-modal__content">
+        <p class="availability-modal__instruction">
           Selecione um novo horário disponível para reagendar sua consulta:
         </p>
 
-        <div class="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-          ${availability.slice(0, 20).map(
-            slot => `
-              <button
-                class="p-4 bg-background-dark border border-border-dark hover:border-primary hover:bg-primary/10 text-white rounded-lg text-sm font-medium transition-all flex flex-col items-center gap-2"
-                data-action="select-reschedule-slot"
-                data-slot-date="${slot.date}"
-                data-slot-time="${slot.time}"
-              >
-                <span class="material-symbols-outlined text-primary">calendar_month</span>
-                <span>${formatDateFull(slot.date)}</span>
-                <span class="text-primary font-bold">${slot.time}</span>
-              </button>
-            `,
-          ).join("")}
+        <div class="custom-scrollbar" style="max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;">
+          ${availability.length > 0 ? slotsHtml : `<div class="state-card state-card--transparent"><p class="state-card__description">Nenhum horário disponível para os próximos dias.</p></div>`}
         </div>
       </div>
     </div>

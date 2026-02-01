@@ -1,0 +1,216 @@
+/* ========================================
+   Availability Modal (BEM)
+   ======================================== */
+
+.availability-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.availability-modal {
+  width: 100%;
+  max-width: 42rem; /* max-w-2xl */
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+  animation: zoomIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* Ensure it fits on screen */
+}
+
+.availability-modal__header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-dark);
+  background-color: var(--background-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.availability-modal__title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.availability-modal__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: rgba(25, 127, 230, 0.1);
+  border: 1px solid rgba(25, 127, 230, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.availability-modal__title {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.availability-modal__subtitle {
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.availability-modal__close {
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.availability-modal__close:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.availability-modal__content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.availability-modal__instruction {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Slots Grid and Navigation */
+.slots-group {
+  margin-bottom: 1.5rem;
+}
+
+.slots-group:last-child {
+  margin-bottom: 0;
+}
+
+.slots-date-header {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  background-color: var(--surface-dark);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .slots-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .slots-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.slots-grid--compact {
+  grid-template-columns: 1fr 1fr;
+}
+
+.slot-btn {
+  padding: 0.5rem;
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-dark);
+  color: #ffffff;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.slot-btn:hover {
+  border-color: var(--primary);
+  background-color: rgba(25, 127, 230, 0.1);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05); /* Zoom effect on text handled here */
+}
+
+.slot-btn span {
+  color: var(--primary);
+}
+
+/* Reschedule specific */
+.reschedule-slot-btn {
+  padding: 1rem;
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-dark);
+  color: #ffffff;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reschedule-slot-btn:hover {
+  border-color: var(--primary);
+  background-color: rgba(25, 127, 230, 0.1);
+}
+
+.reschedule-slot-btn .material-symbols-outlined {
+  color: var(--primary);
+}

@@ -138,17 +138,17 @@ function updateStats(
   if (statsCards[2]) statsCards[2].textContent = String(completed);
 }
 
-function updateNextPatient(appointments: AppointmentSummary[]) {
+  function updateNextPatient(appointments: AppointmentSummary[]) {
   if (appointments.length === 0) {
     // Show empty state
-    const nextPatientCard = document.querySelector(".from-primary");
+    const nextPatientCard = document.querySelector(".next-patient-card");
     if (nextPatientCard) {
       nextPatientCard.innerHTML = `
-        <div class="text-center py-8">
-          <span class="material-symbols-outlined text-6xl opacity-20">event_available</span>
-          <p class="mt-4 text-lg">Nenhum paciente agendado para hoje</p>
+        <div class="u-text-center u-padding-medium">
+          <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
+          <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
         </div>
-      `;
+      `
     }
     return;
   }
@@ -159,32 +159,35 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
   });
 
   const nextAppointment = sortedAppointments[0];
-  const nextPatientCard = document.querySelector(".from-primary");
+  const nextPatientCard = document.querySelector(".next-patient-card");
 
   if (nextPatientCard) {
     nextPatientCard.innerHTML = `
-      <span class="text-[10px] font-bold uppercase bg-white/20 px-2 py-1 rounded">Próximo Paciente</span>
-      <h3 class="text-2xl font-bold mt-4">${nextAppointment.patient_name || "Paciente"}</h3>
-      <p class="text-sm opacity-80">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
-      <div class="flex gap-4 mt-6 text-sm">
-        <span class="flex items-center gap-1">
-          <span class="material-symbols-outlined text-sm">schedule</span> ${nextAppointment.time}
+      <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
+      <div class="u-mb-15">
+        <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
+        <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
+      </div>
+      
+      <div class="u-flex u-gap-medium u-mb-20">
+        <span class="u-flex u-items-center u-gap-small u-text-secondary">
+          <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
         </span>
         ${
           nextAppointment.room
             ? `
-          <span class="flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">location_on</span> Sala ${nextAppointment.room}
+          <span class="u-flex u-items-center u-gap-small u-text-secondary">
+            <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
         `
             : ""
         }
       </div>
-      <button onclick="window.location.href='pep.html'"
-        class="mt-8 px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-slate-100 transition-all">
+      
+      <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
         Iniciar Atendimento
       </button>
-    `;
+    `
   }
 }
 
@@ -199,25 +202,25 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
 
   if (sortedAppointments.length === 0) {
     queueList.innerHTML = `
-      <li class="flex items-center justify-center p-6 bg-background-dark/50 rounded-xl">
-        <span class="text-sm text-slate-500">Nenhum paciente na fila</span>
+      <li class="list-item-row u-justify-between u-items-center">
+        <span class="u-text-secondary u-fs-sm">Nenhum paciente na fila</span>
       </li>
-    `;
-    return;
+    `
+    return
   }
 
   queueList.innerHTML = sortedAppointments
     .map(
       (appointment) => `
-      <li class="flex items-center justify-between p-3 bg-background-dark/50 rounded-xl">
-        <span class="text-sm font-medium">${appointment.patient_name || "Paciente"}</span>
-        <span class="text-xs ${appointment.status === "confirmed" ? "text-amber-500" : "text-slate-500"} font-bold">
+      <li class="list-item-row u-justify-between u-items-center">
+        <span class="u-fw-600">${appointment.patient_name || "Paciente"}</span>
+        <span class="badge ${appointment.status === "confirmed" ? "badge--warning" : "badge--neutral"}">
           ${appointment.time}
         </span>
       </li>
     `,
     )
-    .join("");
+    .join("")
 }
 
 function dedupeAppointments(appointments: AppointmentSummary[]) {
@@ -336,14 +339,14 @@ function updateCommissionsPanel(data: CommissionsResponse) {
   detailsSection.innerHTML = details
     .map(
       (commission) => `
-    <div class="flex items-center justify-between p-3 bg-surface-dark/30 rounded-lg hover:bg-surface-dark/50 transition-colors">
-      <div class="flex-1">
-        <p class="text-sm font-medium">Consulta #${commission.appointment_id}</p>
-        <p class="text-xs text-slate-500">${formatDate(commission.created_at)}</p>
+    <div class="list-item-row">
+      <div class="list-item-main">
+        <p class="list-item-title">Consulta #${commission.appointment_id}</p>
+        <p class="list-item-subtitle">${formatDate(commission.created_at)}</p>
       </div>
-      <div class="text-right">
-        <p class="text-sm font-bold">R$ ${formatCurrency(commission.amount)}</p>
-        <span class="text-xs px-2 py-0.5 rounded ${commission.status === "paid" ? "bg-emerald-500/20 text-emerald-500" : "bg-amber-500/20 text-amber-500"}">
+      <div class="list-item-meta">
+        <p class="list-item-value">R$ ${formatCurrency(commission.amount)}</p>
+        <span class="status-badge ${commission.status === "paid" ? "status-badge--paid" : "status-badge--pending"}">
           ${commission.status === "paid" ? "Pago" : "Pendente"}
         </span>
       </div>
@@ -401,14 +404,14 @@ function updatePrescriptionsPanel(prescriptions: PrescriptionSummary[]) {
     .slice(0, 5)
     .map(
       (prescription) => `
-    <div class="flex items-center justify-between p-3 bg-surface-dark/30 rounded-lg hover:bg-surface-dark/50 transition-colors">
-      <div class="flex-1">
-        <p class="text-sm font-medium">${prescription.medication_name}</p>
-        <p class="text-xs text-slate-500">${formatDate(prescription.created_at)}</p>
-        ${prescription.dosage ? `<p class="text-xs text-slate-400 mt-1">${prescription.dosage}</p>` : ""}
+    <div class="list-item-row">
+      <div class="list-item-main">
+        <p class="list-item-title">${prescription.medication_name}</p>
+        <p class="list-item-subtitle">${formatDate(prescription.created_at)}</p>
+        ${prescription.dosage ? `<p class="list-item-subtitle" style="margin-top: 0.25rem;">${prescription.dosage}</p>` : ""}
       </div>
-      <div class="text-right">
-        ${prescription.quantity ? `<p class="text-sm font-medium">${prescription.quantity}x</p>` : ""}
+      <div class="list-item-meta">
+        ${prescription.quantity ? `<p class="list-item-value">${prescription.quantity}x</p>` : ""}
       </div>
     </div>
   `,
@@ -427,34 +430,34 @@ function setupAvailabilityManagement(professionalId: number) {
 
 function showAvailabilityModal(professionalId: number) {
   const modal = document.createElement("div");
-  modal.className =
-    "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
+  modal.className = "modal modal--open";
+  modal.style.zIndex = "9999";
   modal.innerHTML = `
-    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold">Gerenciar Disponibilidade</h3>
-        <button id="close-availability-modal" class="text-slate-400 hover:text-white">
+    <div class="modal__dialog">
+      <div class="modal__header">
+        <h3 class="modal__title">Gerenciar Disponibilidade</h3>
+        <button id="close-availability-modal" class="modal__close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="space-y-6">
+      <div class="modal__body" style="display: flex; flex-direction: column; gap: 1.5rem;">
         <!-- Existing Slots Section -->
         <div>
-          <h4 class="text-sm font-bold text-slate-400 uppercase mb-3">Horários Cadastrados</h4>
-          <div id="existing-availability-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar bg-background-dark/30 p-2 rounded-xl">
-             <p class="text-center text-slate-500 py-4 text-sm">Carregando horários...</p>
+          <h4 class="u-fs-sm u-fw-600 u-mb-10">Horários Cadastrados</h4>
+          <div id="existing-availability-list" class="custom-scrollbar" style="max-height: 200px; overflow-y: auto;">
+             <p class="u-text-secondary u-text-center" style="padding: 1rem;">Carregando horários...</p>
           </div>
         </div>
 
-        <div class="border-t border-border-dark pt-4">
-          <h4 class="text-sm font-bold text-slate-400 uppercase mb-3">Adicionar Novos Horários</h4>
-          <div id="availability-entries" class="space-y-4">
-            <div class="availability-entry bg-background-dark/50 p-4 rounded-xl border border-border-dark">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div style="border-top: 1px solid var(--border-dark); padding-top: 1rem;">
+          <h4 class="u-fs-sm u-fw-600 u-mb-10">Adicionar Novos Horários</h4>
+          <div id="availability-entries" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="form">
+              <div class="form__group" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; align-items: end;">
                 <div>
-                  <label class="block text-xs text-slate-400 mb-2">Dia da Semana</label>
-                  <select class="day-select w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white">
+                  <label class="form__label">Dia da Semana</label>
+                  <select class="select day-select">
                     <option value="0">Domingo</option>
                     <option value="1" selected>Segunda</option>
                     <option value="2">Terça</option>
@@ -465,32 +468,32 @@ function showAvailabilityModal(professionalId: number) {
                   </select>
                 </div>
                 <div>
-                  <label class="block text-xs text-slate-400 mb-2">Início</label>
-                  <input type="time" class="start-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="09:00" />
+                  <label class="form__label">Início</label>
+                  <input type="time" class="input start-time" value="09:00" />
                 </div>
                 <div>
-                  <label class="block text-xs text-slate-400 mb-2">Fim</label>
-                  <input type="time" class="end-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="12:00" />
+                  <label class="form__label">Fim</label>
+                  <input type="time" class="input end-time" value="12:00" />
                 </div>
-                <div class="flex items-end">
-                  <button class="remove-entry w-full px-3 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm font-bold hover:bg-red-500/20 transition-colors">
-                    Remover
+                <div>
+                  <button class="btn btn--danger btn--icon remove-entry" style="margin-bottom: 2px;">
+                    <span class="material-symbols-outlined">delete</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <button id="add-more-entry" class="w-full mt-4 px-4 py-3 bg-background-dark border border-dashed border-border-dark rounded-xl text-sm text-slate-400 hover:text-white hover:border-primary transition-colors flex items-center justify-center gap-2">
+          <button id="add-more-entry" class="btn btn--secondary btn--sm u-mt-10">
             <span class="material-symbols-outlined">add</span> Adicionar Mais Horário
           </button>
         </div>
 
-        <div class="flex gap-3 pt-4 border-t border-border-dark">
-          <button id="cancel-availability" class="flex-1 px-6 py-3 bg-background-dark border border-border-dark rounded-xl font-bold hover:bg-border-dark transition-colors">
+        <div class="modal__footer">
+          <button id="cancel-availability" class="btn btn--outline">
             Fechar
           </button>
-          <button id="save-availability" class="flex-1 px-6 py-3 bg-primary rounded-xl font-bold hover:bg-blue-700 transition-colors">
+          <button id="save-availability" class="btn btn--primary">
             Salvar Novos
           </button>
         </div>
@@ -521,16 +524,16 @@ function showAvailabilityModal(professionalId: number) {
               "Sábado",
             ];
             return `
-            <div class="flex items-center justify-between p-3 bg-background-dark/50 rounded-lg border border-border-dark">
+            <div class="list-item-row" style="align-items: center; justify-content: space-between;">
               <div>
-                <span class="font-bold text-white">${days[rule.day_of_week]}</span>
-                <span class="text-slate-400 mx-2">•</span>
-                <span class="text-sm font-mono text-slate-300">
+                <span class="u-fw-700">${days[rule.day_of_week]}</span>
+                <span class="u-text-secondary" style="margin: 0 0.5rem;">•</span>
+                <span style="font-family: monospace; font-size: 0.875rem;">
                   ${rule.start_time.slice(0, 5)} - ${rule.end_time.slice(0, 5)}
                 </span>
               </div>
-              <button class="delete-rule-btn p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" data-id="${rule.id}">
-                <span class="material-symbols-outlined text-sm">delete</span>
+              <button class="btn btn--text btn--danger btn--icon delete-rule-btn" data-id="${rule.id}">
+                <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
           `;
@@ -564,16 +567,16 @@ function showAvailabilityModal(professionalId: number) {
         });
       } else {
         listContainer.innerHTML = `
-          <div class="text-center py-6 text-slate-500">
-            <span class="material-symbols-outlined text-2xl mb-2 opacity-50">event_busy</span>
-            <p class="text-sm">Nenhum horário cadastrado</p>
+          <div class="u-text-center" style="padding: 1.5rem 0;">
+            <span class="material-symbols-outlined" style="font-size: 1.5rem; opacity: 0.5;">event_busy</span>
+            <p style="font-size: 0.875rem;">Nenhum horário cadastrado</p>
           </div>
         `;
       }
     } catch (err) {
       console.error(err);
       listContainer.innerHTML =
-        '<p class="text-center text-red-400 py-4 text-sm">Erro ao carregar horários</p>';
+        '<p style="text-align: center; color: #f87171; padding: 1rem; font-size: 0.875rem;">Erro ao carregar horários</p>';
     }
   };
 
@@ -741,13 +744,12 @@ function showAvailabilityModal(professionalId: number) {
     if (!entriesContainer) return;
 
     const newEntry = document.createElement("div");
-    newEntry.className =
-      "availability-entry bg-background-dark/50 p-4 rounded-xl border border-border-dark";
+    newEntry.className = "form";
     newEntry.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="form__group" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; align-items: end;">
         <div>
-          <label class="block text-xs text-slate-400 mb-2">Dia da Semana</label>
-          <select class="day-select w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white">
+          <label class="form__label">Dia da Semana</label>
+          <select class="select day-select">
             <option value="0">Domingo</option>
             <option value="1" selected>Segunda</option>
             <option value="2">Terça</option>
@@ -758,16 +760,16 @@ function showAvailabilityModal(professionalId: number) {
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-2">Início</label>
-          <input type="time" class="start-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="09:00" />
+          <label class="form__label">Início</label>
+          <input type="time" class="input start-time" value="09:00" />
         </div>
         <div>
-          <label class="block text-xs text-slate-400 mb-2">Fim</label>
-          <input type="time" class="end-time w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-sm text-white" value="12:00" />
+          <label class="form__label">Fim</label>
+          <input type="time" class="input end-time" value="12:00" />
         </div>
-        <div class="flex items-end">
-          <button class="remove-entry w-full px-3 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm font-bold hover:bg-red-500/20 transition-colors">
-            Remover
+        <div>
+          <button class="btn btn--danger btn--icon remove-entry" style="margin-bottom: 2px;">
+            <span class="material-symbols-outlined">delete</span>
           </button>
         </div>
       </div>
@@ -888,54 +890,53 @@ function setupExamRequest(professionalId: number) {
 async function showExamRequestModal(professionalId: number) {
   // Prerender modal structure
   const modal = document.createElement("div");
-  modal.className =
-    "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
+  modal.className = "doctor-modal-overlay";
   modal.innerHTML = `
-    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold">Solicitar Exame</h3>
-        <button id="close-exam-modal" class="text-slate-400 hover:text-white">
+    <div class="doctor-modal">
+      <div class="doctor-modal-header">
+        <h3 class="doctor-modal-title">Solicitar Exame</h3>
+        <button id="close-exam-modal" class="btn-icon-action">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
       <form id="exam-request-form" class="space-y-4">
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Selecione a Consulta *</label>
-          <select id="exam-appointment-select" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Selecione a Consulta *</label>
+          <select id="exam-appointment-select" required class="doctor-modal-select">
              <option value="">Carregando consultas...</option>
           </select>
-          <p class="text-xs text-slate-500 mt-1">Exames devem estar vinculados a uma consulta.</p>
+          <p class="doctor-modal-hint">Exames devem estar vinculados a uma consulta.</p>
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Exame *</label>
-          <select id="exam-catalog-id" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Exame *</label>
+          <select id="exam-catalog-id" required class="doctor-modal-select">
              <option value="">Carregando lista...</option>
           </select>
         </div>
 
-        <div>
-           <label class="block text-sm text-slate-400 mb-2">Urgência *</label>
-           <select id="exam-urgency" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+        <div class="doctor-modal-form-group">
+           <label class="doctor-modal-label">Urgência *</label>
+           <select id="exam-urgency" required class="doctor-modal-select">
              <option value="normal">Normal</option>
              <option value="urgent">Urgente</option>
              <option value="critical">Crítica</option>
            </select>
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Indicação Clínica *</label>
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Indicação Clínica *</label>
           <textarea id="exam-clinical-indication" required rows="4"
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary resize-none"
+            class="doctor-modal-textarea"
             placeholder="Descreva a justificativa clínica..."></textarea>
         </div>
 
-        <div class="flex gap-3 pt-4">
-          <button type="button" id="cancel-exam-request" class="flex-1 px-6 py-3 bg-background-dark border border-border-dark rounded-xl font-bold hover:bg-border-dark transition-colors">
+        <div class="modal-actions">
+          <button type="button" id="cancel-exam-request" class="btn-modal-cancel">
             Cancelar
           </button>
-          <button type="submit" id="submit-exam-request" class="flex-1 px-6 py-3 bg-emerald-600 rounded-xl font-bold hover:bg-emerald-700 transition-colors">
+          <button type="submit" id="submit-exam-request" class="btn-modal-save btn-modal-save--exam">
             Solicitar Exame
           </button>
         </div>
@@ -1114,68 +1115,67 @@ function setupPrescriptionCreation(professionalId: number) {
 
 async function showPrescriptionModal(professionalId: number) {
   const modal = document.createElement("div");
-  modal.className =
-    "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4";
+  modal.className = "doctor-modal-overlay";
   modal.innerHTML = `
-    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold">Nova Prescrição</h3>
-        <button id="close-prescription-modal" class="text-slate-400 hover:text-white">
+    <div class="doctor-modal">
+      <div class="doctor-modal-header">
+        <h3 class="doctor-modal-title">Nova Prescrição</h3>
+        <button id="close-prescription-modal" class="btn-icon-action">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
       <form id="prescription-form" class="space-y-4">
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Selecione a Consulta *</label>
-          <select id="prescription-appointment-select" required class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Selecione a Consulta *</label>
+          <select id="prescription-appointment-select" required class="doctor-modal-select">
              <option value="">Carregando consultas...</option>
           </select>
-          <p class="text-xs text-slate-500 mt-1">A prescrição será vinculada ao paciente desta consulta.</p>
+          <p class="doctor-modal-hint">A prescrição será vinculada ao paciente desta consulta.</p>
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Nome do Medicamento *</label>
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Nome do Medicamento *</label>
           <input type="text" id="prescription-medication-name" required
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+            class="doctor-modal-input"
             placeholder="Ex: Amoxicilina 500mg" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="doctor-modal-grid-2">
             <div>
-              <label class="block text-sm text-slate-400 mb-2">Dosagem</label>
+              <label class="doctor-modal-label">Dosagem</label>
               <input type="text" id="prescription-dosage"
-                class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+                class="doctor-modal-input"
                 placeholder="Ex: 500mg" />
             </div>
 
             <div>
-              <label class="block text-sm text-slate-400 mb-2">Frequência</label>
+              <label class="doctor-modal-label">Frequência</label>
               <input type="text" id="prescription-frequency"
-                class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+                class="doctor-modal-input"
                 placeholder="Ex: 3x ao dia" />
             </div>
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Duração (dias)</label>
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Duração (dias)</label>
           <input type="number" id="prescription-duration-days" min="1"
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+            class="doctor-modal-input"
             placeholder="Ex: 7" />
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-400 mb-2">Instruções</label>
+        <div class="doctor-modal-form-group">
+          <label class="doctor-modal-label">Instruções</label>
           <textarea id="prescription-instructions" rows="3"
-            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary resize-none"
+            class="doctor-modal-textarea"
             placeholder="Ex: Tomar após as refeições com água"></textarea>
         </div>
 
-        <div class="flex gap-3 pt-4">
-          <button type="button" id="cancel-prescription" class="flex-1 px-6 py-3 bg-background-dark border border-border-dark rounded-xl font-bold hover:bg-border-dark transition-colors">
+        <div class="modal-actions">
+          <button type="button" id="cancel-prescription" class="btn-modal-cancel">
             Cancelar
           </button>
-          <button type="submit" id="submit-prescription" class="flex-1 px-6 py-3 bg-purple-600 rounded-xl font-bold hover:bg-purple-700 transition-colors">
+          <button type="submit" id="submit-prescription" class="btn-modal-save btn-modal-save--presc">
             Criar Prescrição
           </button>
         </div>
@@ -1361,33 +1361,33 @@ async function showAgendaModal(professionalId: number) {
 
   // Create Modal HTML
   const modalHtml = `
-  <div id="agenda-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-      <div class="bg-surface-dark border border-border-dark w-full max-w-6xl h-[85vh] rounded-2xl flex flex-col shadow-2xl overflow-hidden relative">
-          <div class="p-4 border-b border-border-dark flex justify-between items-center bg-surface-dark z-20">
-             <div class="flex items-center gap-4">
-                <h2 class="text-xl font-bold">Minha Agenda Semanal</h2>
-                <div class="flex items-center gap-2 bg-background-dark p-1 rounded-lg border border-border-dark">
-                  <button id="agenda-prev-week" class="p-1 hover:bg-surface-dark rounded text-slate-400 hover:text-white transition-colors">
-                    <span class="material-symbols-outlined text-lg">chevron_left</span>
+  <div id="agenda-modal" class="doctor-modal-overlay u-fade-in">
+      <div class="doctor-modal doctor-modal--large u-slide-up">
+          <div class="doctor-modal-header doctor-modal-header--border-b">
+             <div class="agenda-nav-group">
+                <h2 class="doctor-modal-title">Minha Agenda Semanal</h2>
+                <div class="agenda-nav-controls">
+                  <button id="agenda-prev-week" class="btn-agenda-nav">
+                    <span class="material-symbols-outlined" style="font-size: 1.125rem;">chevron_left</span>
                   </button>
-                  <div class="text-sm font-medium px-2 min-w-[200px] text-center" id="agenda-week-label">Carregando...</div>
-                  <button id="agenda-next-week" class="p-1 hover:bg-surface-dark rounded text-slate-400 hover:text-white transition-colors">
-                    <span class="material-symbols-outlined text-lg">chevron_right</span>
+                  <div class="agenda-week-label" id="agenda-week-label">Carregando...</div>
+                  <button id="agenda-next-week" class="btn-agenda-nav">
+                    <span class="material-symbols-outlined" style="font-size: 1.125rem;">chevron_right</span>
                   </button>
                 </div>
-                <button id="agenda-today-btn" class="text-xs font-bold text-primary hover:text-primary-300 px-2 py-1 rounded hover:bg-primary/10 transition">
+                <button id="agenda-today-btn" class="btn-agenda-today">
                   Hoje
                 </button>
              </div>
-             <button id="close-agenda-modal" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+             <button id="close-agenda-modal" class="btn-icon-action">
                  <span class="material-symbols-outlined">close</span>
              </button>
           </div>
-          <div class="flex-1 overflow-y-auto overflow-x-auto relative bg-[#0d1116] p-4 custom-scrollbar" id="agenda-grid-container">
-              <div class="min-w-[800px] relative" id="agenda-grid-content">
+          <div class="doctor-modal-body--full custom-scrollbar" id="agenda-grid-container">
+              <div style="min-width: 800px; position: relative;" id="agenda-grid-content">
                   <!-- Grid content injected here -->
-                  <div class="flex items-center justify-center h-64 text-slate-500">
-                      <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> Carregando agenda...
+                  <div class="agenda-loading-state">
+                      <span class="material-symbols-outlined u-spin">progress_activity</span> Carregando agenda...
                   </div>
               </div>
           </div>
@@ -1447,7 +1447,7 @@ async function loadAgendaForDate(
   if (!gridContent) return;
 
   // Show Loading
-  gridContent.innerHTML = `<div class="flex items-center justify-center h-64 text-slate-500"><span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> Carregando...</div>`;
+  gridContent.innerHTML = `<div class="agenda-loading-state"><span class="material-symbols-outlined u-spin">progress_activity</span> Carregando...</div>`;
 
   // Calculate Week Dates (Monday to Saturday)
   const dayOfWeek = date.getDay(); // 0 = Sun
@@ -1477,11 +1477,11 @@ async function loadAgendaForDate(
     if (response.success && response.data) {
       renderWeeklyGrid(gridContent, response.data.appointments, startOfWeek, 6); // 6 days (Mon-Sat)
     } else {
-      gridContent.innerHTML = `<p class="text-center py-10 text-red-400">Erro ao carregar agenda.</p>`;
+      gridContent.innerHTML = `<p class="agenda-loading-state u-text-red">Erro ao carregar agenda.</p>`;
     }
   } catch (error) {
     console.error("Error fetching agenda:", error);
-    gridContent.innerHTML = `<p class="text-center py-10 text-red-400">Erro inesperado.</p>`;
+    gridContent.innerHTML = `<p class="agenda-loading-state u-text-red">Erro inesperado.</p>`;
   }
 }
 
@@ -1503,20 +1503,18 @@ function renderWeeklyGrid(
 
   // Create Grid Wrapper
   const gridWrapper = document.createElement("div");
-  gridWrapper.className = "flex h-full relative";
+  gridWrapper.className = "agenda-grid-container";
   container.appendChild(gridWrapper);
 
   // 1. Time Column
   const timeCol = document.createElement("div");
-  timeCol.className =
-    "flex-shrink-0 flex flex-col border-r border-border-dark bg-[#0d1116] z-10 sticky left-0";
+  timeCol.className = "agenda-time-column";
   timeCol.style.width = `${TIME_COL_WIDTH}px`;
   timeCol.style.paddingTop = `${HEADER_HEIGHT}px`; // align with grid rows
 
   for (let h = START_HOUR; h <= END_HOUR; h++) {
     const slot = document.createElement("div");
-    slot.className =
-      "border-b border-border-dark/50 text-xs text-slate-500 flex items-start justify-center pt-1";
+    slot.className = "agenda-time-slot-label";
     slot.style.height = `${SLOT_HEIGHT}px`;
     slot.textContent = `${String(h).padStart(2, "0")}:00`;
     timeCol.appendChild(slot);
@@ -1525,7 +1523,7 @@ function renderWeeklyGrid(
 
   // 2. Days Columns
   const daysWrapper = document.createElement("div");
-  daysWrapper.className = "flex flex-1 relative";
+  daysWrapper.className = "agenda-days-wrapper";
   gridWrapper.appendChild(daysWrapper);
 
   const dayWidthPercent = 100 / daysToShow;
@@ -1544,30 +1542,27 @@ function renderWeeklyGrid(
 
     // Column
     const dayCol = document.createElement("div");
-    dayCol.className =
-      "flex-shrink-0 border-r border-border-dark/50 relative flex flex-col";
+    dayCol.className = "agenda-day-column";
     dayCol.style.width = `${dayWidthPercent}%`;
 
     // Header
     const header = document.createElement("div");
-    header.className =
-      "sticky top-0 z-10 bg-[#0d1116] border-b border-border-dark h-[50px] flex flex-col items-center justify-center";
+    header.className = "agenda-day-header";
     header.innerHTML = `
-      <span class="text-xs uppercase font-bold text-slate-400">${dayName}</span>
-      <span class="text-sm font-bold text-white">${dayNum}</span>
+      <span class="agenda-day-name">${dayName}</span>
+      <span class="agenda-day-number">${dayNum}</span>
     `;
     dayCol.appendChild(header);
 
     // Slots Background
     const slotsBg = document.createElement("div");
-    slotsBg.className = "flex-1 relative";
+    slotsBg.className = "agenda-slots-bg";
     // Render horizontal lines
     for (let h = START_HOUR; h <= END_HOUR; h++) {
       const line = document.createElement("div");
-      line.className = "border-b border-border-dark/30 w-full absolute";
+      line.className = "agenda-grid-line";
       line.style.top = `${(h - START_HOUR) * SLOT_HEIGHT}px`;
-      line.style.height = `${SLOT_HEIGHT}px`; // implied by spacing, but we just need the border
-      // Actually simplest is just to stack divs
+      // line.style.height = `${SLOT_HEIGHT}px`; // set in CSS or irrelevant as it's a border
       slotsBg.appendChild(line);
     }
 
@@ -1581,21 +1576,19 @@ function renderWeeklyGrid(
       const height = ((app.duration_minutes || 60) / 60) * SLOT_HEIGHT;
 
       const card = document.createElement("div");
-      // Status colors
-      let bgClass = "bg-primary/20 border-primary/40 text-primary-100";
-      if (app.status === "completed")
-        bgClass = "bg-emerald-500/20 border-emerald-500/40 text-emerald-100";
-      if (app.status === "cancelled")
-        bgClass = "bg-red-500/20 border-red-500/40 text-red-100";
+      
+      let statusClass = "agenda-event-card--scheduled";
+      if (app.status === "completed") statusClass = "agenda-event-card--completed";
+      if (app.status === "cancelled") statusClass = "agenda-event-card--cancelled";
 
-      card.className = `absolute left-1 right-1 rounded p-2 text-xs border overflow-hidden cursor-pointer hover:brightness-110 transition-all z-10 ${bgClass}`;
+      card.className = `agenda-event-card ${statusClass}`;
       card.style.top = `${top}px`;
       card.style.height = `${Math.max(height, 30)}px`; // min height for visibility
 
       card.innerHTML = `
-        <div class="font-bold truncate">${app.patient_name}</div>
-        <div class="flex items-center gap-1 opacity-80 text-[10px]">
-           <span class="material-symbols-outlined text-[10px]">schedule</span> ${app.time}
+        <div class="agenda-event-title">${app.patient_name}</div>
+        <div class="agenda-event-time">
+           <span class="material-symbols-outlined" style="font-size: 10px;">schedule</span> ${app.time}
         </div>
       `;
 

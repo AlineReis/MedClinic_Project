@@ -1,4 +1,5 @@
 import { listAppointments, cancelAppointment } from "../services/appointmentsService"
+import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
 import type { AppointmentSummary } from "../types/appointments"
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   uiStore.subscribe((toasts) => {
     if (!toastContainer) return
     toastContainer.innerHTML = toasts.map(toast => `
-      <div class="rounded-lg px-4 py-2 text-sm shadow-lg border border-border-dark bg-surface-dark ${getToastColor(toast.level)}">
+      <div class="toast-item toast-item--${toast.level || 'info'}">
         ${toast.text}
       </div>
     `).join('')
@@ -94,57 +95,60 @@ async function resolveSession() {
 }
 
 function buildAppointmentCard(appointment: AppointmentSummary) {
+  const statusBadgeClass = getStatusBadge(appointment.status)
+  // Ensure the modifier class is generated correctly. 
+  // Map internal status to modifier class suffix if needed, but assuming 1:1 match based on appointment-card.css
+  const cardStatusClass = `appointment-card--${appointment.status}`
+  const canCancel = appointment.status === 'scheduled'
+
   return `
-    <div class="bg-surface-dark border border-border-dark rounded-xl p-5 flex flex-col md:flex-row gap-5 items-start relative overflow-hidden">
-      <div class="absolute left-0 top-0 bottom-0 w-1.5 ${getStatusColor(appointment.status)}"></div>
-      <div class="flex-1 w-full">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="font-bold text-lg text-white">${appointment.professional_name}</h3>
-          <span class="px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider ${getStatusBadge(appointment.status)} whitespace-nowrap flex items-center h-10">
+    <article class="appointment-card ${cardStatusClass}">
+      <div class="appointment-card__content">
+        <div class="appointment-card__header">
+          <div>
+            <h3 class="appointment-card__doctor-name">${appointment.professional_name}</h3>
+            <p class="appointment-card__specialty">${appointment.specialty}</p>
+          </div>
+          <span class="status-badge ${statusBadgeClass}">
             ${getStatusLabel(appointment.status)}
           </span>
         </div>
-        <p class="text-primary text-sm font-medium mb-4">${appointment.specialty}</p>
-        <div class="flex flex-wrap gap-4 text-sm text-text-secondary">
-          <div class="flex items-center gap-2 whitespace-nowrap">
-            <span class="material-symbols-outlined text-base">calendar_month</span>
+        
+        <div class="appointment-card__meta-grid">
+          <div class="appointment-card__meta-item">
+            <span class="material-symbols-outlined">calendar_month</span>
             ${formatDate(appointment.date)}
           </div>
-          <div class="flex items-center gap-2 whitespace-nowrap">
-            <span class="material-symbols-outlined text-base">schedule</span>
+          <div class="appointment-card__meta-item">
+            <span class="material-symbols-outlined">schedule</span>
             ${appointment.time}
           </div>
-          <div class="flex items-center gap-2 whitespace-nowrap">
-            <span class="material-symbols-outlined text-base">location_on</span>
+          <div class="appointment-card__meta-item">
+            <span class="material-symbols-outlined">location_on</span>
             ${appointment.room ? `Sala ${appointment.room}` : "Unidade MedClinic"}
-          </div>
-          <div class="flex items-center gap-2 whitespace-nowrap">
-            <span class="material-symbols-outlined text-base">attach_money</span>
-            ${appointment.price ? formatCurrency(appointment.price) : "A confirmar"}
           </div>
         </div>
       </div>
-      <div class="flex md:flex-col gap-2 w-full md:w-auto mt-2 md:mt-0 shrink-0">
+
+      <div class="appointment-card__actions">
         <button 
-          class="details-btn flex-1 md:flex-none border border-border-dark hover:bg-white/5 text-text-secondary hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap h-10"
+          class="appointment-card__btn appointment-card__btn--details details-btn"
           data-appointment-id="${appointment.id}"
         >
+          <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 4px;">info</span>
           Detalhes
         </button>
-        ${appointment.status === "scheduled" ? buildCancelButton(appointment.id) : ""}
+        ${canCancel ? `
+          <button 
+            class="appointment-card__btn appointment-card__btn--cancel cancel-btn"
+            data-appointment-id="${appointment.id}"
+          >
+            <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 4px;">cancel</span>
+            Cancelar
+          </button>
+        ` : ""}
       </div>
-    </div>
-  `
-}
-
-function buildCancelButton(appointmentId: number) {
-  return `
-    <button 
-      class="cancel-btn flex-1 md:flex-none bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 px-4 py-2 rounded-lg text-sm font-medium transition-colors h-10"
-      data-appointment-id="${appointmentId}"
-    >
-      Cancelar
-    </button>
+    </article>
   `
 }
 
@@ -155,17 +159,17 @@ function buildEmptyState(
 ) {
   const action = actionHref
     ? `
-      <a href="${actionHref}" class="bg-primary hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+      <a href="${actionHref}" class="state-container__action">
         Agendar Agora
       </a>
     `
     : ""
 
   return `
-    <div class="flex flex-col items-center justify-center py-20 text-center bg-surface-dark border border-border-dark rounded-xl">
-      <span class="material-symbols-outlined text-4xl text-text-secondary mb-4">event_busy</span>
-      <h3 class="text-lg font-bold text-white">${title}</h3>
-      <p class="text-text-secondary mb-6">${description}</p>
+    <div class="state-container">
+      <span class="material-symbols-outlined state-container__icon">event_busy</span>
+      <h3 class="state-container__title">${title}</h3>
+      <p class="state-container__description">${description}</p>
       ${action}
     </div>
   `
@@ -182,6 +186,23 @@ function hydrateSessionUser() {
   document.querySelectorAll("[data-user-initials]").forEach(element => {
     element.textContent = getInitials(session.name)
   })
+
+  // Logout handler
+  const logoutBtn = document.querySelector("[data-logout-button]")
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await logout()
+        authStore.clearSession()
+        redirectToLogin()
+      } catch (error) {
+        console.error("Logout failed", error)
+        // Force redirect anyway
+        authStore.clearSession()
+        redirectToLogin()
+      }
+    })
+  }
 }
 
 function redirectToLogin() {
@@ -237,25 +258,27 @@ function formatCurrency(value: number) {
 }
 
 function getStatusColor(status: string) {
+  // Used for activity icons or other simple color needs
   const map: Record<string, string> = {
-    scheduled: "bg-green-500",
-    confirmed: "bg-green-500",
-    cancelled_by_patient: "bg-red-500",
-    cancelled_by_clinic: "bg-red-500",
-    completed: "bg-blue-500",
+    scheduled: "activity-icon-success",
+    confirmed: "activity-icon-success",
+    cancelled_by_patient: "activity-icon-warning",
+    cancelled_by_clinic: "activity-icon-warning",
+    completed: "activity-icon-info",
   }
-  return map[status] ?? "bg-slate-500"
+  return map[status] ?? "activity-icon-neutral"
 }
 
 function getStatusBadge(status: string) {
+  // Returns just the modifier class, the base .status-badge is added in template
   const map: Record<string, string> = {
-    scheduled: "bg-green-500/10 text-green-500 border border-green-500/20",
-    confirmed: "bg-green-500/10 text-green-500 border border-green-500/20",
-    cancelled_by_patient: "bg-red-500/10 text-red-500 border border-red-500/20",
-    cancelled_by_clinic: "bg-red-500/10 text-red-500 border border-red-500/20",
-    completed: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+    scheduled: "status-badge--scheduled",
+    confirmed: "status-badge--confirmed",
+    cancelled_by_patient: "status-badge--cancelled",
+    cancelled_by_clinic: "status-badge--cancelled",
+    completed: "status-badge--completed",
   }
-  return map[status] ?? "bg-slate-800 text-slate-400 border border-slate-700"
+  return map[status] ?? ""
 }
 
 function getStatusLabel(status: string) {
@@ -270,22 +293,23 @@ function getStatusLabel(status: string) {
 }
 
 function getToastColor(level: string) {
+  // Returns modifier class for toasts
   const map: Record<string, string> = {
-    success: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    error: "bg-red-500/10 text-red-500 border-red-500/20",
-    info: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    warning: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    success: "toast-item--success",
+    error: "toast-item--error",
+    info: "toast-item--info",
+    warning: "toast-item--warning",
   }
-  return map[level] ?? "bg-slate-500/10 text-slate-400 border-slate-500/20"
+  return map[level] ?? "toast-item--info"
 }
+
 
 function renderToasts() {
   if (!toastContainer) return
   toastContainer.innerHTML = ""
   uiStore.getToasts().forEach(toast => {
     const toastElement = document.createElement("div")
-    toastElement.className =
-      "rounded-lg px-4 py-2 text-sm shadow-lg border border-border-dark bg-surface-dark"
+    toastElement.className = `toast-item toast-item--${toast.level || 'info'}`
     toastElement.textContent = toast.text
     toastContainer.appendChild(toastElement)
   })

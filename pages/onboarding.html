@@ -5,23 +5,22 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Complete seu Perfil - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/onboarding.css">
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/pages/onboarding.css" />
 </head>
 
-<body class="bg-background-dark text-white font-display min-h-screen u-flex-column">
+<body class="onboarding-body">
     <header class="onboarding-nav-header">
         <div class="onboarding-header-inner">
             <a href="#" class="onboarding-brand">
                 <span class="material-symbols-outlined">local_hospital</span>
                 <span class="onboarding-brand-name">MedClinic</span>
             </a>
-            <span class="u-fs-xs u-text-secondary">Passo <span id="current-step">1</span> de 3</span>
+            <span class="onboarding-step-marker">Passo <span id="current-step">1</span> de 3</span>
         </div>
     </header>
 
@@ -51,14 +50,14 @@
                     <p>Complete seus dados para agilizar futuros atendimentos.</p>
                 </div>
                 <form class="onboarding-form">
-                    <div class="u-grid-2 u-gap-large">
+                    <div class="onboarding-form-row">
                         <div class="form-group">
                             <label>Data de Nascimento</label>
                             <input type="date" class="admin-input" />
                         </div>
                         <div class="form-group">
                             <label>Sexo Biológico</label>
-                            <select class="admin-select u-h-tall">
+                            <select class="admin-select">
                                 <option value="">Selecione</option>
                                 <option value="M">Masculino</option>
                                 <option value="F">Feminino</option>
@@ -72,7 +71,7 @@
                 </form>
             </div>
 
-            <div id="step-2" class="step-content u-hidden">
+            <div id="step-2" class="step-content is-hidden">
                 <div class="onboarding-header">
                     <h2>Histórico Médico</h2>
                     <p>Essas informações ajudam os profissionais a te atender melhor.</p>
@@ -80,7 +79,7 @@
                 <form class="onboarding-form">
                     <div class="form-group">
                         <label>Possui Alergias?</label>
-                        <div class="u-flex-wrap u-gap-medium">
+                        <div class="choices-container">
                             <label class="btn-onboarding-choice">
                                 <input type="checkbox" /> Medicamentos
                             </label>
@@ -96,7 +95,7 @@
                 </form>
             </div>
 
-            <div id="step-3" class="step-content u-hidden">
+            <div id="step-3" class="step-content is-hidden">
                 <div class="onboarding-header">
                     <h2>Convênio Médico</h2>
                     <p>Opcional. Você também pode pagar como particular.</p>
@@ -104,7 +103,7 @@
                 <form class="onboarding-form">
                     <div class="form-group">
                         <label>Convênio</label>
-                        <select class="admin-select u-h-tall">
+                        <select class="admin-select">
                             <option value="">Particular</option>
                             <option value="unimed">Unimed</option>
                             <option value="amil">Amil</option>
@@ -118,9 +117,8 @@
             </div>
 
             <div class="onboarding-footer-actions">
-                <button id="prev-btn" class="u-hidden btn-onboarding-back">Voltar</button>
-                <div class="u-flex-1"></div>
-                <button id="next-btn" class="btn-onboarding-next u-padding-xl-horizontal">Próximo</button>
+                <button id="prev-btn" class="is-hidden btn-onboarding-back">Voltar</button>
+                <button id="next-btn" class="btn-onboarding-next btn-onboarding-next--wide">Próximo</button>
             </div>
         </div>
     </main>

@@ -5,14 +5,13 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Horários Disponíveis - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/patient-common.css">
-    <link rel="stylesheet" href="../css/slots.css">
+    <link rel="stylesheet" href="../css/layout/patient-common.css">
+    <link rel="stylesheet" href="../css/pages/slots.css">
 </head>
 
 <body class="patient-layout">
@@ -33,27 +32,27 @@
             <div class="slots-main-grid">
                 <div class="slots-split-view">
                     <!-- Date Suggestions -->
-                    <section class="admin-table-panel slots-section-panel">
-                        <h3 class="u-fw-700 u-mb-15">Sugestão de Datas</h3>
-                        <div class="u-flex-column u-gap-small">
+                    <section class="card-panel slots-section-panel">
+                        <h3 class="slot-section-title">Sugestão de Datas</h3>
+                        <div class="slots-date-list">
                             <button class="slot-button selected slots-date-button">
-                                <p class="u-fs-xs u-uppercase">Hoje</p>
-                                <p class="u-fw-700">Quinta, 15 Out</p>
+                                <p class="slot-date-label">Hoje</p>
+                                <p class="slot-date-value">Quinta, 15 Out</p>
                             </button>
                             <button class="slot-button slots-date-button">
-                                <p class="u-fs-xs u-text-secondary u-uppercase">Amanhã</p>
-                                <p class="u-fw-700">Sexta, 16 Out</p>
+                                <p class="slot-date-label text-secondary">Amanhã</p>
+                                <p class="slot-date-value">Sexta, 16 Out</p>
                             </button>
-                            <button class="slot-button slots-date-button u-opacity-60">
-                                <p class="u-fs-xs u-text-secondary u-uppercase">Próxima</p>
-                                <p class="u-fw-700">Segunda, 19 Out</p>
+                            <button class="slot-button slots-date-button opacity-60">
+                                <p class="slot-date-label text-secondary">Próxima</p>
+                                <p class="slot-date-value">Segunda, 19 Out</p>
                             </button>
                         </div>
                     </section>
 
                     <!-- Time Slots -->
-                    <section class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-20">Horários Disponíveis</h3>
+                    <section class="card-panel">
+                        <h3 class="slot-section-title">Horários Disponíveis</h3>
                         <div class="slots-grid">
                             <button class="slot-button" onclick="window.location.href='checkout.html'">08:00</button>
                             <button class="slot-button" onclick="window.location.href='checkout.html'">08:30</button>

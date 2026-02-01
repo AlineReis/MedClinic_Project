@@ -12,13 +12,16 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
 
-    <link href="../css/tailwind-built.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/specialist-common.css">
-    <link rel="stylesheet" href="../css/agenda.css">
+    <link rel="stylesheet" href="../css/layout/specialist-common.css">
+    <link rel="stylesheet" href="../css/pages/agenda.css">
 </head>
 
-<body class="specialist-layout">
+<body class="specialist-layout agenda-body">
 
     <!-- Sidebar Navigation -->
     <aside class="specialist-sidebar">
@@ -62,14 +65,14 @@
                 </div>
             </div>
             <button data-logout-button class="btn-sidebar-logout">
-                <span class="material-symbols-outlined u-fs-sm">logout</span>
+                <span class="material-symbols-outlined">logout</span>
                 <span class="nav-text">Sair</span>
             </button>
         </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="u-flex-column flex-1 min-w-0 overflow-hidden">
+    <main class="specialist-main">
         <header class="main-header">
             <div class="header-inner">
                 <div class="header-title-group">
@@ -83,7 +86,7 @@
                 <div class="header-stats">
                     <div class="stat-item">
                         <div class="stat-dot legend-dot-scheduled"></div>
-                        <span class="u-text-emerald">Agendado</span>
+                        <span class="legend-label">Agendado</span>
                     </div>
                 </div>
             </div>
@@ -95,7 +98,7 @@
             <div class="calendar-resources-header" id="calendar-header-doctors">
                 <!-- Time Column Header -->
                 <div class="time-column-corner">
-                    <span class="material-symbols-outlined u-fs-md">schedule</span>
+                    <span class="material-symbols-outlined">schedule</span>
                 </div>
                 <!-- Doctors Header rendered via JS -->
             </div>

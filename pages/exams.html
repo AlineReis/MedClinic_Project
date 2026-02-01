@@ -6,14 +6,17 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Gestão de Exames - MedClinic</title>
 
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/admin-common.css">
-    <link rel="stylesheet" href="../css/exams.css">
+    <link rel="stylesheet" href="../css/layout/admin-common.css">
+    <link rel="stylesheet" href="../css/pages/exams.css">
 </head>
 
 <body class="admin-layout">
@@ -42,8 +45,8 @@
         <header class="admin-header">
             <h2 class="admin-header-title">Meus Exames</h2>
             <div class="header-actions">
-                <div class="desktop-user-actions u-flex u-items-center u-gap-medium">
-                    <span class="u-text-secondary u-fs-sm" data-user-name>Maria Silva</span>
+                <div class="desktop-user-actions">
+                    <span class="header-user-name" data-user-name>Maria Silva</span>
                     <div class="user-badge">
                         <span data-user-initials>MS</span>
                     </div>
@@ -53,11 +56,11 @@
 
         <div class="admin-content-viewport custom-scrollbar">
             <div class="admin-container-max">
-                <section class="lab-content-header u-mb-20">
-                    <h3 class="u-fs-18 u-fw-700 u-margin-0">Exames e Laudos</h3>
-                    <div class="u-flex u-gap-small">
+                <section class="lab-content-header">
+                    <h3 class="panel-section-title panel-section-title--compact">Exames e Laudos</h3>
+                    <div class="header-actions">
                         <button id="toggle-history" class="btn-lab-secondary">Histórico</button>
-                        <button id="new-request-btn" class="btn-lab-primary u-hidden">Nova Solicitação</button>
+                        <button id="new-request-btn" class="btn-lab-primary is-hidden">Nova Solicitação</button>
                     </div>
                 </section>
 
@@ -65,38 +68,35 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Paciente</th>
+                                <th>E-mail</th>
                                 <th>Exame</th>
                                 <th>Status</th>
-                                <th class="u-text-center">Urgência</th>
+                                <th class="cell-center">Urgência</th>
                                 <th>Ação</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>
-                                    <p class="u-fw-700 u-margin-0">Ana Beatriz Mendes</p>
-                                    <p class="u-text-secondary u-fs-xs">ID: 4492-0</p>
+                                    <p class="patient-name">Ana Beatriz Mendes</p>
+                                    <p class="patient-id">ID: 4492-0</p>
                                 </td>
                                 <td>Hemograma Completo</td>
                                 <td><span class="status-indicator">Pendente</span></td>
-                                <td class="u-text-center">
-                                    <span
-                                        class="material-symbols-outlined u-text-secondary u-fs-lg">priority_high</span>
+                                <td class="cell-center">
+                                    <span class="material-symbols-outlined">priority_high</span>
                                 </td>
                                 <td><button class="admin-link">UPLOAD LAUDO</button></td>
                             </tr>
                             <tr>
                                 <td>
-                                    <p class="u-fw-700 u-margin-0">Carlos Eduardo Lima</p>
-                                    <p class="u-text-secondary u-fs-xs">ID: 8810-2</p>
+                                    <p class="patient-name">Carlos Eduardo Lima</p>
+                                    <p class="patient-id">ID: 8810-2</p>
                                 </td>
                                 <td>Ressonância Magnética</td>
-                                <td><span class="status-indicator"
-                                        style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;">Em
-                                        Análise</span></td>
-                                <td class="u-text-center">
-                                    <span class="material-symbols-outlined u-text-red u-fs-lg">priority_high</span>
+                                <td><span class="status-indicator">Em Análise</span></td>
+                                <td class="cell-center">
+                                    <span class="material-symbols-outlined icon-error">priority_high</span>
                                 </td>
                                 <td><button class="admin-link">LIBERAR</button></td>
                             </tr>

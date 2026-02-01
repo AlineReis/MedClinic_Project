@@ -1,0 +1,70 @@
+/* ========================================
+   States (Loading, Empty, Error)
+   ======================================== */
+
+.state-card {
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 200px;
+}
+
+.state-card--small {
+  padding: 1.5rem;
+  min-height: auto;
+}
+
+.state-card--transparent {
+  background-color: transparent;
+  border: none;
+  padding: 1rem;
+}
+
+.state-card__icon {
+  font-size: 48px;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.state-card__icon--small {
+  font-size: 24px;
+}
+
+.state-card__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.state-card__description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+  max-width: 20rem;
+}
+
+.state-card__action {
+  margin-top: 0.5rem;
+}
+
+/* Animations */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

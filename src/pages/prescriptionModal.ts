@@ -25,86 +25,86 @@ async function openPrescriptionModal(prescriptionId: number) {
 function showPrescriptionModal(prescription: PrescriptionDetail) {
   // Create modal overlay
   const modalHTML = `
-    <div id="prescription-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-surface-dark border border-border-dark rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <!-- Header -->
-        <div class="sticky top-0 bg-surface-dark border-b border-border-dark px-6 py-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <span class="material-symbols-outlined text-primary text-[24px]">receipt_long</span>
+    <div class="modal modal--open" style="z-index: 9999;">
+      <div class="modal__dialog">
+        <div class="modal__header">
+          <div class="modal__title-group">
+            <div class="modal__icon">
+              <span class="material-symbols-outlined">receipt_long</span>
             </div>
             <div>
-              <h2 class="text-lg font-bold">Detalhes da Prescrição</h2>
-              <p class="text-xs text-slate-400">Prescrição #${prescription.id}</p>
+              <h2 class="modal__title">Detalhes da Prescrição</h2>
+              <p class="modal__subtitle">Prescrição #${prescription.id}</p>
             </div>
           </div>
-          <button id="close-prescription-modal" class="size-8 rounded-lg hover:bg-border-dark flex items-center justify-center transition-colors">
-            <span class="material-symbols-outlined text-slate-400">close</span>
+          <button class="modal__close">
+            <span class="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <!-- Content -->
-        <div class="p-6 space-y-6">
-          <!-- Professional Info -->
-          ${prescription.professional ? `
-            <div class="bg-background-dark border border-border-dark rounded-xl p-4">
-              <div class="flex items-center gap-3">
-                <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-primary text-[24px]">person</span>
-                </div>
-                <div>
-                  <p class="text-sm font-semibold">${prescription.professional.name}</p>
-                  <p class="text-xs text-slate-400">${prescription.professional.specialty}</p>
-                  ${prescription.professional.registration_number ? `<p class="text-xs text-slate-500">CRM: ${prescription.professional.registration_number}</p>` : ''}
-                </div>
-              </div>
-            </div>
-          ` : ''}
-
-          <!-- Medication Info -->
-          <div>
-            <h3 class="text-sm font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined text-amber-500">medication</span>
-              Medicamento Prescrito
-            </h3>
-            <div class="bg-background-dark border border-border-dark rounded-xl overflow-hidden">
-              <div class="grid grid-cols-2 md:grid-cols-4">
-                <div class="p-4 border-r border-b md:border-b-0 border-border-dark">
-                  <p class="text-[10px] text-slate-500 uppercase mb-1">Nome do Medicamento</p>
-                  <p class="font-semibold text-sm">${prescription.medication_name}</p>
-                </div>
-                <div class="p-4 border-b md:border-b-0 md:border-r border-border-dark">
-                  <p class="text-[10px] text-slate-500 uppercase mb-1">Dosagem</p>
-                  <p class="font-semibold text-sm">${prescription.dosage || 'Não especificado'}</p>
-                </div>
-                <div class="p-4 border-r md:border-r border-border-dark">
-                  <p class="text-[10px] text-slate-500 uppercase mb-1">Frequência</p>
-                  <p class="font-semibold text-sm">${prescription.frequency || 'Não especificado'}</p>
-                </div>
-                <div class="p-4 border-border-dark">
-                  <p class="text-[10px] text-slate-500 uppercase mb-1">Duração</p>
-                  <p class="font-semibold text-sm">${prescription.duration_days ? `${prescription.duration_days} dias` : 'Não especificado'}</p>
+        <div class="modal__body">
+          <div class="prescription-detail">
+            <!-- Professional Info -->
+            ${prescription.professional ? `
+              <div class="professional-summary">
+                <div class="professional-summary__container">
+                  <div class="professional-summary__avatar">
+                    <span class="material-symbols-outlined">person</span>
+                  </div>
+                  <div class="professional-summary__info">
+                    <p class="professional-summary__name">${prescription.professional.name}</p>
+                    <p class="professional-summary__specialty">${prescription.professional.specialty}</p>
+                    ${prescription.professional.registration_number ? `<p class="professional-summary__crm">CRM: ${prescription.professional.registration_number}</p>` : ''}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            ` : ''}
 
-          <!-- Instructions -->
-          ${prescription.instructions ? `
+            <!-- Medication Info -->
             <div>
-              <h3 class="text-sm font-bold mb-3 flex items-center gap-2">
-                <span class="material-symbols-outlined text-blue-400">info</span>
-                Instruções de Uso
+              <h3 class="prescription-detail__section-title prescription-detail__section-title--medication">
+                <span class="material-symbols-outlined">medication</span>
+                Medicamento Prescrito
               </h3>
-              <div class="bg-background-dark border border-border-dark rounded-xl p-4">
-                <p class="text-sm text-slate-300 leading-relaxed">${prescription.instructions}</p>
+              <div class="prescription-detail__grid-wrapper">
+                <div class="prescription-detail__grid">
+                  <div class="prescription-detail__item">
+                    <p class="prescription-detail__label">Nome do Medicamento</p>
+                    <p class="prescription-detail__value">${prescription.medication_name}</p>
+                  </div>
+                  <div class="prescription-detail__item">
+                    <p class="prescription-detail__label">Dosagem</p>
+                    <p class="prescription-detail__value">${prescription.dosage || 'Não especificado'}</p>
+                  </div>
+                  <div class="prescription-detail__item">
+                    <p class="prescription-detail__label">Frequência</p>
+                    <p class="prescription-detail__value">${prescription.frequency || 'Não especificado'}</p>
+                  </div>
+                  <div class="prescription-detail__item">
+                    <p class="prescription-detail__label">Duração</p>
+                    <p class="prescription-detail__value">${prescription.duration_days ? `${prescription.duration_days} dias` : 'Não especificado'}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          ` : ''}
 
-          <!-- Metadata -->
-          <div class="pt-4 border-t border-border-dark text-xs text-slate-500">
-            <span>Emitida em: <strong class="text-slate-400">${formatDateLong(prescription.created_at)}</strong></span>
+            <!-- Instructions -->
+            ${prescription.instructions ? `
+              <div>
+                <h3 class="prescription-detail__section-title prescription-detail__section-title--instructions">
+                  <span class="material-symbols-outlined">info</span>
+                  Instruções de Uso
+                </h3>
+                <div class="prescription-detail__instructions">
+                  <p class="prescription-detail__text">${prescription.instructions}</p>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- Metadata -->
+            <div class="prescription-detail__footer">
+              <span>Emitida em: <strong class="prescription-detail__date">${formatDateLong(prescription.created_at)}</strong></span>
+            </div>
           </div>
         </div>
       </div>
@@ -114,19 +114,15 @@ function showPrescriptionModal(prescription: PrescriptionDetail) {
   // Append to body
   const modalContainer = document.createElement('div')
   modalContainer.innerHTML = modalHTML
-  document.body.appendChild(modalContainer)
+  const modalElement = modalContainer.firstElementChild as HTMLElement
+  document.body.appendChild(modalElement)
 
-  // Add close handlers
-  const closeBtn = document.getElementById('close-prescription-modal')
-  const modalOverlay = document.getElementById('prescription-modal')
-  
-  const closeModal = () => {
-    modalContainer.remove()
-  }
+  // Close handlers
+  const closeModal = () => modalElement.remove()
 
-  closeBtn?.addEventListener('click', closeModal)
-  modalOverlay?.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal()
+  modalElement.querySelector('.modal__close')?.addEventListener('click', closeModal)
+  modalElement.addEventListener('click', (e) => {
+    if (e.target === modalElement) closeModal()
   })
 
   // ESC key to close

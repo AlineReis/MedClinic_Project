@@ -5,13 +5,12 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Painel Administrativo - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/admin-common.css">
+    <link rel="stylesheet" href="../css/layout/admin-common.css">
 </head>
 
 <body class="admin-layout">
@@ -61,55 +60,55 @@
                     <option>Este Mês</option>
                     <option>Hoje</option>
                 </select>
-                <button class="btn-admin-primary u-padding-medium">
+                <button class="btn-primary btn-header-action">
                     <span class="material-symbols-outlined">download</span>
                 </button>
             </div>
         </header>
 
         <div class="admin-content-viewport custom-scrollbar">
-            <div class="admin-container-max">
+            <div class="admin-container-max admin-content-stack">
                 <!-- KPI Grid -->
                 <div class="admin-stats-grid">
-                    <div class="stat-card">
-                        <h4 class="stat-label">Receita Total</h4>
-                        <p class="stat-value" id="kpi-revenue">R$ 0,00</p>
-                        <div class="trend-label trend-emerald">+12.5%</div>
+                    <div class="admin-stats-card">
+                        <h4 class="card-label">Receita Total</h4>
+                        <p class="card-value" id="kpi-revenue">R$ 0,00</p>
+                        <div class="trend-label trend-label--success">+12.5%</div>
                     </div>
-                    <div class="stat-card">
-                        <h4 class="stat-label">Consultas</h4>
-                        <p class="stat-value" id="kpi-appointments">0</p>
-                        <div class="trend-label trend-emerald">+5.2%</div>
+                    <div class="admin-stats-card">
+                        <h4 class="card-label">Consultas</h4>
+                        <p class="card-value" id="kpi-appointments">0</p>
+                        <div class="trend-label trend-label--success">+5.2%</div>
                     </div>
-                    <div class="stat-card">
-                        <h4 class="stat-label">Novos Pacientes</h4>
-                        <p class="stat-value" id="kpi-patients">0</p>
-                        <div class="trend-label trend-primary">+3 hoje</div>
+                    <div class="admin-stats-card">
+                        <h4 class="card-label">Novos Pacientes</h4>
+                        <p class="card-value" id="kpi-patients">0</p>
+                        <div class="trend-label trend-label--success">+3 hoje</div>
                     </div>
-                    <div class="stat-card">
-                        <h4 class="stat-label">Médicos Ativos</h4>
-                        <p class="stat-value" id="kpi-doctors">0</p>
-                        <div class="trend-label trend-secondary">98% disp.</div>
+                    <div class="admin-stats-card">
+                        <h4 class="card-label">Médicos Ativos</h4>
+                        <p class="card-value" id="kpi-doctors">0</p>
+                        <div class="trend-label trend-label--neutral">98% disp.</div>
                     </div>
                 </div>
 
                 <!-- Charts Layout -->
-                <div class="dashboard-main-grid">
+                <div class="manager-main-grid">
                     <!-- Chart Area -->
-                    <section class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-20">Receita Mensal</h3>
-                        <div class="chart-viewport">
-                            <div class="chart-bar-item chart-bar-primary" style="height: 60%;"></div>
-                            <div class="chart-bar-item chart-bar-primary" style="height: 80%;"></div>
-                            <div class="chart-bar-item chart-bar-success" style="height: 95%;"></div>
-                            <div class="chart-bar-item chart-bar-muted" style="height: 30%;"></div>
+                    <section class="admin-table-panel admin-table-panel--padded">
+                        <h3 class="panel-section-title">Receita Mensal</h3>
+                        <div class="chart-viewport-box">
+                            <div class="chart-bar chart-bar-primary" style="height: 60%;"></div>
+                            <div class="chart-bar chart-bar-primary" style="height: 80%;"></div>
+                            <div class="chart-bar chart-bar-success" style="height: 95%;"></div>
+                            <div class="chart-bar chart-bar-muted" style="height: 30%;"></div>
                         </div>
                     </section>
 
                     <!-- Repasses -->
-                    <section class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-15">Repasses (Split)</h3>
-                        <div id="split-list" class="u-text-secondary u-fs-md">
+                    <section class="admin-table-panel admin-table-panel--padded">
+                        <h3 class="panel-section-title panel-section-title--spaced">Repasses (Split)</h3>
+                        <div id="split-list" class="admin-table-placeholder">
                             Carregando dados...
                         </div>
                     </section>
