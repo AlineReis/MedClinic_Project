@@ -13,6 +13,7 @@ export interface UserSession {
   role: UserRole
   cpf?: string
   phone?: string
+  clinic_id?: number;
 }
 
 export interface LoginPayload {
