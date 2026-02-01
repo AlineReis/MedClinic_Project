@@ -99,7 +99,7 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-dark);
   background-color: var(--surface-dark);
-  color: #ffffff;
+  color: var(--text-primary);
   animation: slide-up 0.3s ease-out;
 }
 
