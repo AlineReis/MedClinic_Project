@@ -1,3 +1,4 @@
+import "../../css/pages/reception-dashboard.css"
 import { Navigation } from "../components/Navigation"
 import { ToastContainer } from "../components/ToastContainer"
 import { checkInAppointment, listAppointments } from "../services/appointmentsService"

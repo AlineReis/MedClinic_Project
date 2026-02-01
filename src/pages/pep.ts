@@ -1,3 +1,4 @@
+import "../../css/pages/pep.css"
 import "../../css/global.css";
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";

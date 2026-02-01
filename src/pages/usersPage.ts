@@ -3,6 +3,7 @@
  * Implements user listing, filtering, editing, and deletion
  */
 
+import "../../css/pages/users.css"
 import { deleteUser, getUserById, listUsers, updateUser } from "../services/usersService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"

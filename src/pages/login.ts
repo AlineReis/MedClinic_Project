@@ -1,3 +1,4 @@
+import "../../css/pages/auth.css"
 import { roleRoutes } from "../config/roleRoutes"
 import { handleError } from "../services/apiService"
 import { login as authLogin } from "../services/authService"

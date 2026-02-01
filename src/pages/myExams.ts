@@ -1,3 +1,4 @@
+import "../../css/pages/my-exams.css"
 import { listExams } from "../services/examsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -12,7 +13,7 @@ const toastContainer = document.getElementById("toast-container");
 document.addEventListener("DOMContentLoaded", () => {
     hydrateSessionUser();
     loadMyExams();
-    
+
     // Subscribe to toast updates
     uiStore.subscribe((toasts) => {
         if (!toastContainer) return;
@@ -37,15 +38,15 @@ async function hydrateSessionUser() {
     document.querySelectorAll("[data-user-initials]").forEach(el => {
         el.textContent = getInitials(session.name || "U");
     });
-    
+
     // Logout Logic
     const logoutButtons = document.querySelectorAll("[data-logout-button], .logout-btn");
     logoutButtons.forEach(btn => {
         btn.addEventListener("click", async () => {
-             const { logout } = await import("../services/authService");
-             await logout();
-             authStore.clearSession();
-             window.location.href = "login.html";
+            const { logout } = await import("../services/authService");
+            await logout();
+            authStore.clearSession();
+            window.location.href = "login.html";
         });
     });
 }
@@ -59,7 +60,7 @@ async function loadMyExams() {
 
     // Force filter to patientId
     const filters = { patientId: session.id };
-    
+
     // UI Loading? HTML already has loader.
 
     const response = await listExams(filters);
@@ -103,7 +104,7 @@ function renderExamsList(exams: ExamSummary[]) {
     `;
 
     examsListContainer.innerHTML = tableHTML;
-    
+
     // Attach event listeners
     attachViewListeners();
 }
@@ -111,10 +112,10 @@ function renderExamsList(exams: ExamSummary[]) {
 function buildExamRow(exam: ExamSummary) {
     const statusClass = `status-badge--${exam.status}`;
     const statusLabel = formatStatus(exam.status);
-    
+
     // View Action (Only if Delivered/Ready)
     const canView = exam.status === 'delivered' || exam.status === 'ready';
-    const actionBtn = canView 
+    const actionBtn = canView
         ? `<button data-view-url="${exam.result}" data-exam-id="${exam.id}" class="action-btn action-btn--view">
              <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
              Ver Resultado
@@ -191,23 +192,23 @@ async function handleDownload(examId: number) {
 
     try {
         uiStore.addToast("info", "Abrindo laudo...");
-        
+
         // Direct fetch to get the JSON with the link
         const response = await fetch(downloadEndpoint, {
-             headers: { "Content-Type": "application/json" },
-             credentials: "include"
+            headers: { "Content-Type": "application/json" },
+            credentials: "include"
         });
 
         if (!response.ok) throw new Error("Erro ao obter link.");
 
         const data = await response.json();
         if (data.success && data.result_file_url) {
-            const fileUrl = data.result_file_url.startsWith("http") 
-                ? data.result_file_url 
+            const fileUrl = data.result_file_url.startsWith("http")
+                ? data.result_file_url
                 : `${apiHost.replace("/api/v1/1", "")}${data.result_file_url}`;
             window.open(fileUrl, "_blank");
         } else {
-             uiStore.addToast("error", "Arquivo não disponível.");
+            uiStore.addToast("error", "Arquivo não disponível.");
         }
     } catch (e) {
         console.error(e);

@@ -1,3 +1,4 @@
+import "../../css/pages/patient-dashboard.css"
 import "../../css/global.css"
 import { Navigation } from "../components/Navigation"
 import { ToastContainer } from "../components/ToastContainer"
@@ -104,11 +105,11 @@ function renderNextAppointment(
     // Show card with loading state
     const containerEl = nextAppointmentContainer as HTMLElement
     containerEl.style.display = ''
-    
+
     if (nameEl) nameEl.textContent = 'Carregando...'
     if (specialtyEl) specialtyEl.textContent = ''
     if (statusBadgeEl) statusBadgeEl.textContent = ''
-    
+
     return
   }
 
@@ -313,7 +314,7 @@ function renderPrescriptions(
       ` : ""}
     </div>
   `
-  
+
   // Attach click handlers to Details buttons
   prescriptionsContainer.querySelectorAll('.prescription-item__btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -356,7 +357,7 @@ function renderActivity(
   }
 
   const items = buildActivityItems(appointments, prescriptions)
-  
+
   if (items.length === 0) {
     activityList.innerHTML = buildActivityRow(
       "calendar_month",
@@ -380,15 +381,15 @@ function buildActivityItems(
 ) {
   // Filter out cancelled appointments from activity feed
   const activeAppointments = appointments.filter(
-    appointment => 
-      appointment.status !== 'cancelled_by_patient' && 
+    appointment =>
+      appointment.status !== 'cancelled_by_patient' &&
       appointment.status !== 'cancelled_by_clinic'
   )
-  
+
   const appointmentItems = activeAppointments.map(appointment => {
     let icon = "event"
     let color = "activity-icon-info"
-    
+
     if (appointment.status === "completed") {
       icon = "check_circle"
       color = "activity-icon-success"
@@ -396,7 +397,7 @@ function buildActivityItems(
       icon = "event_available"
       color = "activity-icon-success"
     }
-    
+
     return {
       icon,
       color,
@@ -449,7 +450,7 @@ function getUpcomingAppointment(appointments: AppointmentSummary[]) {
 
 function getInitials(name: string) {
   if (!name) return "U"
-  
+
   return name
     .split(" ")
     .filter(Boolean)
@@ -473,23 +474,23 @@ function formatStatus(status: string) {
 
 function formatDate(value: string) {
   if (!value) return value
-  
+
   // Handle both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS formats
   let dateStr = value
-  
+
   // If it's a datetime string (has time component), extract just the date part
   if (value.includes(' ')) {
     dateStr = value.split(' ')[0]
   }
-  
+
   // Append T12:00:00 to ensure we are in the middle of the day
   // preventing timezone shifts from T00:00:00 UTC to previous day
   if (!dateStr.includes('T')) {
     dateStr = `${dateStr}T12:00:00`
   }
-  
+
   const parsed = new Date(dateStr)
-  
+
   if (Number.isNaN(parsed.getTime())) return value
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
