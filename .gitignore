@@ -1,3 +1,4 @@
+# --- PROJETO ORIGINAL ---
 node_modules/
 .env
 .agent
@@ -7,3 +8,22 @@ dist/
 coverage/
 uploads/exam-results/*
 !uploads/exam-results/.gitkeep
+
+# --- RALPH AGENT (LOCAL ONLY) ---
+ralph/
+Dockerfile
+RALPH_MANUAL.md
+.env
+
+# Tests & Coverage (Ralph QA Rule)
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+__tests__/
+coverage/
+
+# Misc
+.gitignore
+.DS_Store
+Thumbs.dbprd.json

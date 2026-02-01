@@ -9,6 +9,7 @@ interface Config {
   EMAIL_TO: string;
   ENABLE_EMAIL: boolean;
   RESCHEDULE_FREE_WINDOW_HOURS: number;
+  ALLOWED_ORIGINS: string[];
 }
 
 function getEnv(): Config {
@@ -46,6 +47,15 @@ function getEnv(): Config {
       env.RESCHEDULE_FREE_WINDOW_HOURS || "24",
       10,
     ),
+    ALLOWED_ORIGINS: env.ALLOWED_ORIGINS
+      ? env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
+      : [
+        "http://localhost:8081",
+        "http://localhost:8080",
+        "http://localhost:3000",
+        "http://localhost:80",
+        "https://localhost:443",
+      ],
   };
 }
 

@@ -2,10 +2,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { errorHandler } from "./middlewares/error.handler.js";
-import routes from "./routes/index.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { env } from "./config/config.js";
+import { errorHandler } from "./middlewares/error.handler.js";
+import routes from "./routes/index.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const createApp = () => {
@@ -14,11 +15,7 @@ export const createApp = () => {
   app.use(helmet());
   app.use(
     cors({
-      origin: [
-        "http://localhost:8081",
-        "http://localhost:8080",
-        "http://localhost:3000",
-      ],
+      origin: env.ALLOWED_ORIGINS,
       credentials: true,
     }),
   );

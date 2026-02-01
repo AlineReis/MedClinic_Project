@@ -50,7 +50,7 @@ export class ProfessionalService {
     private readonly availabilityRepository: AvailabilityRepository,
     private readonly appointmentRepository: AppointmentRepository,
     private readonly commissionRepository: CommissionRepository,
-  ) {}
+  ) { }
 
   async register(
     userData: User,
@@ -67,8 +67,10 @@ export class ProfessionalService {
     const existing = await this.usersRepository.findByEmail(userData.email);
     if (existing) throw new Error("Email already in use");
 
-    const defaultPassword =
-      process.env.DEFAULT_PROFESSIONAL_PASSWORD || "Mudar123";
+    const defaultPassword = process.env.DEFAULT_PROFESSIONAL_PASSWORD;
+    if (!defaultPassword) {
+      throw new Error("DEFAULT_PROFESSIONAL_PASSWORD not configured on server.");
+    }
     const hashedPassword = await bcrypt.hash(
       userData.password || defaultPassword,
       10,

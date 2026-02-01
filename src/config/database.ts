@@ -14,12 +14,27 @@ export class MedClinicDatabase {
     private constructor() {
         const dbDir = path.join(process.cwd(), 'database');
 
-        // Criar diretorio se nao existir
-        if (!fs.existsSync(dbDir)) {
-            fs.mkdirSync(dbDir, { recursive: true });
+        try {
+            // Verifica/Cria diretorio com permissoes explicitas
+            if (!fs.existsSync(dbDir)) {
+                console.log(`Creating database directory at: ${dbDir}`);
+                fs.mkdirSync(dbDir, { recursive: true, mode: 0o755 });
+            }
+
+            // Teste de escrita simples para garantir permissoes antes do SQLite tentar
+            const testFile = path.join(dbDir, '.write-test');
+            fs.writeFileSync(testFile, '');
+            fs.unlinkSync(testFile);
+        } catch (error: any) {
+            console.error(`❌ FATAL: Cannot write to database directory: ${dbDir}`);
+            console.error(`Error details: ${error.message}`);
+            // Em ambiente de produção, isso deve parar o app pois o banco é vital
+            throw new Error(`Database directory not writable: ${error.message}`);
         }
 
-        this.dbPath = path.join(dbDir, 'medclinic.db');
+        // Permite override via ENV, util para containers/volumes
+        this.dbPath = process.env.DB_PATH || path.join(dbDir, 'medclinic.db');
+        console.log(`Database path set to: ${this.dbPath}`);
     }
 
     /**
