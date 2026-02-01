@@ -4,6 +4,17 @@
   /* Container specific styles if needed */
 }
 
+:root[data-theme="dark"] .my-appointments-page .appointment-card__doctor-name,
+:root[data-theme="dark"] .my-appointments-page .info-card__value,
+:root[data-theme="dark"] .my-appointments-page .info-card__status {
+  color: #e5e7eb;
+}
+
+:root[data-theme="light"] .my-appointments-page .appointment-card__doctor-name,
+:root[data-theme="light"] .my-appointments-page .info-card__value,
+:root[data-theme="light"] .my-appointments-page .info-card__status {
+  color: #374151;
+}
 .appointments-list {
   display: flex;
   flex-direction: column;
@@ -82,7 +93,7 @@
 .appointment-card__doctor-name {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0;
 }
 
