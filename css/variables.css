@@ -1,0 +1,69 @@
+:root {
+    /* Colors */
+    --color-primary: #197fe6;
+    --color-primary-hover: #166cc4;
+    --color-primary-accent: #3b82f6;
+    --color-bg-dark: #111921;
+    --color-bg-dark-alt: #111418;
+    --color-surface-dark: #1c242e;
+    --color-surface-dark-alt: #1a1f26;
+    --color-border-dark: #2a3441;
+    --color-border-dark-hover: #3c4753;
+    --color-text-secondary: #9dabb8;
+    --color-bg-light: #f6f7f8;
+    --color-text: #ffffff;
+    --color-text-dark: #0f172a;
+    /* Slate 900 for light mode text */
+    --color-overlay: rgba(0, 0, 0, 0.7);
+
+    /* Status Colors */
+    --color-success: #10b981;
+    /* Emerald 500 */
+    --color-success-bg: rgba(16, 185, 129, 0.1);
+    --color-success-border: rgba(16, 185, 129, 0.2);
+    --color-error: #ef4444;
+    /* Red 500 */
+    --color-error-bg: rgba(239, 68, 68, 0.1);
+    --color-error-border: rgba(239, 68, 68, 0.2);
+    --color-info: #3b82f6;
+    /* Blue 500 */
+    --color-info-bg: rgba(59, 130, 246, 0.1);
+    --color-info-border: rgba(59, 130, 246, 0.2);
+    --color-warning: #f59e0b;
+    /* Amber 500 */
+    --color-warning-bg: rgba(245, 158, 11, 0.1);
+    --color-warning-border: rgba(245, 158, 11, 0.2);
+
+    /* Spacing */
+    --spacing-xxs: 0.25rem;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+    --spacing-md-plus: 2.5rem;
+
+    /* Borders */
+    --border-width-thin: 1px;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-full: 9999px;
+
+    /* Typography */
+    --font-family-base: "Manrope", sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}

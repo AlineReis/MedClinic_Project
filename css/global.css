@@ -247,6 +247,7 @@
 
 .mobile-menu-link .material-symbols-outlined {
   font-size: 22px;
+  color: #ffffff !important;
 }
 
 .mobile-menu-footer {
@@ -426,27 +427,34 @@ body.dashboard-body {
 .u-flex {
   display: flex;
 }
+
 .u-flex-column {
   display: flex;
   flex-direction: column;
 }
+
 .u-items-center {
   align-items: center;
 }
+
 .u-justify-between {
   justify-content: space-between;
 }
+
 .u-flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .u-text-center {
   text-align: center;
 }
+
 .u-text-right {
   text-align: right;
 }
+
 .u-hidden {
   display: none !important;
 }
@@ -455,33 +463,43 @@ body.dashboard-body {
 .u-mb-0 {
   margin-bottom: 0 !important;
 }
+
 .u-mb-05 {
   margin-bottom: 0.5rem;
 }
+
 .u-mb-10 {
   margin-bottom: 1rem;
 }
+
 .u-mb-15 {
   margin-bottom: 1.5rem;
 }
+
 .u-mb-20 {
   margin-bottom: 2rem;
 }
+
 .u-margin-0 {
   margin: 0 !important;
 }
+
 .u-padding-medium {
   padding: 1rem;
 }
+
 .u-padding-large {
   padding: 1.5rem;
 }
+
 .u-gap-small {
   gap: 0.5rem;
 }
+
 .u-gap-medium {
   gap: 1rem;
 }
+
 .u-gap-large {
   gap: 1.5rem;
 }
@@ -490,31 +508,40 @@ body.dashboard-body {
 .u-fw-600 {
   font-weight: 600;
 }
+
 .u-fw-700 {
   font-weight: 700;
 }
+
 .u-fs-xs {
   font-size: 0.75rem;
 }
+
 .u-fs-sm {
   font-size: 0.875rem;
 }
+
 .u-fs-md {
   font-size: 1rem;
 }
+
 .u-fs-lg {
   font-size: 1.125rem;
 }
+
 .u-fs-xl {
   font-size: 1.25rem;
 }
+
 .u-fs-xxl {
   font-size: 1.5rem;
 }
+
 .u-uppercase {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
 .u-opacity-60 {
   opacity: 0.6;
 }
@@ -523,6 +550,7 @@ body.dashboard-body {
 .u-h-full {
   height: 100%;
 }
+
 .u-w-full {
   width: 100%;
 }
@@ -536,6 +564,7 @@ body.dashboard-body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -553,6 +582,7 @@ body.dashboard-body {
 .u-text-gold {
   color: #ffca28;
 }
+
 .u-fill-gold {
   font-variation-settings: 'FILL' 1;
   color: #ffca28;
@@ -562,15 +592,19 @@ body.dashboard-body {
 .u-text-error {
   color: #ef4444 !important;
 }
+
 .u-text-success {
   color: #10b981 !important;
 }
+
 .u-text-warning {
   color: #f59e0b !important;
 }
+
 .u-text-info {
   color: #3b82f6 !important;
 }
+
 .u-text-secondary {
   color: var(--text-secondary) !important;
 }
@@ -581,10 +615,12 @@ body.dashboard-body {
 }
 
 @keyframes u-pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
