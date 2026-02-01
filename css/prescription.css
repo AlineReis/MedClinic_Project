@@ -1,9 +1,15 @@
 /* Prescription Focus View - Specific Styles */
 
 .prescription-container {
-  max-width: 56rem; /* max-4xl */
+  max-width: 56rem;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+
+.prescription-body {
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  font-family: 'Manrope', sans-serif;
 }
 
 /* 1. Header (Focus Mode) */
@@ -230,4 +236,86 @@
   border-top: 1px solid var(--border-dark);
   display: flex;
   gap: 1rem;
+}
+
+/* 8. Digital Prescription Document (Print/Preview) */
+.document-container {
+  font-family: 'Noto Sans', sans-serif;
+  line-height: 1.5;
+}
+
+.document-header {
+  text-align: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.document-brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #059669; /* Emerald 600 */
+}
+
+.document-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.document-date {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.document-patient-card {
+  background-color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.document-medication-item {
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+  border-left: 3px solid #10b981;
+}
+
+.document-notes-card {
+  background-color: #fffbeb; /* Amber 50 */
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.document-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.document-signature-name {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.document-signature-role {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.document-verified-badge {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #ecfdf5; /* Emerald 50 */
+  border-radius: 0.5rem;
+}
+
+.document-verified-text {
+  font-size: 0.75rem;
+  color: #047857;
+  font-weight: 600;
 }

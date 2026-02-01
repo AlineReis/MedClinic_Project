@@ -73,6 +73,10 @@
   background-color: #1e6acc;
 }
 
+.btn-admin-primary .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
 .user-avatar-initials {
   width: 2.5rem;
   height: 2.5rem;
@@ -154,4 +158,12 @@
 .avatar-initials-purple {
   background-color: rgba(168, 85, 247, 0.2);
   color: #c084fc;
+}
+
+.cell-email {
+  color: var(--text-secondary);
+}
+
+.cell-actions {
+  text-align: right;
 }

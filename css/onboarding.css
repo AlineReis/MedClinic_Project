@@ -178,6 +178,11 @@
   align-items: center;
 }
 
+.onboarding-step-marker {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
 .onboarding-brand {
   display: flex;
   align-items: center;
@@ -231,4 +236,30 @@
 
 .btn-onboarding-choice input[type='checkbox'] {
   accent-color: var(--primary);
+}
+
+.onboarding-form-row {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .onboarding-form-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.choices-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* 10. Body Style */
+.onboarding-body {
+  background-color: var(--background-dark);
+  color: #ffffff;
+  font-family: 'Manrope', sans-serif;
+  min-height: 100vh;
 }

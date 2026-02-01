@@ -203,9 +203,13 @@
 
 .policy-text {
   font-size: 0.75rem;
-  color: #93c5fd; /* blue-300 from original */
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
+}
+
+.policy-text strong {
+  color: #ffffff;
 }
 
 /* 2. Payment Section */

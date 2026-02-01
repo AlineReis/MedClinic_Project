@@ -16,42 +16,46 @@
 
 <body class="admin-layout">
     <aside class="admin-sidebar">
-        <div class="sidebar-header">
-            <span class="material-symbols-outlined sidebar-logo-icon">admin_panel_settings</span>
-            <h1 class="sidebar-logo-text">MedClinic Admin</h1>
+        <div class="admin-sidebar-header">
+            <a href="#" class="admin-sidebar-brand">
+                <div class="brand-icon-box">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                </div>
+                <span class="brand-name">MedClinic Admin</span>
+            </a>
         </div>
-        <nav class="sidebar-nav">
-            <a class="nav-item nav-item-active" href="#">
+        <nav class="admin-sidebar-nav">
+            <a class="admin-nav-item active" href="#">
                 <span class="material-symbols-outlined">dashboard</span> Sistema
             </a>
-            <a class="nav-item" href="users.html">
+            <a class="admin-nav-item" href="users.html">
                 <span class="material-symbols-outlined">group</span> Usuários
             </a>
-            <a class="nav-item" href="#">
+            <a class="admin-nav-item" href="#">
                 <span class="material-symbols-outlined">settings</span> Configurações
             </a>
-            <a class="nav-item" href="#">
+            <a class="admin-nav-item" href="#">
                 <span class="material-symbols-outlined">database</span> Database
             </a>
         </nav>
-        <div class="sidebar-footer">
-            <a href="login.html" class="logout-link">
+        <div class="admin-sidebar-footer">
+            <a href="login.html" class="admin-logout-link">
                 <span class="material-symbols-outlined">logout</span> Sair
             </a>
         </div>
     </aside>
 
     <main class="admin-main">
-        <header class="main-header">
-            <h2 class="header-title">Administração do Sistema</h2>
+        <header class="admin-header">
+            <h2 class="admin-header-title">Administração do Sistema</h2>
             <span class="status-indicator">
                 <span class="pulse-dot"></span> Sistema Online
             </span>
         </header>
 
-        <div class="main-content custom-scrollbar">
-            <div class="main-container">
-                <section class="stats-grid">
+        <div class="admin-content-viewport custom-scrollbar">
+            <div class="admin-container-max admin-content-stack">
+                <section class="admin-stats-grid">
                     <div class="stats-card-healthy">
                         <p class="stats-label">API Status</p>
                         <h3 class="stats-value">Healthy</h3>
@@ -106,7 +110,7 @@
                         <h3 class="panel-title">Ações Rápidas</h3>
                         <div class="actions-grid">
                             <a href="users.html" class="quick-action-btn">
-                                <span class="material-symbols-outlined action-btn-icon">person_add</span>
+                                <span class="material-symbols-outlined action-btn-icon u-fs-lg">person_add</span>
                                 <span class="action-btn-label">Novo Usuário</span>
                             </a>
                             <button class="quick-action-btn">
@@ -118,7 +122,7 @@
                                 <span class="action-btn-label">Seed Data</span>
                             </button>
                             <button class="quick-action-btn">
-                                <span class="material-symbols-outlined action-btn-icon">description</span>
+                                <span class="material-symbols-outlined action-btn-icon u-fs-lg">description</span>
                                 <span class="action-btn-label">Gerar Logs</span>
                             </button>
                         </div>

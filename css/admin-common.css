@@ -112,7 +112,21 @@
   color: #f87171;
 }
 
-/* 2. Main Area */
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-header-action {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* 4. Content Area Layouts */
 .admin-main {
   flex: 1;
   display: flex;
@@ -146,6 +160,12 @@
 .admin-container-max {
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.admin-content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* 3. Common Dashboard Components */
@@ -204,6 +224,13 @@
   justify-content: space-between;
 }
 
+.panel-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: #ffffff;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -223,6 +250,12 @@
 .admin-table td {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-dark);
+}
+
+.admin-table-placeholder {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 3rem 1.5rem;
 }
 
 /* 4. Utility Classes (Replacing Inline Styles) */
@@ -339,6 +372,21 @@
   color: #f59e0b;
 }
 
+.trend-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.trend-emerald {
+  color: #10b981;
+}
+
+.trend-secondary {
+  color: var(--text-secondary);
+}
+
 .u-mb-05 {
   margin-bottom: 0.5rem;
 }
@@ -410,4 +458,42 @@
 .u-padding-xl-horizontal {
   padding-left: 2rem;
   padding-right: 2rem;
+}
+/* 11. Dashboard Specific Components */
+.chart-viewport-box {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 200px;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-dark);
+  gap: 0.5rem;
+}
+
+.chart-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+}
+
+.chart-bar-primary {
+  background: linear-gradient(
+    180deg,
+    var(--primary) 0%,
+    rgba(25, 127, 230, 0.6) 100%
+  );
+  opacity: 0.8;
+}
+
+.chart-bar-primary:hover {
+  opacity: 1;
+}
+
+.chart-bar-success {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.chart-bar-muted {
+  background-color: var(--border-dark);
 }

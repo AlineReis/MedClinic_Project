@@ -1,14 +1,4 @@
-/* Doctor Dashboard - Semantic Styles */
-
-/* 1. Base Layout */
-.doctor-layout {
-  background-color: var(--background-dark);
-  color: var(--text-primary);
-  font-family: 'Manrope', sans-serif;
-  overflow: hidden;
-  height: 100vh;
-  display: flex;
-}
+/* Base Layout is handled by specialist-layout in specialist-common.css */
 
 /* 2. Sidebar Component */
 .doctor-sidebar {
@@ -156,7 +146,7 @@
   }
 }
 
-.user-avatar {
+.header-user-avatar {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 9999px;
@@ -275,6 +265,11 @@
   margin-top: 1rem;
 }
 
+.next-patient-status {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .next-patient-badge {
   display: inline-block;
   font-size: 10px;
@@ -349,6 +344,12 @@
   margin: 0;
 }
 
+.panel-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
 .panel-list {
   display: flex;
   flex-direction: column;
@@ -365,6 +366,30 @@
   padding: 0.75rem;
   background-color: rgba(17, 25, 33, 0.5);
   border-radius: 0.75rem;
+}
+
+.queue-placeholder {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.queue-time-placeholder {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.prescription-list-container {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.placeholder-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
 .commission-summary {

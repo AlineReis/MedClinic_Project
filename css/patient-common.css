@@ -35,7 +35,18 @@
   font-size: 24px;
 }
 
+.brand-icon-large {
+  color: var(--primary);
+  font-size: 32px;
+}
+
 .brand-name {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.brand-name-lg {
+  font-size: 1.125rem;
   font-weight: 700;
   color: #ffffff;
 }
@@ -98,10 +109,25 @@
   border: 1px solid rgba(25, 127, 230, 0.3);
 }
 
+.header-user-group {
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--border-dark);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .desktop-user-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.profile-info-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 0.75rem;
 }
 
 .logout-icon-btn,
@@ -140,10 +166,32 @@
 
 .main-content-wide {
   display: flex;
+  flex-direction: column;
   flex: 1;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
+}
+
+.checkout-main-padding {
+  padding: 2.5rem;
+}
+
+.checkout-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.checkout-back-link:hover {
+  text-decoration: underline;
 }
 
 /* 3. Common Components */

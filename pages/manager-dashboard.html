@@ -54,7 +54,8 @@
         </header>
 
         <div class="admin-content-viewport custom-scrollbar">
-            <div class="admin-container-max u-flex-column u-gap-large">
+            <div class="admin-container-max admin-content-stack">
+                <!-- Stats Grid -->
                 <section class="admin-stats-grid">
                     <div class="admin-stats-card">
                         <p class="card-label">Faturamento Bruto (RN-18)</p>
@@ -69,16 +70,19 @@
                     <div class="admin-stats-card">
                         <p class="card-label">Consultas do Mês</p>
                         <h3 class="card-value">312</h3>
+                        <span class="trend-label trend-secondary">Meta: 400</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Taxa de No-Show</p>
                         <h3 class="card-value u-text-red">4.2%</h3>
+                        <span class="trend-label trend-secondary">Média mercado: 15%</span>
                     </div>
                 </section>
 
                 <div class="manager-main-grid">
+                    <!-- Splits Panel -->
                     <div class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-10">Splits Pendentes (RN-18)</h3>
+                        <h3 class="panel-section-title">Splits Pendentes (RN-18)</h3>
                         <div class="split-list">
                             <div class="split-item">
                                 <div class="split-item-info">
@@ -98,9 +102,10 @@
                         <button class="btn-primary-full">Processar Repasses</button>
                     </div>
 
+                    <!-- Alerts Panel -->
                     <div class="admin-table-panel u-padding-large">
-                        <h3 class="u-fw-700 u-mb-10">Alertas</h3>
-                        <div class="u-flex-column u-gap-medium">
+                        <h3 class="panel-section-title">Alertas do Sistema</h3>
+                        <div class="admin-content-stack">
                             <div class="manager-alert-card alert-red">
                                 <span class="material-symbols-outlined alert-icon-red">warning</span>
                                 <div>

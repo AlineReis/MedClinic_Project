@@ -37,12 +37,6 @@ Para cada arquivo, seguimos este processo:
 | `slots.html`                | `slots.css`                | ✅ Concluído | 100% Semântico.            |
 | `checkout.html`             | `checkout.css`             | ✅ Concluído | 100% Semântico.            |
 | `onboarding.html`           | `onboarding.css`           | ✅ Concluído | 100% Semântico.            |
-| `dashboard.html`            | `admin-common.css`         | ✅ Concluído | 100% Semântico.            |
-| `lab-dashboard.html`        | `admin-common.css`         | ✅ Concluído | 100% Semântico.            |
-| `manager-dashboard.html`    | `admin-common.css`         | ✅ Concluído | 100% Semântico.            |
-| `financial.html`            | `financial.css`            | ✅ Concluído | 100% Semântico.            |
-| `exams.html`                | `exams.css`                | ✅ Concluído | 100% Semântico.            |
-| `onboarding.html`           | `onboarding.css`           | ✅ Concluído | 100% Semântico.            |
 | `login.html`                | `auth.css`                 | ✅ Concluído | 100% Semântico.            |
 | `register.html`             | `auth.css`                 | ✅ Concluído | 100% Semântico.            |
 

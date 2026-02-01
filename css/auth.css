@@ -128,14 +128,40 @@
   color: var(--text-secondary);
 }
 
-.auth-link {
-  color: var(--primary);
-  font-weight: 700;
-  text-decoration: none;
-}
-
 .auth-link:hover {
   text-decoration: underline;
+}
+
+.btn-link-reset {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* 6. Form Special Elements */
+.form-input-wrapper {
+  position: relative;
+}
+
+.btn-input-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn-input-icon:hover {
+  color: #ffffff;
 }
 
 /* 6. Specific Components */
@@ -175,4 +201,28 @@
 
 .form-checkbox {
   margin-top: 0.25rem;
+}
+
+/* 8. Success States */
+.success-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.success-icon-box {
+  width: 5rem;
+  height: 5rem;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.success-icon {
+  color: #10b981;
+  font-size: 3rem !important;
 }

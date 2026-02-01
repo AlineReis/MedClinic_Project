@@ -2,11 +2,30 @@
 
 /* 1. Lab Specific Headers (Within Admin Layout) */
 .lab-content-header {
-  padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-dark);
+  margin-bottom: 2rem;
+}
+
+.header-user-name {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.patient-name {
+  font-weight: 700;
+  margin: 0;
+}
+
+.patient-id {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.cell-center {
+  text-align: center;
 }
 
 .lab-main-title {

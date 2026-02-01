@@ -48,13 +48,13 @@
                 </div>
             </div>
             <button data-logout-button class="btn-sidebar-logout">
-                <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+                <span class="material-symbols-outlined">logout</span>
                 <span class="nav-text">Sair</span>
             </button>
         </div>
     </aside>
 
-    <main class="flex-column flex-1 min-w-0 overflow-hidden">
+    <main class="specialist-main">
         <header class="main-header">
             <div class="header-inner">
                 <div class="header-title-group">
@@ -67,7 +67,7 @@
                         style="display: none;">
                         <span class="material-symbols-outlined">menu</span>
                     </button>
-                    <div class="user-avatar-circle" data-user-initials>US</div>
+                    <div class="header-user-avatar" data-user-initials>US</div>
                 </div>
             </div>
         </header>
@@ -95,7 +95,7 @@
                     <div class="next-patient-card">
                         <span class="next-patient-badge">Próximo Paciente</span>
                         <div class="next-patient-meta">
-                            <p class="text-sm text-white/70">Carregando próximo paciente...</p>
+                            <p class="next-patient-status">Carregando próximo paciente...</p>
                         </div>
                         <div class="next-patient-time-loc">
                             <span class="time-loc-item">
@@ -112,8 +112,8 @@
                         <h3 class="panel-title">Fila de Espera</h3>
                         <ul class="panel-list">
                             <li class="queue-patient-row">
-                                <span class="text-sm font-medium text-slate-500">Carregando pacientes...</span>
-                                <span class="text-xs text-slate-500 font-bold">--:--</span>
+                                <span class="queue-placeholder">Carregando pacientes...</span>
+                                <span class="queue-time-placeholder">--:--</span>
                             </li>
                         </ul>
                     </div>
@@ -123,7 +123,7 @@
                         <div class="panel-header">
                             <div>
                                 <p class="stats-label">Comissões</p>
-                                <p class="text-sm text-slate-400">Resumo atual</p>
+                                <p class="panel-subtitle">Resumo atual</p>
                             </div>
                             <div class="flex-item-center gap-sm">
                                 <select id="commissions-month-filter" class="select-round">
@@ -156,13 +156,13 @@
                         <div class="panel-header">
                             <div>
                                 <p class="stats-label">Prescrições</p>
-                                <p class="text-sm text-slate-400">Últimos registros</p>
+                                <p class="panel-subtitle">Últimos registros</p>
                             </div>
                             <button id="create-prescription-button" class="btn-primary-sm">Nova
                                 Prescrição</button>
                         </div>
-                        <div class="mt-4 space-y-4" data-prescriptions-list>
-                            <p class="text-sm text-slate-500">Carregando prescrições...</p>
+                        <div class="prescription-list-container" data-prescriptions-list>
+                            <p class="placeholder-text">Carregando prescrições...</p>
                         </div>
                     </div>
                 </div>
@@ -170,7 +170,7 @@
                     <div class="panel-card action-card">
                         <div>
                             <p class="stats-label">Disponibilidade</p>
-                            <p class="text-sm text-slate-400">Cadastre novos horários</p>
+                            <p class="panel-subtitle">Cadastre novos horários</p>
                         </div>
                         <button id="add-availability-button" class="btn-availability">Gerenciar
                             Horários</button>
@@ -178,7 +178,7 @@
                     <div class="panel-card action-card">
                         <div>
                             <p class="stats-label">Exames</p>
-                            <p class="text-sm text-slate-400">Solicite um novo exame</p>
+                            <p class="panel-subtitle">Solicite um novo exame</p>
                         </div>
                         <button id="request-exam-button" class="btn-exam-request">Solicitar
                             Exame</button>

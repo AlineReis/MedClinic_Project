@@ -220,9 +220,16 @@
   padding: 5rem 0;
 }
 
-.spin-slow {
-  animation: spin 3s linear infinite;
+.loading-icon-large {
+  font-size: 2.25rem;
   color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.loading-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
 }
 
 .skeleton-card {

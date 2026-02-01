@@ -4,6 +4,7 @@
 .specialist-layout {
   display: flex;
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
   background-color: var(--background-dark);
   color: var(--text-primary);
@@ -216,6 +217,19 @@
 
 .btn-sidebar-logout:hover {
   background-color: rgba(239, 68, 68, 0.1); /* red-500/10 */
+}
+
+.btn-sidebar-logout .material-symbols-outlined {
+  font-size: 1.125rem; /* u-fs-sm equivalent but semantic */
+}
+
+/* 2.1. Main Content Wrapper */
+.specialist-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* 3. Main Header Component */

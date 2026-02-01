@@ -34,6 +34,10 @@
   color: var(--text-secondary);
 }
 
+.time-column-corner .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
 /* 2. Calendar Grid Area */
 .calendar-grid-body {
   display: flex;
@@ -98,6 +102,11 @@
 .legend-dot-scheduled {
   background-color: #10b981; /* emerald-500 */
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.legend-label {
+  color: #10b981;
+  font-weight: 500;
 }
 
 /* 5. Responsive / Utilities */
