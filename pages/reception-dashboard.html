@@ -30,13 +30,10 @@
             <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
                 <span class="material-symbols-outlined">dashboard</span> Painel
             </a>
+            <!-- Agenda Geral Removed -->
             <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="agenda.html">
-                <span class="material-symbols-outlined">calendar_month</span> Agenda Geral
-            </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
-                href="#">
-                <span class="material-symbols-outlined">person_add</span> Novo Paciente
+                href="patients.html">
+                <span class="material-symbols-outlined">person</span> Pacientes
             </a>
         </nav>
         <div class="p-4 border-t border-border-dark">
@@ -66,6 +63,8 @@
                 </button>
                 <h2 class="text-lg md:text-xl font-bold">Central de Recepção</h2>
             </div>
+            Novo Agendamento
+            </button>
             <span class="text-sm text-slate-400" data-user-role>Recepcionista</span>
         </header>
 
@@ -93,7 +92,10 @@
                 <section class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden">
                     <div class="px-6 py-4 border-b border-border-dark flex items-center justify-between">
                         <h3 class="font-bold">Próximos Check-ins</h3>
-                        <button class="text-xs text-primary font-bold">Ver Todos</button>
+                        <button id="open-general-agenda-section-btn"
+                            class="text-xs text-primary font-bold hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">calendar_month</span> Ver Agenda
+                        </button>
                     </div>
                     <table class="w-full text-left text-sm">
                         <thead class="bg-border-dark/30">
@@ -129,36 +131,170 @@
                                 </td>
                             </tr>
                         </tbody>
+                        </tbody>
                     </table>
-                </section>
-
-                <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-surface-dark border border-border-dark rounded-2xl p-6">
-                        <h3 class="font-bold mb-4 flex items-center gap-2"><span
-                                class="material-symbols-outlined text-primary">meeting_room</span> Ocupação de Salas
-                        </h3>
-                        <ul class="space-y-3">
-                            <li
-                                class="flex items-center justify-between p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
-                                <span class="text-sm">Sala 1</span><span
-                                    class="text-xs text-emerald-500 font-bold">OCUPADA</span>
-                            </li>
-                            <li
-                                class="flex items-center justify-between p-3 bg-background-dark rounded-xl border border-border-dark">
-                                <span class="text-sm">Sala 2</span><span
-                                    class="text-xs text-slate-400 font-bold">LIVRE</span>
-                            </li>
-                            <li
-                                class="flex items-center justify-between p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
-                                <span class="text-sm">Sala 3</span><span
-                                    class="text-xs text-emerald-500 font-bold">OCUPADA</span>
-                            </li>
-                        </ul>
+                    <!-- Pagination Footer -->
+                    <div
+                        class="px-6 py-3 border-t border-border-dark flex items-center justify-between bg-surface-dark/50">
+                        <button id="prev-page-btn"
+                            class="p-1 rounded-lg hover:bg-border-dark text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <span class="text-xs text-slate-500">Página <span id="current-page-span">1</span></span>
+                        <button id="next-page-btn"
+                            class="p-1 rounded-lg hover:bg-border-dark text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
                     </div>
                 </section>
+
+                <!-- Room Occupancy Removed -->
             </div>
         </div>
     </main>
+
+    <!-- New Patient Modal -->
+    <!-- New Patient Modal Removed - Moved to patients.html -->
+    <!-- New Appointment Modal -->
+    <div id="new-appointment-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-lg w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">Novo Agendamento</h3>
+                <button class="close-modal-btn text-slate-400 hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="new-appointment-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Paciente</label>
+                    <!-- Simple search or select -->
+                    <div class="relative">
+                        <input type="text" id="patient-search" placeholder="Buscar paciente por nome..."
+                            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                        <input type="hidden" name="patientId" id="selected-patient-id" required>
+                        <div id="patient-search-results"
+                            class="absolute z-10 w-full bg-surface-dark border border-border-dark rounded-xl mt-1 hidden max-h-48 overflow-y-auto">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Profissional</label>
+                    <select name="professionalId" required id="professional-select"
+                        class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                        <option value="">Selecione um profissional</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Data</label>
+                        <input type="date" name="date" required
+                            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Hora</label>
+                        <input type="time" name="time" required readonly id="appointment-time-input"
+                            class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary opacity-50 cursor-not-allowed">
+                    </div>
+                </div>
+
+                <!-- Availability Slots -->
+                <div id="availability-section" class="hidden">
+                    <label class="block text-sm text-slate-400 mb-2">Horários Disponíveis (50min)</label>
+                    <div id="availability-slots"
+                        class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1">
+                        <!-- Slots injected via JS -->
+                    </div>
+                    <p id="availability-message" class="text-xs text-slate-500 mt-2">Selecione uma data e profissional
+                        para ver horários.</p>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Tipo</label>
+                    <select name="type" required
+                        class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                        <option value="presencial">Presencial</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Valor (R$)</label>
+                    <input type="number" name="price" step="0.01" placeholder="0,00"
+                        class="w-full px-4 py-3 bg-background-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary">
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button"
+                        class="close-modal-btn flex-1 px-6 py-3 bg-background-dark border border-border-dark rounded-xl font-bold hover:bg-border-dark transition-colors">Cancelar</button>
+                    <button type="submit"
+                        class="flex-1 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-600 transition-colors">Agendar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- General Agenda Modal -->
+    <div id="general-agenda-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-4xl w-full h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4 flex-shrink-0">
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Agenda Diária
+                </h3>
+                <button class="close-modal-btn text-slate-400 hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div
+                class="flex flex-wrap gap-4 mb-4 flex-shrink-0 bg-background-dark p-4 rounded-xl border border-border-dark">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Data</label>
+                    <input type="date" id="agenda-date-filter"
+                        class="w-full bg-surface-dark border border-border-dark rounded-lg px-3 py-2 text-white outline-none focus:border-primary">
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Profissional</label>
+                    <select id="agenda-professional-filter"
+                        class="w-full bg-surface-dark border border-border-dark rounded-lg px-3 py-2 text-white outline-none focus:border-primary">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="refresh-agenda-btn"
+                        class="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-blue-600 transition-colors h-[42px]">
+                        Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="flex-1 overflow-y-auto custom-scrollbar border border-border-dark rounded-xl bg-background-dark/50">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-surface-dark sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Horário</th>
+                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Paciente</th>
+                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Profissional</th>
+                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Status</th>
+                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agenda-table-body" class="divide-y divide-border-dark">
+                        <!-- Agenda items injected here -->
+                    </tbody>
+                </table>
+                <div id="agenda-empty-state"
+                    class="hidden flex flex-col items-center justify-center h-full text-slate-500 p-8">
+                    <span class="material-symbols-outlined text-4xl mb-2">event_busy</span>
+                    <p>Nenhum agendamento encontrado para este filtro.</p>
+                </div>
+                <div id="agenda-loading-state"
+                    class="hidden flex flex-col items-center justify-center h-full text-primary p-8">
+                    <span class="material-symbols-outlined text-4xl animate-spin mb-2">sync</span>
+                    <p>Carregando agenda...</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="../js/components/navigation.js"></script>
     <script src="../js/components/mobile-sidebar.js"></script>
     <script src="../js/services/mock_db.js"></script>

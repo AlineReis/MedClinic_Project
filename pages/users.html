@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Usuários e Acessos - MedClinic</title>
+    <title>Gerenciar Usuários - MedClinic</title>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
@@ -20,6 +20,7 @@
                 extend: {
                     colors: {
                         "primary": "#197fe6",
+                        "primary-hover": "#166cc4",
                         "background-dark": "#111418",
                         "surface-dark": "#1a1f26",
                         "border-dark": "#2a3441",
@@ -33,135 +34,108 @@
 
 <body class="bg-background-dark text-white font-display overflow-hidden h-screen flex">
 
-    <!-- Sidebar (Shared Admin Style) -->
-    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark shrink-0 h-full">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 border-r border-border-dark bg-surface-dark h-full">
         <div class="h-16 flex items-center px-6 border-b border-border-dark">
-            <div class="flex items-center gap-3">
-                <div class="size-8 rounded bg-primary flex items-center justify-center">
-                    <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
-                </div>
-                <h1 class="text-base font-bold tracking-tight">MedClinic Admin</h1>
-            </div>
+            <span class="material-symbols-outlined text-primary mr-2">local_hospital</span>
+            <h1 class="text-base font-bold">MedClinic</h1>
         </div>
-
-        <nav class="flex-1 px-4 py-6 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white transition-colors"
-                href="dashboard.html">
-                <span class="material-symbols-outlined">dashboard</span>
-                Dashboard
+        <nav class="flex-1 p-4 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white"
+                href="admin-dashboard.html">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="#">
-                <span class="material-symbols-outlined">group</span>
-                Usuários
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium" href="users.html">
+                <span class="material-symbols-outlined">group</span> Usuários
             </a>
-            <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-400 hover:bg-border-dark hover:text-white transition-colors"
-                href="financial.html">
-                <span class="material-symbols-outlined">payments</span>
-                Financeiro
-            </a>
+            <!-- settings link placeholder -->
         </nav>
+        <div class="p-4 border-t border-border-dark">
+            <div class="flex items-center gap-3 mb-3">
+                <div
+                    class="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
+                    <span data-profile-initials>A</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-white" data-profile-name>Admin</span>
+                    <span class="text-xs text-slate-400" data-profile-role>Administrador</span>
+                </div>
+            </div>
+            <button data-logout-btn
+                class="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition-colors">
+                <span class="material-symbols-outlined text-sm">logout</span> Sair
+            </button>
+        </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col overflow-hidden">
-        <header
-            class="h-16 border-b border-border-dark flex items-center justify-between px-8 bg-surface-dark shrink-0">
-            <h2 class="text-xl font-bold">Gestão de Equipe</h2>
-            <button
-                class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">person_add</span>
-                Novo Usuário
-            </button>
+        <header class="h-16 border-b border-border-dark flex items-center justify-between px-4 md:px-8 bg-surface-dark">
+            <div class="flex items-center gap-3">
+                <button id="sidebar-toggle-btn" class="sidebar-toggle-btn lg:hidden" aria-label="Abrir menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h2 class="text-lg md:text-xl font-bold">Gerenciar Usuários</h2>
+            </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <div class="max-w-[1400px] mx-auto space-y-6">
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
 
-                <!-- Filters -->
-                <div class="bg-surface-dark p-4 rounded-xl border border-border-dark flex flex-wrap items-center gap-4">
-                    <div class="relative flex-1 min-w-[300px]">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[20px]">search</span>
-                        <input
-                            class="w-full pl-10 pr-4 py-2 bg-background-dark border-border-dark rounded-lg text-sm focus:ring-1 focus:ring-primary text-white outline-none"
-                            placeholder="Buscar por nome ou e-mail..." type="text" />
+            <!-- Actions Bar -->
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
+                <div class="flex gap-4 w-full md:w-auto">
+                    <div class="relative w-full md:w-96">
+                        <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">search</span>
+                        <input type="text" data-search-input placeholder="Buscar usuário..."
+                            class="w-full pl-10 pr-4 py-2 bg-surface-dark border border-border-dark rounded-xl text-white focus:outline-none focus:border-primary placeholder-slate-500">
                     </div>
-                    <select
-                        class="bg-background-dark border-border-dark text-slate-400 rounded-lg text-sm focus:ring-primary outline-none px-3 py-2">
-                        <option>Todos os Níveis</option>
-                        <option>Médico</option>
-                        <option>Admin</option>
-                        <option>Recepcionista</option>
+
+                    <select data-role-filter
+                        class="bg-surface-dark border border-border-dark rounded-xl text-white px-4 py-2 focus:outline-none focus:border-primary">
+                        <option value="all">Todos os Cargos</option>
+                        <option value="patient">Pacientes</option>
+                        <option value="health_professional">Médicos</option>
+                        <option value="receptionist">Recepcionistas</option>
+                        <option value="clinic_admin">Admins</option>
                     </select>
                 </div>
 
-                <!-- Users Table -->
-                <div class="bg-surface-dark border border-border-dark rounded-xl overflow-hidden shadow-sm">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="bg-border-dark/30">
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Usuário</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">E-mail</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Acesso</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Ações</th>
+                <button data-new-user-btn
+                    class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl transition-all shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    Novo Usuário
+                </button>
+            </div>
+
+            <!-- Users List -->
+            <div class="bg-surface-dark border border-border-dark rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-background-dark/50 border-b border-border-dark">
+                            <tr>
+                                <th class="px-6 py-4 font-bold text-slate-400">Usuário</th>
+                                <th class="px-6 py-4 font-bold text-slate-400">Email</th>
+                                <th class="px-6 py-4 font-bold text-slate-400">Cargo</th>
+                                <th class="px-6 py-4 font-bold text-slate-400">Status</th>
+                                <th class="px-6 py-4 font-bold text-slate-400 text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-border-dark">
-                            <tr class="hover:bg-border-dark/10 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
-                                            CR</div>
-                                        <div>
-                                            <p class="text-sm font-bold">Dra. Camila Rodrigues</p>
-                                            <p class="text-[10px] text-slate-500">ID: #84920</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-slate-400">camila.r@medclinic.com</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold">MÉDICO</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="flex items-center gap-1.5 text-xs text-emerald-500 font-bold">
-                                        <span class="size-1.5 rounded-full bg-emerald-500"></span> Ativo
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button class="text-slate-500 hover:text-white transition-colors"><span
-                                            class="material-symbols-outlined">edit_square</span></button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-border-dark/10 transition-colors">
-                                <td class="px-6 py-4 text-sm">Ricardo Silva</td>
-                                <td class="px-6 py-4 text-sm text-slate-400">ricardo.s@medclinic.com</td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span
-                                        class="px-2 py-1 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold">ADMIN</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="flex items-center gap-1.5 text-xs text-emerald-500 font-bold">
-                                        <span class="size-1.5 rounded-full bg-emerald-500"></span> Ativo
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button class="text-slate-500 hover:text-white transition-colors"><span
-                                            class="material-symbols-outlined">edit_square</span></button>
+                        <tbody data-users-table-body class="divide-y divide-border-dark">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                    Carregando...
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
+                <!-- Pagination -->
+                <div data-pagination></div>
             </div>
-        </div>
     </main>
 
-    <script src="../js/components/navigation.js"></script>
-    <script src="../js/services/mock_db.js"></script>
+    <script src="../js/components/mobile-sidebar.js"></script>
 </body>
 
 </html>
