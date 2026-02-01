@@ -21,6 +21,7 @@ module.exports = (env, argv) => {
       main: './src/index.ts',
       login: './src/pages/login.ts',
       register: './src/pages/register.ts',
+      patients: './src/pages/patients.ts',
       patientDashboard: './src/pages/patientDashboard.ts',
       myAppointments: './src/pages/myAppointments.ts',
       examsPage: './src/pages/examsPage.ts',
@@ -85,6 +86,12 @@ module.exports = (env, argv) => {
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
+        template: './pages/patients.html',
+        filename: 'pages/patients.html',
+        chunks: ['patients'],
+        publicPath: '/'
+      }),
+      new HtmlWebpackPlugin({
         template: './pages/my-appointments.html',
         filename: 'pages/my-appointments.html',
         chunks: ['myAppointments'],
@@ -145,6 +152,7 @@ module.exports = (env, argv) => {
             to: "pages",
             globOptions: {
               ignore: [
+                '**/patients.html',
                 '**/login.html',
                 '**/schedule-appointment.html',
                 '**/my-appointments.html',

@@ -5,6 +5,18 @@ import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
 import type { UserRole, UserSession } from "../types/auth"
 
+const roleCredentials: Record<UserRole, { email: string; password: string }> = {
+  patient: { email: "maria@email.com", password: "password" },
+  receptionist: { email: "paula@clinica.com", password: "password" },
+  lab_tech: { email: "roberto@clinica.com", password: "password" },
+  health_professional: {
+    email: "carlos@clinica.com",
+    password: "password",
+  },
+  clinic_admin: { email: "admin@clinica.com", password: "password" },
+  system_admin: { email: "sysadmin@medclinic.com", password: "password" },
+}
+
 const loginForm = document.getElementById(
   "login-form",
 ) as HTMLFormElement | null
@@ -18,6 +30,11 @@ const roleSelect = document.getElementById("role") as HTMLSelectElement | null
 console.log("login.ts bundle loaded")
 
 if (loginForm && emailInput && passwordInput && roleSelect) {
+   roleSelect.addEventListener("change", () => {
+    applyRoleCredentials(roleSelect.value as UserRole)
+  })
+
+  applyRoleCredentials(roleSelect.value as UserRole)
   loginForm.addEventListener("submit", async event => {
     event.preventDefault()
 
@@ -59,6 +76,16 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
       renderToasts()
     }
   })
+}
+
+function applyRoleCredentials(role: UserRole) {
+  if (!emailInput || !passwordInput) return
+
+  const credentials = roleCredentials[role]
+  if (!credentials) return
+
+  emailInput.value = credentials.email
+  passwordInput.value = credentials.password
 }
 
 async function handleSuccessfulLogin(
