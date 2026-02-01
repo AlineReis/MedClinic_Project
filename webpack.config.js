@@ -1,205 +1,213 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const webpack = require('webpack');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
+  const isProduction = argv.mode === "production";
   const mainPages = [
-    'patient-dashboard.html',
-    'reception-dashboard.html',
-    'doctor-dashboard.html',
-    'lab-dashboard.html',
-    'manager-dashboard.html',
-    'admin-dashboard.html',
-    'users.html'
+    "patient-dashboard.html",
+    "reception-dashboard.html",
+    "doctor-dashboard.html",
+    "lab-dashboard.html",
+    "manager-dashboard.html",
+    "admin-dashboard.html",
+    "users.html",
   ];
 
   return {
     entry: {
-      theme: './src/config/theme.ts',
-      main: './src/index.ts',
-      login: './src/pages/login.ts',
-      register: './src/pages/register.ts',
-      patientDashboard: './src/pages/patientDashboard.ts',
-      myAppointments: './src/pages/myAppointments.ts',
-      myExams: './src/pages/myExams.ts',
-      examsPage: './src/pages/examsPage.ts',
-      scheduleAppointment: './src/pages/scheduleAppointment.ts',
-      doctorDashboard: './src/pages/doctorDashboard.ts',
-      receptionDashboard: './src/pages/receptionDashboard.ts',
-      adminDashboard: './src/pages/adminDashboard.ts',
-      usersPage: './src/pages/usersPage.ts',
-      agenda: './src/pages/agenda.ts',
-      dashboard: './src/pages/dashboard.ts',
-      pep: './src/pages/pep.ts',
-      labDashboard: './src/pages/labDashboard.ts'
+      theme: "./src/config/theme.ts",
+      main: "./src/index.ts",
+      login: "./src/pages/login.ts",
+      register: "./src/pages/register.ts",
+      patients: "./src/pages/patients.ts",
+      patientDashboard: "./src/pages/patientDashboard.ts",
+      myAppointments: "./src/pages/myAppointments.ts",
+      myExams: "./src/pages/myExams.ts",
+      examsPage: "./src/pages/examsPage.ts",
+      scheduleAppointment: "./src/pages/scheduleAppointment.ts",
+      doctorDashboard: "./src/pages/doctorDashboard.ts",
+      receptionDashboard: "./src/pages/receptionDashboard.ts",
+      adminDashboard: "./src/pages/adminDashboard.ts",
+      usersPage: "./src/pages/usersPage.ts",
+      agenda: "./src/pages/agenda.ts",
+      dashboard: "./src/pages/dashboard.ts",
+      pep: "./src/pages/pep.ts",
+      labDashboard: "./src/pages/labDashboard.ts",
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'js/[name].[contenthash:8].js',
+      path: path.resolve(__dirname, "dist"),
+      filename: "js/[name].[contenthash:8].js",
       clean: true,
-      publicPath: '/'
+      publicPath: "/",
     },
     module: {
       rules: [
         {
           test: /\.css$/i,
-          use: [MiniCssExtractPlugin.loader, 'css-loader']
+          use: [MiniCssExtractPlugin.loader, "css-loader"],
         },
         {
           test: /\.tsx?$/,
-          use: 'ts-loader',
-          exclude: /node_modules/
-        }
-      ]
+          use: "ts-loader",
+          exclude: /node_modules/,
+        },
+      ],
     },
     plugins: [
       new webpack.DefinePlugin({
         CLINIC_API_HOST: process.env.CLINIC_API_HOST
           ? JSON.stringify(process.env.CLINIC_API_HOST)
-          : 'undefined'
+          : "undefined",
       }),
       new MiniCssExtractPlugin({
-        filename: 'css/[name].[contenthash:8].css'
+        filename: "css/[name].[contenthash:8].css",
       }),
       new HtmlWebpackPlugin({
-        template: './index.html',
-        filename: 'index.html',
-        chunks: ['theme', 'main']
+        template: "./index.html",
+        filename: "index.html",
+        chunks: ["theme", "main"],
       }),
       new HtmlWebpackPlugin({
-        template: './pages/schedule-appointment.html',
-        filename: 'pages/schedule-appointment.html',
-        chunks: ['theme', 'scheduleAppointment'],
-        publicPath: '/'
+        template: "./pages/schedule-appointment.html",
+        filename: "pages/schedule-appointment.html",
+        chunks: ["theme", "scheduleAppointment"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/login.html',
-        filename: 'pages/login.html',
-        chunks: ['theme', 'login'],
-        publicPath: '/'
+        template: "./pages/login.html",
+        filename: "pages/login.html",
+        chunks: ["theme", "login"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/register.html',
-        filename: 'pages/register.html',
-        chunks: ['theme', 'register'],
-        publicPath: '/'
+        template: "./pages/register.html",
+        filename: "pages/register.html",
+        chunks: ["theme", "register"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/my-appointments.html',
-        filename: 'pages/my-appointments.html',
-        chunks: ['theme', 'myAppointments'],
-        publicPath: '/'
+        template: "./pages/my-appointments.html",
+        filename: "pages/my-appointments.html",
+        chunks: ["theme", "myAppointments"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/exams.html',
-        filename: 'pages/exams.html',
-        chunks: ['theme', 'examsPage'],
-        publicPath: '/'
+        template: "./pages/exams.html",
+        filename: "pages/exams.html",
+        chunks: ["theme", "examsPage"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/my-exams.html',
-        filename: 'pages/my-exams.html',
-        chunks: ['theme', 'myExams'],
-        publicPath: '/'
+        template: "./pages/my-exams.html",
+        filename: "pages/my-exams.html",
+        chunks: ["theme", "myExams"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/agenda.html',
-        filename: 'pages/agenda.html',
-        chunks: ['theme', 'agenda'],
-        publicPath: '/'
+        template: "./pages/patients.html",
+        filename: "pages/patients.html",
+        chunks: ["theme", "patients"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/dashboard.html',
-        filename: 'pages/dashboard.html',
-        chunks: ['theme', 'dashboard'],
-        publicPath: '/'
+        template: "./pages/agenda.html",
+        filename: "pages/agenda.html",
+        chunks: ["theme", "agenda"],
+        publicPath: "/",
       }),
       new HtmlWebpackPlugin({
-        template: './pages/pep.html',
-        filename: 'pages/pep.html',
-        chunks: ['theme', 'pep'],
-        publicPath: '/'
+        template: "./pages/dashboard.html",
+        filename: "pages/dashboard.html",
+        chunks: ["theme", "dashboard"],
+        publicPath: "/",
+      }),
+      new HtmlWebpackPlugin({
+        template: "./pages/pep.html",
+        filename: "pages/pep.html",
+        chunks: ["theme", "pep"],
+        publicPath: "/",
       }),
       ...mainPages.map(
-        page =>
+        (page) =>
           new HtmlWebpackPlugin({
             template: `./pages/${page}`,
             filename: `pages/${page}`,
             chunks: [
-              'theme',
-              'main',
-              ...(page === 'patient-dashboard.html'
-                ? ['patientDashboard']
+              "theme",
+              "main",
+              ...(page === "patient-dashboard.html"
+                ? ["patientDashboard"]
                 : []),
-              ...(page === 'doctor-dashboard.html' ? ['doctorDashboard'] : []),
-              ...(page === 'reception-dashboard.html'
-                ? ['receptionDashboard']
+              ...(page === "doctor-dashboard.html" ? ["doctorDashboard"] : []),
+              ...(page === "reception-dashboard.html"
+                ? ["receptionDashboard"]
                 : []),
-              ...(page === 'admin-dashboard.html' ? ['adminDashboard'] : []),
-              ...(page === 'lab-dashboard.html' ? ['labDashboard'] : []),
-              ...(page === 'users.html' ? ['usersPage'] : [])
+              ...(page === "admin-dashboard.html" ? ["adminDashboard"] : []),
+              ...(page === "lab-dashboard.html" ? ["labDashboard"] : []),
+              ...(page === "users.html" ? ["usersPage"] : []),
             ],
-            publicPath: '/'
-          })
+            publicPath: "/",
+          }),
       ),
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: 'assets',
-            to: 'assets'
+            from: "assets",
+            to: "assets",
           },
           {
-            from: 'pages',
-            to: 'pages',
+            from: "pages",
+            to: "pages",
             globOptions: {
               ignore: [
-                '**/login.html',
-                '**/schedule-appointment.html',
-                '**/my-appointments.html',
-                '**/my-exams.html',
-                '**/exams.html',
-                '**/patient-dashboard.html',
-                '**/register.html',
-                '**/doctor-dashboard.html',
-                '**/reception-dashboard.html',
-                '**/admin-dashboard.html',
-                '**/users.html',
-                '**/agenda.html',
-                '**/dashboard.html',
-                '**/pep.html',
-                ...mainPages.map(page => `**/${page}`)
-              ]
-            }
+                "**/patients.html",
+                "**/login.html",
+                "**/schedule-appointment.html",
+                "**/my-appointments.html",
+                "**/my-exams.html",
+                "**/exams.html",
+                "**/patient-dashboard.html",
+                "**/register.html",
+                "**/doctor-dashboard.html",
+                "**/reception-dashboard.html",
+                "**/admin-dashboard.html",
+                "**/users.html",
+                "**/agenda.html",
+                "**/dashboard.html",
+                "**/pep.html",
+                ...mainPages.map((page) => `**/${page}`),
+              ],
+            },
           },
           {
-            from: 'manifest.json',
-            to: 'manifest.json'
+            from: "manifest.json",
+            to: "manifest.json",
           },
           {
-            from: 'css',
-            to: 'css'
+            from: "css",
+            to: "css",
           },
           {
-            from: 'sw.js',
-            to: 'sw.js'
-          }
-        ]
-      })
+            from: "sw.js",
+            to: "sw.js",
+          },
+        ],
+      }),
     ],
     devServer: {
       static: {
-        directory: path.resolve(__dirname, 'dist')
+        directory: path.resolve(__dirname, "dist"),
       },
-      watchFiles: ['src/**/*', 'css/**/*', 'js/**/*', 'pages/**/*'],
+      watchFiles: ["src/**/*", "css/**/*", "js/**/*", "pages/**/*"],
       open: true,
-      hot: false
+      hot: false,
     },
-    target: isProduction ? 'browserslist' : 'web',
+    target: isProduction ? "browserslist" : "web",
     resolve: {
-      extensions: ['.ts', '.tsx', '.js']
-    }
+      extensions: [".ts", ".tsx", ".js"],
+    },
   };
 };

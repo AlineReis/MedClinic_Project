@@ -1,5 +1,5 @@
-import { authStore } from "../stores/authStore";
 import { request, type ApiResponse } from "./apiService";
+import { authStore } from "../stores/authStore";
 
 export interface CreatePatientPayload {
   name: string;
