@@ -40,7 +40,7 @@
   /* Hero size */
   font-weight: 800;
   /* Extra bold */
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: -0.03em;
   margin: 0;
   line-height: 1.1;
@@ -99,7 +99,7 @@
   background-color: rgba(255, 255, 255, 0.03);
   /* Subtle inner background */
   border: 1px solid transparent;
-  color: #ffffff;
+  color: var(#ffffff);
   font-size: 1rem;
   transition: all 0.2s;
   outline: none;
@@ -131,7 +131,7 @@ select.search-input-field {
   background-position: right 1rem center;
   background-size: 1.5rem;
   padding-right: 3rem;
-  color: var(--text-secondary);
+  color: var(#f1f1f1);
 }
 
 select.search-input-field:focus,
