@@ -18,21 +18,20 @@ module.exports = (env, argv) => {
 
   return {
     entry: {
-      main: "./src/index.ts",
-      login: "./src/pages/login.ts",
-      register: "./src/pages/register.ts",
-      patientDashboard: "./src/pages/patientDashboard.ts",
-      myAppointments: "./src/pages/myAppointments.ts",
-      examsPage: "./src/pages/examsPage.ts",
-      scheduleAppointment: "./src/pages/scheduleAppointment.ts",
-      doctorDashboard: "./src/pages/doctorDashboard.ts",
-      receptionDashboard: "./src/pages/receptionDashboard.ts",
-      adminDashboard: "./src/pages/adminDashboard.ts",
-      usersPage: "./src/pages/usersPage.ts",
-      agenda: "./src/pages/agenda.ts",
-      dashboard: "./src/pages/dashboard.ts",
-      pep: "./src/pages/pep.ts",
-      patients: "./src/pages/patients.ts",
+      main: './src/index.ts',
+      login: './src/pages/login.ts',
+      register: './src/pages/register.ts',
+      patientDashboard: './src/pages/patientDashboard.ts',
+      myAppointments: './src/pages/myAppointments.ts',
+      examsPage: './src/pages/examsPage.ts',
+      scheduleAppointment: './src/pages/scheduleAppointment.ts',
+      doctorDashboard: './src/pages/doctorDashboard.ts',
+      receptionDashboard: './src/pages/receptionDashboard.ts',
+      adminDashboard: './src/pages/adminDashboard.ts',
+      usersPage: './src/pages/usersPage.ts',
+      agenda: './src/pages/agenda.ts',
+      dashboard: './src/pages/dashboard.ts',
+      pep: './src/pages/pep.ts'
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -60,66 +59,60 @@ module.exports = (env, argv) => {
         ),
       }),
       new MiniCssExtractPlugin({
-        filename: "css/[name].[contenthash:8].css",
+        filename: 'css/[name].[contenthash:8].css'
       }),
       new HtmlWebpackPlugin({
-        template: "./index.html",
-        filename: "index.html",
-        chunks: ["main"],
+        template: './index.html',
+        filename: 'index.html',
+        chunks: ['main']
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/schedule-appointment.html",
-        filename: "pages/schedule-appointment.html",
-        chunks: ["scheduleAppointment"],
-        publicPath: "/",
+        template: './pages/schedule-appointment.html',
+        filename: 'pages/schedule-appointment.html',
+        chunks: ['scheduleAppointment'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/login.html",
-        filename: "pages/login.html",
-        chunks: ["login"],
-        publicPath: "/",
+        template: './pages/login.html',
+        filename: 'pages/login.html',
+        chunks: ['login'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/register.html",
-        filename: "pages/register.html",
-        chunks: ["register"],
-        publicPath: "/",
+        template: './pages/register.html',
+        filename: 'pages/register.html',
+        chunks: ['register'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/my-appointments.html",
-        filename: "pages/my-appointments.html",
-        chunks: ["myAppointments"],
-        publicPath: "/",
+        template: './pages/my-appointments.html',
+        filename: 'pages/my-appointments.html',
+        chunks: ['myAppointments'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/exams.html",
-        filename: "pages/exams.html",
-        chunks: ["examsPage"],
-        publicPath: "/",
+        template: './pages/exams.html',
+        filename: 'pages/exams.html',
+        chunks: ['examsPage'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/agenda.html",
-        filename: "pages/agenda.html",
-        chunks: ["agenda"],
-        publicPath: "/",
+        template: './pages/agenda.html',
+        filename: 'pages/agenda.html',
+        chunks: ['agenda'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/dashboard.html",
-        filename: "pages/dashboard.html",
-        chunks: ["dashboard"],
-        publicPath: "/",
+        template: './pages/dashboard.html',
+        filename: 'pages/dashboard.html',
+        chunks: ['dashboard'],
+        publicPath: '/'
       }),
       new HtmlWebpackPlugin({
-        template: "./pages/pep.html",
-        filename: "pages/pep.html",
-        chunks: ["pep"],
-        publicPath: "/",
-      }),
-      new HtmlWebpackPlugin({
-        template: "./pages/patients.html",
-        filename: "pages/patients.html",
-        chunks: ["patients"],
-        publicPath: "/",
+        template: './pages/pep.html',
+        filename: 'pages/pep.html',
+        chunks: ['pep'],
+        publicPath: '/'
       }),
       ...mainPages.map(
         (page) =>
@@ -152,23 +145,22 @@ module.exports = (env, argv) => {
             to: "pages",
             globOptions: {
               ignore: [
-                "**/login.html",
-                "**/schedule-appointment.html",
-                "**/my-appointments.html",
-                "**/exams.html",
-                "**/patient-dashboard.html",
-                "**/register.html",
-                "**/doctor-dashboard.html",
-                "**/reception-dashboard.html",
-                "**/admin-dashboard.html",
-                "**/users.html",
-                "**/agenda.html",
-                "**/dashboard.html",
-                "**/pep.html",
-                "**/patients.html",
-                ...mainPages.map((page) => `**/${page}`),
-              ],
-            },
+                '**/login.html',
+                '**/schedule-appointment.html',
+                '**/my-appointments.html',
+                '**/exams.html',
+                '**/patient-dashboard.html',
+                '**/register.html',
+                '**/doctor-dashboard.html',
+                '**/reception-dashboard.html',
+                '**/admin-dashboard.html',
+                '**/users.html',
+                '**/agenda.html',
+                '**/dashboard.html',
+                '**/pep.html',
+                ...mainPages.map(page => `**/${page}`)
+              ]
+            }
           },
           {
             from: "manifest.json",
