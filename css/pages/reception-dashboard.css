@@ -14,7 +14,8 @@
 .reception-sidebar {
   display: none;
   flex-direction: column;
-  width: 16rem; /* w-64 */
+  width: 16rem;
+  /* w-64 */
   border-right: 1px solid var(--border-dark);
   background-color: var(--surface-dark);
   height: 100%;
@@ -27,7 +28,8 @@
 }
 
 .sidebar-header {
-  height: 4rem; /* h-16 */
+  height: 4rem;
+  /* h-16 */
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
@@ -131,7 +133,8 @@
 }
 
 .logout-btn:hover {
-  color: #f87171; /* red-400 */
+  color: #f87171;
+  /* red-400 */
 }
 
 /* 3. Main Content & Header */
@@ -143,7 +146,8 @@
 }
 
 .main-header {
-  height: 4rem; /* h-16 */
+  height: 4rem;
+  /* h-16 */
   border-bottom: 1px solid var(--border-dark);
   display: flex;
   align-items: center;
@@ -256,10 +260,12 @@
 .stats-card-amber .stats-value {
   color: #f59e0b;
 }
+
 .stats-card-emerald .stats-label,
 .stats-card-emerald .stats-value {
   color: #10b981;
 }
+
 .stats-card-red .stats-label,
 .stats-card-red .stats-value {
   color: #ef4444;
@@ -446,6 +452,18 @@
 .status-busy {
   color: #10b981;
 }
+
 .status-free {
   color: var(--text-secondary);
+}
+
+.right-recepcionist-menu {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-content: center;
+}
+
+.right-recepcionist-menu .header-role-badge {
+  align-content: center;
 }

@@ -15,7 +15,7 @@
 .page-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -79,7 +79,7 @@
 .exams-table__td {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-dark);
-  color: #fff;
+  color: var(--text-primary);
   font-size: 0.875rem;
   vertical-align: middle;
 }
@@ -183,7 +183,7 @@
 }
 
 .action-btn--view:hover {
-  color: #fff;
+  color: var(--text-primary);
   text-decoration: underline;
 }
 
@@ -216,7 +216,7 @@
 .empty-state__title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 

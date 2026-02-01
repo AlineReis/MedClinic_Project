@@ -5,13 +5,16 @@
 .appointment-card {
   background-color: var(--surface-dark);
   border: 1px solid var(--border-dark);
-  border-radius: 1rem; /* Slightly smaller radius */
-  padding: 1.25rem; /* Reduced padding */
+  border-radius: 1rem;
+  /* Slightly smaller radius */
+  padding: 1.25rem;
+  /* Reduced padding */
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   transition: all var(--transition-normal);
-  min-width: 0; /* Prevent flex box overflow */
+  min-width: 0;
+  /* Prevent flex box overflow */
 }
 
 /* ... media query ... */
@@ -22,13 +25,15 @@
 
 .appointment-card__doctor-group {
   display: flex;
-  gap: 1rem; /* Reduced gap */
+  gap: 1rem;
+  /* Reduced gap */
   flex: 1;
   min-width: 0;
 }
 
 .appointment-card__avatar {
-  width: 4rem; /* Smaller avatar */
+  width: 4rem;
+  /* Smaller avatar */
   height: 4rem;
   border-radius: 9999px;
   background-size: cover;
@@ -51,11 +56,14 @@
 
 .appointment-card__header {
   display: flex;
-  justify-content: flex-start; /* Changed from space-between to keep badge near name */
+  justify-content: flex-start;
+  /* Changed from space-between to keep badge near name */
   align-items: center;
-  gap: 0.75rem; /* Space between name and badge */
+  gap: 0.75rem;
+  /* Space between name and badge */
   margin-bottom: 0.25rem;
-  flex-wrap: wrap; /* Allow wrapping if needed */
+  flex-wrap: wrap;
+  /* Allow wrapping if needed */
 }
 
 .appointment-card__name {
@@ -205,7 +213,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  min-width: 0; /* Allow flex shrinking */
+  min-width: 0;
+  /* Allow flex shrinking */
 }
 
 .info-card--full {
@@ -227,7 +236,8 @@
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
-  white-space: nowrap; /* Prevent wrapping generally */
+  white-space: nowrap;
+  /* Prevent wrapping generally */
   overflow: hidden;
   text-overflow: ellipsis;
 }

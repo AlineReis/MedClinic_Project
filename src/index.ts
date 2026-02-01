@@ -1,15 +1,14 @@
-import "../css/global.css"
+import "../css/global.css";
 
 // import "../js/components/navigation.js"
 // import "../js/pages/app.js"
 // import "../js/services/mock_db.js"
-
-import { roleRoutes } from "./config/roleRoutes"
-import "./pages/login"
-import "./services/apiService"
-import { authStore } from "./stores/authStore"
-import { dashboardStore } from "./stores/dashboardStore"
-import "./stores/uiStore"
+import { roleRoutes } from "./config/roleRoutes";
+import "./pages/login";
+import "./services/apiService";
+import { authStore } from "./stores/authStore";
+import { dashboardStore } from "./stores/dashboardStore";
+import "./stores/uiStore";
 
 const authBlocker = createAuthBlocker()
 
@@ -22,8 +21,8 @@ authStore.subscribe(state => {
 })
 
 const authReadyPromise = authStore.refreshSession()
-;(window as Window & { authReadyPromise?: Promise<unknown> }).authReadyPromise =
-  authReadyPromise
+  ; (window as Window & { authReadyPromise?: Promise<unknown> }).authReadyPromise =
+    authReadyPromise
 
 authReadyPromise.then(session => {
   console.log("[auth] session resolved", session)

@@ -18,6 +18,7 @@ module.exports = (env, argv) => {
 
   return {
     entry: {
+      theme: './src/config/theme.ts',
       main: './src/index.ts',
       login: './src/pages/login.ts',
       register: './src/pages/register.ts',
@@ -66,60 +67,60 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: './index.html',
         filename: 'index.html',
-        chunks: ['main']
+        chunks: ['theme', 'main']
       }),
       new HtmlWebpackPlugin({
         template: './pages/schedule-appointment.html',
         filename: 'pages/schedule-appointment.html',
-        chunks: ['scheduleAppointment'],
+        chunks: ['theme', 'scheduleAppointment'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/login.html',
         filename: 'pages/login.html',
-        chunks: ['login'],
+        chunks: ['theme', 'login'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/register.html',
         filename: 'pages/register.html',
-        chunks: ['register'],
+        chunks: ['theme', 'register'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/my-appointments.html',
         filename: 'pages/my-appointments.html',
-        chunks: ['myAppointments'],
+        chunks: ['theme', 'myAppointments'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/exams.html',
         filename: 'pages/exams.html',
-        chunks: ['examsPage'],
+        chunks: ['theme', 'examsPage'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/my-exams.html',
         filename: 'pages/my-exams.html',
-        chunks: ['myExams'],
+        chunks: ['theme', 'myExams'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/agenda.html',
         filename: 'pages/agenda.html',
-        chunks: ['agenda'],
+        chunks: ['theme', 'agenda'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/dashboard.html',
         filename: 'pages/dashboard.html',
-        chunks: ['dashboard'],
+        chunks: ['theme', 'dashboard'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/pep.html',
         filename: 'pages/pep.html',
-        chunks: ['pep'],
+        chunks: ['theme', 'pep'],
         publicPath: '/'
       }),
       ...mainPages.map(
@@ -128,6 +129,7 @@ module.exports = (env, argv) => {
             template: `./pages/${page}`,
             filename: `pages/${page}`,
             chunks: [
+              'theme',
               'main',
               ...(page === 'patient-dashboard.html'
                 ? ['patientDashboard']

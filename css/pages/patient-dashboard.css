@@ -98,6 +98,7 @@
 }
 
 @media (min-width: 768px) {
+
   .header-nav,
   .nav-menu {
     display: flex;
@@ -229,6 +230,10 @@
 
 .action-card-primary:hover {
   background-color: var(--primary-hover);
+}
+
+.action-card-primary:hover {
+  color: var(--text-primary)
 }
 
 .action-card-secondary {

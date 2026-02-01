@@ -10,16 +10,19 @@
   border-color: rgba(245, 158, 11, 0.2);
   color: #f59e0b;
 }
+
 .lab-status-analysis {
   background-color: rgba(59, 130, 246, 0.1);
   border-color: rgba(59, 130, 246, 0.2);
   color: #3b82f6;
 }
+
 .lab-status-ready {
   background-color: rgba(16, 185, 129, 0.1);
   border-color: rgba(16, 185, 129, 0.2);
   color: #10b981;
 }
+
 .lab-status-urgent {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.2);
@@ -43,4 +46,15 @@
   color: #ffffff;
   border: none;
   cursor: pointer;
+}
+
+.admin-right {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-content: center;
+}
+
+.admin-right .admin-header-subtitle {
+  align-content: center;
 }
