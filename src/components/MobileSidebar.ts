@@ -1,17 +1,18 @@
+
 /**
  * Mobile Sidebar Component
  * Handles sidebar toggle functionality for mobile devices in dashboard pages
  */
+export class MobileSidebar {
+    private isOpen: boolean = false;
+    private sidebar: HTMLElement | null = null;
+    private overlay: HTMLElement | null = null;
 
-class MobileSidebar {
     constructor() {
-        this.isOpen = false;
-        this.sidebar = null;
-        this.overlay = null;
         this.init();
     }
 
-    init() {
+    private init() {
         this.sidebar = document.querySelector('aside');
         if (!this.sidebar) return;
 
@@ -32,7 +33,10 @@ class MobileSidebar {
         });
     }
 
-    createOverlay() {
+    private createOverlay() {
+        // Check if exists
+        if (document.getElementById('sidebar-overlay')) return;
+
         const overlay = document.createElement('div');
         overlay.id = 'sidebar-overlay';
         overlay.className = 'sidebar-overlay';
@@ -42,6 +46,7 @@ class MobileSidebar {
     }
 
     open() {
+        if (!this.sidebar || !this.overlay) return;
         this.isOpen = true;
         this.sidebar.classList.add('sidebar-open');
         this.overlay.classList.add('open');
@@ -49,6 +54,7 @@ class MobileSidebar {
     }
 
     close() {
+        if (!this.sidebar || !this.overlay) return;
         this.isOpen = false;
         this.sidebar.classList.remove('sidebar-open');
         this.overlay.classList.remove('open');
@@ -63,8 +69,3 @@ class MobileSidebar {
         }
     }
 }
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.mobileSidebar = new MobileSidebar();
-});

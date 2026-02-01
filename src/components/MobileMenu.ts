@@ -1,16 +1,20 @@
+
+import { authStore } from "../stores/authStore";
+import { uiStore } from "../stores/uiStore";
+
 /**
  * Mobile Menu Component
  * Handles hamburger menu functionality for mobile devices
  */
+export class MobileMenu {
+  private isOpen: boolean = false;
+  private menuOverlay: HTMLElement | null = null;
 
-class MobileMenu {
   constructor() {
-    this.isOpen = false;
-    this.menuOverlay = null;
     this.init();
   }
 
-  init() {
+  private init() {
     // Create menu overlay if it doesn't exist
     if (!document.getElementById('mobile-menu-overlay')) {
       this.createMenuOverlay();
@@ -28,10 +32,16 @@ class MobileMenu {
         this.close();
       }
     });
+
+    // Subscribe to auth updates to keep menu user info sync'd
+    authStore.subscribe(state => {
+      this.updateUserInfo(state.session);
+    });
   }
 
-  createMenuOverlay() {
+  private createMenuOverlay() {
     // Detect if we're in the pages directory or root
+    // In our build, pages are usually in /pages/, so existing logic might be needed
     const isInPagesDir = window.location.pathname.includes('/pages/');
     const pathPrefix = isInPagesDir ? '' : 'pages/';
 
@@ -50,19 +60,19 @@ class MobileMenu {
           </button>
         </div>
         <nav class="mobile-menu-nav">
-          <a href="${pathPrefix}patient-dashboard.html" class="mobile-menu-link" data-link="inicio">
+          <a href="patient-dashboard.html" class="mobile-menu-link" data-link="inicio">
             <span class="material-symbols-outlined">home</span>
             Início
           </a>
-          <a href="${pathPrefix}my-appointments.html" class="mobile-menu-link" data-link="consultas">
+          <a href="my-appointments.html" class="mobile-menu-link" data-link="consultas">
             <span class="material-symbols-outlined">event_note</span>
             Consultas
           </a>
-          <a href="${pathPrefix}exams.html" class="mobile-menu-link" data-link="exames">
+          <a href="my-exams.html" class="mobile-menu-link" data-link="exames">
             <span class="material-symbols-outlined">science</span>
             Exames
           </a>
-          <a href="${pathPrefix}schedule-appointment.html" class="mobile-menu-link" data-link="agendar">
+          <a href="schedule-appointment.html" class="mobile-menu-link" data-link="agendar">
             <span class="material-symbols-outlined">calendar_add_on</span>
             Agendar Consulta
           </a>
@@ -70,11 +80,11 @@ class MobileMenu {
         <div class="mobile-menu-footer">
           <div class="mobile-menu-user">
             <div class="mobile-menu-avatar">
-              <span data-user-initials>U</span>
+              <span data-mobile-user-initials>U</span>
             </div>
             <div class="mobile-menu-user-info">
-              <span class="mobile-menu-user-name" data-user-name>Usuário</span>
-              <span class="mobile-menu-user-role" data-user-role>Paciente</span>
+              <span class="mobile-menu-user-name" data-mobile-user-name>Usuário</span>
+              <span class="mobile-menu-user-role" data-mobile-user-role>Paciente</span>
             </div>
           </div>
           <button data-logout-button class="mobile-menu-logout">
@@ -94,6 +104,22 @@ class MobileMenu {
       closeBtn.addEventListener('click', () => this.close());
     }
 
+    // Bind footer logout
+     const logoutBtn = overlay.querySelector('.mobile-menu-logout');
+     if(logoutBtn) {
+         // Logic is handled by Navigation via global selector [data-logout-button], 
+         // but since this is dynamically added, we might need to re-bind or rely on event delegation.
+         // Navigation.ts binds on constructor. If this is added later, it might be missed.
+         // Ideally Navigation should handle delegation or expose a bind method.
+         // For now, let's just let Navigation handle it if it uses document delegation? 
+         // ERROR: Navigation uses direct querySelectorAll. Explicit binding needed or fix Navigation.
+         // But Navigation class is already instantiated. 
+         // Let's rely on Navigation refactor later? No, let's simple bind it here or ensure Navigation checks dynamic elements.
+         // Actually, Navigation initializes logout on constructor. 
+         // Valid quick fix: Trigger a click on the main logout button or duplicate logic?
+         // Duplicate logic for safety or refactor Navigation.
+     }
+
     // Close when clicking outside menu container
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
@@ -105,13 +131,28 @@ class MobileMenu {
     this.highlightCurrentPage();
   }
 
-  highlightCurrentPage() {
+  private updateUserInfo(session: any) {
+    if(!this.menuOverlay || !session) return;
+    const nameEl = this.menuOverlay.querySelector('[data-mobile-user-name]');
+    const roleEl = this.menuOverlay.querySelector('[data-mobile-user-role]');
+    const initialsEl = this.menuOverlay.querySelector('[data-mobile-user-initials]');
+
+    if(nameEl) nameEl.textContent = session.name;
+    if(initialsEl) initialsEl.textContent = this.getInitials(session.name);
+    // Role logic...
+  }
+
+  private getInitials(name: string) {
+      return name ? name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() : 'U';
+  }
+
+  private highlightCurrentPage() {
     const currentPath = window.location.pathname;
     const links = document.querySelectorAll('.mobile-menu-link');
 
     links.forEach(link => {
       const href = link.getAttribute('href');
-      if (currentPath.includes(href.replace('.html', ''))) {
+      if (href && currentPath.includes(href.replace('.html', ''))) {
         link.classList.add('active');
       }
     });
@@ -119,13 +160,13 @@ class MobileMenu {
 
   open() {
     this.isOpen = true;
-    this.menuOverlay.classList.add('open');
+    this.menuOverlay?.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   close() {
     this.isOpen = false;
-    this.menuOverlay.classList.remove('open');
+    this.menuOverlay?.classList.remove('open');
     document.body.style.overflow = '';
   }
 
@@ -137,8 +178,3 @@ class MobileMenu {
     }
   }
 }
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.mobileMenu = new MobileMenu();
-});

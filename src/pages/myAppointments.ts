@@ -1,5 +1,6 @@
 import "../../css/pages/my-appointments.css"
 import { Navigation } from "../components/Navigation"
+import { MobileMenu } from "../components/MobileMenu"
 import { listAppointments, cancelAppointment } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
@@ -15,6 +16,7 @@ let navigation: Navigation | null = null
 
 document.addEventListener("DOMContentLoaded", () => {
   navigation = new Navigation()
+  new MobileMenu()
   hydrateSessionUser()
   loadAppointments()
 

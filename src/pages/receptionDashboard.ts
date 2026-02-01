@@ -1,5 +1,6 @@
 import "../../css/pages/reception-dashboard.css"
 import { Navigation } from "../components/Navigation"
+import { MobileSidebar } from "../components/MobileSidebar"
 import { ToastContainer } from "../components/ToastContainer"
 import { checkInAppointment, listAppointments } from "../services/appointmentsService"
 import { authStore } from "../stores/authStore"
@@ -22,6 +23,7 @@ async function initReceptionDashboard() {
   // RBAC check: only receptionist, clinic_admin, and system_admin can access
   toastContainer = new ToastContainer()
   navigation = new Navigation()
+  new MobileSidebar()
   const session = await authStore.refreshSession()
 
   if (
