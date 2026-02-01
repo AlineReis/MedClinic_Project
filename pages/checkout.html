@@ -6,14 +6,13 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Checkout e Pagamento - MedClinic</title>
 
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/patient-common.css">
-    <link rel="stylesheet" href="../css/checkout.css">
+    <link rel="stylesheet" href="../css/pages/checkout.css">
 </head>
 
 <body class="dashboard-body">
@@ -60,7 +59,7 @@
                 <div class="summary-card">
                     <div class="summary-content">
                         <h3 class="summary-heading">
-                            <span class="material-symbols-outlined text-primary">event_available</span>
+                            <span class="material-symbols-outlined summary-heading__icon">event_available</span>
                             Resumo do Agendamento
                         </h3>
 
@@ -131,7 +130,7 @@
                     <div class="payment-content">
                         <div class="payment-header">
                             <h3 class="payment-title">Informações de Pagamento</h3>
-                            <span class="material-symbols-outlined opacity-50">credit_card</span>
+                            <span class="material-symbols-outlined payment-header__icon">credit_card</span>
                         </div>
                         <form class="payment-form"
                             onsubmit="event.preventDefault(); window.location.href='my-appointments.html';">

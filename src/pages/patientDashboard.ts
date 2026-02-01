@@ -91,48 +91,132 @@ function renderNextAppointment(
 ) {
   if (!nextAppointmentContainer) return
 
+  // Find child elements to populate
+  const avatarEl = nextAppointmentContainer.querySelector('.doctor-avatar') as HTMLElement
+  const statusBadgeEl = nextAppointmentContainer.querySelector('.status-badge')
+  const nameEl = nextAppointmentContainer.querySelector('.appointment-name')
+  const specialtyEl = nextAppointmentContainer.querySelector('.appointment-specialty')
+  const metaItems = nextAppointmentContainer.querySelectorAll('.meta-item')
+  const detailsBtn = nextAppointmentContainer.querySelector('.btn-small-primary')
+  const rescheduleBtn = nextAppointmentContainer.querySelector('.btn-small-outline')
+
   if (isLoading) {
-    nextAppointmentContainer.innerHTML = buildLoadingCard(
-      "Carregando informações da próxima consulta...",
-    )
+    // Show card with loading state
+    const containerEl = nextAppointmentContainer as HTMLElement
+    containerEl.style.display = ''
+    
+    if (nameEl) nameEl.textContent = 'Carregando...'
+    if (specialtyEl) specialtyEl.textContent = ''
+    if (statusBadgeEl) statusBadgeEl.textContent = ''
+    
     return
   }
 
   if (hasError) {
-    nextAppointmentContainer.innerHTML = buildEmptyCard(
-      "Não foi possível carregar suas consultas agora.",
-      "Tente atualizar a página em instantes.",
-    )
+    hideAppointmentCard()
+    showEmptyState()
     return
   }
 
   const upcoming = getUpcomingAppointment(appointments)
   if (!upcoming) {
-    nextAppointmentContainer.innerHTML = buildEmptyCard(
-      "Nenhuma consulta agendada.",
-      "Que tal marcar uma nova consulta?",
-      `${getBasePath()}schedule-appointment.html`,
-      "Agendar consulta",
-    )
+    hideAppointmentCard()
+    showEmptyState()
     return
   }
 
-  nextAppointmentContainer.innerHTML = buildAppointmentCard(upcoming)
+  // Hide empty state and show card
+  hideEmptyState()
+  const containerEl = nextAppointmentContainer as HTMLElement
+  if (containerEl.style.display === 'none') {
+    containerEl.style.display = ''
+  }
 
-  // Attach handlers
-  const detailsBtn = nextAppointmentContainer.querySelector('.appointment-details-btn')
-  const rescheduleBtn = nextAppointmentContainer.querySelector('.appointment-reschedule-btn')
+  // Populate data into existing HTML structure
+  // Note: professional_avatar not available in current API, using placeholder
+  if (avatarEl) {
+    // Keep existing background image from HTML or use placeholder
+    if (!avatarEl.style.backgroundImage) {
+      avatarEl.style.backgroundColor = 'var(--primary-10)'
+    }
+  }
 
+  if (statusBadgeEl) {
+    statusBadgeEl.textContent = formatStatus(upcoming.status)
+    statusBadgeEl.className = 'status-badge' // Reset
+    if (upcoming.status === 'confirmed') {
+      statusBadgeEl.classList.add('status-badge--confirmed')
+    }
+  }
+
+  if (nameEl) {
+    nameEl.textContent = upcoming.professional_name
+  }
+
+  if (specialtyEl) {
+    specialtyEl.textContent = upcoming.specialty
+  }
+
+  // Populate meta items (date, time, location)
+  if (metaItems.length >= 3) {
+    // Each meta-item has: <span>icon</span> + text node
+    // We need to REPLACE all text content (remove old, add new)
+    const dateItem = metaItems[0] as HTMLElement
+    const timeItem = metaItems[1] as HTMLElement
+    const locationItem = metaItems[2] as HTMLElement
+
+    // Helper to replace ALL text content after icon
+    const replaceText = (element: HTMLElement, newText: string) => {
+      // Remove all text nodes
+      Array.from(element.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          element.removeChild(node)
+        }
+      })
+      // Add new text node with spacing
+      element.appendChild(document.createTextNode('\n                                ' + newText + '\n                            '))
+    }
+
+    replaceText(dateItem, formatDate(upcoming.date))
+    replaceText(timeItem, upcoming.time)
+    replaceText(locationItem, upcoming.room ? `Sala ${upcoming.room}` : 'Unidade MedClinic')
+  }
+
+  // Attach event handlers
   if (detailsBtn) {
-    detailsBtn.addEventListener('click', () => {
-        openAppointmentModal(upcoming.id, 'details')
+    const newDetailsBtn = detailsBtn.cloneNode(true);
+    detailsBtn.replaceWith(newDetailsBtn);
+    newDetailsBtn.addEventListener('click', () => {
+      openAppointmentModal(upcoming.id, 'details')
     })
   }
 
   if (rescheduleBtn) {
-    rescheduleBtn.addEventListener('click', () => {
-        openAppointmentModal(upcoming.id, 'reschedule')
+    const newRescheduleBtn = rescheduleBtn.cloneNode(true);
+    rescheduleBtn.replaceWith(newRescheduleBtn);
+    newRescheduleBtn.addEventListener('click', () => {
+      openAppointmentModal(upcoming.id, 'reschedule')
     })
+  }
+}
+
+function hideAppointmentCard() {
+  if (nextAppointmentContainer) {
+    (nextAppointmentContainer as HTMLElement).style.display = 'none'
+  }
+}
+
+function showEmptyState() {
+  const emptyState = document.querySelector('[data-empty-appointments]') as HTMLElement
+  if (emptyState) {
+    emptyState.style.display = ''
+  }
+}
+
+function hideEmptyState() {
+  const emptyState = document.querySelector('[data-empty-appointments]') as HTMLElement
+  if (emptyState) {
+    emptyState.style.display = 'none'
   }
 }
 
@@ -144,13 +228,11 @@ function renderPrescriptions(
   const prescriptionsContainer = document.getElementById("prescriptions-container")
   if (!prescriptionsContainer) return
 
-  const cardWrapperClass = "bg-surface-dark border border-border-dark rounded-2xl h-full flex flex-col overflow-hidden"
-
   if (isLoading) {
     prescriptionsContainer.innerHTML = `
-      <div class="${cardWrapperClass} items-center justify-center min-h-[200px]">
-        <div class="flex items-center gap-2 text-slate-400 text-sm">
-          <span class="material-symbols-outlined text-sm animate-spin">sync</span>
+      <div class="prescription-card prescription-card--state">
+        <div class="prescription-card__message">
+          <span class="material-symbols-outlined u-spin">sync</span>
           Carregando prescrições...
         </div>
       </div>
@@ -160,10 +242,10 @@ function renderPrescriptions(
 
   if (hasError || !prescriptions) {
     prescriptionsContainer.innerHTML = `
-      <div class="${cardWrapperClass} items-center justify-center text-center min-h-[200px] p-6">
-        <div class="text-sm text-slate-400">
+      <div class="prescription-card prescription-card--state">
+        <div class="prescription-card__content-state">
           <p>Não foi possível carregar suas prescrições.</p>
-          <p class="text-xs mt-2">Tente novamente mais tarde.</p>
+          <p class="prescription-card__submessage">Tente novamente mais tarde.</p>
         </div>
       </div>
     `
@@ -172,10 +254,10 @@ function renderPrescriptions(
 
   if (prescriptions.length === 0) {
     prescriptionsContainer.innerHTML = `
-      <div class="${cardWrapperClass} items-center justify-center text-center min-h-[200px] p-6">
-        <div class="text-sm text-slate-400">
+      <div class="prescription-card prescription-card--state">
+        <div class="prescription-card__content-state">
           <p>Nenhuma prescrição ativa.</p>
-          <p class="text-xs mt-2">Suas prescrições médicas aparecerão aqui.</p>
+          <p class="prescription-card__submessage">Suas prescrições médicas aparecerão aqui.</p>
         </div>
       </div>
     `
@@ -185,26 +267,26 @@ function renderPrescriptions(
   // Show only the 3 most recent prescriptions
   const recentPrescriptions = prescriptions.slice(0, 3)
   prescriptionsContainer.innerHTML = `
-    <div class="${cardWrapperClass}">
-      <div class="flex-1 w-full flex flex-col justify-center">
-      ${recentPrescriptions.map((p, index) => `
-          <div class="p-5 hover:bg-background-dark/50 transition-all group w-full ${index !== recentPrescriptions.length - 1 ? 'border-b border-border-dark' : ''}">
-            <div class="flex items-center justify-between gap-4">
+    <div class="prescription-card">
+      <div class="prescription-card__content">
+      ${recentPrescriptions.map((p) => `
+          <div class="prescription-item">
+            <div class="prescription-item__container">
               <!-- Icon + Info -->
-              <div class="flex items-center gap-4 flex-1 min-w-0">
-                <div class="size-11 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
-                  <span class="material-symbols-outlined text-amber-500 text-[22px]">medication</span>
+              <div class="prescription-item__icon-group">
+                <div class="prescription-item__icon">
+                  <span class="material-symbols-outlined">medication</span>
                 </div>
-                <div class="flex-1 min-w-0">
+                <div class="prescription-item__info">
                   <!-- Name: Larger, wrapped, no truncate -->
-                  <p class="font-bold text-lg text-white leading-tight mb-1 break-words">${p.medication_name}</p>
+                  <p class="prescription-item__title">${p.medication_name}</p>
                   
                   <!-- Dosage -->
-                  ${p.dosage ? `<p class="text-sm text-slate-400 mb-2 line-clamp-2">${p.dosage}</p>` : ""}
+                  ${p.dosage ? `<p class="prescription-item__dosage">${p.dosage}</p>` : ""}
                   
                   <!-- Date (Smaller) -->
-                  <p class="text-xs text-slate-500 flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-[12px] aligned-icon">calendar_today</span>
+                  <p class="prescription-item__date">
+                    <span class="material-symbols-outlined">calendar_today</span>
                     ${formatDate(p.created_at)}
                   </p>
                 </div>
@@ -213,18 +295,18 @@ function renderPrescriptions(
               <!-- Action Button (Small, always visible) -->
               <button 
                 data-prescription-id="${p.id}"
-                class="prescription-details-btn size-9 rounded-xl border border-border-dark bg-transparent text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 flex items-center justify-center transition-all shrink-0 shadow-sm"
+                class="prescription-item__btn"
                 title="Ver detalhes"
               >
-                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                <span class="material-symbols-outlined">visibility</span>
               </button>
             </div>
           </div>
         `).join("")}
       </div>
       ${prescriptions.length > 3 ? `
-        <div class="p-4 border-t border-border-dark text-center bg-background-dark/30">
-          <p class="text-xs text-slate-500">
+        <div class="prescription-card__footer">
+          <p class="prescription-card__more-text">
             +${prescriptions.length - 3} prescrição${prescriptions.length - 3 > 1 ? "ões" : ""} anterior${prescriptions.length - 3 > 1 ? "es" : ""}
           </p>
         </div>
@@ -233,7 +315,7 @@ function renderPrescriptions(
   `
   
   // Attach click handlers to Details buttons
-  prescriptionsContainer.querySelectorAll('.prescription-details-btn').forEach(btn => {
+  prescriptionsContainer.querySelectorAll('.prescription-item__btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       // Use currentTarget to ensure we get the button element, even if icon was clicked
       const target = e.currentTarget as HTMLElement
@@ -258,7 +340,7 @@ function renderActivity(
       "sync",
       "Carregando atividades recentes...",
       "",
-      "text-slate-400",
+      "activity-icon-neutral",
     )
     return
   }
@@ -268,7 +350,7 @@ function renderActivity(
       "error",
       "Não foi possível carregar suas atividades.",
       "",
-      "text-red-400",
+      "activity-icon-warning",
     )
     return
   }
@@ -280,10 +362,11 @@ function renderActivity(
       "calendar_month",
       "Nenhuma atividade recente encontrada.",
       "",
-      "text-slate-400",
+      "activity-icon-neutral",
     )
     return
   }
+
 
   activityList.innerHTML = items
     .slice(0, 5)
@@ -304,14 +387,14 @@ function buildActivityItems(
   
   const appointmentItems = activeAppointments.map(appointment => {
     let icon = "event"
-    let color = "text-blue-400"
+    let color = "activity-icon-info"
     
     if (appointment.status === "completed") {
       icon = "check_circle"
-      color = "text-emerald-500"
+      color = "activity-icon-success"
     } else if (appointment.status === "confirmed") {
       icon = "event_available"
-      color = "text-green-400"
+      color = "activity-icon-success"
     }
     
     return {
@@ -325,7 +408,7 @@ function buildActivityItems(
 
   const prescriptionItems = prescriptions.map(prescription => ({
     icon: "receipt_long",
-    color: "text-amber-500",
+    color: "activity-icon-warning",
     date: formatDate(prescription.created_at),
     label: `Prescrição de ${prescription.medication_name}`,
     timestamp: toTimestamp(prescription.created_at),
@@ -343,97 +426,16 @@ function buildActivityRow(
   colorClass: string,
 ) {
   return `
-    <tr class="hover:bg-border-dark/20 transition-colors">
-      <td class="px-6 py-4 flex items-center gap-3">
+    <tr class="activity-table-row">
+      <td class="activity-content-cell">
         <span class="material-symbols-outlined ${colorClass}">${icon}</span>
         ${label}
       </td>
-      <td class="px-6 py-4 text-slate-500 text-right">${date}</td>
+      <td class="activity-date-cell">${date}</td>
     </tr>
   `
 }
 
-function buildLoadingCard(message: string) {
-  return `
-    <div class="flex items-center gap-2 text-slate-400 text-sm">
-      <span class="material-symbols-outlined text-sm">sync</span>
-      ${message}
-    </div>
-  `
-}
-
-function buildEmptyCard(
-  title: string,
-  description: string,
-  actionHref?: string,
-  actionLabel?: string,
-) {
-  const action =
-    actionHref && actionLabel
-      ? `
-        <a
-          href="${actionHref}"
-          class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-lg transition-all"
-        >
-          <span class="material-symbols-outlined text-[18px]">calendar_add_on</span>
-          ${actionLabel}
-        </a>
-      `
-      : ""
-
-  return `
-    <div class="flex flex-col items-start gap-2 text-slate-300">
-      <h3 class="text-base font-bold">${title}</h3>
-      <p class="text-sm text-slate-400">${description}</p>
-      ${action}
-    </div>
-  `
-}
-
-function buildAppointmentCard(appointment: AppointmentSummary) {
-  return `
-    <div class="flex flex-col md:flex-row gap-6 items-center w-full justify-between">
-      <div class="size-20 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-bold border-2 border-primary/20 shrink-0">
-        ${getInitials(appointment.professional_name)}
-      </div>
-      <div class="flex-1">
-        <span
-          class="text-[10px] font-bold ${getStatusTagClass(appointment.status)} px-2 py-0.5 rounded uppercase"
-        >
-          ${formatStatus(appointment.status)}
-        </span>
-        <h3 class="font-bold text-xl mt-2">${appointment.professional_name}</h3>
-        <p class="text-sm text-primary font-medium">${appointment.specialty}</p>
-        <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-400">
-          <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm">calendar_today</span>
-            ${formatDate(appointment.date)}
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm">schedule</span>
-            ${appointment.time}
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm">location_on</span>
-            ${appointment.room ? `Sala ${appointment.room}` : "Unidade MedClinic"}
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col gap-2 shrink-0">
-        <button
-          class="appointment-details-btn px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-lg transition-all"
-        >
-          Detalhes
-        </button>
-        <button
-          class="appointment-reschedule-btn px-4 py-2 border border-border-dark text-slate-400 hover:text-white text-xs font-bold rounded-lg transition-all"
-        >
-          Remarcar
-        </button>
-      </div>
-    </div>
-  `
-}
 
 function getUpcomingAppointment(appointments: AppointmentSummary[]) {
   return [...appointments]
@@ -467,18 +469,6 @@ function formatStatus(status: string) {
   }
 
   return map[status] ?? status
-}
-
-function getStatusTagClass(status: string) {
-  if (status === "confirmed" || status === "scheduled") {
-    return "text-emerald-500 bg-emerald-500/10"
-  }
-
-  if (status === "completed") {
-    return "text-blue-500 bg-blue-500/10"
-  }
-
-  return "text-amber-500 bg-amber-500/10"
 }
 
 function formatDate(value: string) {

@@ -23,6 +23,7 @@ module.exports = (env, argv) => {
       register: './src/pages/register.ts',
       patientDashboard: './src/pages/patientDashboard.ts',
       myAppointments: './src/pages/myAppointments.ts',
+      myExams: './src/pages/myExams.ts',
       examsPage: './src/pages/examsPage.ts',
       scheduleAppointment: './src/pages/scheduleAppointment.ts',
       doctorDashboard: './src/pages/doctorDashboard.ts',
@@ -54,9 +55,9 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new webpack.DefinePlugin({
-        CLINIC_API_HOST: JSON.stringify(
-          process.env.CLINIC_API_HOST ?? 'http://localhost:3000/api/v1/1'
-        )
+        CLINIC_API_HOST: process.env.CLINIC_API_HOST
+          ? JSON.stringify(process.env.CLINIC_API_HOST)
+          : 'undefined'
       }),
       new MiniCssExtractPlugin({
         filename: 'css/[name].[contenthash:8].css'
@@ -94,6 +95,12 @@ module.exports = (env, argv) => {
         template: './pages/exams.html',
         filename: 'pages/exams.html',
         chunks: ['examsPage'],
+        publicPath: '/'
+      }),
+      new HtmlWebpackPlugin({
+        template: './pages/my-exams.html',
+        filename: 'pages/my-exams.html',
+        chunks: ['myExams'],
         publicPath: '/'
       }),
       new HtmlWebpackPlugin({
@@ -148,6 +155,7 @@ module.exports = (env, argv) => {
                 '**/login.html',
                 '**/schedule-appointment.html',
                 '**/my-appointments.html',
+                '**/my-exams.html',
                 '**/exams.html',
                 '**/patient-dashboard.html',
                 '**/register.html',

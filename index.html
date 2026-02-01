@@ -1,144 +1,18 @@
-<!-- Portal de Agendamento do Paciente -->
-<!doctype html>
-<html class="dark" lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-BR">
 
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Portal de Agendamento do Paciente</title>
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect" />
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-    rel="stylesheet" />
-
-  <!-- Tailwind CSS (CDN for MVP) -->
-  <link href="./css/tailwind-built.css" rel="stylesheet">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/global.css">
-
-  <!-- Theme Configuration -->
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedClinic - Redirecionando...</title>
+  <meta http-equiv="refresh" content="0; url=pages/login.html">
+  <script>
+    window.location.href = "pages/login.html";
+  </script>
 </head>
 
-<body
-  class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col overflow-x-hidden antialiased">
-  <!-- Header -->
-  <header class="bg-surface-dark border-b border-border-dark">
-    <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <!-- Hamburger Button (Mobile) -->
-        <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Abrir menu">
-          <span class="material-symbols-outlined">menu</span>
-        </button>
-        <a href="index.html" class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-primary">local_hospital</span>
-          <span class="font-bold">MedClinic</span>
-        </a>
-      </div>
-      <div class="flex items-center gap-4">
-        <nav class="hidden md:flex items-center gap-6 text-sm">
-          <a href="pages/patient-dashboard.html" class="text-slate-400 hover:text-white">Inicio</a>
-          <a href="pages/my-appointments.html" class="text-slate-400 hover:text-white">Consultas</a>
-          <a href="pages/exams.html" class="text-slate-400 hover:text-white">Exames</a>
-        </nav>
-        <div class="hidden md:flex items-center gap-3">
-          <div
-            class="size-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs border border-primary/30">
-            <span data-user-initials>U</span>
-          </div>
-          <button data-logout-button class="text-sm text-slate-400 hover:text-red-400 transition-colors">
-            <span class="material-symbols-outlined text-[20px]">logout</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div class="flex flex-1 w-full max-w-[1440px] mx-auto">
-    <!-- Sidebar Filters -->
-    <aside
-      class="hidden lg:flex w-72 flex-col gap-6 p-6 border-r border-border-dark sticky top-[73px] h-[calc(100vh-73px)] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-white">Filtros</h3>
-        <button class="text-sm text-primary hover:underline" onclick="clearFilters()">
-          Limpar
-        </button>
-      </div>
-
-      <!-- Filters Container -->
-      <div class="flex flex-col gap-4" id="filters-container">
-        <!-- Filters will be rendered here by JS -->
-        <div class="animate-pulse flex flex-col gap-4">
-          <div class="h-12 bg-surface-dark rounded-lg"></div>
-          <div class="h-32 bg-surface-dark rounded-lg"></div>
-          <div class="h-32 bg-surface-dark rounded-lg"></div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col p-4 md:p-8 gap-8 overflow-y-auto h-[calc(100vh-73px)]">
-      <!-- Search & Filters Header -->
-      <section class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2">
-          <h1 class="text-3xl font-bold tracking-tight text-white">
-            Agende sua consulta
-          </h1>
-          <p class="text-text-secondary">
-            Encontre o especialista ideal e agende com facilidade.
-          </p>
-        </div>
-        <div class="flex flex-col md:flex-row gap-4">
-          <!-- Search Bar -->
-          <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <span class="material-symbols-outlined text-text-secondary">search</span>
-            </div>
-            <input id="search-input"
-              class="block w-full h-12 pl-12 pr-4 rounded-lg bg-surface-dark border border-border-dark text-white placeholder-text-secondary focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              placeholder="Busque por nome do médico ou especialidade" type="text" />
-          </div>
-        </div>
-      </section>
-
-      <section class="bg-surface-dark border border-border-dark rounded-2xl p-6 space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs uppercase tracking-[0.3em] text-text-secondary">
-              Status do backend
-            </p>
-            <h3 id="appointments-status" class="text-lg font-bold text-white">
-              Aguardando validação...
-            </h3>
-          </div>
-          <span class="text-xs text-text-secondary">Última atualização automática</span>
-        </div>
-        <div id="appointments-list" class="grid gap-4 md:grid-cols-3">
-          <div class="rounded-2xl border border-border-dark bg-background-dark px-4 py-3">
-            <p class="text-sm text-text-secondary">Sincronizando dados...</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Doctor Cards Grid -->
-      <section id="doctors-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <!-- Loading State -->
-        <div class="col-span-full flex flex-col items-center justify-center py-20">
-          <span class="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
-          <p class="text-text-secondary mt-4">Carregando especialistas...</p>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Application Scripts -->
-  <script src="js/components/mobile-menu.js"></script>
-  <script src="js/components/navigation.js"></script>
-  <script src="js/services/mock_db.js"></script>
-  <script src="js/pages/app.js"></script>
+<body>
+  <p>Se você não for redirecionado automaticamente, <a href="pages/login.html">clique aqui</a>.</p>
 </body>
 
 </html>

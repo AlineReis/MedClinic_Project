@@ -106,74 +106,74 @@ function renderExams(exams: ExamSummary[], session: UserSession) {
   if (exams.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="5" class="px-6 py-8 text-center text-slate-400">
+        <td colspan="5" class="table__empty">
           Nenhum exame encontrado.
         </td>
       </tr>
-    `;
-    return;
+    `
+    return
   }
 
   tableBody.innerHTML = exams
     .map((exam) => buildExamRow(exam, session))
-    .join("");
+    .join("")
 
   // Attach event listeners para botões
-  attachActionButtons(session);
-  attachViewButtons();
-  updateUIForRole(session.role);
+  attachActionButtons(session)
+  attachViewButtons()
+  updateUIForRole(session.role)
 }
 
 function buildExamRow(exam: ExamSummary, session: UserSession) {
   // Nome do paciente: da sessão se for patient, senão do exam
   const patientName =
-    session.role === "patient" ? session.name : (exam.patient_name ?? "N/A");
+    session.role === "patient" ? session.name : (exam.patient_name ?? "N/A")
 
   return `
-    <tr class="hover:bg-border-dark/10 transition-colors">
-      <td class="px-6 py-4">
-        <p class="text-sm font-bold">${patientName}</p>
-        <p class="text-xs text-slate-500">ID: ${exam.id}</p>
+    <tr class="table__row">
+      <td class="table__cell">
+        <p style="font-weight: 700; font-size: 0.875rem;">${patientName}</p>
+        <p style="font-size: 0.75rem; color: var(--text-secondary);">ID: ${exam.id}</p>
       </td>
-      <td class="px-6 py-4">
-        <p class="text-sm">${exam.exam_name}</p>
+      <td class="table__cell">
+        <p style="font-size: 0.875rem;">${exam.exam_name}</p>
       </td>
-      <td class="px-6 py-4">
-        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusBadge(exam.status)}">
+      <td class="table__cell">
+        <span class="${getStatusBadge(exam.status)}">
           ${formatStatus(exam.status)}
         </span>
       </td>
-      <td class="px-6 py-4 text-center">
+      <td class="table__cell u-text-center">
         ${getUrgencyIcon(exam.urgency)}
       </td>
-      <td class="px-6 py-4">
+      <td class="table__cell">
         ${getActionButton(exam, session.role)}
       </td>
     </tr>
-  `;
+  `
 }
 
 function getUrgencyIcon(urgency?: string) {
   if (urgency === "urgent" || urgency === "critical") {
-    return '<span class="material-symbols-outlined text-danger animate-pulse">priority_high</span>';
+    return '<span class="material-symbols-outlined u-text-error u-pulse">priority_high</span>'
   }
-  return '<span class="material-symbols-outlined text-slate-600">priority_high</span>';
+  return '<span class="material-symbols-outlined u-text-secondary">priority_high</span>'
 }
 
 function getActionButton(exam: ExamSummary, role: string) {
   if (role === "patient") {
     // Only show button if result is available
     if (exam.status === "delivered" || exam.status === "ready") {
-      return `<button data-view="${exam.result}" data-exam-id="${exam.id}" class="text-primary hover:text-white flex items-center gap-1 text-xs font-bold underline">VER DETALHES</button>`;
+      return `<button data-view="${exam.result}" data-exam-id="${exam.id}" class="btn btn--text btn--sm">VER DETALHES</button>`;
     }
-    return `<span class="text-slate-500 text-xs">Em análise</span>`;
+    return `<span class="u-text-secondary" style="font-size: 0.75rem;">Em análise</span>`;
   }
 
   // Doctor (Health Professional) - view only (maybe download if status is delivered?)
   // Docs say: "Ver resultados que solicitou".
   if (role === "health_professional") {
     if (exam.status === "delivered" || exam.status === "ready") {
-      return `<button data-view="${exam.result}" data-exam-id="${exam.id}" class="text-emerald-500 hover:text-emerald-400 flex items-center gap-1 text-xs font-bold underline">VER LAUDO</button>`;
+      return `<button data-view="${exam.result}" data-exam-id="${exam.id}" class="btn btn--text btn--sm u-text-success">VER LAUDO</button>`;
     }
     return "—";
   }
@@ -197,15 +197,15 @@ function getActionButton(exam: ExamSummary, role: string) {
       if (exam.status === "ready") {
         return `
              <div class="flex gap-2">
-                <button data-upload="${exam.id}" class="text-primary hover:text-white flex items-center gap-1 text-xs font-bold underline">RE-UPLOAD</button>
-                <button data-release="${exam.id}" class="bg-primary text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-600">LIBERAR</button>
+                <button data-upload="${exam.id}" class="btn btn--text btn--sm">RE-UPLOAD</button>
+                <button data-release="${exam.id}" class="btn btn--primary btn--sm">LIBERAR</button>
              </div>`;
       }
-      return `<button data-upload="${exam.id}" class="text-primary hover:text-white flex items-center gap-1 text-xs font-bold underline">UPLOAD LAUDO</button>`;
+      return `<button data-upload="${exam.id}" class="btn btn--text btn--sm">UPLOAD LAUDO</button>`;
     }
 
     if (exam.status === "delivered") {
-      return `<button data-view="${exam.result}" class="text-emerald-500 hover:text-emerald-400 flex items-center gap-1 text-xs font-bold underline">VER LAUDO</button>`;
+      return `<button data-view="${exam.result}" class="btn btn--text btn--sm u-text-success">VER LAUDO</button>`;
     }
   }
 
@@ -334,47 +334,51 @@ async function handleDownload(examId: number) {
 }
 
 const newRequestModalHtml = `
-  <div id="new-request-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-xl w-full max-w-md border border-border-light dark:border-border-dark">
-      <h2 class="text-lg font-bold mb-4">Nova Solicitação de Exame</h2>
-      <form id="new-request-form" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">Consulta (Contexto)</label>
-          <select id="request-appointment" class="w-full p-2 rounded border border-border-light dark:border-border-dark bg-transparent text-sm" required>
-            <option value="">Carregando consultas...</option>
-          </select>
-        </div>
-        <div>
-           <label class="block text-sm font-medium mb-1">Paciente</label>
-           <input type="text" id="request-patient-name" class="w-full p-2 rounded border border-border-light dark:border-border-dark bg-slate-100 text-slate-500 text-sm" disabled value="Selecione uma consulta" />
-           <input type="hidden" id="request-patient-id" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Tipo de Exame</label>
-          <select id="request-exam" class="w-full p-2 rounded border border-border-light dark:border-border-dark bg-transparent text-sm" required>
-            <option value="">Carregando exames...</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Urgência</label>
-          <select id="request-urgency" class="w-full p-2 rounded border border-border-light dark:border-border-dark bg-transparent text-sm">
-            <option value="normal">Normal</option>
-            <option value="urgent">Urgente</option>
-            <option value="critical">Crítica</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Indicação Clínica</label>
-          <textarea id="request-indication" rows="3" class="w-full p-2 rounded border border-border-light dark:border-border-dark bg-transparent text-sm" required></textarea>
-        </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" id="cancel-request" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700">Cancelar</button>
-          <button type="submit" class="bg-primary text-white px-4 py-2 rounded text-sm font-bold hover:bg-blue-600">Solicitar</button>
-        </div>
-      </form>
+  <div id="new-request-modal" class="modal-overlay hidden" style="z-index: 50;">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title">Nova Solicitação de Exame</h2>
+      </div>
+      <div class="modal__content">
+        <form id="new-request-form" class="form">
+          <div class="form__group">
+            <label class="form__label">Consulta (Contexto)</label>
+            <select id="request-appointment" class="select" required>
+              <option value="">Carregando consultas...</option>
+            </select>
+          </div>
+          <div class="form__group">
+             <label class="form__label">Paciente</label>
+             <input type="text" id="request-patient-name" class="input" disabled value="Selecione uma consulta" />
+             <input type="hidden" id="request-patient-id" />
+          </div>
+          <div class="form__group">
+            <label class="form__label">Tipo de Exame</label>
+            <select id="request-exam" class="select" required>
+              <option value="">Carregando exames...</option>
+            </select>
+          </div>
+          <div class="form__group">
+            <label class="form__label">Urgência</label>
+            <select id="request-urgency" class="select">
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgente</option>
+              <option value="critical">Crítica</option>
+            </select>
+          </div>
+          <div class="form__group">
+            <label class="form__label">Indicação Clínica</label>
+            <textarea id="request-indication" rows="3" class="textarea" required></textarea>
+          </div>
+          <div class="modal__footer">
+            <button type="button" id="cancel-request" class="btn btn--outline">Cancelar</button>
+            <button type="submit" class="btn btn--primary">Solicitar</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-`;
+`
 
 function handleNewRequest() {
   if (!document.getElementById("new-request-modal")) {
@@ -715,19 +719,19 @@ function formatStatus(status: string) {
 function getStatusBadge(status: string) {
   const map: Record<string, string> = {
     pending_payment:
-      "bg-amber-500/10 text-amber-500 border border-amber-500/20",
-    paid: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
-    scheduled: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
+      "badge badge--warning",
+    paid: "badge badge--info",
+    scheduled: "badge badge--info",
     sample_collected:
-      "bg-purple-500/10 text-purple-500 border border-purple-500/20",
-    processing: "bg-blue-500/10 text-blue-500 border border-blue-500/20",
-    ready: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+      "badge badge--warning",
+    processing: "badge badge--info",
+    ready: "badge badge--success",
     delivered:
-      "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
-    cancelled: "bg-red-500/10 text-red-500 border border-red-500/20",
-  };
+      "badge badge--success",
+    cancelled: "badge badge--error",
+  }
 
-  return map[status] ?? "bg-slate-800 text-slate-400 border border-slate-700";
+  return map[status] ?? "badge badge--neutral"
 }
 
 function getInitials(name: string) {

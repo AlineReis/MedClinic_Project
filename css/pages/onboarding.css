@@ -263,3 +263,12 @@
   font-family: 'Manrope', sans-serif;
   min-height: 100vh;
 }
+
+.is-hidden {
+  display: none !important;
+}
+
+.btn-onboarding-next--wide {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}

@@ -406,6 +406,10 @@
   margin-bottom: 1rem;
 }
 
+.feature-icon {
+  color: var(--primary);
+}
+
 .occupation-list {
   display: flex;
   flex-direction: column;

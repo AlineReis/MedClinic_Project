@@ -1,0 +1,323 @@
+/* Schedule Appointment - Specific Styles (Polished) */
+/* Note: .main-content-wide handles the centering and width now */
+
+.schedule-layout-wide {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 72rem; /* Reduced from 1440px to match patient dashboard */
+  margin: 0 auto;
+}
+
+/* 2. Main Area */
+.schedule-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem; /* Padding will be increased in media queries */
+  gap: 2.5rem; /* Increased gap for breathable layout */
+}
+
+@media (min-width: 768px) {
+  .schedule-main {
+    padding: 2.5rem 3rem;
+  }
+}
+
+/* 3. Search Section (Glassmorphism Unified Bar) */
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 2.5rem; /* Hero size */
+  font-weight: 800; /* Extra bold */
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.search-desc {
+  max-width: 36rem;
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Unified Control Wrapper */
+.search-controls-wrapper {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+  background-color: rgba(28, 36, 46, 0.7); /* translucent surface-dark */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.search-bar-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-icon-fixed {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  padding-left: 1rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: var(--primary); /* Highlight icon */
+}
+
+.search-input-field {
+  width: 100%;
+  height: 3.5rem; /* Taller touch target */
+  padding-left: 3rem;
+  padding-right: 1.5rem;
+  border-radius: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle inner background */
+  border: 1px solid transparent;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.search-input-field:focus {
+  background-color: rgba(255, 255, 255, 0.08); /* Lighter on focus */
+  box-shadow: 0 0 0 2px rgba(25, 127, 230, 0.3); /* Subtle primary glow */
+}
+
+.search-input-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Filter Dropdown Specifics */
+.filter-wrapper {
+  width: 260px;
+  position: relative;
+}
+
+select.search-input-field {
+  cursor: pointer;
+  appearance: none;
+  /* Custom chevron */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 0 24 24' width='24px' fill='%239dabb8'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.5rem;
+  padding-right: 3rem;
+  color: var(--text-secondary);
+}
+
+select.search-input-field:focus,
+select.search-input-field:hover {
+  color: #ffffff;
+}
+
+/* 4. Notification Panel (Refined) */
+.notification-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(28, 36, 46, 0.8) 0%,
+    rgba(28, 36, 46, 0.4) 100%
+  );
+  border: 1px solid var(--border-dark);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative background glow */
+.notification-panel::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(25, 127, 230, 0.1) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.notif-header {
+  display: flex;
+  align-items: flex-end; /* Align baseline */
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.notif-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notif-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notif-badge {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.notif-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.notif-timestamp {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.notif-item-small {
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* 5. Doctor Grid */
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .doctors-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .doctors-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.loading-state-full {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
+}
+
+.loading-icon-large {
+  font-size: 3rem;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.loading-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Empty State */
+.doctors-grid__empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 0;
+  text-align: center;
+  border: 2px dashed var(--border-dark);
+  border-radius: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.doctors-grid__empty-icon {
+  font-size: 3.5rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.doctors-grid__empty-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.doctors-grid__empty-desc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Modal Overlay for Checkout */
+.checkout-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.7); /* Darker backdrop */
+  backdrop-filter: blur(8px); /* Stronger blur */
+  -webkit-backdrop-filter: blur(8px);
+}

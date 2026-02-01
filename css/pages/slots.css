@@ -156,3 +156,33 @@
     grid-template-columns: 1fr 2fr;
   }
 }
+
+.slots-date-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.slot-date-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.slot-date-value {
+  font-weight: 700;
+  margin: 0;
+}
+
+.slot-section-title {
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.opacity-60 {
+  opacity: 0.6;
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}

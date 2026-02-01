@@ -1,0 +1,277 @@
+/* ========================================
+   Appointment Card (BEM)
+   ======================================== */
+
+.appointment-card {
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 1rem; /* Slightly smaller radius */
+  padding: 1.25rem; /* Reduced padding */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: all var(--transition-normal);
+  min-width: 0; /* Prevent flex box overflow */
+}
+
+/* ... media query ... */
+
+.appointment-card:hover {
+  border-color: rgba(25, 127, 230, 0.3);
+}
+
+.appointment-card__doctor-group {
+  display: flex;
+  gap: 1rem; /* Reduced gap */
+  flex: 1;
+  min-width: 0;
+}
+
+.appointment-card__avatar {
+  width: 4rem; /* Smaller avatar */
+  height: 4rem;
+  border-radius: 9999px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid rgba(25, 127, 230, 0.2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(25, 127, 230, 0.1);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.appointment-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.appointment-card__header {
+  display: flex;
+  justify-content: flex-start; /* Changed from space-between to keep badge near name */
+  align-items: center;
+  gap: 0.75rem; /* Space between name and badge */
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap; /* Allow wrapping if needed */
+}
+
+.appointment-card__name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Status Badge */
+.status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+}
+
+.status-badge--confirmed,
+.status-badge--scheduled {
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.status-badge--completed {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.status-badge--cancelled,
+.status-badge--cancelled_by_patient,
+.status-badge--cancelled_by_clinic {
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.appointment-card__specialty {
+  font-size: 0.875rem;
+  color: var(--primary);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.appointment-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.appointment-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.appointment-card__meta-icon {
+  font-size: 16px !important;
+}
+
+.appointment-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+/* Internal buttons for appointment card */
+.appointment-card__btn {
+  padding: 0.5rem 1rem;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.appointment-card__btn--primary {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.appointment-card__btn--primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.appointment-card__btn--outline {
+  border: 1px solid var(--border-dark);
+  background: none;
+  color: var(--text-secondary);
+}
+
+.appointment-card__btn--outline:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.appointment-card__btn--danger {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+  color: #ef4444;
+}
+
+.appointment-card__btn--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+
+/* Status Modifiers (Left Border) */
+/* Status Modifiers (Left Border) */
+.appointment-card--scheduled {
+  border-left: 4px solid #10b981 !important;
+}
+
+.appointment-card--confirmed {
+  border-left: 4px solid #10b981 !important;
+}
+
+.appointment-card--completed {
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.appointment-card--cancelled,
+.appointment-card--cancelled_by_patient,
+.appointment-card--cancelled_by_clinic {
+  border-left: 4px solid #f59e0b !important;
+}
+
+/* Info Grid (Modal Details) */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.info-card {
+  background-color: var(--background-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0; /* Allow flex shrinking */
+}
+
+.info-card--full {
+  grid-column: span 2;
+}
+
+.info-card__label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.info-card__value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap; /* Prevent wrapping generally */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-card__value span:not(.material-symbols-outlined) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-card__value-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.info-card__status {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.status-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-pill--confirmed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.status-pill--completed {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.status-pill--cancelled {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}

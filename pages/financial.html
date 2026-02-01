@@ -5,14 +5,17 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Dashboard Financeiro - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base/reset.css">
+    <link rel="stylesheet" href="../css/base/variables.css">
+    <link rel="stylesheet" href="../css/base/typography.css">
+    <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/admin-common.css">
-    <link rel="stylesheet" href="../css/financial.css">
+    <link rel="stylesheet" href="../css/layout/admin-common.css">
+    <link rel="stylesheet" href="../css/pages/financial.css">
 </head>
 
 <body class="admin-layout">
@@ -112,7 +115,7 @@
                     </div>
 
                     <div class="split-rules-panel">
-                        <h3 class="panel-section-title">Regras de Split (RN-18)</h3>
+                        <h3 class="panel-section-title panel-section-title--spaced">Regras de Split (RN-18)</h3>
                         <div class="split-rule-item">
                             <span class="split-rule-label">Médico (Profissional)</span>
                             <span class="split-rule-value">60%</span>
@@ -134,7 +137,7 @@
                 </div>
 
                 <!-- Transactions Table -->
-                <section class="admin-table-panel">
+                <section class="admin-table-panel admin-table-panel--padded">
                     <table class="admin-table">
                         <thead>
                             <tr>

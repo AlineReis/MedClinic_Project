@@ -222,3 +222,32 @@
   background-size: cover;
   background-position: center;
 }
+
+.filter-title--compact {
+  margin-bottom: 0;
+}
+
+.results-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ffffff;
+}
+
+.results-count {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.star-icon {
+  font-size: 1.25rem !important;
+}
+
+.star-icon--gold {
+  color: #f59e0b;
+  font-variation-settings: 'FILL' 1;
+}

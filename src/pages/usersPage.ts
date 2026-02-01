@@ -97,10 +97,10 @@ function updateUsersTable(users: UserSummary[]) {
   if (users.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-          <div class="flex flex-col items-center gap-3">
-            <span class="material-symbols-outlined text-4xl">search_off</span>
-            <p>Nenhum usuário encontrado</p>
+        <td colspan="5" class="table__empty">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+            <span class="material-symbols-outlined table__empty-icon">search_off</span>
+            <p class="table__empty-text">Nenhum usuário encontrado</p>
           </div>
         </td>
       </tr>
@@ -120,35 +120,35 @@ function updateUsersTable(users: UserSummary[]) {
     const roleDisplay = getRoleDisplay(user.role)
 
     return `
-      <tr class="hover:bg-border-dark/10 transition-colors" data-user-id="${user.id}">
-        <td class="px-6 py-4">
-          <div class="flex items-center gap-3">
-            <div class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
+      <tr class="table__row" data-user-id="${user.id}">
+        <td class="table__cell">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="table__avatar">
               ${initials}
             </div>
             <div>
-              <p class="text-sm font-bold">${escapeHtml(user.name)}</p>
-              <p class="text-[10px] text-slate-500">ID: #${user.id}</p>
+              <p style="font-weight: 700; color: var(--text-primary); margin: 0;">${escapeHtml(user.name)}</p>
+              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">ID: #${user.id}</p>
             </div>
           </div>
         </td>
-        <td class="px-6 py-4 text-sm text-slate-400">${escapeHtml(user.email)}</td>
-        <td class="px-6 py-4 text-sm">
-          <span class="px-2 py-1 rounded ${roleBadge} text-[10px] font-bold">${roleDisplay}</span>
+        <td class="table__cell table__cell--muted">${escapeHtml(user.email)}</td>
+        <td class="table__cell">
+          <span class="${roleBadge}">${roleDisplay}</span>
           ${user.professional_details ? `
-            <div class="text-[10px] text-slate-500 mt-1">${escapeHtml(user.professional_details.specialty)}</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${escapeHtml(user.professional_details.specialty)}</div>
           ` : ""}
         </td>
-        <td class="px-6 py-4">
-          <span class="flex items-center gap-1.5 text-xs text-emerald-500 font-bold">
-            <span class="size-1.5 rounded-full bg-emerald-500"></span> Ativo
+        <td class="table__cell">
+          <span class="badge badge--success">
+            Ativo
           </span>
         </td>
-        <td class="px-6 py-4 text-right">
-          <button class="text-slate-500 hover:text-white transition-colors mr-2" data-edit-user="${user.id}">
+        <td class="table__cell table__cell--right">
+          <button class="u-text-secondary hover:u-text-primary" style="margin-right: 0.5rem;" data-edit-user="${user.id}">
             <span class="material-symbols-outlined">edit_square</span>
           </button>
-          <button class="text-slate-500 hover:text-red-400 transition-colors" data-delete-user="${user.id}">
+          <button class="u-text-secondary hover:u-text-red" style="transition: color 0.2s;" data-delete-user="${user.id}">
             <span class="material-symbols-outlined">delete</span>
           </button>
         </td>
@@ -162,14 +162,14 @@ function updateUsersTable(users: UserSummary[]) {
 
 function getRoleBadge(role: UserRole): string {
   const badges: Record<UserRole, string> = {
-    patient: "bg-blue-500/10 text-blue-400",
-    health_professional: "bg-emerald-500/10 text-emerald-400",
-    receptionist: "bg-purple-500/10 text-purple-400",
-    lab_tech: "bg-yellow-500/10 text-yellow-400",
-    clinic_admin: "bg-orange-500/10 text-orange-400",
-    system_admin: "bg-red-500/10 text-red-400",
+    patient: "badge badge--info",
+    health_professional: "badge badge--success",
+    receptionist: "badge badge--warning",
+    lab_tech: "badge badge--warning",
+    clinic_admin: "badge badge--error", // Using error color for admin specific distinction or neutral
+    system_admin: "badge badge--error",
   }
-  return badges[role] || "bg-slate-500/10 text-slate-400"
+  return badges[role] || "badge badge--neutral"
 }
 
 function getRoleDisplay(role: UserRole): string {
@@ -198,23 +198,23 @@ function updatePagination(pagination: { total: number; page: number; pageSize: n
   const endItem = Math.min(pagination.page * pagination.pageSize, pagination.total)
 
   paginationContainer.innerHTML = `
-    <div class="flex items-center justify-between mt-4 px-6 py-4 bg-surface-dark border-t border-border-dark">
-      <div class="text-sm text-slate-400">
+    <div class="pagination">
+      <div class="pagination__info">
         Mostrando ${startItem} a ${endItem} de ${pagination.total} usuários
       </div>
-      <div class="flex gap-2">
+      <div class="pagination__controls">
         <button
-          class="px-3 py-1 rounded bg-border-dark text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary transition-colors"
+          class="pagination__button"
           data-prev-page
           ${pagination.page <= 1 ? "disabled" : ""}
         >
           Anterior
         </button>
-        <span class="px-3 py-1 text-sm text-slate-400">
+        <span class="pagination__page">
           Página ${pagination.page} de ${pagination.totalPages}
         </span>
         <button
-          class="px-3 py-1 rounded bg-border-dark text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary transition-colors"
+          class="pagination__button"
           data-next-page
           ${pagination.page >= pagination.totalPages ? "disabled" : ""}
         >
@@ -280,101 +280,103 @@ async function showEditModal(userId: number) {
 
     const user = response.data
     const modalHtml = `
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" data-edit-modal>
-        <div class="bg-surface-dark border border-border-dark rounded-2xl p-6 max-w-md w-full mx-4">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold">Editar Usuário</h3>
-            <button class="text-slate-400 hover:text-white" data-close-modal>
+      <div class="modal-overlay" data-edit-modal style="z-index: 50;">
+        <div class="modal">
+          <div class="modal__header">
+            <h3 class="modal__title">Editar Usuário</h3>
+            <button class="modal__close" data-close-modal>
               <span class="material-symbols-outlined">close</span>
             </button>
           </div>
 
-          <form data-edit-form class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Nome</label>
-              <input
-                type="text"
-                name="name"
-                value="${escapeHtml(user.name)}"
-                class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-1">E-mail</label>
-              <input
-                type="email"
-                name="email"
-                value="${escapeHtml(user.email)}"
-                class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-1">Telefone</label>
-              <input
-                type="text"
-                name="phone"
-                value="${escapeHtml(user.phone || "")}"
-                class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
-              />
-            </div>
-
-            ${user.role === "health_professional" && user.professional_details ? `
-              <div>
-                <label class="block text-sm font-medium mb-1">Especialidade</label>
+          <div class="modal__content">
+            <form data-edit-form class="form">
+              <div class="form__group">
+                <label class="form__label">Nome</label>
                 <input
                   type="text"
-                  name="specialty"
-                  value="${escapeHtml(user.professional_details.specialty)}"
-                  class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
+                  name="name"
+                  value="${escapeHtml(user.name)}"
+                  class="input"
+                  required
                 />
               </div>
 
-              <div>
-                <label class="block text-sm font-medium mb-1">Número de Registro</label>
+              <div class="form__group">
+                <label class="form__label">E-mail</label>
+                <input
+                  type="email"
+                  name="email"
+                  value="${escapeHtml(user.email)}"
+                  class="input"
+                  required
+                />
+              </div>
+
+              <div class="form__group">
+                <label class="form__label">Telefone</label>
                 <input
                   type="text"
-                  name="registration_number"
-                  value="${escapeHtml(user.professional_details.registration_number)}"
-                  class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
+                  name="phone"
+                  value="${escapeHtml(user.phone || "")}"
+                  class="input"
                 />
               </div>
 
-              <div>
-                <label class="block text-sm font-medium mb-1">Conselho</label>
-                <input
-                  type="text"
-                  name="council"
-                  value="${escapeHtml(user.professional_details.council)}"
-                  class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
-                />
-              </div>
+              ${user.role === "health_professional" && user.professional_details ? `
+                <div class="form__group">
+                  <label class="form__label">Especialidade</label>
+                  <input
+                    type="text"
+                    name="specialty"
+                    value="${escapeHtml(user.professional_details.specialty)}"
+                    class="input"
+                  />
+                </div>
 
-              <div>
-                <label class="block text-sm font-medium mb-1">Preço da Consulta (R$)</label>
-                <input
-                  type="number"
-                  name="consultation_price"
-                  value="${user.professional_details.consultation_price}"
-                  step="0.01"
-                  min="0"
-                  class="w-full px-3 py-2 bg-background-dark border border-border-dark rounded-lg text-white focus:ring-1 focus:ring-primary outline-none"
-                />
-              </div>
-            ` : ""}
+                <div class="form__group">
+                  <label class="form__label">Número de Registro</label>
+                  <input
+                    type="text"
+                    name="registration_number"
+                    value="${escapeHtml(user.professional_details.registration_number)}"
+                    class="input"
+                  />
+                </div>
 
-            <div class="flex gap-3 pt-4">
-              <button type="button" data-close-modal class="flex-1 px-4 py-2 bg-border-dark rounded-lg hover:bg-slate-700 transition-colors">
-                Cancelar
-              </button>
-              <button type="submit" class="flex-1 px-4 py-2 bg-primary rounded-lg hover:bg-blue-600 transition-colors font-bold">
-                Salvar
-              </button>
-            </div>
-          </form>
+                <div class="form__group">
+                  <label class="form__label">Conselho</label>
+                  <input
+                    type="text"
+                    name="council"
+                    value="${escapeHtml(user.professional_details.council)}"
+                    class="input"
+                  />
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">Preço da Consulta (R$)</label>
+                    <input
+                      type="number"
+                      name="consultation_price"
+                      value="${user.professional_details.consultation_price}"
+                      step="0.01"
+                      min="0"
+                      class="input"
+                    />
+                </div>
+              ` : ""}
+
+              <div class="modal__footer" style="padding: 0; border: none; background: transparent; margin-top: 1rem;">
+                <button type="button" data-close-modal class="btn btn--outline" style="flex: 1;">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn--primary" style="flex: 1;">
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     `

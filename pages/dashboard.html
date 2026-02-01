@@ -5,13 +5,12 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Painel Administrativo - MedClinic</title>
-    <link href="../css/tailwind-built.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/admin-common.css">
+    <link rel="stylesheet" href="../css/layout/admin-common.css">
 </head>
 
 <body class="admin-layout">
@@ -74,29 +73,29 @@
                     <div class="admin-stats-card">
                         <h4 class="card-label">Receita Total</h4>
                         <p class="card-value" id="kpi-revenue">R$ 0,00</p>
-                        <div class="trend-label trend-emerald">+12.5%</div>
+                        <div class="trend-label trend-label--success">+12.5%</div>
                     </div>
                     <div class="admin-stats-card">
                         <h4 class="card-label">Consultas</h4>
                         <p class="card-value" id="kpi-appointments">0</p>
-                        <div class="trend-label trend-emerald">+5.2%</div>
+                        <div class="trend-label trend-label--success">+5.2%</div>
                     </div>
                     <div class="admin-stats-card">
                         <h4 class="card-label">Novos Pacientes</h4>
                         <p class="card-value" id="kpi-patients">0</p>
-                        <div class="trend-label trend-emerald">+3 hoje</div>
+                        <div class="trend-label trend-label--success">+3 hoje</div>
                     </div>
                     <div class="admin-stats-card">
                         <h4 class="card-label">Médicos Ativos</h4>
                         <p class="card-value" id="kpi-doctors">0</p>
-                        <div class="trend-label trend-secondary">98% disp.</div>
+                        <div class="trend-label trend-label--neutral">98% disp.</div>
                     </div>
                 </div>
 
                 <!-- Charts Layout -->
                 <div class="manager-main-grid">
                     <!-- Chart Area -->
-                    <section class="admin-table-panel u-padding-large">
+                    <section class="admin-table-panel admin-table-panel--padded">
                         <h3 class="panel-section-title">Receita Mensal</h3>
                         <div class="chart-viewport-box">
                             <div class="chart-bar chart-bar-primary" style="height: 60%;"></div>
@@ -107,8 +106,8 @@
                     </section>
 
                     <!-- Repasses -->
-                    <section class="admin-table-panel u-padding-large">
-                        <h3 class="panel-section-title u-mb-15">Repasses (Split)</h3>
+                    <section class="admin-table-panel admin-table-panel--padded">
+                        <h3 class="panel-section-title panel-section-title--spaced">Repasses (Split)</h3>
                         <div id="split-list" class="admin-table-placeholder">
                             Carregando dados...
                         </div>

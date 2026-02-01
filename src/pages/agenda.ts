@@ -101,8 +101,7 @@ function renderAgendaGrid(
   timeColumn.innerHTML = "";
   for (let hour = START_HOUR; hour <= END_HOUR; hour++) {
     const timeLabel = document.createElement("div");
-    timeLabel.className =
-      "h-24 flex items-center justify-center border-b border-border-dark"; // h-24 = 96px
+    timeLabel.className = "agenda-time-slot";
     timeLabel.textContent = `${hour}:00`;
     timeColumn.appendChild(timeLabel);
   }
@@ -117,27 +116,25 @@ function renderAgendaGrid(
   professionals.forEach((prof) => {
     // Header
     const colHeader = document.createElement("div");
-    colHeader.className =
-      "w-48 flex-shrink-0 p-3 border-r border-border-dark flex items-center gap-3";
+    colHeader.className = "agenda-col-header";
     colHeader.innerHTML = `
-      <div class="size-10 rounded-full bg-surface-dark border border-border-dark flex items-center justify-center text-slate-400 font-bold overflow-hidden">
+      <div class="agenda-avatar">
         ${
           prof.avatar_url
-            ? `<img src="${prof.avatar_url}" class="w-full h-full object-cover">`
+            ? `<img src="${prof.avatar_url}" class="agenda-avatar-img">`
             : prof.name.substring(0, 2).toUpperCase()
         }
       </div>
-      <div class="min-w-0">
-        <p class="text-sm font-bold text-white truncate">${prof.name}</p>
-        <p class="text-xs text-slate-400 truncate">${prof.specialty}</p>
+      <div class="agenda-prof-info">
+        <p class="agenda-prof-name">${prof.name}</p>
+        <p class="agenda-prof-specialty">${prof.specialty}</p>
       </div>
     `;
     headerContainer.appendChild(colHeader);
 
     // Grid Column
     const col = document.createElement("div");
-    col.className =
-      "w-48 flex-shrink-0 border-r border-border-dark relative h-full";
+    col.className = "agenda-col";
     // We need to set height based on total hours * slot height
     col.style.height = `${(END_HOUR - START_HOUR + 1) * SLOT_HEIGHT}px`;
 
@@ -161,26 +158,24 @@ function renderAgendaGrid(
       const height = 96; // 1 slot
 
       const card = document.createElement("div");
-      card.className =
-        "absolute w-[90%] left-[5%] bg-primary/20 border border-primary/50 text-white p-2 rounded-lg text-xs hover:bg-primary/30 transition-colors cursor-pointer overflow-hidden";
       card.style.top = `${top}px`;
-      card.style.height = `${height}px`; // default height
+      card.style.height = `${height}px`;
 
       const statusColors: Record<string, string> = {
-        scheduled: "bg-primary/20 border-primary/50 text-white",
-        completed: "bg-emerald-500/20 border-emerald-500/50 text-emerald-100",
-        cancelled: "bg-red-500/20 border-red-500/50 text-red-100",
+        scheduled: "agenda-card--scheduled",
+        completed: "agenda-card--completed",
+        cancelled: "agenda-card--cancelled",
       };
 
       const colorClass = statusColors[app.status] || statusColors.scheduled;
-      card.className = `absolute w-[90%] left-[5%] p-2 rounded-lg text-xs border transition-colors cursor-pointer overflow-hidden ${colorClass}`;
+      card.className = `agenda-card ${colorClass}`;
 
       card.innerHTML = `
-        <p class="font-bold truncate">${app.patient_name}</p>
-        <p class="opacity-80">${app.time}</p>
-        <div class="mt-1 flex items-center gap-1 opacity-60">
-           <span class="material-symbols-outlined text-[10px]">event_note</span>
-           <span class="truncate">${app.status}</span>
+        <p class="agenda-card-title">${app.patient_name}</p>
+        <p class="agenda-card-time">${app.time}</p>
+        <div class="agenda-card-footer">
+           <span class="material-symbols-outlined" style="font-size: 0.625rem;">event_note</span>
+           <span class="u-truncate">${app.status}</span>
         </div>
       `;
 

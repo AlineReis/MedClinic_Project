@@ -557,3 +557,35 @@ body.dashboard-body {
   font-variation-settings: 'FILL' 1;
   color: #ffca28;
 }
+
+/* Color Utilities */
+.u-text-error {
+  color: #ef4444 !important;
+}
+.u-text-success {
+  color: #10b981 !important;
+}
+.u-text-warning {
+  color: #f59e0b !important;
+}
+.u-text-info {
+  color: #3b82f6 !important;
+}
+.u-text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Animations */
+.u-pulse {
+  animation: u-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes u-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

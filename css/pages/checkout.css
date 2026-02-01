@@ -55,6 +55,10 @@
   gap: 0.5rem;
 }
 
+.summary-heading__icon {
+  color: var(--primary);
+}
+
 .doctor-profile-strip {
   display: flex;
   align-items: center;
@@ -241,6 +245,10 @@
   font-size: 1.125rem;
   font-weight: 700;
   margin: 0;
+}
+
+.payment-header__icon {
+  opacity: 0.5;
 }
 
 .payment-form {

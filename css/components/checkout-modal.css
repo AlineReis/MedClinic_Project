@@ -1,0 +1,232 @@
+/* ========================================
+   Checkout Modal (BEM)
+   ======================================== */
+
+.checkout-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.checkout-modal {
+  width: 100%;
+  max-width: 28rem; /* max-w-md */
+  background-color: var(--surface-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+  animation: zoomIn 0.2s ease-out;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.checkout-modal__header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-dark);
+  background-color: var(--background-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkout-modal__title {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.checkout-modal__close {
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+}
+
+.checkout-modal__close:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.checkout-modal__content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Professional Summary in Checkout */
+.checkout-summary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.checkout-summary__avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  background-color: rgba(25, 127, 230, 0.1);
+  border: 1px solid var(--border-dark);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.checkout-summary__info h4 {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.checkout-summary__info p {
+  color: var(--primary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Details Box */
+.checkout-details {
+  background-color: var(--background-dark);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkout-details__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.checkout-details__label {
+  color: var(--text-secondary);
+}
+
+.checkout-details__value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.checkout-details__divider {
+  height: 1px;
+  background-color: var(--border-dark);
+  margin: 0.5rem 0;
+}
+
+.checkout-details__total-label {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.checkout-details__total-value {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Payment Methods */
+.checkout-payment__label,
+.checkout-installments__label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.checkout-payment__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.checkout-payment__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-dark);
+  background-color: var(--background-dark);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.checkout-payment__btn:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.checkout-payment__btn--active {
+  border-color: var(--primary);
+  background-color: rgba(25, 127, 230, 0.1);
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* Confirm Button */
+.checkout-confirm-btn {
+  width: 100%;
+  background-color: #10b981; /* Green */
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.checkout-confirm-btn:hover {
+  background-color: #059669;
+}
+
+.checkout-confirm-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

@@ -209,6 +209,12 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  gap: 0.5rem;
+}
+
+.success-state-container .auth-subtitle {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 .success-icon-box {
