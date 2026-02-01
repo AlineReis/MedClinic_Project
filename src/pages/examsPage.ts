@@ -1,3 +1,4 @@
+import "../../css/pages/exams.css"
 import { listAppointments } from "../services/appointmentsService";
 import { logout } from "../services/authService";
 import {
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     redirectToLogin();
     return;
   }
-  
+
   hydrateSessionUser(session);
   renderNavigation(session);
   loadExams();
@@ -650,7 +651,7 @@ function renderNavigation(session: UserSession) {
     if (brandName) brandName.textContent = "MedClinic Labs";
     if (brandIcon) brandIcon.textContent = "science";
     if (brandLink) brandLink.setAttribute("href", `${basePath}lab-dashboard.html`);
-    
+
     const headerTitle = document.querySelector(".admin-header-title");
     if (headerTitle) headerTitle.textContent = "Solicitações de Exames";
   } else {

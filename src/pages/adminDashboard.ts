@@ -1,3 +1,4 @@
+import "../../css/pages/admin-dashboard.css"
 import { listAppointments } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { listProfessionals } from "../services/professionalsService"

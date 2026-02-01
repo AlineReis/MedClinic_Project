@@ -1,3 +1,5 @@
+import "../../css/base/reset.css"
+import "../../css/pages/schedule-appointment.css"
 import {
   cancelAppointment,
   createAppointment,
@@ -249,12 +251,12 @@ async function loadPatientAppointments(useCache = true) {
   const limitedAppointments = futureAppointments.filter(a => a.status !== 'cancelled_by_patient')
   appointmentCountLabel!.textContent = `${limitedAppointments.length} agendamentos`
   appointmentsStatus.textContent = buildAppointmentStatusText(limitedAppointments)
-  
+
   // Setup pagination
   currentAppointmentPage = 0
   appointmentPageSize = 4 // Limit to 4 per page
   cachedAppointments = limitedAppointments
-  
+
   renderPaginatedAppointments()
 }
 
@@ -264,19 +266,19 @@ let cachedAppointments: AppointmentSummary[] = []
 
 function renderPaginatedAppointments() {
   if (!appointmentsList) return
-  
+
   const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
   const start = currentAppointmentPage * appointmentPageSize
   const end = start + appointmentPageSize
   const pageItems = cachedAppointments.slice(start, end)
-  
+
   // Use a grid container for the cards
   const gridHtml = `
     <div class="appointments-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; width: 100%;">
       ${pageItems.map(app => buildAppointmentCard(app)).join("")}
     </div>
   `
-  
+
   // Pagination controls
   let paginationHtml = ''
   if (totalPages > 1) {
@@ -304,28 +306,28 @@ function renderPaginatedAppointments() {
       </div>
     `
   }
-  
+
   appointmentsList.innerHTML = gridHtml + paginationHtml
-  
+
   // Re-attach event listeners
   bindAppointmentCardEvents(appointmentsList)
 }
 
 // Expose pagination functions to window
-;(window as any).prevAppointmentPage = () => {
+; (window as any).prevAppointmentPage = () => {
   if (currentAppointmentPage > 0) {
     currentAppointmentPage--
     renderPaginatedAppointments()
   }
 }
 
-;(window as any).nextAppointmentPage = () => {
-  const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
-  if (currentAppointmentPage < totalPages - 1) {
-    currentAppointmentPage++
-    renderPaginatedAppointments()
+  ; (window as any).nextAppointmentPage = () => {
+    const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
+    if (currentAppointmentPage < totalPages - 1) {
+      currentAppointmentPage++
+      renderPaginatedAppointments()
+    }
   }
-}
 
 function bindAppointmentCardEvents(container: HTMLElement) {
   container.querySelectorAll("[data-action='cancel-appointment']").forEach(
@@ -517,7 +519,7 @@ async function handleAvailabilityClick(
       : "Nenhum horário disponível para os próximos dias.",
   )
   renderToasts()
-  
+
   const professional = professionalsCache.find(p => p.id === professionalId)
   if (!professional) return
 
@@ -637,7 +639,7 @@ function createCheckoutModal(
   const modal = document.createElement("div")
   modal.id = "checkout-modal"
   modal.className = "checkout-modal-overlay"
-  
+
   modal.innerHTML = `
     <div class="checkout-modal">
       <div class="checkout-modal__header">
@@ -674,11 +676,10 @@ function createCheckoutModal(
           <div class="checkout-details__divider"></div>
           <div class="checkout-details__row">
             <span class="checkout-details__total-label">Valor Total</span>
-            <span class="checkout-details__total-value">${
-              professional.consultation_price
-                ? formatCurrency(professional.consultation_price)
-                : "A confirmar"
-            }</span>
+            <span class="checkout-details__total-value">${professional.consultation_price
+      ? formatCurrency(professional.consultation_price)
+      : "A confirmar"
+    }</span>
           </div>
         </div>
 
@@ -760,10 +761,10 @@ function createCheckoutModal(
       )
       renderToasts()
       modal.remove()
-      
+
       // Force reload of appointments list with fresh data
       await loadPatientAppointments(false)
-      
+
       // Reload dashboard for patient dashboard page
       await dashboardStore.loadData()
     } finally {
@@ -800,7 +801,7 @@ async function handleCancelAppointment(appointmentId: number) {
   uiStore.addToast("success", `Agendamento cancelado com sucesso.${refundInfo}`)
   renderToasts()
   await loadPatientAppointments(false)
-  
+
   // Reload dashboard for patient dashboard page
   await dashboardStore.loadData()
 }
@@ -834,7 +835,7 @@ function createAvailabilityModal(
   const modal = document.createElement("div")
   modal.id = "availability-modal"
   modal.className = "availability-modal-overlay"
-  
+
   // Generate HTML for grouped slots
   // Generate HTML for grouped slots
   const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
@@ -899,7 +900,7 @@ function createAvailabilityModal(
       const target = event.currentTarget as HTMLButtonElement
       const selectedDate = target.dataset.slotDate
       const selectedTime = target.dataset.slotTime
-      
+
       if (!selectedDate || !selectedTime) return
 
       createCheckoutModal(professional, selectedDate, selectedTime)
@@ -962,7 +963,7 @@ function createRescheduleModal(
   const modal = document.createElement("div")
   modal.id = "reschedule-modal"
   modal.className = "availability-modal-overlay"
-  
+
   // Generate HTML for grouped slots
   const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
     <div class="slots-group">
@@ -1067,7 +1068,7 @@ async function handleRescheduleConfirm(
   renderToasts()
   modal.remove()
   await loadPatientAppointments(false)
-  
+
   // Reload dashboard for patient dashboard page
   await dashboardStore.loadData()
 }

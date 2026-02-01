@@ -1,3 +1,4 @@
+import "../../css/pages/agenda.css"
 import { listAppointments } from "../services/appointmentsService";
 import { authStore } from "../stores/authStore";
 import { listProfessionals } from "../services/professionalsService";
@@ -119,11 +120,10 @@ function renderAgendaGrid(
     colHeader.className = "agenda-col-header";
     colHeader.innerHTML = `
       <div class="agenda-avatar">
-        ${
-          prof.avatar_url
-            ? `<img src="${prof.avatar_url}" class="agenda-avatar-img">`
-            : prof.name.substring(0, 2).toUpperCase()
-        }
+        ${prof.avatar_url
+        ? `<img src="${prof.avatar_url}" class="agenda-avatar-img">`
+        : prof.name.substring(0, 2).toUpperCase()
+      }
       </div>
       <div class="agenda-prof-info">
         <p class="agenda-prof-name">${prof.name}</p>

@@ -5,7 +5,8 @@
   display: flex;
   flex: 1;
   width: 100%;
-  max-width: 72rem; /* Reduced from 1440px to match patient dashboard */
+  max-width: 72rem;
+  /* Reduced from 1440px to match patient dashboard */
   margin: 0 auto;
 }
 
@@ -14,8 +15,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1rem; /* Padding will be increased in media queries */
-  gap: 2.5rem; /* Increased gap for breathable layout */
+  padding: 1rem;
+  /* Padding will be increased in media queries */
+  gap: 2.5rem;
+  /* Increased gap for breathable layout */
 }
 
 @media (min-width: 768px) {
@@ -33,8 +36,10 @@
 
 .section-title {
   font-family: 'Manrope', sans-serif;
-  font-size: 2.5rem; /* Hero size */
-  font-weight: 800; /* Extra bold */
+  font-size: 2.5rem;
+  /* Hero size */
+  font-weight: 800;
+  /* Extra bold */
   color: #ffffff;
   letter-spacing: -0.03em;
   margin: 0;
@@ -54,7 +59,8 @@
   gap: 1rem;
   flex-wrap: wrap;
   align-items: stretch;
-  background-color: rgba(28, 36, 46, 0.7); /* translucent surface-dark */
+  background-color: rgba(28, 36, 46, 0.7);
+  /* translucent surface-dark */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 0.75rem;
@@ -67,27 +73,31 @@
   position: relative;
   flex: 1;
   min-width: 280px;
+  display: flex;
 }
 
 .search-icon-fixed {
-  position: absolute;
+  position: relative;
   top: 0;
   bottom: 0;
   left: 0;
-  padding-left: 1rem;
+  padding-right: 0.5rem;
   display: flex;
   align-items: center;
   pointer-events: none;
-  color: var(--primary); /* Highlight icon */
+  color: var(--primary);
+  /* Highlight icon */
 }
 
 .search-input-field {
   width: 100%;
-  height: 3.5rem; /* Taller touch target */
-  padding-left: 3rem;
+  height: 3.5rem;
+  /* Taller touch target */
+  padding-left: 1rem;
   padding-right: 1.5rem;
   border-radius: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.03); /* Subtle inner background */
+  background-color: rgba(255, 255, 255, 0.03);
+  /* Subtle inner background */
   border: 1px solid transparent;
   color: #ffffff;
   font-size: 1rem;
@@ -96,8 +106,10 @@
 }
 
 .search-input-field:focus {
-  background-color: rgba(255, 255, 255, 0.08); /* Lighter on focus */
-  box-shadow: 0 0 0 2px rgba(25, 127, 230, 0.3); /* Subtle primary glow */
+  background-color: rgba(255, 255, 255, 0.08);
+  /* Lighter on focus */
+  box-shadow: 0 0 0 2px rgba(25, 127, 230, 0.3);
+  /* Subtle primary glow */
 }
 
 .search-input-field::placeholder {
@@ -129,11 +141,9 @@ select.search-input-field:hover {
 
 /* 4. Notification Panel (Refined) */
 .notification-panel {
-  background: linear-gradient(
-    135deg,
-    rgba(28, 36, 46, 0.8) 0%,
-    rgba(28, 36, 46, 0.4) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(28, 36, 46, 0.8) 0%,
+      rgba(28, 36, 46, 0.4) 100%);
   border: 1px solid var(--border-dark);
   border-radius: 1.25rem;
   padding: 2rem;
@@ -152,18 +162,17 @@ select.search-input-field:hover {
   right: -20%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(
-    circle,
-    rgba(25, 127, 230, 0.1) 0%,
-    rgba(0, 0, 0, 0) 70%
-  );
+  background: radial-gradient(circle,
+      rgba(25, 127, 230, 0.1) 0%,
+      rgba(0, 0, 0, 0) 70%);
   pointer-events: none;
   z-index: 0;
 }
 
 .notif-header {
   display: flex;
-  align-items: flex-end; /* Align baseline */
+  align-items: flex-end;
+  /* Align baseline */
   justify-content: space-between;
   position: relative;
   z-index: 1;
@@ -317,7 +326,9 @@ select.search-input-field:hover {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.7); /* Darker backdrop */
-  backdrop-filter: blur(8px); /* Stronger blur */
+  background-color: rgba(0, 0, 0, 0.7);
+  /* Darker backdrop */
+  backdrop-filter: blur(8px);
+  /* Stronger blur */
   -webkit-backdrop-filter: blur(8px);
 }

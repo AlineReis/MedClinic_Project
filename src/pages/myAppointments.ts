@@ -1,3 +1,4 @@
+import "../../css/pages/my-appointments.css"
 import { listAppointments, cancelAppointment } from "../services/appointmentsService"
 import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
@@ -12,7 +13,7 @@ const toastContainer = document.getElementById("toast-container")
 document.addEventListener("DOMContentLoaded", () => {
   hydrateSessionUser()
   loadAppointments()
-  
+
   // Subscribe to toast updates for auto-dismiss
   uiStore.subscribe((toasts) => {
     if (!toastContainer) return
@@ -67,24 +68,24 @@ async function loadAppointments() {
       cancelled_by_patient: 3,
       cancelled_by_clinic: 3,
     }
-    
+
     const priorityA = statusPriority[a.status] || 4
     const priorityB = statusPriority[b.status] || 4
-    
+
     // If same priority, sort by date (newest first)
     if (priorityA === priorityB) {
       const dateA = new Date(`${a.date}T${a.time}`).getTime()
       const dateB = new Date(`${b.date}T${b.time}`).getTime()
       return dateB - dateA
     }
-    
+
     return priorityA - priorityB
   })
 
   listContainer.innerHTML = sortedAppointments
     .map(appointment => buildAppointmentCard(appointment))
     .join("")
-  
+
   // Attach event listeners
   attachButtonHandlers(sortedAppointments)
 }
@@ -235,7 +236,7 @@ function getInitials(name: string) {
 
 function formatDate(value: string) {
   if (!value) return value
-  
+
   // Create date at noon to avoid timezone issues
   // If string already has time (contains T), use it as is
   // Otherwise append T12:00:00
@@ -348,7 +349,7 @@ function attachButtonHandlers(appointments: AppointmentSummary[]) {
 
       try {
         const result = await cancelAppointment(appointmentId, { reason: 'Cancelado pelo paciente' })
-        
+
         if (result.success) {
           uiStore.addToast('success', 'Consulta cancelada com sucesso')
           // Reload appointments

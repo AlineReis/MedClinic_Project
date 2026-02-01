@@ -1,3 +1,4 @@
+import "../../css/pages/doctor-dashboard.css"
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
 import { listAppointments } from "../services/appointmentsService";
@@ -138,7 +139,7 @@ function updateStats(
   if (statsCards[2]) statsCards[2].textContent = String(completed);
 }
 
-  function updateNextPatient(appointments: AppointmentSummary[]) {
+function updateNextPatient(appointments: AppointmentSummary[]) {
   if (appointments.length === 0) {
     // Show empty state
     const nextPatientCard = document.querySelector(".next-patient-card");
@@ -173,15 +174,14 @@ function updateStats(
         <span class="u-flex u-items-center u-gap-small u-text-secondary">
           <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
         </span>
-        ${
-          nextAppointment.room
-            ? `
+        ${nextAppointment.room
+        ? `
           <span class="u-flex u-items-center u-gap-small u-text-secondary">
             <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
         `
-            : ""
-        }
+        : ""
+      }
       </div>
       
       <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
@@ -686,9 +686,9 @@ function showAvailabilityModal(professionalId: number) {
       const patientName = appointment.patient_name || "Paciente";
       button.innerHTML = `
         <span class="font-semibold text-white">${highlightMatch(
-          patientName,
-          query,
-        )}</span>
+        patientName,
+        query,
+      )}</span>
         <span class="text-xs text-slate-400">
           ${appointment.date} • ${appointment.time}
         </span>
@@ -1576,7 +1576,7 @@ function renderWeeklyGrid(
       const height = ((app.duration_minutes || 60) / 60) * SLOT_HEIGHT;
 
       const card = document.createElement("div");
-      
+
       let statusClass = "agenda-event-card--scheduled";
       if (app.status === "completed") statusClass = "agenda-event-card--completed";
       if (app.status === "cancelled") statusClass = "agenda-event-card--cancelled";

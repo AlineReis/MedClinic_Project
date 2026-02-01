@@ -1,3 +1,4 @@
+import "../../css/pages/auth.css"
 import "../../css/global.css"
 import { ToastContainer } from "../components/ToastContainer"
 import { request } from "../services/apiService"
