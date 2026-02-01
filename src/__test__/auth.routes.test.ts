@@ -19,6 +19,7 @@ class FakeAuthService extends AuthService {
       name: payload.name ?? "Patient",
       email: payload.email,
       role,
+      clinic_id: null,
     };
   }
 
@@ -29,7 +30,7 @@ class FakeAuthService extends AuthService {
     const role: UserRole = "patient";
     return {
       token: "mock-token",
-      user: { id: 1, name: "Patient", email, role },
+      user: { id: 1, name: "Patient", email, role, clinic_id: null },
     };
   }
 }

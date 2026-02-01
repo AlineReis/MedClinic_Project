@@ -12,8 +12,8 @@ import { sanitizeCpf } from "../utils/validators.js";
 export class UserRepository implements IUserRepository {
   async createPatient(userData: User): Promise<number> {
     const sql = `
-      INSERT INTO users (name, email, password, role, cpf, phone, created_at)
-      VALUES (?, ?, ?, 'patient', ?, ?, CURRENT_TIMESTAMP)
+      INSERT INTO users (name, email, password, role, cpf, phone, clinic_id, created_at)
+      VALUES (?, ?, ?, 'patient', ?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
     const password = userData.password || "";
@@ -24,15 +24,18 @@ export class UserRepository implements IUserRepository {
       password,
       userData.cpf,
       userData.phone,
+      userData.clinic_id,
     ]);
 
     return result.lastID;
   }
 
-  async createHealthProfessional(userData: CreateUserPayload): Promise<number> {
+  async createHealthProfessional(
+    userData: CreateUserPayload & { clinic_id?: number },
+  ): Promise<number> {
     const sql = `
-      INSERT INTO users (name, email, password, role, cpf, phone, created_at)
-      VALUES (?, ?, ?, 'health_professional', ?, ?, CURRENT_TIMESTAMP)
+      INSERT INTO users (name, email, password, role, cpf, phone, clinic_id, created_at)
+      VALUES (?, ?, ?, 'health_professional', ?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
     const password = userData.password || "";
@@ -43,15 +46,18 @@ export class UserRepository implements IUserRepository {
       password,
       userData.cpf,
       userData.phone,
+      userData.clinic_id,
     ]);
 
     return result.lastID;
   }
 
-  async create(userData: CreateUserPayload): Promise<number> {
+  async create(
+    userData: CreateUserPayload & { clinic_id?: number },
+  ): Promise<number> {
     const sql = `
-      INSERT INTO users (name, email, password, role, cpf, phone, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      INSERT INTO users (name, email, password, role, cpf, phone, clinic_id, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
     const password = userData.password || "";
@@ -63,6 +69,7 @@ export class UserRepository implements IUserRepository {
       userData.role,
       userData.cpf,
       userData.phone,
+      userData.clinic_id,
     ]);
 
     return result.lastID;
@@ -220,12 +227,11 @@ export class UserRepository implements IUserRepository {
   }
 
   async deleteById(id: number): Promise<void> {
-  const sql = `
+    const sql = `
     UPDATE users
     SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
     WHERE id = ? AND deleted_at IS NULL
   `;
-  await database.run(sql, [id]);
-}
-
+    await database.run(sql, [id]);
+  }
 }

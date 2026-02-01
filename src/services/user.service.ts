@@ -100,7 +100,12 @@ export class UserService {
   private generateToken(user: User): string {
     const secret = env.JWT_SECRET;
     return jwt.sign(
-      { id: user.id, email: user.email, role: user.role, clinic_id: user.clinic_id },
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        clinic_id: user.clinic_id,
+      },
       secret,
       { expiresIn: "24h" },
     );
@@ -137,7 +142,7 @@ export class UserService {
     const isAdmin =
       requester.role === "clinic_admin" || requester.role === "system_admin";
 
-    if (!isSelf && !isAdmin) {
+    if (!isSelf && !isAdmin && requester.role !== "receptionist") {
       throw new ForbiddenError("Forbidden");
     }
 
@@ -158,6 +163,12 @@ export class UserService {
       if (Number((user as any).clinic_id) !== clinicId) {
         throw new ForbiddenError("Forbidden");
       }
+    }
+
+    if (requester.role === "receptionist" && (user as any).role !== "patient") {
+      throw new ForbiddenError(
+        "Recepcionistas só podem acessar dados de pacientes.",
+      );
     }
 
     const { password, ...userWithoutPassword } = user as any;
@@ -210,6 +221,8 @@ export class UserService {
         clinic_id: u.clinic_id,
         created_at: u.created_at,
         updated_at: u.updated_at,
+        cpf: u.cpf,
+        phone: u.phone,
       })),
     };
   };
@@ -225,8 +238,9 @@ export class UserService {
     const isSelf = requester.id === targetUserId;
     const isAdmin =
       requester.role === "clinic_admin" || requester.role === "system_admin";
+    const isReceptionist = requester.role === "receptionist";
 
-    if (!isSelf && !isAdmin) {
+    if (!isSelf && !isAdmin && !isReceptionist) {
       throw new ForbiddenError("Forbidden");
     }
 
@@ -239,6 +253,12 @@ export class UserService {
 
     const existing = await this.userRepository.findById(targetUserId);
     if (!existing) throw new NotFoundError("Usuário não encontrado");
+
+    if (isReceptionist && existing.role !== "patient") {
+      throw new ForbiddenError(
+        "Recepcionistas só podem alterar dados de pacientes.",
+      );
+    }
 
     if (requester.role !== "system_admin") {
       if (Number((existing as any).clinic_id) !== clinicId) {
@@ -292,7 +312,8 @@ export class UserService {
 
     // Se for admin, ok atualizar name/email/phone (e outros que existirem no patch)
     // Se não for admin (self), patch já está limitado
-    if (!isAdmin && !isSelf) throw new ForbiddenError("Forbidden");
+    if (!isAdmin && !isSelf && !isReceptionist)
+      throw new ForbiddenError("Forbidden");
 
     if (Object.keys(patch).length === 0) {
       throw new ValidationError("Nenhum campo válido para atualizar");
@@ -314,14 +335,17 @@ export class UserService {
   }) {
     const { clinicId, requester, targetUserId } = input;
 
-    // permissão: admin ou system_admin
-    const allowed = ["clinic_admin", "system_admin"];
+    // permissão: admin, system_admin ou receptionist
+    const allowed = ["clinic_admin", "system_admin", "receptionist"];
     if (!allowed.includes(requester.role)) {
       throw new ForbiddenError("Forbidden");
     }
 
     // admin da clínica só pode atuar na própria clínica
-    if (requester.role === "clinic_admin") {
+    if (
+      requester.role === "clinic_admin" ||
+      requester.role === "receptionist"
+    ) {
       if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
         throw new ForbiddenError("Forbidden");
       }
@@ -336,6 +360,10 @@ export class UserService {
     const target = await this.userRepository.findById(targetUserId);
     if (!target) {
       throw new NotFoundError("Usuário não encontrado");
+    }
+
+    if (requester.role === "receptionist" && target.role !== "patient") {
+      throw new ForbiddenError("Recepcionistas só podem excluir pacientes.");
     }
 
     // agendamentos ativos
@@ -369,8 +397,8 @@ export class UserService {
   }): Promise<{ user: UserWithoutPassword; generatedPassword?: string }> {
     const { clinicId, requester, data } = input;
 
-    // Only clinic_admin or system_admin can create users
-    const allowed = ["clinic_admin", "system_admin"];
+    // Only clinic_admin, system_admin, or receptionist can create users
+    const allowed = ["clinic_admin", "system_admin", "receptionist"];
     if (!allowed.includes(requester.role)) {
       throw new ForbiddenError("Apenas administradores podem criar usuários.");
     }
@@ -389,11 +417,21 @@ export class UserService {
       }
     }
 
+    // receptionist can ONLY create patients
+    if (requester.role === "receptionist") {
+      if (!requester.clinic_id || Number(requester.clinic_id) !== clinicId) {
+        throw new ForbiddenError("Forbidden");
+      }
+      if (data.role !== "patient") {
+        throw new ForbiddenError(
+          "Recepcionistas só podem cadastrar pacientes.",
+        );
+      }
+    }
+
     // Validate input
     if (!data.name || !data.email || !data.role || !data.cpf) {
-      throw new ValidationError(
-        "Nome, email, role e CPF são obrigatórios.",
-      );
+      throw new ValidationError("Nome, email, role e CPF são obrigatórios.");
     }
 
     if (!Validators.isValidEmail(data.email)) {
@@ -414,13 +452,20 @@ export class UserService {
       throw new ValidationError("Email já está em uso.", "email");
     }
 
+    // Check if CPF already exists
+    const existingCpf = await this.userRepository.findByCpf(data.cpf);
+    if (existingCpf) {
+      throw new ValidationError("CPF já está em uso.", "cpf");
+    }
+
     // Generate random password if not provided
     let generatedPassword: string | undefined;
     let password = data.password;
 
     if (!password) {
       // Generate random password: 8 chars, uppercase, lowercase, numbers
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
       generatedPassword = Array.from(
         { length: 12 },
         () => chars[Math.floor(Math.random() * chars.length)],

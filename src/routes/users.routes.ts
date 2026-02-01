@@ -5,7 +5,7 @@ import { UserRepository } from "../repository/user.repository.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { UserService } from "../services/user.service.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 const userRepository = new UserRepository();
 const appointmentRepository = new AppointmentRepository();
@@ -24,14 +24,14 @@ router.put("/:id", userController.update);
 
 router.delete(
   "/:id",
-  roleMiddleware(["clinic_admin", "system_admin"]),
+  roleMiddleware(["clinic_admin", "system_admin", "receptionist"]),
   userController.delete_User,
 );
 
 // Phase 5: Create user by admin
 router.post(
   "/",
-  roleMiddleware(["clinic_admin", "system_admin"]),
+  roleMiddleware(["clinic_admin", "system_admin", "receptionist"]),
   userController.create,
 );
 

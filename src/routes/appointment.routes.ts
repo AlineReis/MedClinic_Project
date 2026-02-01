@@ -18,10 +18,20 @@ const userRepository = new UserRepository();
 const transactionRepository = new TransactionRepository();
 const commissionSplitRepository = new CommissionSplitRepository();
 
-const paymentMockService = new PaymentMockService(transactionRepository, commissionSplitRepository, appointmentRepository);
+const paymentMockService = new PaymentMockService(
+  transactionRepository,
+  commissionSplitRepository,
+  appointmentRepository,
+);
 const emailService = new ResendEmailService();
 
-const appointmentService = new AppointmentService(appointmentRepository, availabilityRepository, userRepository, paymentMockService, emailService);
+const appointmentService = new AppointmentService(
+  appointmentRepository,
+  availabilityRepository,
+  userRepository,
+  paymentMockService,
+  emailService,
+);
 const appointmentController = new AppointmentController(appointmentService);
 
 // Auth and clinic context middlewares are applied globally in routes/index.ts

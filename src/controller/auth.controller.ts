@@ -4,8 +4,7 @@ import type { AuthService } from "../services/auth.service.js";
 import { AuthError } from "../utils/errors.js";
 
 export class AuthController {
-
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   public register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -43,6 +42,7 @@ export class AuthController {
           name: user.name,
           email: user.email,
           role: user.role,
+          clinic_id: user.clinic_id,
         },
       });
     } catch (error) {
@@ -55,7 +55,11 @@ export class AuthController {
     res.status(200).json({ success: true, message: "Logged out successfully" });
   };
 
-  public getProfile = async (req: Request, res: Response, next: NextFunction) => {
+  public getProfile = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const jwtPayload = req.user;
 
