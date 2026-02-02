@@ -1,20 +1,16 @@
-import "../../css/pages/patient-dashboard.css";
 import "../../css/global.css";
+import "../../css/pages/patient-dashboard.css";
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
 import { authStore } from "../stores/authStore";
-import { dashboardStore } from "../stores/dashboardStore";
-import {
-  DASHBOARD_APPOINTMENTS_EVENT,
-  type DashboardEventDetail,
-} from "../stores/dashboardStore";
+import { DASHBOARD_APPOINTMENTS_EVENT, dashboardStore, type DashboardEventDetail } from "../stores/dashboardStore";
 import { uiStore } from "../stores/uiStore";
 import type { AppointmentSummary } from "../types/appointments";
 import type { UserSession } from "../types/auth";
 import type { PrescriptionSummary } from "../types/prescriptions";
-import { openPrescriptionModal } from "./prescriptionModal";
-import { openAppointmentModal } from "./appointmentModal";
 import { formatSpecialty } from "../utils/formatters";
+import { openAppointmentModal } from "./appointmentModal";
+import { openPrescriptionModal } from "./prescriptionModal";
 
 const nextAppointmentContainer = document.querySelector(
   "[data-next-appointment]",
@@ -185,8 +181,8 @@ function renderNextAppointment(
       element.appendChild(
         document.createTextNode(
           "\n                                " +
-            newText +
-            "\n                            ",
+          newText +
+          "\n                            ",
         ),
       );
     };
@@ -293,8 +289,8 @@ function renderPrescriptions(
     <div class="prescription-card">
       <div class="prescription-card__content">
       ${recentPrescriptions
-        .map(
-          (p) => `
+      .map(
+        (p) => `
           <div class="prescription-item">
             <div class="prescription-item__container">
               <!-- Icon + Info -->
@@ -305,10 +301,10 @@ function renderPrescriptions(
                 <div class="prescription-item__info">
                   <!-- Name: Larger, wrapped, no truncate -->
                   <p class="prescription-item__title">${p.medication_name}</p>
-                  
+
                   <!-- Dosage -->
                   ${p.dosage ? `<p class="prescription-item__dosage">${p.dosage}</p>` : ""}
-                  
+
                   <!-- Date (Smaller) -->
                   <p class="prescription-item__date">
                     <span class="material-symbols-outlined">calendar_today</span>
@@ -316,9 +312,9 @@ function renderPrescriptions(
                   </p>
                 </div>
               </div>
-              
+
               <!-- Action Button (Small, always visible) -->
-              <button 
+              <button
                 data-prescription-id="${p.id}"
                 class="prescription-item__btn"
                 title="Ver detalhes"
@@ -328,20 +324,19 @@ function renderPrescriptions(
             </div>
           </div>
         `,
-        )
-        .join("")}
+      )
+      .join("")}
       </div>
-      ${
-        prescriptions.length > 3
-          ? `
+      ${prescriptions.length > 3
+      ? `
         <div class="prescription-card__footer">
           <p class="prescription-card__more-text">
             +${prescriptions.length - 3} prescrição${prescriptions.length - 3 > 1 ? "ões" : ""} anterior${prescriptions.length - 3 > 1 ? "es" : ""}
           </p>
         </div>
       `
-          : ""
-      }
+      : ""
+    }
     </div>
   `;
 

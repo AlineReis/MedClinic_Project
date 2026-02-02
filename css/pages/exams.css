@@ -82,6 +82,7 @@
   background-color: var(--primary);
   color: #ffffff;
 }
+
 .nav-item-active:hover {
   background-color: var(--primary);
 }

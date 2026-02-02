@@ -10,10 +10,12 @@ module.exports = (env, argv) => {
     "patient-dashboard.html",
     "reception-dashboard.html",
     "doctor-dashboard.html",
-    // "lab-dashboard.html", // Removed
     "manager-dashboard.html",
     "admin-dashboard.html",
     "users.html",
+    "financial.html",
+    "admin-users.html",
+    "patients.html",
   ];
 
   return {
@@ -36,13 +38,32 @@ module.exports = (env, argv) => {
       agenda: "./src/pages/agenda.ts",
       dashboard: "./src/pages/dashboard.ts",
       pep: "./src/pages/pep.ts",
-      // labDashboard: "./src/pages/labDashboard.ts",
+      theme: "./src/config/theme.ts",
+      main: "./src/index.ts",
+      login: "./src/pages/login.ts",
+      register: "./src/pages/register.ts",
+      patientDashboard: "./src/pages/patientDashboard.ts",
+      myAppointments: "./src/pages/myAppointments.ts",
+      myExams: "./src/pages/myExams.ts",
+      examsPage: "./src/pages/examsPage.ts",
+      scheduleAppointment: "./src/pages/scheduleAppointment.ts",
+      doctorDashboard: "./src/pages/doctorDashboard.ts",
+      receptionDashboard: "./src/pages/receptionDashboard.ts",
+      adminDashboard: "./src/pages/adminDashboard.ts",
+      usersPage: "./src/pages/usersPage.ts",
+      adminUsersPage: "./src/pages/adminUsersPage.ts", // New separated entry
+      patients: "./src/pages/patients.ts",
+      managerDashboard: "./src/pages/managerDashboard.ts",
+      financialPage: "./src/pages/financialPage.ts",
+      teamPage: "./src/pages/teamPage.ts",
+      agenda: "./src/pages/agenda.ts",
+      pep: "./src/pages/pep.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "js/[name].[contenthash:8].js",
       clean: true,
-      publicPath: "/",
+      publicPath: "auto",
     },
     module: {
       rules: [
@@ -107,24 +128,14 @@ module.exports = (env, argv) => {
         chunks: ["theme", "myExams"],
         publicPath: "/",
       }),
-      new HtmlWebpackPlugin({
-        template: "./pages/patients.html",
-        filename: "pages/patients.html",
-        chunks: ["theme", "patients"],
-        publicPath: "/",
-      }),
+
       new HtmlWebpackPlugin({
         template: "./pages/agenda.html",
         filename: "pages/agenda.html",
         chunks: ["theme", "agenda"],
         publicPath: "/",
       }),
-      new HtmlWebpackPlugin({
-        template: "./pages/dashboard.html",
-        filename: "pages/dashboard.html",
-        chunks: ["theme", "dashboard"],
-        publicPath: "/",
-      }),
+
       new HtmlWebpackPlugin({
         template: "./pages/pep.html",
         filename: "pages/pep.html",
@@ -151,6 +162,13 @@ module.exports = (env, argv) => {
                 ? ["managerDashboard"]
                 : []),
               ...(page === "users.html" ? ["usersPage"] : []),
+              ...(page === "manager-dashboard.html"
+                ? ["managerDashboard"]
+                : []),
+              ...(page === "financial.html" ? ["financialPage"] : []),
+              ...(page === "users.html" ? ["usersPage", "teamPage"] : []),
+              ...(page === "admin-users.html" ? ["adminUsersPage"] : []),
+              ...(page === "patients.html" ? ["patients"] : []),
             ],
             publicPath: "/",
           }),

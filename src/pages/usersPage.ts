@@ -3,7 +3,6 @@
  * Implements user listing, filtering, editing, and deletion
  */
 
-import { formatSpecialty } from "../utils/formatters";
 import "../../css/pages/users.css";
 import {
   deleteUser,
@@ -14,6 +13,7 @@ import {
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
 import type { UpdateUserPayload, UserRole, UserSummary } from "../types/users";
+import { formatSpecialty } from "../utils/formatters";
 
 let currentPage = 1;
 let currentFilters = {
@@ -158,13 +158,12 @@ function updateUsersTable(users: UserSummary[]) {
         <td class="table__cell table__cell--muted">${escapeHtml(user.email)}</td>
         <td class="table__cell">
           <span class="${roleBadge}">${roleDisplay}</span>
-          ${
-            user.professional_details
-              ? `
+          ${user.professional_details
+          ? `
             <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${escapeHtml(formatSpecialty(user.professional_details.specialty))}</div>
           `
-              : ""
-          }
+          : ""
+        }
         </td>
         <td class="table__cell">
           <span class="badge badge--success">
@@ -301,7 +300,7 @@ function setupUserActions() {
     btn.addEventListener("click", async (e) => {
       const userId = parseInt(
         (e.currentTarget as HTMLElement).getAttribute("data-delete-user") ||
-          "0",
+        "0",
       );
       if (userId) {
         await handleDeleteUser(userId);
@@ -367,9 +366,8 @@ async function showEditModal(userId: number) {
                 />
               </div>
 
-              ${
-                user.role === "health_professional" && user.professional_details
-                  ? `
+              ${user.role === "health_professional" && user.professional_details
+        ? `
                 <div class="form__group">
                   <label class="form__label">Especialidade</label>
                   <input
@@ -412,8 +410,8 @@ async function showEditModal(userId: number) {
                     />
                 </div>
               `
-                  : ""
-              }
+        : ""
+      }
 
               <div class="modal__footer" style="padding: 0; border: none; background: transparent; margin-top: 1rem;">
                 <button type="button" data-close-modal class="btn btn--outline" style="flex: 1;">

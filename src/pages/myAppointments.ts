@@ -1,16 +1,15 @@
 import "../../css/pages/my-appointments.css";
 import { Navigation } from "../components/Navigation";
 import {
-  listAppointments,
   cancelAppointment,
+  listAppointments,
 } from "../services/appointmentsService";
-import { logout } from "../services/authService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
 import type { AppointmentSummary } from "../types/appointments";
 import type { UserSession } from "../types/auth";
-import { openAppointmentModal } from "./appointmentModal";
 import { formatSpecialty } from "../utils/formatters";
+import { openAppointmentModal } from "./appointmentModal";
 
 const listContainer = document.getElementById("appointments-list");
 const toastContainer = document.getElementById("toast-container");
@@ -129,7 +128,7 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
             ${getStatusLabel(appointment.status)}
           </span>
         </div>
-        
+
         <div class="appointment-card__meta-grid">
           <div class="appointment-card__meta-item">
             <span class="material-symbols-outlined">calendar_month</span>
@@ -147,17 +146,16 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
       </div>
 
       <div class="appointment-card__actions">
-        <button 
+        <button
           class="appointment-card__btn appointment-card__btn--details details-btn"
           data-appointment-id="${appointment.id}"
         >
           <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 4px;">info</span>
           Detalhes
         </button>
-        ${
-          canCancel
-            ? `
-          <button 
+        ${canCancel
+      ? `
+          <button
             class="appointment-card__btn appointment-card__btn--cancel cancel-btn"
             data-appointment-id="${appointment.id}"
           >
@@ -165,8 +163,8 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
             Cancelar
           </button>
         `
-            : ""
-        }
+      : ""
+    }
       </div>
     </article>
   `;

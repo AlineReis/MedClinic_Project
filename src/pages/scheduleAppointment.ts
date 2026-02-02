@@ -1,11 +1,13 @@
 import "../../css/base/reset.css";
 import "../../css/pages/schedule-appointment.css";
+import { Navigation } from "../components/Navigation";
 import {
   cancelAppointment,
   createAppointment,
   listAppointments,
   rescheduleAppointment,
 } from "../services/appointmentsService";
+import { logout } from "../services/authService";
 import {
   getProfessionalAvailability,
   listProfessionals,
@@ -13,7 +15,6 @@ import {
 import { authStore } from "../stores/authStore";
 import { dashboardStore } from "../stores/dashboardStore";
 import { uiStore } from "../stores/uiStore";
-import { Navigation } from "../components/Navigation";
 import type { AppointmentSummary } from "../types/appointments";
 import type { UserSession } from "../types/auth";
 import type {
@@ -76,10 +77,9 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
           </div>
         </div>
       </div>
-      
-      ${
-        canModify
-          ? `
+
+      ${canModify
+      ? `
         <div class="appointment-card__actions">
           <button
             class="appointment-card__btn appointment-card__btn--outline"
@@ -98,8 +98,8 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
           </button>
         </div>
       `
-          : ""
-      }
+      : ""
+    }
     </div>
   `;
 }
@@ -158,6 +158,18 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProfessionals();
   loadPatientAppointments();
 });
+
+function setupLogoutButton() {
+  const logoutBtn = document.querySelector("[data-logout-button]")
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault()
+      await logout()
+      authStore.clearSession()
+      window.location.href = getBasePath() + "login.html"
+    })
+  }
+}
 
 async function loadProfessionals() {
   if (!doctorsGrid) return;
@@ -295,8 +307,8 @@ function renderPaginatedAppointments() {
   if (totalPages > 1) {
     paginationHtml = `
       <div class="pagination-controls" style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; justify-content: center;">
-        <button 
-          class="pagination-btn" 
+        <button
+          class="pagination-btn"
           ${currentAppointmentPage === 0 ? "disabled" : ""}
           style="background: none; border: none; color: ${currentAppointmentPage === 0 ? "var(--text-secondary)" : "var(--primary)"}; cursor: ${currentAppointmentPage === 0 ? "default" : "pointer"};"
           onclick="window.prevAppointmentPage()"
@@ -306,8 +318,8 @@ function renderPaginatedAppointments() {
         <span class="pagination-info" style="color: var(--text-secondary); font-size: 0.875rem;">
           ${currentAppointmentPage + 1} de ${totalPages}
         </span>
-        <button 
-          class="pagination-btn" 
+        <button
+          class="pagination-btn"
           ${currentAppointmentPage >= totalPages - 1 ? "disabled" : ""}
           style="background: none; border: none; color: ${currentAppointmentPage >= totalPages - 1 ? "var(--text-secondary)" : "var(--primary)"}; cursor: ${currentAppointmentPage >= totalPages - 1 ? "default" : "pointer"};"
           onclick="window.nextAppointmentPage()"
@@ -678,11 +690,10 @@ function createCheckoutModal(
           <div class="checkout-details__divider"></div>
           <div class="checkout-details__row">
             <span class="checkout-details__total-label">Valor Total</span>
-            <span class="checkout-details__total-value">${
-              professional.consultation_price
-                ? formatCurrency(professional.consultation_price)
-                : "A confirmar"
-            }</span>
+            <span class="checkout-details__total-value">${professional.consultation_price
+      ? formatCurrency(professional.consultation_price)
+      : "A confirmar"
+    }</span>
           </div>
         </div>
 
@@ -937,7 +948,7 @@ async function handleRescheduleClick(
     uiStore.addToast(
       "error",
       response.error?.message ??
-        "Não foi possível carregar os horários disponíveis.",
+      "Não foi possível carregar os horários disponíveis.",
     );
     renderToasts();
     return;
