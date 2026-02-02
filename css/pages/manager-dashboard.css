@@ -1,5 +1,100 @@
 /* Manager Dashboard Specific Styles */
 
+/* Modern KPI Card Layout */
+.admin-stats-card {
+  display: flex !important; /* Override default block */
+  align-items: center;
+  justify-content: flex-start; /* Align left */
+  gap: 1.25rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.stats-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Glass effect already handled by subclasses */
+}
+
+.stats-icon-box .material-symbols-outlined {
+  font-size: 28px;
+}
+
+/* Typography Overrides for KPI */
+.card-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  margin-bottom: 0.25rem;
+}
+
+.card-value {
+  font-size: 1.75rem;
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+.trend-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Colors */
+.icon-box-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(59, 130, 246, 0.2)
+  );
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.icon-box-success {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.1),
+    rgba(16, 185, 129, 0.2)
+  );
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.icon-box-warning {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1),
+    rgba(245, 158, 11, 0.2)
+  );
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.1);
+}
+
+.icon-box-purple {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1),
+    rgba(139, 92, 246, 0.2)
+  );
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
 .manager-alert-card {
   display: flex;
   align-items: flex-start;
@@ -26,6 +121,41 @@
 .alert-icon-amber {
   color: #f59e0b;
 }
+
+/* KPI Icons Polish */
+.stats-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px; /* Soft Rounded Square */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  /* Glass effect */
+  backdrop-filter: blur(4px);
+}
+
+.icon-box-primary {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+}
+
+.icon-box-success {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.icon-box-warning {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.icon-box-purple {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+/* --- End KPI Polish --- */
 
 .split-list {
   display: flex;

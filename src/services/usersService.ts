@@ -11,6 +11,7 @@ import type {
   UserFilters,
   PaginatedUsers,
   UpdateUserPayload,
+  CreateUserPayload,
   UserApiItem,
   UsersListApiResponse,
   UserDetailApiResponse,
@@ -135,6 +136,35 @@ export async function getUserById(userId: number): Promise<ApiResponse<UserDetai
     success: true,
     data: mapUserDetail(response.data.user),
   }
+}
+
+/**
+ * Create a new user
+ * POST /users
+ *
+ * Permissions: admin only
+ *
+ * @param payload Create data
+ * @returns Created user details
+ */
+export async function createUser(payload: CreateUserPayload): Promise<ApiResponse<UserDetail>> {
+  const response = await request<UserDetailApiResponse>('/users', 'POST', payload);
+
+  if (!response.success || !response.data) {
+    return {
+      success: false,
+      error: response.error || {
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to create user',
+        statusCode: 500
+      }
+    };
+  }
+
+  return {
+    success: true,
+    data: mapUserDetail(response.data.user)
+  };
 }
 
 /**

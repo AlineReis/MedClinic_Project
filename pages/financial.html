@@ -53,9 +53,81 @@
     <main class="admin-main">
         <header class="admin-header">
             <h2 class="admin-header-title">Gestão Financeira</h2>
-            <button class="btn-admin-primary btn-large">
-                Nova Transação
-            </button>
+            <div class="header-info-right">
+                <div class="export-dropdown-wrapper" style="position: relative;">
+                    <button id="btn-export-trigger" style="
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background-color: var(--primary);
+                        color: white;
+                        border: none;
+                        padding: 0.5rem 1rem;
+                        border-radius: 0.5rem;
+                        font-weight: 600;
+                        font-size: 0.875rem;
+                        cursor: pointer;
+                        margin-right: 1rem;
+                        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+                        transition: all 0.2s;
+                    ">
+                        <span class="material-symbols-outlined" style="font-size: 1.1rem;">download</span>
+                        Exportar Relatório
+                        <span class="material-symbols-outlined" style="font-size: 1.1rem;">expand_more</span>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="export-menu" class="export-menu is-hidden" style="
+                        position: absolute;
+                        top: 110%;
+                        right: 1rem;
+                        background: var(--surface-dark);
+                        border: 1px solid var(--border-dark);
+                        border-radius: 0.75rem;
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+                        width: 200px;
+                        z-index: 50;
+                        overflow: hidden;
+                    ">
+                        <button id="opt-csv" style="
+                            width: 100%;
+                            text-align: left;
+                            padding: 0.75rem 1rem;
+                            background: transparent;
+                            border: none;
+                            color: var(--text-primary);
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            cursor: pointer;
+                            transition: background 0.2s;
+                            font-size: 0.875rem;
+                        " onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+                            onmouseout="this.style.background='transparent'">
+                            <span class="material-symbols-outlined" style="color: #10b981;">table_view</span>
+                            CSV (Excel)
+                        </button>
+                        <button id="opt-pdf" style="
+                            width: 100%;
+                            text-align: left;
+                            padding: 0.75rem 1rem;
+                            background: transparent;
+                            border: none;
+                            color: var(--text-primary);
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            cursor: pointer;
+                            transition: background 0.2s;
+                            font-size: 0.875rem;
+                        " onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+                            onmouseout="this.style.background='transparent'">
+                            <span class="material-symbols-outlined" style="color: #ef4444;">picture_as_pdf</span>
+                            PDF / Imprimir
+                        </button>
+                    </div>
+                </div>
+                <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
+            </div>
         </header>
 
         <div class="admin-content-viewport custom-scrollbar">
@@ -89,30 +161,22 @@
                     <div class="chart-panel">
                         <div class="chart-header-group">
                             <h3 class="chart-title">Consolidado vs Líquido</h3>
-                            <p class="chart-subtitle">Comparativo mensal</p>
+                            <p class="chart-subtitle">Faturamento Bruto vs Lucro Líquido Semanal</p>
                         </div>
-                        <div class="chart-container">
-                            <!-- Placeholder arrays -->
-                            <div class="chart-bar-group">
-                                <div class="bar-primary-light" style="height: 60%;"></div>
-                                <div class="bar-primary" style="height: 25%;"></div>
-                            </div>
-                            <div class="chart-bar-group">
-                                <div class="bar-primary-light" style="height: 85%;"></div>
-                                <div class="bar-primary" style="height: 35%;"></div>
-                            </div>
-                            <div class="chart-bar-group">
-                                <div class="bar-primary-light" style="height: 70%;"></div>
-                                <div class="bar-primary" style="height: 30%;"></div>
-                            </div>
-                            <div class="chart-bar-group">
-                                <div class="bar-primary-light" style="height: 95%;"></div>
-                                <div class="bar-primary" style="height: 45%;"></div>
-                            </div>
-                            <div class="chart-bar-group">
-                                <div class="bar-primary-light" style="height: 75%;"></div>
-                                <div class="bar-primary" style="height: 40%;"></div>
-                            </div>
+
+                        <!-- Chart Legend -->
+                        <div style="position: relative; height: 280px; margin-top: 1rem; width: 100%;">
+                            <canvas id="financialChart"></canvas>
+                        </div>
+
+                        <!-- X-Axis Labels -->
+                        <div class="chart-x-axis"
+                            style="display: flex; justify-content: space-between; padding: 0.5rem 1rem; color: var(--text-secondary); font-size: 0.8rem;">
+                            <span>Sem 1</span>
+                            <span>Sem 2</span>
+                            <span>Sem 3</span>
+                            <span>Sem 4</span>
+                            <span>Sem 5</span>
                         </div>
                     </div>
 
@@ -130,32 +194,91 @@
                             <span class="split-rule-label">Taxas (Sistema)</span>
                             <span class="split-rule-value">5%</span>
                         </div>
-                        <div class="rule-list-footer">
-                            <button class="btn-admin-light">
-                                Editar Regras
-                            </button>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Transactions Table -->
                 <section class="admin-table-panel admin-table-panel--padded">
-                    <h3 class="panel-section-title">Últimas Transações</h3>
+                    <div class="table-panel-header" style="border-bottom: none; padding-bottom: 0; display: block;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 class="panel-section-title panel-section-title--compact">Últimas Transações</h3>
+                        </div>
+
+                        <!-- Toolbar -->
+                        <div class="table-toolbar"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <!-- Search -->
+                            <div class="input-group" style="min-width: 200px;">
+                                <label
+                                    style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem; display: block;">Buscar</label>
+                                <div style="position: relative;">
+                                    <span class="material-symbols-outlined"
+                                        style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: var(--text-secondary);">search</span>
+                                    <input type="text" id="filter-search" placeholder="Nome do paciente..."
+                                        style="width: 100%; padding: 0.5rem 0.5rem 0.5rem 2.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.5rem; color: var(--text-primary);">
+                                </div>
+                            </div>
+
+                            <!-- Sort -->
+                            <div class="input-group">
+                                <label
+                                    style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem; display: block;">Ordenar
+                                    por</label>
+                                <select id="filter-sort"
+                                    style="width: 100%; padding: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.5rem; color: var(--text-primary);">
+                                    <option value="date_desc">Mais Recentes</option>
+                                    <option value="date_asc">Mais Antigos</option>
+                                    <option value="price_desc">Maior Valor</option>
+                                    <option value="price_asc">Menor Valor</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Start -->
+                            <div class="input-group">
+                                <label
+                                    style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem; display: block;">De</label>
+                                <input type="date" id="filter-start-date"
+                                    style="width: 100%; padding: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.5rem; color: var(--text-primary); color-scheme: dark;">
+                            </div>
+
+                            <!-- Date End -->
+                            <div class="input-group">
+                                <label
+                                    style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem; display: block;">Até</label>
+                                <input type="date" id="filter-end-date"
+                                    style="width: 100%; padding: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.5rem; color: var(--text-primary); color-scheme: dark;">
+                            </div>
+                        </div>
+                    </div>
+
                     <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>Paciente / Data</th>
+                                <th>Profissional</th>
                                 <th>Valor</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="3" class="text-center"
+                                <td colspan="4" class="text-center"
                                     style="padding: 2rem; color: var(--text-secondary);">Carregando transações...</td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Pagination Controls -->
+                    <div class="pagination-controls"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding: 0 1rem;">
+                        <span class="pagination-info" style="color: var(--text-secondary); font-size: 0.9rem;">Mostrando
+                            0-0 de 0</span>
+                        <div class="pagination-buttons" style="display: flex; gap: 0.5rem;">
+                            <button id="btn-prev-page" class="btn-outline-small" disabled>Anterior</button>
+                            <button id="btn-next-page" class="btn-outline-small" disabled>Próximo</button>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>

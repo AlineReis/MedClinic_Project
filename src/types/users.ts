@@ -84,6 +84,23 @@ export interface UpdateUserPayload {
 }
 
 /**
+ * Create user payload (POST /users)
+ */
+export interface CreateUserPayload {
+  name: string
+  email: string
+  password?: string // Optional if backend generates it or handled otherwise, but usually required
+  role: UserRole
+  phone?: string
+  // Professional fields
+  specialty?: string
+  registration_number?: string
+  council?: string
+  consultation_price?: number
+  commission_percentage?: number
+}
+
+/**
  * Internal API response types (snake_case backend payloads)
  */
 export interface UserApiItem {

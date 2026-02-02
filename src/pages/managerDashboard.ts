@@ -1,8 +1,8 @@
 
 import { authStore } from "../stores/authStore";
 import { listAppointments } from "../services/appointmentsService";
-import type { AppointmentSummary } from "../types/appointments";
-import { formatCurrency } from "../utils/formatters";
+import "../config/theme"; // Theme toggle support
+import Chart from 'chart.js/auto';
 
 document.addEventListener("DOMContentLoaded", () => {
     initManagerDashboard();
@@ -14,222 +14,251 @@ async function initManagerDashboard() {
     if (!session) {
         session = await authStore.refreshSession();
     }
-    
-    // Auth Check
+
     if (!session || (session.role !== 'clinic_admin' && session.role !== 'system_admin')) {
         window.location.href = '../pages/login.html';
         return;
     }
 
-    // Fetch and Render
-    await loadDashboardStats();
-    await loadSystemAlerts();
-    
-    // Print Button
-    document.getElementById('btn-export-report')?.addEventListener('click', printReport);
+    // Set Dashboard Date
+    const dateEl = document.querySelector('.manager-header-subtitle');
+    if (dateEl) {
+        const now = new Date();
+        const month = now.toLocaleString('pt-BR', { month: 'long' });
+        const year = now.getFullYear();
+        dateEl.textContent = `${month.charAt(0).toUpperCase() + month.slice(1)} ${year}`;
+    }
+
+    await loadOperationalData();
 }
 
-// Global variable to store splits for export
-let currentSplitsData: { name: string, count: number, amount: number, specialty: string }[] = [];
+let chartSpecialties: Chart | null = null;
+let chartPeakHours: Chart | null = null;
 
-async function loadDashboardStats() {
+async function loadOperationalData() {
     const now = new Date();
+    
+    // 1. Data for "Today" (KPIs + Next Patients)
+    const todayStr = now.toISOString().split('T')[0];
+    const todayResponse = await listAppointments({
+        startDate: todayStr,
+        endDate: todayStr,
+        pageSize: 1000 // Get all for today
+    });
+
+    // 2. Data for "Month" (Charts + Unique Patients)
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    
+    const monthResponse = await listAppointments({
+        startDate: startOfMonth,
+        endDate: endOfMonth,
+        pageSize: 2000
+    });
 
-    try {
-        const response = await listAppointments({
-            startDate: startOfMonth,
-            endDate: endOfMonth,
-            pageSize: 1000 
-        });
+    if (todayResponse.success && todayResponse.data) {
+        updateTodayKPIs(todayResponse.data.appointments);
+        renderNextPatients(todayResponse.data.appointments);
+    }
 
-        if (response.success && response.data) {
-            calculateAndRenderStats(response.data.appointments);
-        }
-    } catch (error) {
-        console.error("Error loading dashboard stats:", error);
+    if (monthResponse.success && monthResponse.data) {
+        updateMonthKPIs(monthResponse.data.appointments);
+        renderCharts(monthResponse.data.appointments);
     }
 }
 
-function calculateAndRenderStats(appointments: AppointmentSummary[]) {
-    // 1. Consultas
-    const totalAppointments = appointments.length;
-    updateStat('appointments-count', totalAppointments.toString());
+function updateTodayKPIs(appointments: any[]) {
+    const total = appointments.length;
+    const completed = appointments.filter(a => a.status === 'completed').length;
+    const pending = appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length;
+    const inProgress = appointments.filter(a => a.status === 'in_progress').length;
 
-    // 2. Faturamento
-    const completedApps = appointments.filter(a => a.status === 'completed');
-    const totalRevenue = completedApps.reduce((acc, curr) => acc + (curr.price || 0), 0);
-    updateStat('revenue', formatCurrency(totalRevenue));
-
-    // 3. Comissões (60%)
-    const totalCommissions = totalRevenue * 0.60;
-    updateStat('pending-transfers', formatCurrency(totalCommissions));
-
-    // 4. No-Show
-    const noShowCount = appointments.filter(a => a.status === 'no_show').length;
-    const noShowRate = totalAppointments > 0 
-        ? ((noShowCount / totalAppointments) * 100).toFixed(1) 
-        : "0.0";
+    setText('kpi-today-count', total.toString());
+    setText('kpi-completed-count', completed.toString());
     
-    updateStat('noshow-rate', `${noShowRate}%`);
-    
-    // 5. Render Splits List
-    renderSplitsList(completedApps);
+    // Status Text
+    const statusEl = document.getElementById('kpi-today-status');
+    if (statusEl) {
+        statusEl.innerHTML = `${pending} Pendentes <span style="margin: 0 4px">•</span> ${inProgress} Em Andamento`;
+    }
 }
 
-function renderSplitsList(completedApps: AppointmentSummary[]) {
-    const listContainer = document.querySelector('[data-split-list]');
-    if (!listContainer) return;
+function updateMonthKPIs(appointments: any[]) {
+    // Unique Patients
+    const uniquePatients = new Set(appointments.map(a => a.patient_id)).size;
+    setText('kpi-active-patients', uniquePatients.toString());
+}
 
-    const splitsByProfessional = new Map<string, { count: number, amount: number, specialty: string }>();
+function setText(id: string, text: string) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
 
-    completedApps.forEach(app => {
-        const name = app.professional_name || "Desconhecido";
-        const current = splitsByProfessional.get(name) || { count: 0, amount: 0, specialty: app.specialty || "Geral" };
-        
-        current.count++;
-        current.amount += (app.price || 0) * 0.60;
-        
-        splitsByProfessional.set(name, current);
-    });
+function renderNextPatients(appointments: any[]) {
+    const listEl = document.getElementById('next-patients-list');
+    if (!listEl) return;
 
-    // Update global for export
-    currentSplitsData = Array.from(splitsByProfessional.entries()).map(([name, data]) => ({
-        name,
-        ...data
-    }));
+    const now = new Date();
+    // Filter: Scheduled/Confirmed/InProgress AND Time >= Now (approx) or just show all remaining for simplicty
+    // Let's show all "Not Completed/Cancelled" for today, sorted by time
+    const upcoming = appointments
+        .filter(a => ['scheduled', 'confirmed', 'in_progress'].includes(a.status))
+        .sort((a, b) => a.time.localeCompare(b.time))
+        .slice(0, 5); // Show next 5
 
-    if (splitsByProfessional.size === 0) {
-        listContainer.innerHTML = '<p class="text-muted" style="padding: 1rem;">Nenhum repasse pendente.</p>';
+    if (upcoming.length === 0) {
+        listEl.innerHTML = `<p style="padding: 1rem; color: var(--text-secondary); text-align: center;">Nenhum paciente aguardando.</p>`;
         return;
     }
 
-    let html = '';
-    splitsByProfessional.forEach((data, name) => {
-        html += `
-            <div class="split-item">
-                <div class="split-item-info">
-                    <p class="split-item-name">${name}</p>
-                    <p class="split-item-meta">${data.specialty} • ${data.count} consultas</p>
-                </div>
-                <span class="split-item-amount">${formatCurrency(data.amount)}</span>
+    listEl.innerHTML = upcoming.map(app => `
+        <div class="split-item" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+            <div class="split-item-info">
+                <p class="split-item-name">${app.patient_name}</p>
+                <p class="split-item-meta">
+                    ${app.time.slice(0, 5)} • ${app.professional_name.split(' ')[0]} • 
+                    <span style="color: ${getStatusColor(app.status)}">${translateStatus(app.status)}</span>
+                </p>
             </div>
-        `;
+            <div class="split-item-action">
+                <button class="btn-icon-small" title="Ver Detalhes">
+                    <span class="material-symbols-outlined" style="font-size: 1.2rem;">visibility</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderCharts(appointments: any[]) {
+    renderSpecialtiesChart(appointments);
+    renderPeakHoursChart(appointments);
+}
+
+function renderSpecialtiesChart(appointments: any[]) {
+    const ctx = document.getElementById('chartSpecialties') as HTMLCanvasElement;
+    if (!ctx) return;
+    if (chartSpecialties) chartSpecialties.destroy();
+
+    // Group by Specialty
+    const counts: Record<string, number> = {};
+    appointments.forEach(app => {
+        const spec = app.specialty || 'Geral';
+        counts[spec] = (counts[spec] || 0) + 1;
     });
 
-    listContainer.innerHTML = html;
-}
+    const labels = Object.keys(counts);
+    const data = Object.values(counts);
 
-function updateStat(key: string, value: string) {
-    const el = document.querySelector(`[data-stat="${key}"]`);
-    if (el) el.textContent = value;
-}
+    // Sort by count desc
+    // (Optional optimization)
 
-async function loadSystemAlerts() {
-    // 1. Refunds (Mock logic compatible with real filters)
-    // We check for cancelled appointments that MIGHT need refund (e.g. recent cancellations)
-    // Since we don't have 'payment_status' filter in simple list, we fetch recent cancelled
-    try {
-        // Fetch both cancellation types
-        const response = await listAppointments({ 
-            status: ['cancelled_by_clinic', 'cancelled_by_patient'], 
-            pageSize: 100 
-        });
-        
-        const refundCount = response.data?.appointments.length || 0;
-        
-        const refundTitle = document.querySelector('.alert-title--error');
-        if (refundTitle) {
-            refundTitle.textContent = `${refundCount} Cancelamentos Recentes`;
+    chartSpecialties = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: '#9ca3af', usePointStyle: true, font: { family: "'Inter', sans-serif" } }
+                }
+            },
+            cutout: '70%'
         }
-        
-    } catch (e) { console.error(e); }
-
-    // 2. Report Deadline
-    const today = new Date();
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    const daysLeft = lastDay - today.getDate();
-    
-    const reportSubtitle = document.querySelector('.alert-title--warning + .alert-subtitle');
-    if (reportSubtitle) {
-        reportSubtitle.textContent = `Prazo para fechamento: ${daysLeft} dias`;
-    }
+    });
 }
 
-function printReport() {
-    if (currentSplitsData.length === 0) {
-        alert("Não há dados para imprimir.");
-        return;
-    }
+function renderPeakHoursChart(appointments: any[]) {
+    const ctx = document.getElementById('chartPeakHours') as HTMLCanvasElement;
+    if (!ctx) return;
+    if (chartPeakHours) chartPeakHours.destroy();
 
-    const printContent = `
-        <html>
-        <head>
-            <title>Relatório de Repasses - MediLux</title>
-            <style>
-                body { font-family: sans-serif; padding: 20px; }
-                h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-                .meta { margin-bottom: 20px; color: #7f8c8d; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }
-                th { background-color: #ecf0f1; color: #2c3e50; }
-                tr:nth-child(even) { background-color: #f9f9f9; }
-                .total-row { font-weight: bold; background-color: #e8f6f3; }
-                .footer { margin-top: 40px; font-size: 0.8rem; text-align: center; color: #bdc3c7; }
-            </style>
-        </head>
-        <body>
-            <h1>Relatório de Repasses Médicos</h1>
-            <div class="meta">
-                <p><strong>Clínica:</strong> MediLux Clinic</p>
-                <p><strong>Data de Emissão:</strong> ${new Date().toLocaleDateString()} às ${new Date().toLocaleTimeString()}</p>
-                <p><strong>Referência:</strong> Mês Atual</p>
-            </div>
+    // Group by Hour
+    const hours = Array(24).fill(0);
+    appointments.forEach(app => {
+        if (app.time) {
+            const h = parseInt(app.time.split(':')[0]);
+            if (!isNaN(h) && h >= 0 && h < 24) hours[h]++;
+        }
+    });
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Profissional</th>
-                        <th>Especialidade</th>
-                        <th style="text-align: center;">Qtd. Consultas</th>
-                        <th style="text-align: right;">Valor Repasse (60%)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${currentSplitsData.map(d => `
-                        <tr>
-                            <td>${d.name}</td>
-                            <td>${d.specialty}</td>
-                            <td style="text-align: center;">${d.count}</td>
-                            <td style="text-align: right;">${formatCurrency(d.amount)}</td>
-                        </tr>
-                    `).join('')}
-                    <tr class="total-row">
-                        <td colspan="2">TOTAL GERAL</td>
-                        <td style="text-align: center;">${currentSplitsData.reduce((acc, curr) => acc + curr.count, 0)}</td>
-                        <td style="text-align: right;">${formatCurrency(currentSplitsData.reduce((acc, curr) => acc + curr.amount, 0))}</td>
-                    </tr>
-                </tbody>
-            </table>
+    // Filter to business hours (e.g. 7h - 20h) for cleaner chart
+    const businessHours = hours.slice(7, 20);
+    const labels = Array.from({length: 13}, (_, i) => `${i + 7}h`);
 
-            <div class="footer">
-                Relatório gerado automaticamente pelo Sistema MediLux Manager.
-            </div>
-        </body>
-        </html>
-    `;
+    chartPeakHours = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Consultas',
+                data: businessHours,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1f2937',
+                    titleColor: '#f3f4f6',
+                    bodyColor: '#d1d5db',
+                    padding: 10,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                y: { 
+                    display: true,
+                    beginAtZero: true,
+                    grid: {
+                        color: '#374151',
+                        tickLength: 0
+                    },
+                    border: { display: false },
+                    ticks: {
+                        display: false // Hide numbers but keep grid lines
+                    } 
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: '#9ca3af', font: { family: "'Inter', sans-serif" } }
+                }
+            }
+        }
+    });
+}
 
-    const printWindow = window.open('', '', 'height=600,width=800');
-    if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 500);
-    } else {
-        alert("Por favor, permita pop-ups para imprimir o relatório.");
-    }
+function getStatusColor(status: string) {
+    const map: Record<string, string> = {
+        'scheduled': '#3b82f6',
+        'confirmed': '#10b981',
+        'in_progress': '#f59e0b',
+        'completed': '#9ca3af',
+        'cancelled': '#ef4444'
+    };
+    return map[status] || '#9ca3af';
+}
+
+function translateStatus(status: string) {
+    const map: Record<string, string> = {
+        'scheduled': 'Agendado',
+        'confirmed': 'Confirmado',
+        'in_progress': 'Em Andamento',
+        'completed': 'Finalizado',
+        'cancelled': 'Cancelado'
+    };
+    return map[status] || status;
 }
