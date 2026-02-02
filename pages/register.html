@@ -55,17 +55,20 @@
                     <input type="tel" id="phone" required placeholder="(11) 99999-9999" class="form-input" />
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Senha</label>
-                    <input type="password" id="password" required placeholder="Mínimo 8 caracteres"
-                        class="form-input" />
-                    <p class="password-requirements">Use letras maiúsculas, minúsculas e números.</p>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Confirmar Senha</label>
-                    <input type="password" id="confirm-password" required placeholder="Repita a senha"
-                        class="form-input" />
+                <div id="password-section" class="form-group">
+                    <label class="form-label">Senha de Acesso</label>
+                    <div class="password-input-group" style="display: flex; justify-content: space-between;">
+                        <input type="text" id="generated-password" name="password" readonly
+                            placeholder="Clique em gerar..." class="form-input u-text-center"
+                            style="font-family: monospace;">
+                        <button type="button" id="generate-password-btn" class="btn-secondary">
+                            Gerar
+                        </button>
+                        <button type="button" id="copy-password-btn" class="btn-icon">
+                            <span class="material-symbols-outlined u-fs-sm">content_copy</span>
+                        </button>
+                    </div>
+                    <p class="helper-text">Gere a senha e informe ao paciente.</p>
                 </div>
 
                 <!-- Terms checkbox temporarily removed or implied -->
@@ -75,10 +78,6 @@
                 </button>
             </form>
         </div>
-
-        <p class="auth-footer">
-            Já tem uma conta? <a href="login.html" class="auth-link">Entrar</a>
-        </p>
     </div>
 
 </body>

@@ -14,7 +14,8 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 16rem; /* 64 * 0.25rem = 16rem */
+  width: 16rem;
+  /* 64 * 0.25rem = 16rem */
   border-right: 1px solid var(--border-dark);
   background-color: var(--surface-dark);
   height: 100%;
@@ -22,7 +23,8 @@
 
 @media (max-width: 1024px) {
   .sidebar {
-    display: none; /* hidden lg:flex */
+    display: none;
+    /* hidden lg:flex */
   }
 }
 
@@ -90,7 +92,8 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background-color: rgba(25, 127, 230, 0.2); /* primary/20 */
+  background-color: rgba(25, 127, 230, 0.2);
+  /* primary/20 */
   color: var(--primary);
   display: flex;
   align-items: center;
@@ -131,7 +134,8 @@
 }
 
 .logout-btn:hover {
-  color: #f87171; /* red-400 */
+  color: #f87171;
+  /* red-400 */
 }
 
 /* 3. Main Content */
@@ -242,7 +246,8 @@
 
 @media (min-width: 768px) {
   .search-container {
-    width: 24rem; /* w-96 */
+    width: 24rem;
+    /* w-96 */
   }
 }
 
@@ -312,7 +317,8 @@
   padding: 1rem 1.5rem;
   font-weight: 700;
   color: var(--text-secondary);
-  background-color: rgba(17, 20, 24, 0.5); /* background-dark/50 */
+  background-color: rgba(17, 20, 24, 0.5);
+  /* background-dark/50 */
   border-bottom: 1px solid var(--border-dark);
 }
 
@@ -331,7 +337,8 @@
 }
 
 .table-row:hover {
-  background-color: rgba(42, 52, 65, 0.1); /* border-dark/10 */
+  background-color: rgba(42, 52, 65, 0.1);
+  /* border-dark/10 */
 }
 
 .text-right {
@@ -403,14 +410,16 @@
 }
 
 .modal-overlay.hidden {
-  display: none !important; /* Ensure override */
+  display: none !important;
+  /* Ensure override */
 }
 
 .modal-box {
   background-color: var(--surface-dark);
   border: 1px solid var(--border-dark);
   width: 100%;
-  max-width: 32rem; /* max-w-lg */
+  max-width: 32rem;
+  /* max-w-lg */
   border-radius: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -468,7 +477,7 @@
   background-color: var(--background-dark);
   border: 1px solid var(--border-dark);
   border-radius: 0.75rem;
-  color: white;
+  color: var(--text-primary);
   outline: none;
 }
 
@@ -486,7 +495,7 @@
   background-color: var(--border-dark);
   border: 1px solid var(--border-dark);
   border-radius: 0.75rem;
-  color: white;
+  color: var(--text-primary);
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -537,7 +546,8 @@
 
 .helper-text {
   font-size: 0.75rem;
-  color: #64748b; /* slate-500 */
+  color: #64748b;
+  /* slate-500 */
   margin-top: 0.25rem;
 }
 /* 7. History List Styles */

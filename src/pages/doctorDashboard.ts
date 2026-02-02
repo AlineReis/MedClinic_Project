@@ -1,8 +1,8 @@
-import "../../css/pages/doctor-dashboard.css"
-import { Navigation } from "../components/Navigation";
+import "../../css/pages/doctor-dashboard.css";
 import { MobileSidebar } from "../components/MobileSidebar";
+import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
-import { listAppointments, startAppointment, completeAppointment } from "../services/appointmentsService";
+import { completeAppointment, listAppointments, startAppointment } from "../services/appointmentsService";
 import { createExam, listCatalog } from "../services/examsService";
 import {
   createPrescription,
@@ -11,9 +11,8 @@ import {
 import {
   createProfessionalAvailability,
   deleteAvailability,
-  getProfessionalAvailability,
   getProfessionalAvailabilityRules,
-  getProfessionalCommissions,
+  getProfessionalCommissions
 } from "../services/professionalsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -29,7 +28,21 @@ import type {
 } from "../types/professionals";
 
 const MAX_AUTOCOMPLETE_RESULTS = 6;
+const NEXT_PATIENT_STATUSES = new Set([
+  "scheduled",
+  "confirmed",
+  "checked_in",
+  "waiting",
+  "in_progress",
+]);
+
+type NextPatientState = "idle" | "in_progress";
+
 let appointmentAutocompleteCache: AppointmentSummary[] = [];
+let todayAppointmentsCache: AppointmentSummary[] = [];
+let currentNextAppointment: AppointmentSummary | null = null;
+let nextAppointmentState: NextPatientState = "idle";
+let currentProfessionalId: number | null = null;
 
 async function initDoctorDashboard() {
   const session = await authStore.refreshSession();
@@ -47,6 +60,8 @@ async function initDoctorDashboard() {
   new Navigation();
   new MobileSidebar();
   new ToastContainer();
+
+  currentProfessionalId = session.id;
 
   populateCommissionMonthOptions();
 
@@ -86,15 +101,15 @@ async function initDoctorDashboard() {
     }
 
     const response = await startAppointment(id);
-    
+
     if (response.success) {
       uiStore.addToast("success", "Atendimento iniciado!");
       if (btn) {
-         btn.disabled = true; // Keep disabled or change to "Finalizar" if we implement that next
-         btn.textContent = "Em Atendimento";
-         // Refresh dashboard to likely update UI
-         const user = authStore.getSession();
-         if (user?.id) loadUpcomingAppointments(user.id);
+        btn.disabled = true; // Keep disabled or change to "Finalizar" if we implement that next
+        btn.textContent = "Em Atendimento";
+        // Refresh dashboard to likely update UI
+        const user = authStore.getSession();
+        if (user?.id) loadUpcomingAppointments(user.id);
       }
     } else {
       uiStore.addToast("error", response.error?.message || "Erro ao iniciar atendimento");
@@ -124,7 +139,7 @@ async function initDoctorDashboard() {
     }
 
     const response = await completeAppointment(id);
-    
+
     if (response.success) {
       uiStore.addToast("success", "Atendimento finalizado!");
       // Refresh dashboard to show next patient
@@ -174,7 +189,7 @@ async function loadUpcomingAppointments(professionalId: number) {
     ) {
       const todayAppointments = todayResponse.data.appointments;
       const allUpcoming = upcomingResponse.data.appointments;
-      
+
       appointmentAutocompleteCache = dedupeAppointments([
         ...todayAppointments,
         ...allUpcoming,
@@ -201,82 +216,127 @@ function updateStats(
 
   // Count appointments by status
   const waiting = todayAppointments.filter(
-    (a) => a.status === "scheduled" || a.status === "confirmed" || a.status === "waiting" || a.status === "pending",
+    (a) => a.status === "waiting" || a.status === "confirmed",
   ).length;
   const completed = todayAppointments.filter(
     (a) => a.status === "completed",
   ).length;
 
-  // Update stat cards
-  const statsCards = document.querySelectorAll(".stats-grid .stats-value");
-  if (statsCards[0]) statsCards[0].textContent = String(totalToday);
-  if (statsCards[1]) statsCards[1].textContent = String(waiting);
-  if (statsCards[2]) statsCards[2].textContent = String(completed);
+  // Update stat cards (markup now lives in .stats-grid)
+  const statsValues = document.querySelectorAll(".stats-grid .stats-value");
+  if (statsValues[0]) statsValues[0].textContent = String(totalToday);
+  if (statsValues[1]) statsValues[1].textContent = String(waiting);
+  if (statsValues[2]) statsValues[2].textContent = String(completed);
 }
 
 function updateNextPatient(appointments: AppointmentSummary[]) {
-  // Filter for active appointments (not completed/cancelled)
-  // We want to show the earliest appointment that is not finished yet
-  const activeStatuses = ["scheduled", "confirmed", "waiting", "in_progress", "pending"];
-  
-  const activeAppointments = appointments
-    .filter(a => activeStatuses.includes(a.status))
+  todayAppointmentsCache = [...appointments];
+
+  const nextPatientCard = document.querySelector(".next-patient-card");
+  if (!nextPatientCard) return;
+
+  const eligibleAppointments = [...appointments]
+    .filter((appointment) => NEXT_PATIENT_STATUSES.has(appointment.status))
     .sort((a, b) => a.time.localeCompare(b.time));
 
-  if (activeAppointments.length === 0) {
-    // Show empty state
-    const nextPatientCard = document.querySelector(".next-patient-card");
-    if (nextPatientCard) {
-      nextPatientCard.innerHTML = `
-        <div class="u-text-center u-padding-medium">
-          <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
-          <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
-        </div>
-      `;
-    }
+  const nextAppointment = eligibleAppointments[0] ?? null;
+  currentNextAppointment = nextAppointment;
+  nextAppointmentState = nextAppointment?.status === "in_progress" ? "in_progress" : "idle";
+
+  if (!nextAppointment) {
+    currentNextAppointment = null;
+    nextAppointmentState = "idle";
+    nextPatientCard.innerHTML = `
+      <div class="u-text-center u-padding-medium">
+        <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
+        <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
+      </div>
+    `;
     return;
   }
 
-  const nextAppointment = activeAppointments[0];
-  const nextPatientCard = document.querySelector(".next-patient-card");
+  const buttonLabel = nextAppointmentState === "in_progress" ? "Finalizar Atendimento" : "Iniciar Atendimento";
 
-  if (nextPatientCard) {
-      nextPatientCard.innerHTML = `
-        <span class="next-patient-badge">Próximo Paciente</span>
-        <div class="next-patient-meta">
-          <h3 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0;">${nextAppointment.patient_name || "Paciente"}</h3>
-          <p class="next-patient-status">Consulta • ${nextAppointment.specialty || "Clínico Geral"}</p>
-        </div>
-        
-        <div class="next-patient-time-loc">
-          <span class="time-loc-item">
-            <span class="material-symbols-outlined">schedule</span> ${nextAppointment.time}
+  nextPatientCard.innerHTML = `
+    <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
+    <div class="u-mb-15">
+      <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
+      <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
+    </div>
+
+    <div class="u-flex u-gap-medium u-mb-20">
+      <span class="u-flex u-items-center u-gap-small u-text-secondary">
+        <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
+      </span>
+      ${nextAppointment.room
+      ? `
+          <span class="u-flex u-items-center u-gap-small u-text-secondary">
+            <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
-          ${
-            nextAppointment.room
-              ? `
-            <span class="time-loc-item">
-              <span class="material-symbols-outlined">location_on</span> Sala ${nextAppointment.room}
-            </span>
-          `
-              : ""
-          }
-        </div>
-        
-        ${
-          nextAppointment.status === "in_progress"
-            ? `
-            <button onclick="window.handleCompleteAttendance(${nextAppointment.id})" class="btn-patient-finish" style="background-color: var(--success); color: white; width: 100%; border: none; padding: 0.75rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">
-              Finalizar Atendimento
-            </button>
-            `
-            : `
-            <button onclick="window.handleStartAttendance(${nextAppointment.id})" class="btn-patient-start">
-              Iniciar Atendimento
-            </button>
-            `
-        }
-      `;
+        `
+      : ""
+    }
+    </div>
+
+    <button id="iniciar-atendimento" class="btn btn--primary btn--block">
+      ${buttonLabel}
+    </button>
+  `;
+
+  attachNextPatientButton(nextPatientCard);
+}
+
+function attachNextPatientButton(card: Element) {
+  const button = card.querySelector("#iniciar-atendimento") as HTMLButtonElement | null;
+  if (!button) return;
+  button.addEventListener("click", handleNextPatientAction);
+}
+
+async function handleNextPatientAction(event: Event) {
+  event.preventDefault();
+  if (!currentNextAppointment || !currentProfessionalId) return;
+
+  const button = event.currentTarget as HTMLButtonElement;
+  const appointmentId = currentNextAppointment.id;
+  const previousState = nextAppointmentState;
+  const actionLabel = previousState === "idle" ? "Iniciando" : "Finalizando";
+  button.disabled = true;
+  button.textContent = `${actionLabel}...`;
+
+  try {
+    if (previousState === "idle") {
+      const response = await startAppointment(appointmentId);
+      if (!response.success) {
+        throw new Error(response.error?.message ?? "Erro ao iniciar atendimento");
+      }
+      uiStore.addToast("success", "Atendimento iniciado com sucesso");
+      updateLocalAppointmentStatus(appointmentId, "in_progress");
+      nextAppointmentState = "in_progress";
+      updateNextPatient(todayAppointmentsCache);
+      updateWaitingQueue(todayAppointmentsCache);
+      return;
+    }
+
+    const response = await completeAppointment(appointmentId);
+    if (!response.success) {
+      throw new Error(response.error?.message ?? "Erro ao finalizar atendimento");
+    }
+    uiStore.addToast("success", "Atendimento finalizado com sucesso");
+    await loadUpcomingAppointments(currentProfessionalId);
+  } catch (error) {
+    console.error(error);
+    const message = error instanceof Error ? error.message : "Erro ao atualizar atendimento";
+    uiStore.addToast("error", message);
+    button.textContent = previousState === "idle" ? "Iniciar Atendimento" : "Finalizar Atendimento";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function updateLocalAppointmentStatus(appointmentId: number, status: string) {
+  const appointment = todayAppointmentsCache.find((item) => item.id === appointmentId);
+  if (appointment) {
+    appointment.status = status;
   }
 }
 
@@ -284,14 +344,13 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
   const queueList = document.querySelector(".panel-list");
   if (!queueList) return;
 
-  // Filter appointments that are waiting (excluding the first one which is the "Next Patient")
-  // We want to show only 'scheduled' or 'confirmed' or 'waiting' appointments
-  // Note: we re-filter here to match updateNextPatient logic for consistency
-  const activeStatuses = ["scheduled", "confirmed", "waiting", "in_progress", "pending"];
-  
+  const waitingStatuses = new Set(["confirmed", "checked_in", "waiting"]);
+  console.log(appointments)
   const sortedAppointments = [...appointments]
-    .filter(a => activeStatuses.includes(a.status))
-    .sort((a, b) => a.time.localeCompare(b.time));
+    .filter((appointment) => waitingStatuses.has(appointment.status))
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .slice(0, 4);
+
 
   // The first one is displayed in the "Next Patient" card, so we slice from index 1
   const queueAppointments = sortedAppointments.slice(1, 6); // Show next 5
@@ -547,7 +606,7 @@ function showAvailabilityModal(professionalId: number) {
         <div style="border-top: 1px solid var(--border-dark); padding-top: 1rem;">
           <h4 class="u-fs-sm u-fw-600 u-mb-10">Adicionar Novos Horários</h4>
           <div id="availability-entries" style="display: flex; flex-direction: column; gap: 1rem;">
-            <div class="form">
+            <div class="form availability-entry">
               <div class="form__group" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; align-items: end;">
                 <div>
                   <label class="form__label">Dia da Semana</label>
@@ -838,7 +897,7 @@ function showAvailabilityModal(professionalId: number) {
     if (!entriesContainer) return;
 
     const newEntry = document.createElement("div");
-    newEntry.className = "form";
+    newEntry.className = "form availability-entry";
     newEntry.innerHTML = `
       <div class="form__group" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; align-items: end;">
         <div>
