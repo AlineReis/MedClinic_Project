@@ -31,7 +31,10 @@ export class UserController {
       const clinicId = Number(req.params.clinic_id);
       const targetUserId = Number(req.params.id);
 
+      console.log(`[UserController.getById] Request: clinicId=${clinicId}, targetUserId=${targetUserId}`);
       const requester = req.user;
+      console.log(`[UserController.getById] Requester:`, requester);
+
       if (!requester) {
         throw new AuthError("User not authenticated");
       }
@@ -42,11 +45,14 @@ export class UserController {
         targetUserId,
       });
 
+      console.log(`[UserController.getById] User found:`, user?.id);
+
       return res.status(200).json({
         success: true,
         user,
       });
     } catch (error) {
+      console.error(`[UserController.getById] Error:`, error);
       return next(error);
     }
   };
@@ -71,7 +77,7 @@ export class UserController {
         clinicId,
         requester,
         filters: {
-          role: (req.query.role || "health_professional") as string,
+          role: (req.query.role === "all" ? undefined : req.query.role) as string | undefined,
           search: search as string,
           page: page ? Number(page) : 1, // Converte string para número
           pageSize: pageSize ? Number(pageSize) : 10, // Converte string para número

@@ -56,9 +56,10 @@ export class ExamController {
         return res
           .status(404)
           .json({ success: false, error: { message: error.message } });
+      console.error("Exam Creation Error:", error); // Debugging 500 error
       return res.status(500).json({
         success: false,
-        error: { message: "Erro interno ao processar solicitação." },
+        error: { message: "Erro interno ao processar solicitação: " + (error.message || "Unknown") },
       });
     }
   };
