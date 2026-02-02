@@ -28,14 +28,39 @@ async function initUsersPage() {
      return;
   }
   
-  // Temporary: Relaxed check for development or assuming 'manager' is allowed
-  // if (session.role !== "clinic_admin" && session.role !== "system_admin") { ... }
+  // Security Check: Enforce Admin Access (and Receptionist)
+  if (session.role !== "clinic_admin" && session.role !== "system_admin" && session.role !== "receptionist") {
+    uiStore.addToast("error", "Acesso negado. Apenas administradores e recepção podem acessar esta página.")
+    window.location.href = "/pages/manager-dashboard.html"
+    return
+  }
+
+  // RECEPTIONIST RESTRICTIONS:
+  // Can only view Patients. Cannot create users. Cannot filter by other roles.
+  if (session.role === 'receptionist') {
+      currentFilters.role = 'patient';
+      
+      // Hide Role Filter
+      const roleFilter = document.querySelector('[data-role-filter]') as HTMLElement;
+      if (roleFilter) roleFilter.style.display = 'none';
+
+      // Hide "New User" button
+      // Note: We need a reliable way to hide it. We'll try to find it via class if data-attr is missing
+      const btn = document.querySelector(".btn-admin-primary") as HTMLElement;
+      if (btn) btn.style.display = 'none';
+  }
 
   // Setup filter listeners
   setupFilters()
+  
+  // If receptionist, we skip listener for role filter or ensure it doesn't override
+  // But setupFilters attaches change event. If element is hidden, user can't change it.
+  // We just need to make sure initial load respects currentFilters.role
 
-  // Setup new user button (placeholder - no creation endpoint yet)
-  setupNewUserButton()
+  // Setup new user button
+  if (session.role !== 'receptionist') {
+     setupNewUserButton()
+  }
 
   // Load initial user list
   await loadUsers()
@@ -77,6 +102,14 @@ function setupNewUserButton() {
 }
 
 async function loadUsers() {
+  // HARD SECURITY CHECK:
+  // If receptionist, FORCE filter to be 'patient', ignoring whatever is in the UI inputs
+  // This prevents "Inspect Element" attacks where they unhide the select and change the value
+  const session = authStore.getSession();
+  if (session?.role === 'receptionist') {
+      currentFilters.role = 'patient';
+  }
+
   try {
     const response = await listUsers({
       ...currentFilters,
@@ -278,6 +311,13 @@ function setupUserActions() {
 }
 
 async function showUserModal(userId?: number) {
+  // HARD SECURITY CHECK: Receptionists cannot create or edit users
+  const session = authStore.getSession();
+  if (session?.role === 'receptionist') {
+      uiStore.addToast("error", "Ação não autorizada para seu perfil.");
+      return;
+  }
+
   try {
     let user: Partial<UserSummary> | null = null;
     let isEdit = !!userId;
@@ -329,7 +369,7 @@ async function showUserModal(userId?: number) {
                   <select name="role" class="input" id="role-select">
                       <option value="health_professional">Médico / Profissional de Saúde</option>
                       <option value="receptionist">Recepcionista</option>
-                      <option value="clinic_admin">Administrador</option>
+                      <!-- Em PROD, Admins são criados via Banco de Dados ou Convite, não por aqui por segurança -->
                   </select>
               </div>
               ` : ''}
