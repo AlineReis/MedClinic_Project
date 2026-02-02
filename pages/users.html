@@ -9,12 +9,13 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="../css/base/reset.css">
-    <link rel="stylesheet" href="../css/base/variables.css">
-    <link rel="stylesheet" href="../css/base/typography.css">
-    <link rel="stylesheet" href="../css/base/utilities.css">
-    <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/layout/admin-common.css">
+    <link rel="stylesheet" href="../css/base/reset.css" />
+    <link rel="stylesheet" href="../css/base/variables.css" />
+    <link rel="stylesheet" href="../css/base/typography.css" />
+    <link rel="stylesheet" href="../css/base/utilities.css" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/layout/admin-common.css" />
+    <link rel="stylesheet" href="../css/pages/users.css" />
 </head>
 
 <body class="admin-layout">
@@ -29,7 +30,7 @@
             </a>
         </div>
         <nav class="admin-sidebar-nav">
-            <a class="admin-nav-item" href="dashboard.html">
+            <a class="admin-nav-item" href="admin-dashboard.html">
                 <span class="material-symbols-outlined">dashboard</span>
                 Dashboard
             </a>
@@ -43,19 +44,25 @@
             </a>
         </nav>
         <div class="admin-sidebar-footer">
-            <a href="login.html" class="admin-logout-link">
+            <button data-logout-btn class="admin-logout-link"
+                style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
                 <span class="material-symbols-outlined">logout</span> Sair
-            </a>
+            </button>
         </div>
     </aside>
 
     <main class="admin-main">
         <header class="admin-header">
-            <h2 class="admin-header-title">Gestão de Equipe</h2>
+            <div class="header-left">
+                <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Abrir menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h2 class="admin-header-title">Gestão de Equipe</h2>
+            </div>
 
             <div class="header-info-right">
                 <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
-                <button class="btn-admin-primary">
+                <button class="btn-primary" data-new-user-btn>
                     <span class="material-symbols-outlined">person_add</span>
                     Novo Usuário
                 </button>
@@ -64,93 +71,70 @@
 
         <div class="admin-content-viewport custom-scrollbar">
             <div class="admin-container-max admin-content-stack">
-
                 <!-- Filters -->
-                <div class="users-filters-panel">
-                    <div class="search-input-wrapper">
-                        <span class="material-symbols-outlined">search</span>
-                        <input class="admin-input" placeholder="Buscar por nome ou e-mail..." type="text" />
+                <div class="users-filters-panel"
+                    style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <div class="search-input-wrapper"
+                            style="flex: 1; min-width: 300px; display: flex; align-items: center; background: var(--surface-dark); border: 1px solid var(--border-dark); border-radius: 0.75rem; padding: 0.5rem 1rem;">
+                            <span class="material-symbols-outlined" style="color: var(--text-secondary);">search</span>
+                            <input class="admin-input" placeholder="Buscar por nome ou e-mail..." type="text"
+                                data-search-input
+                                style="border: none; background: transparent; flex: 1; outline: none; padding-left: 0.5rem; color: var(--text-primary);" />
+                        </div>
+                        <select class="admin-select" data-role-filter
+                            style="padding: 0.75rem; border-radius: 0.75rem; background: var(--surface-dark); border: 1px solid var(--border-dark); color: var(--text-primary); outline: none;">
+                            <option value="all">Todos os Níveis</option>
+                            <option value="health_professional">Médicos</option>
+                            <option value="clinic_admin">Admin</option>
+                            <option value="receptionist">Recepcionistas</option>
+                            <option value="patient">Pacientes</option>
+                        </select>
                     </div>
-                    <select class="admin-select">
-                        <option>Todos os Níveis</option>
-                        <option>Médico</option>
-                        <option>Admin</option>
-                        <option>Recepcionista</option>
-                    </select>
                 </div>
 
                 <!-- Users Table -->
-                <section class="admin-table-panel">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Usuário</th>
-                                <th>E-mail</th>
-                                <th>Acesso</th>
-                                <th>Status</th>
-                                <th class="cell-actions">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="user-info-row">
-                                        <div class="user-avatar-initials">CR</div>
-                                        <div class="user-profile-data">
-                                            <p class="user-name">Dra. Camila Rodrigues</p>
-                                            <p class="user-id">ID: #84920</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="cell-email">camila.r@medclinic.com</td>
-                                <td>
-                                    <span class="access-badge badge-med">MÉDICO</span>
-                                </td>
-                                <td>
-                                    <span class="status-indicator">
-                                        <span class="dot dot-emerald"></span> Ativo
-                                    </span>
-                                </td>
-                                <td class="cell-actions">
-                                    <button class="btn-icon-action">
-                                        <span class="material-symbols-outlined">edit_square</span>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="user-info-row">
-                                        <div class="user-avatar-initials avatar-initials-purple">RS</div>
-                                        <div class="user-profile-data">
-                                            <p class="user-name">Ricardo Silva</p>
-                                            <p class="user-id">ID: #84921</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="cell-email">ricardo.s@medclinic.com</td>
-                                <td>
-                                    <span class="access-badge badge-admin">ADMIN</span>
-                                </td>
-                                <td>
-                                    <span class="status-indicator">
-                                        <span class="dot dot-emerald"></span> Ativo
-                                    </span>
-                                </td>
-                                <td class="cell-actions">
-                                    <button class="btn-icon-action">
-                                        <span class="material-symbols-outlined">edit_square</span>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
+                <section class="admin-table-panel"
+                    style="background: var(--surface-dark); border: 1px solid var(--border-dark); border-radius: 1rem; overflow: hidden;">
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-dark); background: rgba(0,0,0,0.2);">
+                                    <th
+                                        style="padding: 1rem; text-align: left; font-weight: 700; color: var(--text-secondary);">
+                                        Usuário</th>
+                                    <th
+                                        style="padding: 1rem; text-align: left; font-weight: 700; color: var(--text-secondary);">
+                                        E-mail</th>
+                                    <th
+                                        style="padding: 1rem; text-align: left; font-weight: 700; color: var(--text-secondary);">
+                                        Acesso</th>
+                                    <th
+                                        style="padding: 1rem; text-align: left; font-weight: 700; color: var(--text-secondary);">
+                                        Status</th>
+                                    <th class="cell-actions"
+                                        style="padding: 1rem; text-align: right; font-weight: 700; color: var(--text-secondary);">
+                                        Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody data-users-table-body>
+                                <!-- Injected via JS -->
+                                <tr>
+                                    <td colspan="5"
+                                        style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                                        Carregando usuários...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
+                    <!-- Pagination -->
+                    <div data-pagination style="border-top: 1px solid var(--border-dark);"></div>
+                </section>
             </div>
         </div>
     </main>
-    <script src="../js/components/navigation.js"></script>
-    <script src="../js/services/mock_db.js"></script>
+    <script src="../js/components/mobile-sidebar.js"></script>
 </body>
 
 </html>
