@@ -35,27 +35,22 @@
     <header class="patient-header">
         <div class="header-container">
             <div class="header-actions">
-                <!-- Hamburger Button (Mobile) -->
-                <button id="mobile-menu-btn" class="hamburger-btn-mobile" aria-label="Abrir menu">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
                 <a href="patient-dashboard.html" class="header-brand">
-                    <span class="material-symbols-outlined brand-icon">local_hospital</span>
+                    <img class="brand-icon" src="../assets/icons/icon-plus.png" alt="" aria-hidden="true" width="24" height="24" />
                     <span class="brand-name">MedClinic</span>
                 </a>
             </div>
-            <div class="user-actions">
+            <div class="header-actions">
                 <nav class="header-nav">
-                    <a href="patient-dashboard.html" class="nav-link nav-link-active">Inicio</a>
+                    <a href="patient-dashboard.html" class="nav-link nav-link-active">Início</a>
                     <a href="my-appointments.html" class="nav-link">Consultas</a>
                     <a href="my-exams.html" class="nav-link">Exames</a>
                 </nav>
+                <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
                 <div class="desktop-user-actions">
                     <div class="user-badge">
                         <span data-user-initials>U</span>
                     </div>
-                    <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
-                    </button>
                     <button data-logout-button class="logout-btn" aria-label="Sair">
                         <span class="material-symbols-outlined">logout</span>
                     </button>
@@ -68,7 +63,7 @@
 
         <!-- Welcome Section -->
         <section class="welcome-info">
-            <h1 class="welcome-title">Ola, <span data-user-name>Usuario</span>!</h1>
+            <h1 class="welcome-title">Olá, <span data-user-name>Usuario</span>!</h1>
             <p class="welcome-subtitle">Bem-vindo ao seu portal de saude.</p>
         </section>
 
