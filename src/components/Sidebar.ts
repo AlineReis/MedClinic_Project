@@ -24,16 +24,12 @@ export class Sidebar {
     private generateHTML(): string {
         const { brand, items, userProfile } = this.options;
 
-        const brandIcon = brand.icon && (brand.icon.includes("/") || brand.icon.includes(".png") || brand.icon.includes(".svg"))
-            ? `<img src="${brand.icon}" alt="" aria-hidden="true" width="24" height="24" />`
-            : `<span class="material-symbols-outlined">${brand.icon}</span>`;
-
         return `
       <!-- Sidebar Header -->
       <div class="${this.getHeaderClass()}">
         <a href="${brand.href || '#'}" class="${this.getBrandClass()}">
           <div class="brand-icon-box">
-            ${brandIcon}
+            <span class="material-symbols-outlined">${brand.icon}</span>
           </div>
           <span class="brand-name">${brand.name}</span>
         </a>

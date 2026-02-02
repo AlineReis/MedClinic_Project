@@ -3,7 +3,7 @@
  * MedClinic - PWA Offline Support
  */
 
-const CACHE_NAME = 'medclinic-v2';
+const CACHE_NAME = 'medclinic-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

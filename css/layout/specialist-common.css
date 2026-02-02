@@ -45,9 +45,10 @@
 }
 
 .sidebar-brand-link {
-  background: none;
+  background: linear-gradient(to bottom right, var(--primary), #1a56db);
   padding: 0.625rem;
   border-radius: 0.5rem;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,17 +56,10 @@
   flex-shrink: 0;
 }
 
-.sidebar-brand-link .brand-icon {
-  width: 24px;
-  height: 24px;
-  display: block;
-  object-fit: contain;
-}
-
 .sidebar-brand-info {
   display: none;
   flex-direction: column;
-  margin-left: 0.5rem;
+  margin-left: 0.75rem;
 }
 
 @media (min-width: 1024px) {
@@ -77,7 +71,7 @@
 .brand-title {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #ffffff;
   margin: 0;
   line-height: 1;
 }

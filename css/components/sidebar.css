@@ -25,18 +25,18 @@
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    color: var(--text-secondary);
+    color: #ffffff;
 }
 
 .brand-icon-box {
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 0.75rem;
-    background: transparent;
+    background-color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(25, 127, 230, 0.3);
     margin-bottom: 0.5rem;
 }
 
@@ -44,7 +44,6 @@
     font-size: 1.125rem;
     font-weight: 700;
     letter-spacing: -0.025em;
-    color: var(--text-secondary);
 }
 
 .sidebar-nav {
@@ -70,8 +69,8 @@
 }
 
 .nav-item:hover {
-    background-color: transparent;
-    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
 }
 
 .nav-item.active {

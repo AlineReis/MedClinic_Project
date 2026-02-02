@@ -41,42 +41,24 @@
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
-  color: var(--text-secondary);
-}
-
-.admin-sidebar-brand:visited,
-.admin-sidebar-brand:hover {
-  color: var(--text-secondary);
-  text-decoration: none;
+  color: #ffffff;
 }
 
 .brand-icon-box {
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background: transparent;
+  background-color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
-}
-
-.brand-icon-box .material-symbols-outlined {
-  color: #ffffff;
-}
-
-.brand-icon-box img {
-  width: 24px;
-  height: 24px;
-  display: block;
-  object-fit: contain;
+  box-shadow: 0 4px 12px rgba(25, 127, 230, 0.3);
 }
 
 .brand-name {
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  color: var(--text-secondary);
 }
 
 .admin-sidebar-nav {

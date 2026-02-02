@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sidebar = new Sidebar({
     brand: {
       name: 'MedClinic',
-      icon: '../assets/icons/icon-plus.png',
+      icon: 'local_hospital',
       href: '#'
     },
     items: sidebarItems,
@@ -194,12 +194,8 @@ function getStatusBadge(status: string | undefined) {
   const normalized = (status ?? "").toLowerCase();
   const map: Record<string, { label: string; color: string }> = {
     pending: { label: "PENDENTE", color: "warning" },
-    pending_payment: { label: "PAGAMENTO PENDENTE", color: "warning" },
     in_analysis: { label: "EM ANÁLISE", color: "info" },
-    analysis: { label: "EM ANÁLISE", color: "info" },
     ready: { label: "PRONTO", color: "success" },
-    ready_to_review: { label: "PRONTO", color: "success" },
-    paid: { label: "PAGO", color: "success" },
     urgent: { label: "URGENTE", color: "error" },
   };
 
