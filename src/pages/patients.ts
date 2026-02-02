@@ -36,12 +36,39 @@ async function initPatientsPage() {
 
   setupUserProfile(session);
   setupLogoutButton();
+  setupTheme(); // Initialize theme
   setupModal();
   setupSearch();
   setupPagination();
 
   // Initial load
   loadPatients();
+}
+
+function setupTheme() {
+  const html = document.documentElement;
+  const toggleBtn = document.getElementById("theme-toggle");
+  const icon = toggleBtn?.querySelector("span");
+
+  // Load saved theme or default to dark
+  const savedTheme = localStorage.getItem("theme") || "dark";
+  html.setAttribute("data-theme", savedTheme);
+  updateThemeIcon(savedTheme);
+
+  toggleBtn?.addEventListener("click", () => {
+    const currentTheme = html.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+    html.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeIcon(newTheme);
+  });
+
+  function updateThemeIcon(theme: string) {
+    if (icon) {
+      icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+    }
+  }
 }
 
 function setupUserProfile(session: any) {
@@ -87,7 +114,7 @@ async function loadPatients(query = "") {
   const tbody = document.getElementById("patients-list-body");
   if (!tbody) return;
 
-  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Carregando...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="5" class="u-text-center u-padding-medium u-text-secondary">Carregando...</td></tr>`;
 
   try {
     // searchPatients uses backend filtering. For pagination, the backend supports it but our service wrapper might need adjustment if we want strict pagination control.
@@ -99,12 +126,12 @@ async function loadPatients(query = "") {
       currentPatients = response.data;
       renderPatients(currentPatients);
     } else {
-      tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Erro ao carregar pacientes</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="u-text-center u-padding-medium u-text-error">Erro ao carregar pacientes</td></tr>`;
       uiStore.addToast("error", "Erro ao buscar dados.");
     }
   } catch (error) {
     console.error(error);
-    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Erro inesperado</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="u-text-center u-padding-medium u-text-error">Erro inesperado</td></tr>`;
   }
 }
 
@@ -115,9 +142,9 @@ function renderPatients(patients: PatientSummary[]) {
   if (patients.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-          <div class="flex flex-col items-center gap-2">
-            <span class="material-symbols-outlined text-4xl">person_off</span>
+        <td colspan="5" class="u-text-center u-padding-medium u-text-secondary">
+          <div class="u-flex-column u-items-center u-gap-small">
+            <span class="material-symbols-outlined" style="font-size: 2.25rem;">person_off</span>
             <p>Nenhum paciente encontrado</p>
           </div>
         </td>
@@ -128,19 +155,19 @@ function renderPatients(patients: PatientSummary[]) {
   tbody.innerHTML = patients
     .map(
       (p) => `
-      <tr class="hover:bg-border-dark/10 border-b border-border-dark last:border-0 transition-colors">
-        <td class="px-6 py-4 font-medium">${p.name}</td>
-        <td class="px-6 py-4 text-slate-400">${p.cpf || "-"}</td>
-        <td class="px-6 py-4 text-slate-400">${p.email}</td>
-        <td class="px-6 py-4 text-slate-400">${p.phone || "-"}</td>
-        <td class="px-6 py-4 text-right">
-          <button class="edit-btn p-2 hover:bg-white/10 rounded-lg text-primary transition-all" data-id="${p.id}" title="Editar">
-            <span class="material-symbols-outlined text-lg">edit</span>
+      <tr class="table-row">
+        <td class="font-medium">${p.name}</td>
+        <td class="text-secondary">${p.cpf || "-"}</td>
+        <td class="text-secondary">${p.email}</td>
+        <td class="text-secondary">${p.phone || "-"}</td>
+        <td class="text-right">
+          <button class="edit-btn btn-icon-action" data-id="${p.id}" title="Editar">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem;">edit</span>
           </button>
           <!-- Delete Logic (Optional, usually sensitive) -->
           <!-- 
-          <button class="delete-btn p-2 hover:bg-white/10 rounded-lg text-red-400 transition-all" data-id="${p.id}" title="Excluir">
-            <span class="material-symbols-outlined text-lg">delete</span>
+          <button class="delete-btn btn-icon-action u-text-error" data-id="${p.id}" title="Excluir">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem;">delete</span>
           </button>
           -->
         </td>
@@ -187,7 +214,7 @@ function setupModal() {
 
   const toggleModal = (show: boolean) => {
     modal.classList.toggle("hidden", !show);
-    modal.classList.toggle("flex", show);
+    // modal.classList.toggle("flex", show); // Removed Tailwind dependency
     if (!show) {
       form.reset();
       const historySection = document.getElementById("history-section");
@@ -258,13 +285,19 @@ function setupModal() {
     const cleanCpf = (formData.get("cpf") as string).replace(/\D/g, "");
     const phone = formData.get("phone") as string;
 
+    const password = formData.get("password") as string;
+
+    // Construct payload with only necessary fields
     const payload: any = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
-      cpf: cleanCpf, // UserService ignores CPF on update
+      cpf: cleanCpf,
       phone: phone,
-      password: formData.get("password") as string,
     };
+
+    if (password && password.trim() !== "") {
+      payload.password = password;
+    }
 
     uiStore.addToast("info", "Salvando...");
 
@@ -359,12 +392,12 @@ async function openModal(id: number | null = null) {
             historyList.innerHTML = appts
               .map(
                 (a) => `
-                        <div class="flex justify-between items-center p-2 bg-background-dark rounded border border-border-dark">
+                        <div class="u-flex u-justify-between u-items-center u-padding-medium u-mb-05" style="border: 1px solid var(--border-dark); border-radius: 0.5rem; background-color: var(--background-dark);">
                             <div>
-                                <p class="text-xs font-bold text-white">${a.date} - ${a.time}</p>
-                                <p class="text-[10px] text-slate-400">Dr. ${a.professional_name}</p>
+                                <p class="u-fw-700 u-fs-xs u-text-secondary">${a.date} - ${a.time}</p>
+                                <p class="u-fs-xs u-text-secondary" style="font-size: 10px;">Dr. ${a.professional_name}</p>
                             </div>
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 capitalize">${a.status}</span>
+                            <span class="u-fs-xs u-uppercase" style="background-color: #334155; padding: 2px 6px; border-radius: 4px; color: #cbd5e1; font-size: 10px;">${a.status}</span>
                         </div>
                      `,
               )
@@ -372,7 +405,7 @@ async function openModal(id: number | null = null) {
           }
         } else {
           historyList.innerHTML =
-            '<p class="text-xs text-red-500">Erro ao carregar histórico</p>';
+            '<p class="helper-text u-text-error">Erro ao carregar histórico</p>';
         }
       }
     } else {
@@ -392,7 +425,7 @@ async function openModal(id: number | null = null) {
   }
 
   modal.classList.remove("hidden");
-  modal.classList.add("flex");
+  // modal.classList.add("flex"); // Removed Tailwind dependency
 }
 
 function generateStrongPassword(): string {

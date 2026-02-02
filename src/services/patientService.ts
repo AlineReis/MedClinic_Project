@@ -8,6 +8,7 @@ export interface CreatePatientPayload {
   phone?: string;
   password?: string;
   role: "patient";
+  clinic_id?: number;
 }
 
 export interface PatientSummary {
@@ -35,7 +36,8 @@ export async function createPatient(
   }
 
   try {
-    const response = await request<any>(`/users`, "POST", payload);
+    const finalPayload = { ...payload, clinic_id: session.clinic_id };
+    const response = await request<any>(`/users`, "POST", finalPayload);
     if (response.success && (response as any).user) {
       return { success: true, data: (response as any).user };
     }
