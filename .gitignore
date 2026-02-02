@@ -29,3 +29,5 @@ coverage/
 Thumbs.dbprd.json
 
 CREDENCIAIS_TESTE.txt
+deploy/UPDATE_GUIDE.md
+DEPLOY_GUIDE_UBUNTU.md
