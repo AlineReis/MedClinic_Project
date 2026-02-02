@@ -20,34 +20,9 @@
 
 <body class="admin-layout">
     <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="admin-sidebar-header">
-            <a href="#" class="admin-sidebar-brand">
-                <div class="brand-icon-box">
-                    <span class="material-symbols-outlined">business</span>
-                </div>
-                <span class="brand-name">MedClinic Manager</span>
-            </a>
-        </div>
-        <nav class="admin-sidebar-nav">
-            <a class="admin-nav-item active" href="#">
-                <span class="material-symbols-outlined">dashboard</span> Dashboard
-            </a>
-            <a class="admin-nav-item" href="financial.html">
-                <span class="material-symbols-outlined">payments</span> Financeiro
-            </a>
-            <a class="admin-nav-item" href="users.html">
-                <span class="material-symbols-outlined">group</span> Equipe
-            </a>
-            <a class="admin-nav-item" href="dashboard.html">
-                <span class="material-symbols-outlined">analytics</span> KPIs
-            </a>
-        </nav>
-        <div class="admin-sidebar-footer">
-            <a href="login.html" class="admin-logout-link">
-                <span class="material-symbols-outlined">logout</span> Sair
-            </a>
-        </div>
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="sidebar-container">
+        <!-- Content will be injected by managerDashboard.ts -->
     </aside>
 
     <main class="admin-main">
@@ -133,8 +108,7 @@
             </div>
         </div>
     </main>
-    <script src="../js/components/navigation.js"></script>
-    <script src="../js/services/mock_db.js"></script>
+
 </body>
 
 </html>

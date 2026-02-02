@@ -18,36 +18,9 @@
 
 <body class="reception-layout dashboard-body">
     <!-- Sidebar -->
-    <aside class="reception-sidebar">
-        <div class="sidebar-header">
-            <span class="material-symbols-outlined sidebar-logo-icon">local_hospital</span>
-            <h1 class="sidebar-logo-text">MedClinic</h1>
-        </div>
-        <nav class="sidebar-nav">
-            <a class="nav-item nav-item-active" href="#">
-                <span class="material-symbols-outlined">dashboard</span> Painel
-            </a>
-            <a class="nav-item" href="agenda.html">
-                <span class="material-symbols-outlined">calendar_month</span> Agenda Geral
-            </a>
-            <a class="nav-item" href="register.html">
-                <span class="material-symbols-outlined">person_add</span> Novo Paciente
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="user-profile-preview">
-                <div class="user-avatar-sm">
-                    <span data-user-initials>U</span>
-                </div>
-                <div class="user-info-text">
-                    <span class="user-name-text" data-user-name>Usuario</span>
-                    <span class="user-role-text" data-user-role>Recepcionista</span>
-                </div>
-            </div>
-            <button data-logout-button class="logout-btn">
-                <span class="material-symbols-outlined">logout</span> Sair
-            </button>
-        </div>
+    <!-- Sidebar -->
+    <aside class="reception-sidebar" id="sidebar-container">
+        <!-- Content injected by receptionDashboard.ts -->
     </aside>
 
     <main class="reception-main">
@@ -59,10 +32,10 @@
                 </button>
                 <h2 class="header-title">Central de Recepção</h2>
             </div>
-             <div class="right-recepcionist-menu">
-       <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
-                 <span class="header-role-badge" data-user-role>Recepcionista</span>
-             </div>
+            <div class="right-recepcionist-menu">
+                <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
+                <span class="header-role-badge" data-user-role>Recepcionista</span>
+            </div>
         </header>
 
         <div class="content-scroll custom-scrollbar">
@@ -125,9 +98,7 @@
             </div>
         </div>
     </main>
-    <script src="../js/components/navigation.js"></script>
-    <script src="../js/components/mobile-sidebar.js"></script>
-    <script src="../js/services/mock_db.js"></script>
+
 </body>
 
 </html>
