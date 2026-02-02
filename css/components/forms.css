@@ -52,6 +52,17 @@
   color: var(--text-secondary);
 }
 
+/* Time input icon color (clock) */
+.input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(70%) brightness(0.85);
+  opacity: 0.85;
+}
+
+:root[data-theme="light"] .input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(35%) brightness(0.75);
+  opacity: 0.85;
+}
+
 .input--error {
   border-color: #ef4444;
 }
