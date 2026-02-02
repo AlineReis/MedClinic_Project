@@ -389,17 +389,33 @@ async function openModal(id: number | null = null) {
               '<p class="history-empty">Nenhum agendamento encontrado.</p>';
           } else {
             historyList.innerHTML = appts
-              .map(
-                (a) => `
+              .map((a) => {
+                const badge = getStatusBadge(a.status);
+                const dateObj = new Date(a.date + "T" + a.time);
+                const dateFormatted = dateObj.toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                });
+                const timeFormatted = dateObj.toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+
+                const docName = a.professional_name.startsWith("Dr")
+                  ? a.professional_name
+                  : `Dr. ${a.professional_name}`;
+
+                return `
                         <div class="history-item">
                             <div>
-                                <p class="history-date">${a.date} - ${a.time}</p>
-                                <p class="history-doctor">Dr. ${a.professional_name}</p>
+                                <p class="history-date">${dateFormatted} - ${timeFormatted}</p>
+                                <p class="history-doctor">${docName}</p>
                             </div>
-                            <span class="history-status">${a.status}</span>
+                            <span class="history-status status-badge-${badge.color}">${badge.label}</span>
                         </div>
-                     `,
-              )
+                     `;
+              })
               .join("");
           }
         } else {
@@ -435,6 +451,27 @@ function generateStrongPassword(): string {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return password;
+}
+
+function getStatusBadge(status: string) {
+  const badges: Record<string, { color: string; label: string }> = {
+    scheduled: { color: "gray", label: "PENDENTE" },
+    confirmed: { color: "blue", label: "CONFIRMADO" },
+    waiting: { color: "amber", label: "AGUARDANDO" },
+    in_progress: { color: "emerald", label: "EM ATENDIMENTO" },
+    completed: { color: "emerald", label: "CONCLUÍDO" },
+    cancelled: { color: "red", label: "CANCELADO" },
+    cancelled_by_patient: { color: "red", label: "CANCELADO PELO PACIENTE" },
+    cancelled_by_clinic: { color: "red", label: "CANCELADO PELA CLÍNICA" },
+    no_show: { color: "red", label: "AUSENTE" },
+  };
+
+  return (
+    badges[status] || {
+      color: "gray",
+      label: status.toUpperCase(),
+    }
+  );
 }
 
 if (document.readyState === "loading") {

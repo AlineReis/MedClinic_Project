@@ -681,8 +681,10 @@ function setupNewAppointmentModal(clinicId?: number) {
         '<option value="">Selecione um profissional</option>';
       pros.forEach((p) => {
         const option = document.createElement("option");
-        option.value = String(p.id);
-        option.textContent = `${p.name} - ${p.specialty}`;
+        const specialty = p.specialty
+          ? p.specialty.charAt(0).toUpperCase() + p.specialty.slice(1)
+          : "";
+        option.textContent = `${p.name} - ${specialty}`;
         option.dataset.price = String(p.consultation_price || 0);
         professionalSelect.appendChild(option);
       });
