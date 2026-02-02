@@ -18,128 +18,12 @@
 /* 2. Sidebar Component */
 .reception-sidebar {
   display: none;
-  flex-direction: column;
-  width: 16rem;
-  /* w-64 */
-  border-right: 1px solid var(--border-dark);
-  background-color: var(--surface-dark);
-  height: 100%;
 }
 
 @media (min-width: 1024px) {
   .reception-sidebar {
     display: flex;
   }
-}
-
-.sidebar-header {
-  height: 4rem;
-  /* h-16 */
-  display: flex;
-  align-items: center;
-  padding: 0 1.5rem;
-  border-bottom: 1px solid var(--border-dark);
-}
-
-.sidebar-logo-icon {
-  color: var(--primary);
-  margin-right: 0.5rem;
-}
-
-.sidebar-logo-text {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.sidebar-nav {
-  flex: 1 1 0%;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.nav-item:hover {
-  background-color: var(--border-dark);
-  color: var(--text-primary);
-}
-
-.nav-item-active {
-  background-color: var(--primary);
-  color: #ffffff;
-}
-
-.sidebar-footer {
-  padding: 1rem;
-  border-top: 1px solid var(--border-dark);
-}
-
-.user-profile-preview {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.user-avatar-sm {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 9999px;
-  background-color: rgba(25, 127, 230, 0.2);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.75rem;
-  border: 1px solid rgba(25, 127, 230, 0.3);
-}
-
-.user-info-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name-text {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.user-role-text {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 0.25rem;
-}
-
-.logout-btn:hover {
-  color: #f87171;
-  /* red-400 */
 }
 
 /* 3. Main Content & Header */
