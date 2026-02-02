@@ -678,3 +678,38 @@ body.dashboard-body {
   font-size: 11px;
   color: color-mix(in srgb, var(--text-primary) 50%, var(--text-secondary) 20%)
 }
+
+.login-theme-toggle {
+  /* Posicionamento fixo no canto da tela */
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+
+  /* Reset de estilos de botão */
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #ffffff);
+
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.login-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  /* Cor da sua marca */
+}
+
+/* Quando estiver no modo claro, ajustamos a cor do botão */
+html.light .login-theme-toggle {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
+}

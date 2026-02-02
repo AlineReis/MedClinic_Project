@@ -1,15 +1,14 @@
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
-import {
-  createPatient,
-  searchPatients,
-  updatePatient,
-  deletePatient,
-  getPatient,
-  type PatientSummary,
-} from "../services/patientService";
 import { listAppointments } from "../services/appointmentsService";
 import { logout } from "../services/authService";
+import {
+  createPatient,
+  getPatient,
+  searchPatients,
+  updatePatient,
+  type PatientSummary
+} from "../services/patientService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
 
@@ -36,39 +35,12 @@ async function initPatientsPage() {
 
   setupUserProfile(session);
   setupLogoutButton();
-  setupTheme(); // Initialize theme
   setupModal();
   setupSearch();
   setupPagination();
 
   // Initial load
   loadPatients();
-}
-
-function setupTheme() {
-  const html = document.documentElement;
-  const toggleBtn = document.getElementById("theme-toggle");
-  const icon = toggleBtn?.querySelector("span");
-
-  // Load saved theme or default to dark
-  const savedTheme = localStorage.getItem("theme") || "dark";
-  html.setAttribute("data-theme", savedTheme);
-  updateThemeIcon(savedTheme);
-
-  toggleBtn?.addEventListener("click", () => {
-    const currentTheme = html.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-
-    html.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeIcon(newTheme);
-  });
-
-  function updateThemeIcon(theme: string) {
-    if (icon) {
-      icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
-    }
-  }
 }
 
 function setupUserProfile(session: any) {
@@ -165,7 +137,7 @@ function renderPatients(patients: PatientSummary[]) {
             <span class="material-symbols-outlined" style="font-size: 1.25rem;">edit</span>
           </button>
           <!-- Delete Logic (Optional, usually sensitive) -->
-          <!-- 
+          <!--
           <button class="delete-btn btn-icon-action u-text-error" data-id="${p.id}" title="Excluir">
             <span class="material-symbols-outlined" style="font-size: 1.25rem;">delete</span>
           </button>

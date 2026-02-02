@@ -265,6 +265,21 @@ export async function checkInAppointment(
   return response;
 }
 
+export async function startAppointment(
+  appointmentId: number,
+): Promise<ApiResponse<{ message: string; appointment: AppointmentApiItem }>> {
+  const response = await request<{ message: string; appointment: AppointmentApiItem }>(
+    `/appointments/${appointmentId}/start`,
+    "POST",
+  );
+
+  if (response.success) {
+    clearAppointmentsCache();
+  }
+
+  return response;
+}
+
 export async function getAppointment(
   appointmentId: number,
 ): Promise<ApiResponse<AppointmentSummary>> {
