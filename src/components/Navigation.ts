@@ -9,26 +9,21 @@ export class Navigation {
   }
 
   private initLogout() {
-    const logoutBtns = document.querySelectorAll("[data-logout-button], .logout-btn");
+    const logoutBtns = document.querySelectorAll("[data-logout-button], .logout-btn, .admin-logout-link");
     logoutBtns.forEach((btn) => {
       btn.addEventListener("click", async (e) => {
         e.preventDefault();
-        if (!confirm("Tem certeza que deseja sair?")) return;
-
+        
         try {
-          const response = await request("/auth/logout", "POST");
-          if (!response.success) {
-            uiStore.addToast(
-              "error",
-              response.error?.message ?? "Erro ao realizar logout",
-            );
-            return;
-          }
-
+          // Fire and forget logout request or await it - keeping logic but removing confirm
+          await request("/auth/logout", "POST");
+          
           authStore.clearSession();
           window.location.href = "/pages/login.html";
         } catch (error) {
-          uiStore.addToast("error", "Erro ao realizar logout");
+           // Even if API fails, clear local session
+           authStore.clearSession();
+           window.location.href = "/pages/login.html";
         }
       });
     });

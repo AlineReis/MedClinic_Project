@@ -64,6 +64,9 @@ async function initUsersPage() {
      setupNewUserButton()
   }
 
+  // Setup sidebar logout
+  setupLogout()
+
   // Load initial user list
   await loadUsers()
 }
@@ -94,11 +97,23 @@ function setupFilters() {
   }
 }
 
+
 function setupNewUserButton() {
   const newUserBtn = document.querySelector("[data-new-user-btn]")
   if (newUserBtn) {
     newUserBtn.addEventListener("click", () => {
       uiStore.addToast("info", "Criação de usuários será implementada em breve")
+    })
+  }
+}
+
+function setupLogout() {
+  const logoutLink = document.querySelector(".admin-logout-link")
+  if (logoutLink) {
+    logoutLink.addEventListener("click", (e) => {
+      e.preventDefault()
+      authStore.clearSession()
+      window.location.href = "login.html"
     })
   }
 }

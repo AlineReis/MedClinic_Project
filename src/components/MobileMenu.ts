@@ -105,20 +105,14 @@ export class MobileMenu {
     }
 
     // Bind footer logout
-     const logoutBtn = overlay.querySelector('.mobile-menu-logout');
-     if(logoutBtn) {
-         // Logic is handled by Navigation via global selector [data-logout-button], 
-         // but since this is dynamically added, we might need to re-bind or rely on event delegation.
-         // Navigation.ts binds on constructor. If this is added later, it might be missed.
-         // Ideally Navigation should handle delegation or expose a bind method.
-         // For now, let's just let Navigation handle it if it uses document delegation? 
-         // ERROR: Navigation uses direct querySelectorAll. Explicit binding needed or fix Navigation.
-         // But Navigation class is already instantiated. 
-         // Let's rely on Navigation refactor later? No, let's simple bind it here or ensure Navigation checks dynamic elements.
-         // Actually, Navigation initializes logout on constructor. 
-         // Valid quick fix: Trigger a click on the main logout button or duplicate logic?
-         // Duplicate logic for safety or refactor Navigation.
-     }
+    // Bind footer logout
+    const logoutBtn = overlay.querySelector('.mobile-menu-logout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        authStore.clearSession();
+        window.location.href = 'login.html';
+      });
+    }
 
     // Close when clicking outside menu container
     overlay.addEventListener('click', (e) => {
