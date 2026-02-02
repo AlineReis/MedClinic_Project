@@ -114,7 +114,7 @@ async function loadPatients(query = "") {
   const tbody = document.getElementById("patients-list-body");
   if (!tbody) return;
 
-  tbody.innerHTML = `<tr><td colspan="5" class="u-text-center u-padding-medium u-text-secondary">Carregando...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="5" class="table-loading-message">Carregando...</td></tr>`;
 
   try {
     // searchPatients uses backend filtering. For pagination, the backend supports it but our service wrapper might need adjustment if we want strict pagination control.
@@ -126,12 +126,12 @@ async function loadPatients(query = "") {
       currentPatients = response.data;
       renderPatients(currentPatients);
     } else {
-      tbody.innerHTML = `<tr><td colspan="5" class="u-text-center u-padding-medium u-text-error">Erro ao carregar pacientes</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="table-error-message">Erro ao carregar pacientes</td></tr>`;
       uiStore.addToast("error", "Erro ao buscar dados.");
     }
   } catch (error) {
     console.error(error);
-    tbody.innerHTML = `<tr><td colspan="5" class="u-text-center u-padding-medium u-text-error">Erro inesperado</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="table-error-message">Erro inesperado</td></tr>`;
   }
 }
 
@@ -142,9 +142,9 @@ function renderPatients(patients: PatientSummary[]) {
   if (patients.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="u-text-center u-padding-medium u-text-secondary">
-          <div class="u-flex-column u-items-center u-gap-small">
-            <span class="material-symbols-outlined" style="font-size: 2.25rem;">person_off</span>
+        <td colspan="5" class="table-empty-state">
+          <div class="table-empty-content">
+            <span class="material-symbols-outlined icon-large">person_off</span>
             <p>Nenhum paciente encontrado</p>
           </div>
         </td>
@@ -373,7 +373,7 @@ async function openModal(id: number | null = null) {
       if (historySection && historyList) {
         historySection.classList.remove("hidden");
         historyList.innerHTML =
-          '<p class="text-xs text-slate-500">Carregando histórico...</p>';
+          '<p class="history-loading">Carregando histórico...</p>';
 
         const aptResponse = await listAppointments({
           patientId: id,
@@ -386,20 +386,36 @@ async function openModal(id: number | null = null) {
 
           if (appts.length === 0) {
             historyList.innerHTML =
-              '<p class="text-xs text-slate-500">Nenhum agendamento encontrado.</p>';
+              '<p class="history-empty">Nenhum agendamento encontrado.</p>';
           } else {
             historyList.innerHTML = appts
-              .map(
-                (a) => `
-                        <div class="u-flex u-justify-between u-items-center u-padding-medium u-mb-05" style="border: 1px solid var(--border-dark); border-radius: 0.5rem; background-color: var(--background-dark);">
+              .map((a) => {
+                const badge = getStatusBadge(a.status);
+                const dateObj = new Date(a.date + "T" + a.time);
+                const dateFormatted = dateObj.toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                });
+                const timeFormatted = dateObj.toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+
+                const docName = a.professional_name.startsWith("Dr")
+                  ? a.professional_name
+                  : `Dr. ${a.professional_name}`;
+
+                return `
+                        <div class="history-item">
                             <div>
-                                <p class="u-fw-700 u-fs-xs u-text-secondary">${a.date} - ${a.time}</p>
-                                <p class="u-fs-xs u-text-secondary" style="font-size: 10px;">Dr. ${a.professional_name}</p>
+                                <p class="history-date">${dateFormatted} - ${timeFormatted}</p>
+                                <p class="history-doctor">${docName}</p>
                             </div>
-                            <span class="u-fs-xs u-uppercase" style="background-color: #334155; padding: 2px 6px; border-radius: 4px; color: #cbd5e1; font-size: 10px;">${a.status}</span>
+                            <span class="history-status status-badge-${badge.color}">${badge.label}</span>
                         </div>
-                     `,
-              )
+                     `;
+              })
               .join("");
           }
         } else {
@@ -435,6 +451,27 @@ function generateStrongPassword(): string {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return password;
+}
+
+function getStatusBadge(status: string) {
+  const badges: Record<string, { color: string; label: string }> = {
+    scheduled: { color: "gray", label: "PENDENTE" },
+    confirmed: { color: "blue", label: "CONFIRMADO" },
+    waiting: { color: "amber", label: "AGUARDANDO" },
+    in_progress: { color: "emerald", label: "EM ATENDIMENTO" },
+    completed: { color: "emerald", label: "CONCLUÍDO" },
+    cancelled: { color: "red", label: "CANCELADO" },
+    cancelled_by_patient: { color: "red", label: "CANCELADO PELO PACIENTE" },
+    cancelled_by_clinic: { color: "red", label: "CANCELADO PELA CLÍNICA" },
+    no_show: { color: "red", label: "AUSENTE" },
+  };
+
+  return (
+    badges[status] || {
+      color: "gray",
+      label: status.toUpperCase(),
+    }
+  );
 }
 
 if (document.readyState === "loading") {

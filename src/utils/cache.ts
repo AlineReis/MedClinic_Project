@@ -115,7 +115,7 @@ class SimpleCache<T> {
  */
 export function buildCacheKey(
   base: string,
-  params: Record<string, string | number | boolean | undefined> = {},
+  params: Record<string, string | number | boolean | string[] | undefined> = {},
 ): string {
   const sortedKeys = Object.keys(params).sort()
   const keyParts = sortedKeys

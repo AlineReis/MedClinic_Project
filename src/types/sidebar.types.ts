@@ -1,30 +1,29 @@
+
 export interface SidebarItem {
     text: string;
     icon: string;
     href: string;
     active?: boolean;
-}
-
-export interface UserProfile {
-    name: string;
-    role: string;
-    initials?: string;
-    avatarUrl?: string; // For future use
+    children?: SidebarItem[];
 }
 
 export interface SidebarBrand {
     name: string;
     icon: string;
-    href?: string;
+    href: string;
+}
+
+export interface SidebarUserProfile {
+    name: string;
+    role: string;
+    avatarUrl?: string;
 }
 
 export interface SidebarOptions {
-    targetId?: string; // ID of the container element, defaults to 'sidebar-container'
-    targetElement?: HTMLElement; // Direct element reference
+    targetId?: string;       // ID of container to render into
+    targetElement?: HTMLElement; // Or direct element
     brand: SidebarBrand;
     items: SidebarItem[];
-    userProfile?: UserProfile;
-    logoutUrl?: string; // If not provided, will rely on event listener
-    theme?: 'dark' | 'light'; // If we want to support themes explicitly, though CSS usually handles it
-    itemClass?: string; // Custom class for nav items
+    userProfile: SidebarUserProfile;
+    itemClass?: string;      // Class for nav items (e.g. 'nav-item' or 'admin-nav-item')
 }

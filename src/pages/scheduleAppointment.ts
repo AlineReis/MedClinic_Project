@@ -10,6 +10,7 @@ import {
   getProfessionalAvailability,
   listProfessionals,
 } from "../services/professionalsService"
+import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore"
 import { dashboardStore } from "../stores/dashboardStore"
 import { uiStore } from "../stores/uiStore"
@@ -148,7 +149,24 @@ document.addEventListener("DOMContentLoaded", () => {
   bindSearchInput()
   loadProfessionals()
   loadPatientAppointments()
+  renderFilters()
+  bindSearchInput()
+  loadProfessionals()
+  loadPatientAppointments()
+  setupLogoutButton()
 })
+
+function setupLogoutButton() {
+  const logoutBtn = document.querySelector("[data-logout-button]")
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault()
+      await logout()
+      authStore.clearSession()
+      window.location.href = getBasePath() + "login.html"
+    })
+  }
+}
 
 async function loadProfessionals() {
   if (!doctorsGrid) return

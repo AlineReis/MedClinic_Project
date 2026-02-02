@@ -29,23 +29,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const session = await authStore.refreshSession();
 
   const sidebarItems: SidebarItem[] = [
-    { text: 'Equipe', icon: 'group', href: 'users.html' },
-    { text: 'Exames', icon: 'assignment', href: 'exams.html' },
+    { text: "Equipe", icon: "group", href: "users.html" },
+    { text: "Exames", icon: "assignment", href: "exams.html" },
   ];
 
   const sidebar = new Sidebar({
     brand: {
-      name: 'MedClinic',
-      icon: '../assets/icons/icon-plus.png',
-      href: '#'
+      name: "MedClinic",
+      icon: "../assets/icons/icon-plus.png",
+      href: "#",
     },
     items: sidebarItems,
-    targetId: 'sidebar-container',
-    itemClass: 'nav-item',
-    userProfile: session ? {
-      name: session.name,
-      role: session.role
-    } : undefined
+    targetId: "sidebar-container",
+    itemClass: "nav-item",
+    userProfile: session
+      ? {
+          name: session.name,
+          role: session.role,
+        }
+      : { name: "Guest", role: "guest" },
   });
 
   sidebar.render();

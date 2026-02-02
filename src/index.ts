@@ -30,7 +30,11 @@ authReadyPromise.then((session) => {
     "/pages/schedule-appointment.html",
     "/pages/my-appointments.html",
     "/pages/exams.html",
-  ]);
+    "/pages/financial.html",
+    "/pages/users.html",
+    "/pages/admin-users.html",
+    "/pages/patients.html",
+  ])
   if (session) {
     const target = roleRoutes[session.role] ?? "/";
     console.log("[auth] role target", target, "current", currentPath);

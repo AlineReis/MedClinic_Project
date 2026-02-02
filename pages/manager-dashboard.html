@@ -22,9 +22,31 @@
 
 <body class="admin-layout">
     <!-- Sidebar -->
-    <!-- Sidebar -->
-    <aside class="admin-sidebar" id="sidebar-container">
-        <!-- Content will be injected by managerDashboard.ts -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="#" class="admin-sidebar-brand">
+                <div class="brand-icon-box">
+                    <span class="material-symbols-outlined">business</span>
+                </div>
+                <span class="brand-name">MedClinic Manager</span>
+            </a>
+        </div>
+        <nav class="admin-sidebar-nav">
+            <a class="admin-nav-item active" href="manager-dashboard.html">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+            <a class="admin-nav-item" href="financial.html">
+                <span class="material-symbols-outlined">payments</span> Financeiro
+            </a>
+            <a class="admin-nav-item" href="admin-users.html">
+                <span class="material-symbols-outlined">group</span> Equipe
+            </a>
+        </nav>
+        <div class="admin-sidebar-footer">
+            <a href="login.html" class="admin-logout-link">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </a>
+        </div>
     </aside>
 
     <main class="admin-main">
@@ -32,84 +54,77 @@
             <h2 class="admin-header-title">Painel do Gestor</h2>
             <div class="header-info-right">
                 <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
-                <span class="manager-header-subtitle">Outubro 2024</span>
             </div>
 
         </header>
 
         <div class="admin-content-viewport custom-scrollbar">
             <div class="admin-container-max admin-content-stack">
-                <!-- Stats Grid -->
+                <!-- Operational KPIs -->
                 <section class="admin-stats-grid">
                     <div class="admin-stats-card">
-                        <p class="card-label">Faturamento Bruto (RN-18)</p>
-                        <h3 class="card-value">R$ 142.580</h3>
-                        <span class="trend-label trend-label--success">+12% vs mês anterior</span>
+                        <div class="stats-icon-box" style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">
+                            <span class="material-symbols-outlined">calendar_today</span>
+                        </div>
+                        <div>
+                            <p class="card-label">Agendamentos Hoje</p>
+                            <h3 class="card-value" id="kpi-today-count">--</h3>
+                            <span class="trend-label" id="kpi-today-status">Carregando...</span>
+                        </div>
                     </div>
                     <div class="admin-stats-card">
-                        <p class="card-label">Repasses Pendentes</p>
-                        <h3 class="card-value card-value--warning">R$ 85.548</h3>
-                        <span class="trend-label trend-label--neutral">60% para profissionais</span>
+                        <div class="stats-icon-box" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div>
+                            <p class="card-label">Atendidos</p>
+                            <h3 class="card-value" id="kpi-completed-count">--</h3>
+                            <span class="trend-label trend-label--success">Finalizados hoje</span>
+                        </div>
                     </div>
                     <div class="admin-stats-card">
-                        <p class="card-label">Consultas do Mês</p>
-                        <h3 class="card-value">312</h3>
-                        <span class="trend-label trend-label--neutral">Meta: 400</span>
+                        <div class="stats-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <span class="material-symbols-outlined">groups</span>
+                        </div>
+                        <div>
+                            <p class="card-label">Pacientes Únicos</p>
+                            <h3 class="card-value" id="kpi-active-patients">--</h3>
+                            <span class="trend-label trend-label--neutral">Neste mês</span>
+                        </div>
                     </div>
                     <div class="admin-stats-card">
-                        <p class="card-label">Taxa de No-Show</p>
-                        <h3 class="card-value card-value--error">4.2%</h3>
-                        <span class="trend-label trend-label--neutral">Média mercado: 15%</span>
+                        <div class="stats-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                            <span class="material-symbols-outlined">medical_services</span>
+                        </div>
+                        <div>
+                            <p class="card-label">Médicos Online</p>
+                            <h3 class="card-value">2</h3>
+                            <span class="trend-label trend-label--neutral">Equipe Presente</span>
+                        </div>
                     </div>
                 </section>
 
-                <div class="manager-main-grid">
-                    <!-- Splits Panel -->
+                <!-- Charts Section (Side by Side) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- Specialties Chart -->
                     <div class="admin-table-panel admin-table-panel--padded">
-                        <h3 class="panel-section-title">Splits Pendentes (RN-18)</h3>
-                        <div class="split-list">
-                            <div class="split-item">
-                                <div class="split-item-info">
-                                    <p class="split-item-name">Dra. Camila Rodrigues</p>
-                                    <p class="split-item-meta">Cardiologia • 28 consultas</p>
-                                </div>
-                                <span class="split-item-amount">R$ 16.820</span>
-                            </div>
-                            <div class="split-item">
-                                <div class="split-item-info">
-                                    <p class="split-item-name">Dr. Pedro Lima</p>
-                                    <p class="split-item-meta">Dermatologia • 22 consultas</p>
-                                </div>
-                                <span class="split-item-amount">R$ 9.240</span>
-                            </div>
+                        <h3 class="panel-section-title">Especialidades (Mês)</h3>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="chartSpecialties"></canvas>
                         </div>
-                        <button class="btn-primary-full">Processar Repasses</button>
                     </div>
 
-                    <!-- Alerts Panel -->
+                    <!-- Peak Hours Chart -->
                     <div class="admin-table-panel admin-table-panel--padded">
-                        <h3 class="panel-section-title">Alertas do Sistema</h3>
-                        <div class="admin-content-stack">
-                            <div class="manager-alert-card alert-red">
-                                <span class="material-symbols-outlined alert-icon-red">warning</span>
-                                <div>
-                                    <p class="alert-title alert-title--error">3 Reembolsos Pendentes</p>
-                                    <p class="alert-subtitle">Cancelamentos há mais de 5 dias úteis</p>
-                                </div>
-                            </div>
-                            <div class="manager-alert-card alert-amber">
-                                <span class="material-symbols-outlined alert-icon-amber">schedule</span>
-                                <div>
-                                    <p class="alert-title alert-title--warning">Relatório Mensal</p>
-                                    <p class="alert-subtitle">Prazo para fechamento: 5 dias</p>
-                                </div>
-                            </div>
+                        <h3 class="panel-section-title">Horários de Pico</h3>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="chartPeakHours"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
     </main>
+
 
 </body>
 

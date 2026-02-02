@@ -1,5 +1,6 @@
 import "../../css/pages/doctor-dashboard.css"
 import { Navigation } from "../components/Navigation";
+import { MobileSidebar } from "../components/MobileSidebar";
 import { ToastContainer } from "../components/ToastContainer";
 import { listAppointments } from "../services/appointmentsService";
 import { createExam, listCatalog } from "../services/examsService";
@@ -44,6 +45,7 @@ async function initDoctorDashboard() {
 
   // Initialize UI Components
   new Navigation();
+  new MobileSidebar();
   new ToastContainer();
 
   populateCommissionMonthOptions();

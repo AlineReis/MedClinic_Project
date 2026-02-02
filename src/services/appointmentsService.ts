@@ -7,7 +7,7 @@ import { clearAvailabilityCache } from "./professionalsService";
 export type AppointmentFilters = {
   patientId?: number;
   professionalId?: number;
-  status?: string;
+  status?: string | string[];
   date?: string;
   startDate?: string;
   endDate?: string;
@@ -310,7 +310,13 @@ function buildAppointmentQuery(filters: AppointmentFilters) {
   if (filters.professionalId) {
     params.set("professional_id", String(filters.professionalId));
   }
-  if (filters.status) params.set("status", filters.status);
+  if (filters.status) {
+    if (Array.isArray(filters.status)) {
+      filters.status.forEach(s => params.append("status", s));
+    } else {
+      params.set("status", filters.status);
+    }
+  }
   if (filters.date) params.set("date", filters.date);
   if (filters.startDate) params.set("start_date", filters.startDate);
   if (filters.endDate) params.set("end_date", filters.endDate);
@@ -349,4 +355,19 @@ function mapAppointmentSummary(item: AppointmentApiItem): AppointmentSummary {
  */
 export function clearAppointmentsCache(): void {
   appointmentsCache.clear();
+}
+
+export async function completeAppointment(
+  appointmentId: number,
+): Promise<ApiResponse<{ message: string; appointment: AppointmentApiItem }>> {
+  const response = await request<{ message: string; appointment: AppointmentApiItem }>(
+    `/appointments/${appointmentId}/complete`,
+    "POST"
+  );
+
+  if (response.success) {
+    clearAppointmentsCache();
+  }
+
+  return response;
 }

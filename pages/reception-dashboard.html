@@ -61,12 +61,10 @@
                 <h2 class="header-title">Central de Recepção</h2>
             </div>
             <div class="right-recepcionist-menu">
-                <button id="open-new-appointment-btn" class="btn-primary"
-                    style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                    <span class="material-symbols-outlined" style="font-size: 1.25rem;">add</span> Agendar
+                <button id="open-new-appointment-btn" class="btn-primary header-add-btn">
+                    <span class="material-symbols-outlined header-add-icon">add</span> Agendar
                 </button>
                 <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
-                <span class="header-role-badge" data-user-role>Recepcionista</span>
             </div>
         </header>
 
@@ -94,9 +92,8 @@
                 <section class="panel-card">
                     <div class="panel-header">
                         <h3 class="panel-title">Próximos Check-ins</h3>
-                        <button id="open-general-agenda-section-btn" class="btn-link-sm"
-                            style="display: flex; align-items: center; gap: 0.25rem;">
-                            <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_month</span> Ver
+                        <button id="open-general-agenda-section-btn" class="btn-link-sm btn-open-agenda">
+                            <span class="material-symbols-outlined icon-sm">calendar_month</span> Ver
                             Agenda
                         </button>
                     </div>
@@ -117,8 +114,7 @@
                     </table>
 
                     <!-- Pagination -->
-                    <div class="panel-header"
-                        style="border-top: 1px solid var(--border-dark); border-bottom: none; background-color: rgba(42, 52, 65, 0.1);">
+                    <div class="panel-header pagination-container">
                         <button id="prev-page-btn" class="btn-link-sm" style="color: var(--text-secondary);">
                             <span class="material-symbols-outlined">chevron_left</span>
                         </button>
@@ -181,13 +177,7 @@
                         style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Selecione uma data
                         e profissional para ver horários.</p>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Tipo</label>
-                    <select name="type" required class="form-select">
-                        <option value="presencial">Presencial</option>
-                        <option value="online">Online</option>
-                    </select>
-                </div>
+
                 <div class="form-group">
                     <label class="form-label">Valor (R$)</label>
                     <input type="number" name="price" step="0.01" placeholder="0,00" class="form-input">
@@ -202,7 +192,7 @@
     </div>
 
     <!-- Reschedule Appointment Modal -->
-    <div id="reschedule-appointment-modal" class="modal-overlay hidden">
+    <div id="reschedule-appointment-modal" class="modal-overlay hidden modal-top-layer">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Reagendar Consulta</h3>
@@ -270,26 +260,23 @@
 
             <div class="agenda-filters">
                 <div class="filter-group">
-                    <label class="form-label"
-                        style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Data</label>
+                    <label class="form-label agenda-date-label">Data</label>
                     <input type="date" id="agenda-date-filter" class="form-input">
                 </div>
                 <div class="filter-group">
-                    <label class="form-label"
-                        style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Profissional</label>
+                    <label class="form-label agenda-date-label">Profissional</label>
                     <select id="agenda-professional-filter" class="form-select">
                         <option value="">Todos</option>
                     </select>
                 </div>
-                <div style="display: flex; align-items: flex-end;">
-                    <button id="refresh-agenda-btn" class="btn-primary" style="height: 42px;">
+                <div class="agenda-actions">
+                    <button id="refresh-agenda-btn" class="btn-primary agenda-refresh-btn">
                         Atualizar
                     </button>
                 </div>
             </div>
 
-            <div style="flex: 1; overflow-y: auto; border: 1px solid var(--border-dark); border-radius: 0.75rem; background-color: rgba(0,0,0,0.2);"
-                class="custom-scrollbar">
+            <div class="custom-scrollbar agenda-container">
                 <table class="data-table">
                     <thead class="table-head" style="position: sticky; top: 0; z-index: 10;">
                         <tr>
@@ -304,33 +291,19 @@
                         <!-- Agenda items injected here -->
                     </tbody>
                 </table>
-                <div id="agenda-empty-state" class="hidden"
-                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); padding: 2rem;">
-                    <span class="material-symbols-outlined"
-                        style="font-size: 2.5rem; margin-bottom: 0.5rem;">event_busy</span>
+                <div id="agenda-empty-state" class="hidden agenda-empty">
+                    <span class="material-symbols-outlined status-icon-large">event_busy</span>
                     <p>Nenhum agendamento encontrado para este filtro.</p>
                 </div>
-                <div id="agenda-loading-state" class="hidden"
-                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--primary); padding: 2rem;">
-                    <span class="material-symbols-outlined"
-                        style="font-size: 2.5rem; margin-bottom: 0.5rem; animation: spin 1s linear infinite;">sync</span>
+                <div id="agenda-loading-state" class="hidden agenda-loading">
+                    <span class="material-symbols-outlined rotate-animate status-icon-large">sync</span>
                     <p>Carregando agenda...</p>
                 </div>
             </div>
         </div>
     </div>
     <script src="../js/components/mobile-sidebar.js"></script>
-    <style>
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
 
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
 </body>
 
 </html>
