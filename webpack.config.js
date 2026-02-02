@@ -13,7 +13,8 @@ module.exports = (env, argv) => {
     'lab-dashboard.html',
     'manager-dashboard.html',
     'admin-dashboard.html',
-    'users.html'
+    'users.html',
+    'financial.html'
   ];
 
   return {
@@ -31,8 +32,11 @@ module.exports = (env, argv) => {
       receptionDashboard: './src/pages/receptionDashboard.ts',
       adminDashboard: './src/pages/adminDashboard.ts',
       usersPage: './src/pages/usersPage.ts',
+      managerDashboard: './src/pages/managerDashboard.ts',
+      financialPage: './src/pages/financialPage.ts',
+      teamPage: './src/pages/teamPage.ts',
       agenda: './src/pages/agenda.ts',
-      dashboard: './src/pages/dashboard.ts',
+
       pep: './src/pages/pep.ts',
       labDashboard: './src/pages/labDashboard.ts'
     },
@@ -111,12 +115,7 @@ module.exports = (env, argv) => {
         chunks: ['theme', 'agenda'],
         publicPath: '/'
       }),
-      new HtmlWebpackPlugin({
-        template: './pages/dashboard.html',
-        filename: 'pages/dashboard.html',
-        chunks: ['theme', 'dashboard'],
-        publicPath: '/'
-      }),
+
       new HtmlWebpackPlugin({
         template: './pages/pep.html',
         filename: 'pages/pep.html',
@@ -140,7 +139,11 @@ module.exports = (env, argv) => {
                 : []),
               ...(page === 'admin-dashboard.html' ? ['adminDashboard'] : []),
               ...(page === 'lab-dashboard.html' ? ['labDashboard'] : []),
-              ...(page === 'users.html' ? ['usersPage'] : [])
+              ...(page === 'manager-dashboard.html'
+                ? ['managerDashboard']
+                : []),
+              ...(page === 'financial.html' ? ['financialPage'] : []),
+              ...(page === 'users.html' ? ['usersPage', 'teamPage'] : [])
             ],
             publicPath: '/'
           })
@@ -168,7 +171,7 @@ module.exports = (env, argv) => {
                 '**/admin-dashboard.html',
                 '**/users.html',
                 '**/agenda.html',
-                '**/dashboard.html',
+
                 '**/pep.html',
                 ...mainPages.map(page => `**/${page}`)
               ]

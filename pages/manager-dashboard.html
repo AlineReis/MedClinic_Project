@@ -30,7 +30,7 @@
             </a>
         </div>
         <nav class="admin-sidebar-nav">
-            <a class="admin-nav-item active" href="#">
+            <a class="admin-nav-item active" href="manager-dashboard.html">
                 <span class="material-symbols-outlined">dashboard</span> Dashboard
             </a>
             <a class="admin-nav-item" href="financial.html">
@@ -38,9 +38,6 @@
             </a>
             <a class="admin-nav-item" href="users.html">
                 <span class="material-symbols-outlined">group</span> Equipe
-            </a>
-            <a class="admin-nav-item" href="dashboard.html">
-                <span class="material-symbols-outlined">analytics</span> KPIs
             </a>
         </nav>
         <div class="admin-sidebar-footer">
@@ -65,48 +62,39 @@
                 <!-- Stats Grid -->
                 <section class="admin-stats-grid">
                     <div class="admin-stats-card">
-                        <p class="card-label">Faturamento Bruto (RN-18)</p>
-                        <h3 class="card-value">R$ 142.580</h3>
-                        <span class="trend-label trend-label--success">+12% vs mês anterior</span>
+                        <p class="card-label">Faturamento Bruto</p>
+                        <h3 class="card-value" data-stat="revenue">R$ --</h3>
+                        <span class="trend-label trend-label--success">Mês Atual</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Repasses Pendentes</p>
-                        <h3 class="card-value card-value--warning">R$ 85.548</h3>
-                        <span class="trend-label trend-label--neutral">60% para profissionais</span>
+                        <h3 class="card-value card-value--warning" data-stat="pending-transfers">R$ --</h3>
+                        <span class="trend-label trend-label--neutral">60% do Faturamento</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Consultas do Mês</p>
-                        <h3 class="card-value">312</h3>
-                        <span class="trend-label trend-label--neutral">Meta: 400</span>
+                        <h3 class="card-value" data-stat="appointments-count">--</h3>
+                        <span class="trend-label trend-label--neutral">Realizadas/Agendadas</span>
                     </div>
                     <div class="admin-stats-card">
                         <p class="card-label">Taxa de No-Show</p>
-                        <h3 class="card-value card-value--error">4.2%</h3>
-                        <span class="trend-label trend-label--neutral">Média mercado: 15%</span>
+                        <h3 class="card-value card-value--error" data-stat="noshow-rate">--%</h3>
+                        <span class="trend-label trend-label--neutral">Faltas / Total</span>
                     </div>
                 </section>
 
                 <div class="manager-main-grid">
                     <!-- Splits Panel -->
                     <div class="admin-table-panel admin-table-panel--padded">
-                        <h3 class="panel-section-title">Splits Pendentes (RN-18)</h3>
-                        <div class="split-list">
-                            <div class="split-item">
-                                <div class="split-item-info">
-                                    <p class="split-item-name">Dra. Camila Rodrigues</p>
-                                    <p class="split-item-meta">Cardiologia • 28 consultas</p>
-                                </div>
-                                <span class="split-item-amount">R$ 16.820</span>
-                            </div>
-                            <div class="split-item">
-                                <div class="split-item-info">
-                                    <p class="split-item-name">Dr. Pedro Lima</p>
-                                    <p class="split-item-meta">Dermatologia • 22 consultas</p>
-                                </div>
-                                <span class="split-item-amount">R$ 9.240</span>
-                            </div>
+                        <h3 class="panel-section-title">Splits Pendentes (60%)</h3>
+                        <div class="split-list" data-split-list>
+                            <p style="padding: 1rem; color: var(--text-secondary);">Carregando repasses...</p>
                         </div>
-                        <button class="btn-primary-full">Processar Repasses</button>
+                        <button id="btn-export-report" class="btn-primary-full">
+                            <span class="material-symbols-outlined"
+                                style="font-size: 1.2rem; margin-right: 0.5rem;">print</span>
+                            Imprimir Relatório (PDF)
+                        </button>
                     </div>
 
                     <!-- Alerts Panel -->

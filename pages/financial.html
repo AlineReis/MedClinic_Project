@@ -30,17 +30,17 @@
             </a>
         </div>
         <nav class="admin-sidebar-nav">
-            <a class="admin-nav-item" href="dashboard.html">
+            <a class="admin-nav-item" href="manager-dashboard.html">
                 <span class="material-symbols-outlined">dashboard</span>
-                KPIs
+                Dashboard
             </a>
-            <a class="admin-nav-item active" href="#">
-                <span class="material-symbols-outlined">receipt_long</span>
-                Faturamento
+            <a class="admin-nav-item active" href="financial.html">
+                <span class="material-symbols-outlined">payments</span>
+                Financeiro
             </a>
-            <a class="admin-nav-item" href="#">
-                <span class="material-symbols-outlined">account_balance_wallet</span>
-                Repasses
+            <a class="admin-nav-item" href="users.html">
+                <span class="material-symbols-outlined">group</span>
+                Equipe
             </a>
         </nav>
         <div class="admin-sidebar-footer">
@@ -64,33 +64,35 @@
                 <section class="financial-performance-grid">
                     <div class="financial-card">
                         <p class="card-label">Faturamento Bruto</p>
-                        <h3 class="card-value">R$ 142.580,00</h3>
-                        <span class="badge-success">+12.5%</span>
+                        <h3 class="card-value" id="kpi-revenue">R$ --</h3>
+                        <span class="badge-success">Mês Atual</span>
                     </div>
                     <div class="financial-card">
                         <p class="card-label">Total a Repassar</p>
-                        <h3 class="card-value">R$ 85.548,00</h3>
+                        <h3 class="card-value" id="kpi-transfers">R$ --</h3>
                         <p class="card-meta">60% média do faturamento</p>
                     </div>
                     <div class="financial-card">
                         <p class="card-label">Taxas ADM</p>
-                        <h3 class="card-value">R$ 7.129,00</h3>
+                        <h3 class="card-value" id="kpi-taxes">R$ --</h3>
                         <p class="card-meta">5% (Taxa do Sistema)</p>
                     </div>
                     <div class="financial-card">
-                        <p class="card-label">Lucro Médio</p>
-                        <h3 class="card-value">R$ 49.903,00</h3>
-                        <p class="card-meta">Líquido após splits</p>
+                        <p class="card-label">Lucro Líquido</p>
+                        <h3 class="card-value" id="kpi-profit">R$ --</h3>
+                        <p class="card-meta">Após splits e taxas</p>
                     </div>
                 </section>
 
                 <div class="financial-main-grid">
+                    <!-- Chart Panel omitted for brevity, assuming standard chart viewport -->
                     <div class="chart-panel">
                         <div class="chart-header-group">
                             <h3 class="chart-title">Consolidado vs Líquido</h3>
-                            <p class="chart-subtitle">Comparativo semanal dos últimos 2 meses</p>
+                            <p class="chart-subtitle">Comparativo mensal</p>
                         </div>
                         <div class="chart-container">
+                            <!-- Placeholder arrays -->
                             <div class="chart-bar-group">
                                 <div class="bar-primary-light" style="height: 60%;"></div>
                                 <div class="bar-primary" style="height: 25%;"></div>
@@ -138,28 +140,19 @@
 
                 <!-- Transactions Table -->
                 <section class="admin-table-panel admin-table-panel--padded">
+                    <h3 class="panel-section-title">Últimas Transações</h3>
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Paciente</th>
+                                <th>Paciente / Data</th>
                                 <th>Valor</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Arthur B. Oliveira</td>
-                                <td>R$ 450,00</td>
-                                <td>
-                                    <span class="transaction-status status-liquidated">LIQUIDADO</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Juliana Cavalcanti</td>
-                                <td>R$ 1.200,00</td>
-                                <td>
-                                    <span class="transaction-status status-waiting">AGUARDANDO</span>
-                                </td>
+                                <td colspan="3" class="text-center"
+                                    style="padding: 2rem; color: var(--text-secondary);">Carregando transações...</td>
                             </tr>
                         </tbody>
                     </table>
