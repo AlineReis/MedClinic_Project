@@ -147,7 +147,7 @@ function updateStats(
 
   // Count appointments by status
   const waiting = todayAppointments.filter(
-    (a) => a.status === "scheduled" || a.status === "confirmed",
+    (a) => a.status === "waiting" || a.status === "confirmed",
   ).length;
   const completed = todayAppointments.filter(
     (a) => a.status === "completed",
@@ -275,7 +275,7 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
   const queueList = document.querySelector(".panel-list");
   if (!queueList) return;
 
-  const waitingStatuses = new Set(["scheduled", "confirmed", "checked_in", "waiting"]);
+  const waitingStatuses = new Set(["confirmed", "checked_in", "waiting"]);
   console.log(appointments)
   const sortedAppointments = [...appointments]
     .filter((appointment) => waitingStatuses.has(appointment.status))
