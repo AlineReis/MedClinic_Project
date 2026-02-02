@@ -214,6 +214,7 @@
   flex-direction: column;
   gap: 0.5rem;
   min-width: 0;
+  color: var(--text-primary);
   /* Allow flex shrinking */
 }
 
@@ -235,7 +236,7 @@
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   /* Prevent wrapping generally */
   overflow: hidden;
@@ -257,7 +258,7 @@
 .info-card__status {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .status-pill {

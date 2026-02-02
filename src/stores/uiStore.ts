@@ -1,3 +1,15 @@
+// Polyfill for crypto.randomUUID in insecure contexts (HTTP)
+if (typeof crypto !== 'undefined' && !crypto.randomUUID) {
+  // @ts-ignore
+  (crypto as any).randomUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+}
+
 type ToastLevel = "info" | "success" | "warning" | "error"
 
 export interface ToastMessage {
