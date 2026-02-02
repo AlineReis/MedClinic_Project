@@ -96,24 +96,24 @@
   padding-left: 1rem;
   padding-right: 1.5rem;
   border-radius: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: #3b4047;
   /* Subtle inner background */
-  border: 1px solid transparent;
-  color: var(#ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
   font-size: 1rem;
   transition: all 0.2s;
   outline: none;
 }
 
 .search-input-field:focus {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #3f454d;
   /* Lighter on focus */
   box-shadow: 0 0 0 2px rgba(25, 127, 230, 0.3);
   /* Subtle primary glow */
 }
 
 .search-input-field::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Filter Dropdown Specifics */
@@ -131,12 +131,17 @@ select.search-input-field {
   background-position: right 1rem center;
   background-size: 1.5rem;
   padding-right: 3rem;
-  color: var(#f1f1f1);
+  color: #ffffff;
 }
 
 select.search-input-field:focus,
 select.search-input-field:hover {
   color: #ffffff;
+}
+
+select.search-input-field option {
+  color: #ffffff;
+  background-color: #3b4047;
 }
 
 /* 4. Notification Panel (Refined) */
@@ -200,7 +205,7 @@ select.search-input-field:hover {
   letter-spacing: normal;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: #ffffff;
   background: rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
@@ -217,7 +222,7 @@ select.search-input-field:hover {
 
 .notif-timestamp {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #ffffff;
   opacity: 0.7;
 }
 
