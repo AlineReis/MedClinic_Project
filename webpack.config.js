@@ -30,6 +30,7 @@ module.exports = (env, argv) => {
       doctorDashboard: './src/pages/doctorDashboard.ts',
       receptionDashboard: './src/pages/receptionDashboard.ts',
       adminDashboard: './src/pages/adminDashboard.ts',
+      managerDashboard: './src/pages/managerDashboard.ts',
       usersPage: './src/pages/usersPage.ts',
       agenda: './src/pages/agenda.ts',
       dashboard: './src/pages/dashboard.ts',
@@ -40,7 +41,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       filename: 'js/[name].[contenthash:8].js',
       clean: true,
-      publicPath: '/'
+      publicPath: 'auto'
     },
     module: {
       rules: [
@@ -67,61 +68,62 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: './index.html',
         filename: 'index.html',
-        chunks: ['theme', 'main']
+        chunks: ['theme', 'main'],
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/schedule-appointment.html',
         filename: 'pages/schedule-appointment.html',
         chunks: ['theme', 'scheduleAppointment'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/login.html',
         filename: 'pages/login.html',
         chunks: ['theme', 'login'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/register.html',
         filename: 'pages/register.html',
         chunks: ['theme', 'register'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/my-appointments.html',
         filename: 'pages/my-appointments.html',
         chunks: ['theme', 'myAppointments'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/exams.html',
         filename: 'pages/exams.html',
         chunks: ['theme', 'examsPage'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/my-exams.html',
         filename: 'pages/my-exams.html',
         chunks: ['theme', 'myExams'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/agenda.html',
         filename: 'pages/agenda.html',
         chunks: ['theme', 'agenda'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/dashboard.html',
         filename: 'pages/dashboard.html',
         chunks: ['theme', 'dashboard'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       new HtmlWebpackPlugin({
         template: './pages/pep.html',
         filename: 'pages/pep.html',
         chunks: ['theme', 'pep'],
-        publicPath: '/'
+        publicPath: process.env.CLINIC_BASE_PATH || '/'
       }),
       ...mainPages.map(
         page =>
@@ -139,10 +141,11 @@ module.exports = (env, argv) => {
                 ? ['receptionDashboard']
                 : []),
               ...(page === 'admin-dashboard.html' ? ['adminDashboard'] : []),
+              ...(page === 'manager-dashboard.html' ? ['managerDashboard'] : []),
               ...(page === 'lab-dashboard.html' ? ['labDashboard'] : []),
               ...(page === 'users.html' ? ['usersPage'] : [])
             ],
-            publicPath: '/'
+            publicPath: process.env.CLINIC_BASE_PATH || '/'
           })
       ),
       new CopyWebpackPlugin({

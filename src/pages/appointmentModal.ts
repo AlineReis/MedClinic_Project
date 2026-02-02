@@ -116,9 +116,6 @@ function renderDetailsContent(appointment: AppointmentSummary) {
             <span class="info-card__label">Situação</span>
             <div class="info-card__status">${formatStatus(appointment.status)}</div>
           </div>
-          <span class="status-pill ${getStatusPillClass(appointment.status)}">
-            ${appointment.status.toUpperCase()}
-          </span>
         </div>
       </div>
     </div>
@@ -260,13 +257,15 @@ function formatStatus(status: string) {
     scheduled: 'Agendada',
     confirmed: 'Confirmada',
     completed: 'Realizada',
-    cancelled: 'Cancelada'
+    cancelled: 'Cancelada',
+    waiting: 'Aguardando'
   }
   return map[status] || status
 }
 
 function getStatusPillClass(status: string) {
   if (['scheduled', 'confirmed'].includes(status)) return 'status-pill--confirmed'
+  if (status === 'waiting') return 'status-pill--confirmed'
   if (status === 'completed') return 'status-pill--completed'
   return 'status-pill--cancelled'
 }

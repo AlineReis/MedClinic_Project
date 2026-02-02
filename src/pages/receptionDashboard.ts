@@ -1,11 +1,14 @@
 import "../../css/pages/reception-dashboard.css"
+import "../../css/components/sidebar.css"
 import { Navigation } from "../components/Navigation"
+import { Sidebar } from "../components/Sidebar"
 import { MobileSidebar } from "../components/MobileSidebar"
 import { ToastContainer } from "../components/ToastContainer"
 import { checkInAppointment, listAppointments } from "../services/appointmentsService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
 import type { AppointmentSummary } from "../types/appointments"
+import { SidebarItem } from "../types/sidebar.types"
 
 /**
  * Reception Dashboard Page
@@ -15,6 +18,7 @@ import type { AppointmentSummary } from "../types/appointments"
 
 let toastContainer: ToastContainer | null = null
 let navigation: Navigation | null = null
+let mobileSidebar: MobileSidebar | null = null
 // State for pagination
 let checkInPage = 1;
 const checkInPageSize = 10;
@@ -37,36 +41,43 @@ async function initReceptionDashboard() {
   }
 
 
-  setupUserProfile()
+  // Initialize Sidebar with user session data
+  const sidebarItems: SidebarItem[] = [
+    { text: 'Recepção', icon: 'dashboard', href: 'reception-dashboard.html' },
+    { text: 'Gestão', icon: 'business_center', href: 'manager-dashboard.html' },
+    { text: 'Laboratório', icon: 'science', href: 'lab-dashboard.html' },
+    { text: 'Agenda Geral', icon: 'calendar_month', href: 'agenda.html' },
+    { text: 'Financeiro', icon: 'payments', href: 'financial.html' },
+    { text: 'Equipe', icon: 'group', href: 'users.html' },
+    { text: 'Exames', icon: 'assignment', href: 'exams.html' },
+    { text: 'KPIs', icon: 'analytics', href: 'dashboard.html' },
+  ];
+
+  const sidebar = new Sidebar({
+    brand: {
+      name: 'MedClinic',
+      icon: 'local_hospital',
+      href: '#'
+    },
+    items: sidebarItems,
+    targetId: 'sidebar-container',
+    itemClass: 'nav-item',
+    userProfile: {
+      name: session.name,
+      role: getRoleDisplay(session.role)
+    }
+  });
+
+  sidebar.render();
+
+  // Initialize Mobile Sidebar logic after sidebar render
+  mobileSidebar = new MobileSidebar();
+
   loadDashboardData()
 }
 
-function setupUserProfile() {
-  const session = authStore.getSession()
-  if (!session) return
-
-  const userNameEl = document.querySelector("[data-user-name]")
-  const userRoleEl = document.querySelectorAll("[data-user-role]")
-  const userInitialsEl = document.querySelector("[data-user-initials]")
-
-  if (userNameEl) {
-    userNameEl.textContent = session.name
-  }
-
-  userRoleEl.forEach((el) => {
-    el.textContent = getRoleDisplay(session.role)
-  })
-
-  if (userInitialsEl) {
-    const initials = session.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-    userInitialsEl.textContent = initials
-  }
-}
+// Removed manual setupUserProfile function as it is replaced by Sidebar component logic
+// function setupUserProfile() { ... }
 
 async function loadStats() {
   const today = new Date().toISOString().split("T")[0];

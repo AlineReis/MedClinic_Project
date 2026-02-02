@@ -10,15 +10,9 @@
   display: flex;
 }
 
-/* 2. Sidebar Component */
+/* 2. Sidebar Component - Base styles moved to sidebar.css */
 .reception-sidebar {
   display: none;
-  flex-direction: column;
-  width: 16rem;
-  /* w-64 */
-  border-right: 1px solid var(--border-dark);
-  background-color: var(--surface-dark);
-  height: 100%;
 }
 
 @media (min-width: 1024px) {
@@ -27,6 +21,7 @@
   }
 }
 
+<<<<<<< HEAD
 .sidebar-header {
   height: 4rem;
   /* h-16 */
@@ -37,13 +32,17 @@
 }
 
 .sidebar-logo-icon {
-  color: var(--primary);
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
   margin-right: 0.5rem;
 }
 
 .sidebar-logo-text {
   font-size: 1rem;
   font-weight: 700;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -137,6 +136,8 @@
   /* red-400 */
 }
 
+=======
+>>>>>>> origin/final-semantic-audit-complete
 /* 3. Main Content & Header */
 .reception-main {
   flex: 1 1 0%;
