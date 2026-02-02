@@ -42,7 +42,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, "dist"),
       filename: "js/[name].[contenthash:8].js",
       clean: true,
-      publicPath: "/",
+      publicPath: "auto",
     },
     module: {
       rules: [
