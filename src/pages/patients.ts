@@ -214,7 +214,6 @@ function setupModal() {
 
   const toggleModal = (show: boolean) => {
     modal.classList.toggle("hidden", !show);
-    // modal.classList.toggle("flex", show); // Removed Tailwind dependency
     if (!show) {
       form.reset();
       const historySection = document.getElementById("history-section");
