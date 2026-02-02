@@ -41,7 +41,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       filename: 'js/[name].[contenthash:8].js',
       clean: true,
-      publicPath: process.env.CLINIC_BASE_PATH || '/'
+      publicPath: 'auto'
     },
     module: {
       rules: [
