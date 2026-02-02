@@ -105,15 +105,15 @@ async function initDoctorDashboard() {
     }
 
     const response = await startAppointment(id);
-    
+
     if (response.success) {
       uiStore.addToast("success", "Atendimento iniciado!");
       if (btn) {
-         btn.disabled = true; // Keep disabled or change to "Finalizar" if we implement that next
-         btn.textContent = "Em Atendimento";
-         // Refresh dashboard to likely update UI
-         const user = authStore.getSession();
-         if (user?.id) loadUpcomingAppointments(user.id);
+        btn.disabled = true; // Keep disabled or change to "Finalizar" if we implement that next
+        btn.textContent = "Em Atendimento";
+        // Refresh dashboard to likely update UI
+        const user = authStore.getSession();
+        if (user?.id) loadUpcomingAppointments(user.id);
       }
     } else {
       uiStore.addToast("error", response.error?.message || "Erro ao iniciar atendimento");
@@ -143,7 +143,7 @@ async function initDoctorDashboard() {
     }
 
     const response = await completeAppointment(id);
-    
+
     if (response.success) {
       uiStore.addToast("success", "Atendimento finalizado!");
       // Refresh dashboard to show next patient
@@ -193,7 +193,7 @@ async function loadUpcomingAppointments(professionalId: number) {
     ) {
       const todayAppointments = todayResponse.data.appointments;
       const allUpcoming = upcomingResponse.data.appointments;
-      
+
       appointmentAutocompleteCache = dedupeAppointments([
         ...todayAppointments,
         ...allUpcoming,
@@ -355,6 +355,7 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
     .sort((a, b) => a.time.localeCompare(b.time))
     .slice(0, 4);
 
+  const queueAppointments = sortedAppointments.slice(1, 6); // Show next 5
 
   if (queueAppointments.length === 0) {
     queueList.innerHTML = `
