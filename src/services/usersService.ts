@@ -3,8 +3,8 @@
  * Handles GET /users and GET /users/:id endpoints
  */
 
-import { request } from "./apiService";
-import type { ApiResponse } from "./apiService";
+import { request } from "./apiService"
+import type { ApiResponse } from "./apiService"
 import type {
   UserSummary,
   UserDetail,
@@ -15,21 +15,21 @@ import type {
   UsersListApiResponse,
   UserDetailApiResponse,
   UpdateUserApiResponse,
-} from "../types/users";
+} from "../types/users"
 
 /**
  * Build query string from user filters
  */
 function buildUserQuery(filters: UserFilters = {}): string {
-  const params = new URLSearchParams();
+  const params = new URLSearchParams()
 
-  if (filters.role) params.append("role", filters.role);
-  if (filters.search) params.append("search", filters.search);
-  if (filters.page) params.append("page", String(filters.page));
-  if (filters.pageSize) params.append("pageSize", String(filters.pageSize));
+  if (filters.role) params.append("role", filters.role)
+  if (filters.search) params.append("search", filters.search)
+  if (filters.page) params.append("page", String(filters.page))
+  if (filters.pageSize) params.append("pageSize", String(filters.pageSize))
 
-  const query = params.toString();
-  return query ? `?${query}` : "";
+  const query = params.toString()
+  return query ? `?${query}` : ""
 }
 
 /**
@@ -50,11 +50,10 @@ function mapUserSummary(apiUser: UserApiItem): UserSummary {
           registration_number: apiUser.professional_details.registration_number,
           council: apiUser.professional_details.council,
           consultation_price: apiUser.professional_details.consultation_price,
-          commission_percentage:
-            apiUser.professional_details.commission_percentage,
+          commission_percentage: apiUser.professional_details.commission_percentage,
         }
       : undefined,
-  };
+  }
 }
 
 /**
@@ -64,7 +63,7 @@ function mapUserDetail(apiUser: UserApiItem): UserDetail {
   return {
     ...mapUserSummary(apiUser),
     updated_at: apiUser.updated_at || apiUser.created_at,
-  };
+  }
 }
 
 /**
@@ -79,8 +78,8 @@ function mapUserDetail(apiUser: UserApiItem): UserDetail {
 export async function listUsers(
   filters: UserFilters = {},
 ): Promise<ApiResponse<PaginatedUsers>> {
-  const query = buildUserQuery(filters);
-  const response = await request<UsersListApiResponse>(`/users${query}`);
+  const query = buildUserQuery(filters)
+  const response = await request<UsersListApiResponse>(`/users${query}`)
 
   if (!response.success || !response.data) {
     return {
@@ -90,11 +89,11 @@ export async function listUsers(
         message: "Failed to fetch users",
         statusCode: 500,
       },
-    };
+    }
   }
 
   // Map API response to domain types
-  const users = response.data.data.map(mapUserSummary);
+  const users = response.data.data.map(mapUserSummary)
 
   return {
     success: true,
@@ -102,7 +101,7 @@ export async function listUsers(
       users,
       pagination: response.data.pagination,
     },
-  };
+  }
 }
 
 /**
@@ -118,10 +117,8 @@ export async function listUsers(
  * @param userId User ID to fetch
  * @returns User details
  */
-export async function getUserById(
-  userId: number,
-): Promise<ApiResponse<UserDetail>> {
-  const response = await request<UserDetailApiResponse>(`/users/${userId}`);
+export async function getUserById(userId: number): Promise<ApiResponse<UserDetail>> {
+  const response = await request<UserDetailApiResponse>(`/users/${userId}`)
 
   if (!response.success || !response.data) {
     return {
@@ -131,13 +128,13 @@ export async function getUserById(
         message: "Failed to fetch user",
         statusCode: 500,
       },
-    };
+    }
   }
 
   return {
     success: true,
     data: mapUserDetail(response.data.user),
-  };
+  }
 }
 
 /**
@@ -154,11 +151,7 @@ export async function updateUser(
   userId: number,
   payload: UpdateUserPayload,
 ): Promise<ApiResponse<UserDetail>> {
-  const response = await request<UpdateUserApiResponse>(
-    `/users/${userId}`,
-    "PUT",
-    payload,
-  );
+  const response = await request<UpdateUserApiResponse>(`/users/${userId}`, "PUT", payload)
 
   if (!response.success || !response.data) {
     return {
@@ -168,13 +161,13 @@ export async function updateUser(
         message: "Failed to update user",
         statusCode: 500,
       },
-    };
+    }
   }
 
   return {
     success: true,
     data: mapUserDetail(response.data.user),
-  };
+  }
 }
 
 /**
@@ -187,16 +180,11 @@ export async function updateUser(
  * @param userId User ID to delete
  * @returns Success response
  */
-export async function deleteUser(
-  userId: number,
-): Promise<ApiResponse<{ message: string }>> {
-  return request<{ success: true; message: string }>(
-    `/users/${userId}`,
-    "DELETE",
-  );
+export async function deleteUser(userId: number): Promise<ApiResponse<{ message: string }>> {
+  return request<{ success: true; message: string }>(`/users/${userId}`, "DELETE")
 }
 
 /**
  * Export filter types for component consumption
  */
-export type { UserFilters };
+export type { UserFilters }
