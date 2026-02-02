@@ -96,24 +96,24 @@
   padding-left: 1rem;
   padding-right: 1.5rem;
   border-radius: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: #3b4047;
   /* Subtle inner background */
-  border: 1px solid transparent;
-  color: var(#ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
   font-size: 1rem;
   transition: all 0.2s;
   outline: none;
 }
 
 .search-input-field:focus {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #3f454d;
   /* Lighter on focus */
   box-shadow: 0 0 0 2px rgba(25, 127, 230, 0.3);
   /* Subtle primary glow */
 }
 
 .search-input-field::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Filter Dropdown Specifics */
@@ -131,7 +131,7 @@ select.search-input-field {
   background-position: right 1rem center;
   background-size: 1.5rem;
   padding-right: 3rem;
-  color: var(#f1f1f1);
+  color: #ffffff;
 }
 
 select.search-input-field:focus,
@@ -142,58 +142,6 @@ select.search-input-field:hover {
 select.search-input-field option {
   color: #ffffff;
   background-color: #3b4047;
-}
-
-/* Light theme overrides */
-:root[data-theme="light"] .search-controls-wrapper {
-  background-color: #ffffff;
-  border: 1px solid var(--border-dark);
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-}
-
-:root[data-theme="light"] .search-input-field {
-  background-color: #ffffff;
-  border: 1px solid var(--border-dark);
-  color: var(--text-secondary);
-}
-
-:root[data-theme="light"] .search-input-field:focus {
-  background-color: #ffffff;
-}
-
-:root[data-theme="light"] .search-input-field::placeholder {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="light"] select.search-input-field {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="light"] select.search-input-field:focus,
-:root[data-theme="light"] select.search-input-field:hover {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="light"] select.search-input-field option {
-  color: var(--text-secondary);
-  background-color: #ffffff;
-}
-
-:root[data-theme="light"] .notification-panel {
-  background: #ffffff;
-  border: 1px solid var(--border-dark);
-}
-
-:root[data-theme="light"] .notif-title,
-:root[data-theme="light"] .notif-badge,
-:root[data-theme="light"] .notif-timestamp,
-:root[data-theme="light"] .notif-item-small {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="light"] .notif-item-small {
-  background-color: #ffffff;
-  border: 1px solid var(--border-dark);
 }
 
 /* 4. Notification Panel (Refined) */
@@ -257,7 +205,7 @@ select.search-input-field option {
   letter-spacing: normal;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: #ffffff;
   background: rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
@@ -274,7 +222,7 @@ select.search-input-field option {
 
 .notif-timestamp {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #ffffff;
   opacity: 0.7;
 }
 
