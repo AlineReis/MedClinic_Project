@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pacientes - MedClinic</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/pages/patients.css">
+</head>
+
+<body class="patients-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="material-symbols-outlined brand-icon">local_hospital</span>
+            <h1 class="brand-text">MedClinic</h1>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-link" href="reception-dashboard.html">
+                <span class="material-symbols-outlined">dashboard</span> Painel
+            </a>
+            <a class="nav-link active" href="patients.html">
+                <span class="material-symbols-outlined">person</span> Pacientes
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <span data-user-initials>U</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" data-user-name>Usuario</span>
+                    <span class="user-role" data-user-role>Recepcionista</span>
+                </div>
+            </div>
+            <button data-logout-button class="logout-btn">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-title-area">
+                <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Abrir menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h2 class="page-title">Gerenciar Pacientes</h2>
+            </div>
+            <div class="u-flex u-items-center u-gap-medium">
+                <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
+                    <span class="material-symbols-outlined">light_mode</span>
+                </button>
+                <span class="header-role-badge" data-user-role>Recepcionista</span>
+            </div>
+        </header>
+
+        <div class="content-scroll custom-scrollbar">
+
+            <!-- Actions Bar -->
+            <div class="actions-bar">
+                <div class="search-container">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input type="text" id="search-input" placeholder="Buscar por nome ou CPF..." class="search-input">
+                </div>
+
+                <button id="add-patient-btn" class="btn-primary">
+                    <span class="material-symbols-outlined">add</span>
+                    Novo Paciente
+                </button>
+            </div>
+
+            <!-- Patients List -->
+            <div class="table-card">
+                <div class="table-responsive custom-scrollbar">
+                    <table class="patients-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th class="text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patients-list-body">
+                            <!-- Dynamic Content -->
+                            <tr>
+                                <td colspan="5" class="u-text-center u-padding-medium u-text-secondary">
+                                    Carregando pacientes...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <button id="prev-page-btn" class="btn-pagination">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <span id="page-indicator" class="u-fs-sm u-fw-600">Página 1</span>
+                    <button id="next-page-btn" class="btn-pagination">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Patient Modal (Create/Edit) -->
+    <div id="patient-modal" class="modal-overlay hidden"> <!-- Start hidden using global utility or local override -->
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Novo Paciente</h3>
+                <button class="close-modal-btn">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="patient-form" class="modal-body">
+                <input type="hidden" name="id" id="patient-id">
+
+                <div class="form-group">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" name="name" id="patient-name" required placeholder="João Silva"
+                        class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" id="patient-email" required placeholder="joao@email.com"
+                        class="form-input">
+                </div>
+
+                <div id="password-section" class="form-group">
+                    <label class="form-label">Senha de Acesso</label>
+                    <div class="password-input-group">
+                        <input type="text" id="generated-password" name="password" readonly
+                            placeholder="Clique em gerar..." class="form-input u-text-center"
+                            style="font-family: monospace;">
+                        <button type="button" id="generate-password-btn" class="btn-secondary">
+                            Gerar
+                        </button>
+                        <button type="button" id="copy-password-btn" class="btn-icon">
+                            <span class="material-symbols-outlined u-fs-sm">content_copy</span>
+                        </button>
+                    </div>
+                    <p class="helper-text">Gere a senha e informe ao paciente.</p>
+                </div>
+
+                <div class="grid-2-cols">
+                    <div class="form-group">
+                        <label class="form-label">CPF</label>
+                        <input type="text" name="cpf" id="patient-cpf" required placeholder="000.000.000-00"
+                            maxlength="14" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" name="phone" id="patient-phone" placeholder="(00) 00000-0000" maxlength="15"
+                            class="form-input">
+                    </div>
+                </div>
+
+                <!-- History Section (Visible only on Edit) -->
+                <div id="history-section" class="hidden u-margin-0 icon-top-border">
+                    <!-- Need to handle hidden logic -->
+                    <div class="u-flex u-justify-between u-items-center u-mb-05">
+                        <h4 class="u-fw-700 u-fs-sm u-text-secondary">Histórico de Agendamentos</h4>
+                    </div>
+                    <div class="custom-scrollbar"
+                        style="max-height: 10rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;"
+                        id="appointments-history">
+                        <!-- Dynamic history -->
+                        <p class="helper-text">Nenhum agendamento encontrado.</p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="close-modal-btn u-fw-700 u-text-secondary u-fs-sm"
+                        style="background: none; border: none; padding: 0.5rem 1rem;">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/components/mobile-sidebar.js"></script>
+</body>
+
+</html>
