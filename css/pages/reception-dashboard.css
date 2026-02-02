@@ -37,13 +37,17 @@
 }
 
 .sidebar-logo-icon {
-  color: var(--primary);
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
   margin-right: 0.5rem;
 }
 
 .sidebar-logo-text {
   font-size: 1rem;
   font-weight: 700;
+  color: var(--text-secondary);
   margin: 0;
 }
 
