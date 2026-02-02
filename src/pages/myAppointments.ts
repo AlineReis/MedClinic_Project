@@ -267,6 +267,7 @@ function getStatusBadge(status: string) {
     cancelled_by_patient: "status-badge--cancelled",
     cancelled_by_clinic: "status-badge--cancelled",
     completed: "status-badge--completed",
+    waiting: "status-badge--scheduled",
   }
   return map[status] ?? ""
 }
@@ -278,6 +279,7 @@ function getStatusLabel(status: string) {
     completed: "Realizado",
     cancelled_by_patient: "Cancelado",
     cancelled_by_clinic: "Cancelado",
+    waiting: "Aguardando",
   }
   return map[status] ?? status
 }

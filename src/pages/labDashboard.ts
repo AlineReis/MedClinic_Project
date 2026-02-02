@@ -1,6 +1,12 @@
 import "../../css/global.css";
+import "../../css/layout/admin-common.css";
+import "../../css/pages/lab-dashboard.css";
+import "../../css/components/sidebar.css";
+import { Sidebar } from "../components/Sidebar";
+import { MobileSidebar } from "../components/MobileSidebar";
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
+import { SidebarItem } from "../types/sidebar.types";
 import { listExams } from "../services/examsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -18,14 +24,33 @@ let navigation: Navigation | null = null;
 let toastContainer: ToastContainer | null = null;
 console.log(1);
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   toastContainer = new ToastContainer();
-  navigation = new Navigation();
-  initLabDashboard();
-});
-
-async function initLabDashboard() {
   const session = await authStore.refreshSession();
+
+  const sidebarItems: SidebarItem[] = [
+    { text: 'Equipe', icon: 'group', href: 'users.html' },
+    { text: 'Exames', icon: 'assignment', href: 'exams.html' },
+  ];
+
+  const sidebar = new Sidebar({
+    brand: {
+      name: 'MedClinic',
+      icon: 'local_hospital',
+      href: '#'
+    },
+    items: sidebarItems,
+    targetId: 'sidebar-container',
+    itemClass: 'nav-item',
+    userProfile: session ? {
+      name: session.name,
+      role: session.role
+    } : undefined
+  });
+
+  sidebar.render();
+  new MobileSidebar();
+  navigation = new Navigation();
   if (!session || session.role !== "lab_tech") {
     uiStore.addToast("warning", "Acesso restrito ao laboratório");
     window.location.href = "/pages/login.html";
@@ -33,7 +58,7 @@ async function initLabDashboard() {
   }
 
   await loadQueue();
-}
+});
 
 async function loadQueue() {
   renderQueueLoading();

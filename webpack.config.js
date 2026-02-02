@@ -30,6 +30,7 @@ module.exports = (env, argv) => {
       doctorDashboard: './src/pages/doctorDashboard.ts',
       receptionDashboard: './src/pages/receptionDashboard.ts',
       adminDashboard: './src/pages/adminDashboard.ts',
+      managerDashboard: './src/pages/managerDashboard.ts',
       usersPage: './src/pages/usersPage.ts',
       agenda: './src/pages/agenda.ts',
       dashboard: './src/pages/dashboard.ts',
@@ -139,6 +140,7 @@ module.exports = (env, argv) => {
                 ? ['receptionDashboard']
                 : []),
               ...(page === 'admin-dashboard.html' ? ['adminDashboard'] : []),
+              ...(page === 'manager-dashboard.html' ? ['managerDashboard'] : []),
               ...(page === 'lab-dashboard.html' ? ['labDashboard'] : []),
               ...(page === 'users.html' ? ['usersPage'] : [])
             ],
