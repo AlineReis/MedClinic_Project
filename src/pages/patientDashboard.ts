@@ -1,88 +1,89 @@
-import "../../css/pages/patient-dashboard.css"
-import "../../css/global.css"
-import { Navigation } from "../components/Navigation"
-import { ToastContainer } from "../components/ToastContainer"
-import { authStore } from "../stores/authStore"
-import { dashboardStore } from "../stores/dashboardStore"
+import "../../css/pages/patient-dashboard.css";
+import "../../css/global.css";
+import { Navigation } from "../components/Navigation";
+import { ToastContainer } from "../components/ToastContainer";
+import { authStore } from "../stores/authStore";
+import { dashboardStore } from "../stores/dashboardStore";
 import {
   DASHBOARD_APPOINTMENTS_EVENT,
   type DashboardEventDetail,
-} from "../stores/dashboardStore"
-import { uiStore } from "../stores/uiStore"
-import type { AppointmentSummary } from "../types/appointments"
-import type { UserSession } from "../types/auth"
-import type { PrescriptionSummary } from "../types/prescriptions"
-import { openPrescriptionModal } from "./prescriptionModal"
-import { openAppointmentModal } from "./appointmentModal"
+} from "../stores/dashboardStore";
+import { uiStore } from "../stores/uiStore";
+import type { AppointmentSummary } from "../types/appointments";
+import type { UserSession } from "../types/auth";
+import type { PrescriptionSummary } from "../types/prescriptions";
+import { openPrescriptionModal } from "./prescriptionModal";
+import { openAppointmentModal } from "./appointmentModal";
+import { formatSpecialty } from "../utils/formatters";
 
 const nextAppointmentContainer = document.querySelector(
   "[data-next-appointment]",
-)
+);
 const activityList = document.querySelector(
   "[data-activity-list]",
-) as HTMLTableSectionElement | null
+) as HTMLTableSectionElement | null;
 
-let toastContainer: ToastContainer | null = null
-let navigation: Navigation | null = null
+let toastContainer: ToastContainer | null = null;
+let navigation: Navigation | null = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  toastContainer = new ToastContainer()
-  navigation = new Navigation()
-  hydrateSessionUser()
+  toastContainer = new ToastContainer();
+  navigation = new Navigation();
+  hydrateSessionUser();
   window.addEventListener(
     DASHBOARD_APPOINTMENTS_EVENT,
     handleDashboardUpdate as EventListener,
-  )
-  init()
-})
+  );
+  init();
+});
 
 async function init() {
-  const session = await authStore.refreshSession()
+  const session = await authStore.refreshSession();
 
-  hydrateSessionUser()
+  hydrateSessionUser();
 
   if (!session) {
-    window.location.href = "/pages/login.html"
-    return
+    window.location.href = "/pages/login.html";
+    return;
   }
 
   if (session.role !== "patient") {
-    uiStore.addToast("warning", "Acesso restrito a pacientes.")
+    uiStore.addToast("warning", "Acesso restrito a pacientes.");
     setTimeout(() => {
-      window.location.href = "/"
-    }, 2000)
-    return
+      window.location.href = "/";
+    }, 2000);
+    return;
   }
 
   // Load dashboard data for patient
-  await dashboardStore.loadAppointmentsForSession(session)
+  await dashboardStore.loadAppointmentsForSession(session);
 }
 
 function hydrateSessionUser() {
-  const session = getSessionFromStorage() ?? authStore.getSession()
-  if (!session) return
+  const session = getSessionFromStorage() ?? authStore.getSession();
+  if (!session) return;
 
-  document.querySelectorAll("[data-user-name]").forEach(element => {
-    element.textContent = session.name || "Usuário"
-  })
+  document.querySelectorAll("[data-user-name]").forEach((element) => {
+    element.textContent = session.name || "Usuário";
+  });
 
-  document.querySelectorAll("[data-user-initials]").forEach(element => {
-    element.textContent = getInitials(session.name || "U")
-  })
+  document.querySelectorAll("[data-user-initials]").forEach((element) => {
+    element.textContent = getInitials(session.name || "U");
+  });
 }
 
 function handleDashboardUpdate(event: CustomEvent<DashboardEventDetail>) {
-  const detail = event.detail
-  if (!detail) return
+  const detail = event.detail;
+  if (!detail) return;
 
-  renderNextAppointment(detail.appointments, detail.isLoading, detail.hasError)
-  renderPrescriptions(detail.prescriptions, detail.isLoading, detail.hasError)
+  renderNextAppointment(detail.appointments, detail.isLoading, detail.hasError);
+  renderPrescriptions(detail.prescriptions, detail.isLoading, detail.hasError);
   renderActivity(
     detail.appointments,
     detail.prescriptions,
     detail.isLoading,
     detail.hasError,
-  )
+  );
 }
 
 function renderNextAppointment(
@@ -90,47 +91,53 @@ function renderNextAppointment(
   isLoading: boolean,
   hasError: boolean,
 ) {
-  if (!nextAppointmentContainer) return
+  if (!nextAppointmentContainer) return;
 
   // Find child elements to populate
-  const avatarEl = nextAppointmentContainer.querySelector('.doctor-avatar') as HTMLElement
-  const statusBadgeEl = nextAppointmentContainer.querySelector('.status-badge')
-  const nameEl = nextAppointmentContainer.querySelector('.appointment-name')
-  const specialtyEl = nextAppointmentContainer.querySelector('.appointment-specialty')
-  const metaItems = nextAppointmentContainer.querySelectorAll('.meta-item')
-  const detailsBtn = nextAppointmentContainer.querySelector('.btn-small-primary')
-  const rescheduleBtn = nextAppointmentContainer.querySelector('.btn-small-outline')
+  const avatarEl = nextAppointmentContainer.querySelector(
+    ".doctor-avatar",
+  ) as HTMLElement;
+  const statusBadgeEl = nextAppointmentContainer.querySelector(".status-badge");
+  const nameEl = nextAppointmentContainer.querySelector(".appointment-name");
+  const specialtyEl = nextAppointmentContainer.querySelector(
+    ".appointment-specialty",
+  );
+  const metaItems = nextAppointmentContainer.querySelectorAll(".meta-item");
+  const detailsBtn =
+    nextAppointmentContainer.querySelector(".btn-small-primary");
+  const rescheduleBtn =
+    nextAppointmentContainer.querySelector(".btn-small-outline");
 
   if (isLoading) {
     // Show card with loading state
-    const containerEl = nextAppointmentContainer as HTMLElement
-    containerEl.style.display = ''
+    const containerEl = nextAppointmentContainer as HTMLElement;
+    containerEl.style.display = "";
 
-    if (nameEl) nameEl.textContent = 'Carregando...'
-    if (specialtyEl) specialtyEl.textContent = ''
-    if (statusBadgeEl) statusBadgeEl.textContent = ''
+    if (nameEl) nameEl.textContent = "Carregando...";
+    if (specialtyEl) specialtyEl.textContent = "";
+    if (statusBadgeEl) statusBadgeEl.textContent = "";
 
-    return
+    return;
   }
 
   if (hasError) {
-    hideAppointmentCard()
-    showEmptyState()
-    return
+    hideAppointmentCard();
+    showEmptyState();
+    return;
   }
 
-  const upcoming = getUpcomingAppointment(appointments)
+  const upcoming = getUpcomingAppointment(appointments);
   if (!upcoming) {
-    hideAppointmentCard()
-    showEmptyState()
-    return
+    hideAppointmentCard();
+    showEmptyState();
+    return;
   }
 
   // Hide empty state and show card
-  hideEmptyState()
-  const containerEl = nextAppointmentContainer as HTMLElement
-  if (containerEl.style.display === 'none') {
-    containerEl.style.display = ''
+  hideEmptyState();
+  const containerEl = nextAppointmentContainer as HTMLElement;
+  if (containerEl.style.display === "none") {
+    containerEl.style.display = "";
   }
 
   // Populate data into existing HTML structure
@@ -138,86 +145,99 @@ function renderNextAppointment(
   if (avatarEl) {
     // Keep existing background image from HTML or use placeholder
     if (!avatarEl.style.backgroundImage) {
-      avatarEl.style.backgroundColor = 'var(--primary-10)'
+      avatarEl.style.backgroundColor = "var(--primary-10)";
     }
   }
 
   if (statusBadgeEl) {
-    statusBadgeEl.textContent = formatStatus(upcoming.status)
-    statusBadgeEl.className = 'status-badge' // Reset
-    if (upcoming.status === 'confirmed') {
-      statusBadgeEl.classList.add('status-badge--confirmed')
+    statusBadgeEl.textContent = formatStatus(upcoming.status);
+    statusBadgeEl.className = "status-badge"; // Reset
+    if (upcoming.status === "confirmed") {
+      statusBadgeEl.classList.add("status-badge--confirmed");
     }
   }
 
   if (nameEl) {
-    nameEl.textContent = upcoming.professional_name
+    nameEl.textContent = upcoming.professional_name;
   }
 
   if (specialtyEl) {
-    specialtyEl.textContent = upcoming.specialty
+    specialtyEl.textContent = formatSpecialty(upcoming.specialty);
   }
 
   // Populate meta items (date, time, location)
   if (metaItems.length >= 3) {
     // Each meta-item has: <span>icon</span> + text node
     // We need to REPLACE all text content (remove old, add new)
-    const dateItem = metaItems[0] as HTMLElement
-    const timeItem = metaItems[1] as HTMLElement
-    const locationItem = metaItems[2] as HTMLElement
+    const dateItem = metaItems[0] as HTMLElement;
+    const timeItem = metaItems[1] as HTMLElement;
+    const locationItem = metaItems[2] as HTMLElement;
 
     // Helper to replace ALL text content after icon
     const replaceText = (element: HTMLElement, newText: string) => {
       // Remove all text nodes
-      Array.from(element.childNodes).forEach(node => {
+      Array.from(element.childNodes).forEach((node) => {
         if (node.nodeType === Node.TEXT_NODE) {
-          element.removeChild(node)
+          element.removeChild(node);
         }
-      })
+      });
       // Add new text node with spacing
-      element.appendChild(document.createTextNode('\n                                ' + newText + '\n                            '))
-    }
+      element.appendChild(
+        document.createTextNode(
+          "\n                                " +
+            newText +
+            "\n                            ",
+        ),
+      );
+    };
 
-    replaceText(dateItem, formatDate(upcoming.date))
-    replaceText(timeItem, upcoming.time)
-    replaceText(locationItem, upcoming.room ? `Sala ${upcoming.room}` : 'Unidade MedClinic')
+    replaceText(dateItem, formatDate(upcoming.date));
+    replaceText(timeItem, upcoming.time);
+    replaceText(
+      locationItem,
+      upcoming.room ? `Sala ${upcoming.room}` : "Unidade MedClinic",
+    );
   }
 
   // Attach event handlers
   if (detailsBtn) {
     const newDetailsBtn = detailsBtn.cloneNode(true);
     detailsBtn.replaceWith(newDetailsBtn);
-    newDetailsBtn.addEventListener('click', () => {
-      openAppointmentModal(upcoming.id, 'details')
-    })
+    newDetailsBtn.addEventListener("click", () => {
+      openAppointmentModal(upcoming.id, "details");
+    });
   }
 
   if (rescheduleBtn) {
     const newRescheduleBtn = rescheduleBtn.cloneNode(true);
     rescheduleBtn.replaceWith(newRescheduleBtn);
-    newRescheduleBtn.addEventListener('click', () => {
-      openAppointmentModal(upcoming.id, 'reschedule')
-    })
+    newRescheduleBtn.addEventListener("click", () => {
+      openAppointmentModal(upcoming.id, "reschedule");
+    });
   }
 }
 
 function hideAppointmentCard() {
   if (nextAppointmentContainer) {
-    (nextAppointmentContainer as HTMLElement).style.display = 'none'
+    (nextAppointmentContainer as HTMLElement).style.display = "none";
   }
 }
 
 function showEmptyState() {
-  const emptyState = document.querySelector('[data-empty-appointments]') as HTMLElement
+  const emptyState = document.querySelector(
+    "[data-empty-appointments]",
+  ) as HTMLElement;
   if (emptyState) {
-    emptyState.style.display = ''
+    emptyState.style.display = "";
   }
 }
 
 function hideEmptyState() {
-  const emptyState = document.querySelector('[data-empty-appointments]') as HTMLElement
+  const emptyState = document.querySelector(
+    "[data-empty-appointments]",
+  ) as HTMLElement;
   if (emptyState) {
-    emptyState.style.display = 'none'
+    emptyState.style.display = "none";
   }
 }
 
@@ -226,8 +246,10 @@ function renderPrescriptions(
   isLoading: boolean,
   hasError: boolean,
 ) {
-  const prescriptionsContainer = document.getElementById("prescriptions-container")
-  if (!prescriptionsContainer) return
+  const prescriptionsContainer = document.getElementById(
+    "prescriptions-container",
+  );
+  if (!prescriptionsContainer) return;
 
   if (isLoading) {
     prescriptionsContainer.innerHTML = `
@@ -237,8 +259,8 @@ function renderPrescriptions(
           Carregando prescrições...
         </div>
       </div>
-    `
-    return
+    `;
+    return;
   }
 
   if (hasError || !prescriptions) {
@@ -249,8 +271,8 @@ function renderPrescriptions(
           <p class="prescription-card__submessage">Tente novamente mais tarde.</p>
         </div>
       </div>
-    `
-    return
+    `;
+    return;
   }
 
   if (prescriptions.length === 0) {
@@ -261,16 +283,18 @@ function renderPrescriptions(
           <p class="prescription-card__submessage">Suas prescrições médicas aparecerão aqui.</p>
         </div>
       </div>
-    `
-    return
+    `;
+    return;
   }
 
   // Show only the 3 most recent prescriptions
-  const recentPrescriptions = prescriptions.slice(0, 3)
+  const recentPrescriptions = prescriptions.slice(0, 3);
   prescriptionsContainer.innerHTML = `
     <div class="prescription-card">
       <div class="prescription-card__content">
-      ${recentPrescriptions.map((p) => `
+      ${recentPrescriptions
+        .map(
+          (p) => `
           <div class="prescription-item">
             <div class="prescription-item__container">
               <!-- Icon + Info -->
@@ -303,29 +327,39 @@ function renderPrescriptions(
               </button>
             </div>
           </div>
-        `).join("")}
+        `,
+        )
+        .join("")}
       </div>
-      ${prescriptions.length > 3 ? `
+      ${
+        prescriptions.length > 3
+          ? `
         <div class="prescription-card__footer">
           <p class="prescription-card__more-text">
             +${prescriptions.length - 3} prescrição${prescriptions.length - 3 > 1 ? "ões" : ""} anterior${prescriptions.length - 3 > 1 ? "es" : ""}
           </p>
         </div>
-      ` : ""}
+      `
+          : ""
+      }
     </div>
-  `
+  `;
 
   // Attach click handlers to Details buttons
-  prescriptionsContainer.querySelectorAll('.prescription-item__btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      // Use currentTarget to ensure we get the button element, even if icon was clicked
-      const target = e.currentTarget as HTMLElement
-      const prescriptionId = parseInt(target.getAttribute('data-prescription-id') || '0')
-      if (prescriptionId) {
-        openPrescriptionModal(prescriptionId)
-      }
-    })
-  })
+  prescriptionsContainer
+    .querySelectorAll(".prescription-item__btn")
+    .forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        // Use currentTarget to ensure we get the button element, even if icon was clicked
+        const target = e.currentTarget as HTMLElement;
+        const prescriptionId = parseInt(
+          target.getAttribute("data-prescription-id") || "0",
+        );
+        if (prescriptionId) {
+          openPrescriptionModal(prescriptionId);
+        }
+      });
+    });
 }
 
 function renderActivity(
@@ -334,7 +368,7 @@ function renderActivity(
   isLoading: boolean,
   hasError: boolean,
 ) {
-  if (!activityList) return
+  if (!activityList) return;
 
   if (isLoading) {
     activityList.innerHTML = buildActivityRow(
@@ -342,8 +376,8 @@ function renderActivity(
       "Carregando atividades recentes...",
       "",
       "activity-icon-neutral",
-    )
-    return
+    );
+    return;
   }
 
   if (hasError) {
@@ -352,11 +386,11 @@ function renderActivity(
       "Não foi possível carregar suas atividades.",
       "",
       "activity-icon-warning",
-    )
-    return
+    );
+    return;
   }
 
-  const items = buildActivityItems(appointments, prescriptions)
+  const items = buildActivityItems(appointments, prescriptions);
 
   if (items.length === 0) {
     activityList.innerHTML = buildActivityRow(
@@ -364,15 +398,16 @@ function renderActivity(
       "Nenhuma atividade recente encontrada.",
       "",
       "activity-icon-neutral",
-    )
-    return
+    );
+    return;
   }
-
 
   activityList.innerHTML = items
     .slice(0, 5)
-    .map(item => buildActivityRow(item.icon, item.label, item.date, item.color))
-    .join("")
+    .map((item) =>
+      buildActivityRow(item.icon, item.label, item.date, item.color),
+    )
+    .join("");
 }
 
 function buildActivityItems(
@@ -381,21 +416,21 @@ function buildActivityItems(
 ) {
   // Filter out cancelled appointments from activity feed
   const activeAppointments = appointments.filter(
-    appointment =>
-      appointment.status !== 'cancelled_by_patient' &&
-      appointment.status !== 'cancelled_by_clinic'
-  )
+    (appointment) =>
+      appointment.status !== "cancelled_by_patient" &&
+      appointment.status !== "cancelled_by_clinic",
+  );
 
-  const appointmentItems = activeAppointments.map(appointment => {
-    let icon = "event"
-    let color = "activity-icon-info"
+  const appointmentItems = activeAppointments.map((appointment) => {
+    let icon = "event";
+    let color = "activity-icon-info";
 
     if (appointment.status === "completed") {
-      icon = "check_circle"
-      color = "activity-icon-success"
+      icon = "check_circle";
+      color = "activity-icon-success";
     } else if (appointment.status === "confirmed") {
-      icon = "event_available"
-      color = "activity-icon-success"
+      icon = "event_available";
+      color = "activity-icon-success";
     }
 
     return {
@@ -404,20 +439,20 @@ function buildActivityItems(
       date: formatDate(appointment.date),
       label: `Consulta ${formatStatus(appointment.status)}${appointment.professional_name ? ` com ${appointment.professional_name}` : ""}`,
       timestamp: toTimestamp(appointment.date),
-    }
-  })
+    };
+  });
 
-  const prescriptionItems = prescriptions.map(prescription => ({
+  const prescriptionItems = prescriptions.map((prescription) => ({
     icon: "receipt_long",
     color: "activity-icon-warning",
     date: formatDate(prescription.created_at),
     label: `Prescrição de ${prescription.medication_name}`,
     timestamp: toTimestamp(prescription.created_at),
-  }))
+  }));
 
   return [...appointmentItems, ...prescriptionItems].sort(
     (a, b) => b.timestamp - a.timestamp,
-  )
+  );
 }
 
 function buildActivityRow(
@@ -434,30 +469,29 @@ function buildActivityRow(
       </td>
       <td class="activity-date-cell">${date}</td>
     </tr>
-  `
+  `;
 }
-
 
 function getUpcomingAppointment(appointments: AppointmentSummary[]) {
   return [...appointments]
-    .filter(appointment =>
+    .filter((appointment) =>
       ["scheduled", "confirmed"].includes(appointment.status),
     )
     .sort(
       (a, b) => toTimestamp(a.date, a.time) - toTimestamp(b.date, b.time),
-    )[0]
+    )[0];
 }
 
 function getInitials(name: string) {
-  if (!name) return "U"
+  if (!name) return "U";
 
   return name
     .split(" ")
     .filter(Boolean)
-    .map(part => part[0])
+    .map((part) => part[0])
     .slice(0, 2)
     .join("")
-    .toUpperCase()
+    .toUpperCase();
 }
 
 function formatStatus(status: string) {
@@ -468,55 +502,57 @@ function formatStatus(status: string) {
     cancelled_by_patient: "Cancelada",
     cancelled_by_clinic: "Cancelada",
     waiting: "Aguardando",
-  }
+  };
 
-  return map[status] ?? status
+  return map[status] ?? status;
 }
 
 function formatDate(value: string) {
-  if (!value) return value
+  if (!value) return value;
 
   // Handle both YYYY-MM-DD and YYYY-MM-DD HH:MM:SS formats
-  let dateStr = value
+  let dateStr = value;
 
   // If it's a datetime string (has time component), extract just the date part
-  if (value.includes(' ')) {
-    dateStr = value.split(' ')[0]
+  if (value.includes(" ")) {
+    dateStr = value.split(" ")[0];
   }
 
   // Append T12:00:00 to ensure we are in the middle of the day
   // preventing timezone shifts from T00:00:00 UTC to previous day
-  if (!dateStr.includes('T')) {
-    dateStr = `${dateStr}T12:00:00`
+  if (!dateStr.includes("T")) {
+    dateStr = `${dateStr}T12:00:00`;
   }
 
-  const parsed = new Date(dateStr)
+  const parsed = new Date(dateStr);
 
-  if (Number.isNaN(parsed.getTime())) return value
+  if (Number.isNaN(parsed.getTime())) return value;
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(parsed)
+  }).format(parsed);
 }
 
 function toTimestamp(dateValue: string, timeValue?: string) {
-  const date = timeValue ? `${dateValue}T${timeValue}` : `${dateValue}T12:00:00`
-  const parsed = new Date(date)
-  const timestamp = parsed.getTime()
-  return Number.isNaN(timestamp) ? 0 : timestamp
+  const date = timeValue
+    ? `${dateValue}T${timeValue}`
+    : `${dateValue}T12:00:00`;
+  const parsed = new Date(date);
+  const timestamp = parsed.getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
 function getSessionFromStorage(): UserSession | null {
   try {
-    const stored = sessionStorage.getItem("medclinic-session")
-    return stored ? (JSON.parse(stored) as UserSession) : null
+    const stored = sessionStorage.getItem("medclinic-session");
+    return stored ? (JSON.parse(stored) as UserSession) : null;
   } catch (error) {
-    console.warn("Não foi possível ler a sessão armazenada.", error)
-    return null
+    console.warn("Não foi possível ler a sessão armazenada.", error);
+    return null;
   }
 }
 
 function getBasePath() {
-  return window.location.pathname.includes("/pages/") ? "" : "pages/"
+  return window.location.pathname.includes("/pages/") ? "" : "pages/";
 }

@@ -1,31 +1,33 @@
-import "../../css/base/reset.css"
-import "../../css/pages/schedule-appointment.css"
+import "../../css/base/reset.css";
+import "../../css/pages/schedule-appointment.css";
 import {
   cancelAppointment,
   createAppointment,
   listAppointments,
   rescheduleAppointment,
-} from "../services/appointmentsService"
+} from "../services/appointmentsService";
 import {
   getProfessionalAvailability,
   listProfessionals,
-} from "../services/professionalsService"
-import { authStore } from "../stores/authStore"
-import { dashboardStore } from "../stores/dashboardStore"
-import { uiStore } from "../stores/uiStore"
-import type { AppointmentSummary } from "../types/appointments"
-import type { UserSession } from "../types/auth"
+} from "../services/professionalsService";
+import { authStore } from "../stores/authStore";
+import { dashboardStore } from "../stores/dashboardStore";
+import { uiStore } from "../stores/uiStore";
+import { Navigation } from "../components/Navigation";
+import type { AppointmentSummary } from "../types/appointments";
+import type { UserSession } from "../types/auth";
 import type {
   ProfessionalAvailabilityEntry,
   ProfessionalSummary,
-} from "../types/professionals"
-import { mapAppointmentError } from "../utils/errorMapper"
+} from "../types/professionals";
+import { mapAppointmentError } from "../utils/errorMapper";
+import { formatSpecialty } from "../utils/formatters";
 
 function buildAppointmentStatusText(appointments: AppointmentSummary[]) {
-  const next = appointments[0]
+  const next = appointments[0];
   return next
     ? `Próximo: ${next.professional_name} • ${formatDate(next.date)} • ${next.time}`
-    : "Nenhum agendamento"
+    : "Nenhum agendamento";
 }
 
 function buildAppointmentsLoadingState() {
@@ -34,7 +36,7 @@ function buildAppointmentsLoadingState() {
       <span class="material-symbols-outlined state-card__icon state-card__icon--small u-spin">sync</span>
       <p class="state-card__description">Sincronizando dados...</p>
     </div>
-  `
+  `;
 }
 
 function buildAppointmentsEmptyState(title: string, description: string) {
@@ -43,26 +45,25 @@ function buildAppointmentsEmptyState(title: string, description: string) {
       <p class="state-card__title">${title}</p>
       <p class="state-card__description">${description}</p>
     </div>
-  `
+  `;
 }
 
-
-
 function buildAppointmentCard(appointment: AppointmentSummary) {
-  const canModify = appointment.status === "scheduled" || appointment.status === "confirmed"
+  const canModify =
+    appointment.status === "scheduled" || appointment.status === "confirmed";
 
   return `
     <div class="appointment-card">
       <div class="appointment-card__doctor-group">
-        <div class="appointment-card__avatar" style="background-image: url('${appointment.professional_image || ''}')">
-          ${!appointment.professional_image ? getInitials(appointment.professional_name) : ''}
+        <div class="appointment-card__avatar" style="background-image: url('${appointment.professional_image || ""}')">
+          ${!appointment.professional_image ? getInitials(appointment.professional_name) : ""}
         </div>
         <div class="appointment-card__info">
           <div class="appointment-card__header">
             <h3 class="appointment-card__name">${appointment.professional_name}</h3>
             <span class="status-badge status-badge--${appointment.status}">${getStatusLabel(appointment.status)}</span>
           </div>
-          <p class="appointment-card__specialty">${appointment.specialty}</p>
+          <p class="appointment-card__specialty">${formatSpecialty(appointment.specialty)}</p>
           <div class="appointment-card__meta">
             <div class="appointment-card__meta-item">
               <span class="material-symbols-outlined appointment-card__meta-icon">calendar_month</span>
@@ -76,7 +77,9 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
         </div>
       </div>
       
-      ${canModify ? `
+      ${
+        canModify
+          ? `
         <div class="appointment-card__actions">
           <button
             class="appointment-card__btn appointment-card__btn--outline"
@@ -94,14 +97,19 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
             Cancelar
           </button>
         </div>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
-  `
+  `;
 }
 
 function resolveSession() {
-  return (getSessionFromStorage() ?? authStore.getSession()) ??
+  return (
+    getSessionFromStorage() ??
+    authStore.getSession() ??
     authStore.refreshSession()
+  );
 }
 
 function getStatusLabel(status: string) {
@@ -111,183 +119,186 @@ function getStatusLabel(status: string) {
     completed: "Realizado",
     cancelled_by_patient: "Cancelado",
     cancelled_by_clinic: "Cancelado",
-  }
+  };
 
-  return map[status] ?? status
+  return map[status] ?? status;
 }
 
 function getAppointmentDateTime(appointment: AppointmentSummary) {
-  const dateTimeString = `${appointment.date}T${appointment.time}`
-  return new Date(dateTimeString)
+  const dateTimeString = `${appointment.date}T${appointment.time}`;
+  return new Date(dateTimeString);
 }
 
-const doctorsGrid = document.getElementById("doctors-grid")
-const toastContainer = document.getElementById("toast-container")
-const filtersContainer = document.getElementById("filters-container")
-const searchInput = document.getElementById("search-input") as
-  | HTMLInputElement
-  | null
-const appointmentsStatus = document.getElementById("appointments-status")
-const appointmentsList = document.getElementById("appointments-list")
+const doctorsGrid = document.getElementById("doctors-grid");
+const toastContainer = document.getElementById("toast-container");
+const filtersContainer = document.getElementById("filters-container");
+const searchInput = document.getElementById(
+  "search-input",
+) as HTMLInputElement | null;
+const appointmentsStatus = document.getElementById("appointments-status");
+const appointmentsList = document.getElementById("appointments-list");
 
 type FiltersState = {
-  specialty: string
-  name: string
-}
+  specialty: string;
+  name: string;
+};
 
 const filters: FiltersState = {
   specialty: "",
   name: "",
-}
+};
 
-let professionalsCache: ProfessionalSummary[] = []
+let professionalsCache: ProfessionalSummary[] = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-  hydrateSessionUser()
-  renderFilters()
-  bindSearchInput()
-  loadProfessionals()
-  loadPatientAppointments()
-})
+  new Navigation();
+  hydrateSessionUser();
+  renderFilters();
+  bindSearchInput();
+  loadProfessionals();
+  loadPatientAppointments();
+});
 
 async function loadProfessionals() {
-  if (!doctorsGrid) return
+  if (!doctorsGrid) return;
 
-  const session = getSessionFromStorage() ?? authStore.getSession()
+  const session = getSessionFromStorage() ?? authStore.getSession();
   if (!session) {
-    redirectToLogin()
-    return
+    redirectToLogin();
+    return;
   }
 
   const response = await listProfessionals({
     specialty: filters.specialty || undefined,
     name: filters.name || undefined,
-  })
+  });
 
   if (!response.success || !response.data) {
     uiStore.addToast(
       "error",
       response.error?.message ?? "Não foi possível carregar profissionais.",
-    )
-    renderToasts()
+    );
+    renderToasts();
     doctorsGrid.innerHTML = buildEmptyState(
       "Não foi possível carregar profissionais agora.",
-    )
-    return
+    );
+    return;
   }
 
-  professionalsCache = response.data.data
-  renderProfessionals(response.data.data)
-  updateFiltersOptions(response.data.data)
+  professionalsCache = response.data.data;
+  renderProfessionals(response.data.data);
+  if (!filters.specialty && !filters.name) {
+    updateFiltersOptions(response.data.data);
+  }
 }
 
-const appointmentCountLabel = document.getElementById("appointments-count")
+const appointmentCountLabel = document.getElementById("appointments-count");
 
 async function loadPatientAppointments(useCache = true) {
-  if (!appointmentsList || !appointmentsStatus) return
+  if (!appointmentsList || !appointmentsStatus) return;
 
-  appointmentsStatus.textContent = "Sincronizando dados..."
-  appointmentsList.innerHTML = buildAppointmentsLoadingState()
+  appointmentsStatus.textContent = "Sincronizando dados...";
+  appointmentsList.innerHTML = buildAppointmentsLoadingState();
 
-  const session = await resolveSession()
+  const session = await resolveSession();
   if (!session) {
-    redirectToLogin()
-    return
+    redirectToLogin();
+    return;
   }
 
-  const filters = session.role === "patient" ? { patientId: session.id } : {}
-  const response = await listAppointments(filters, useCache)
+  const filters = session.role === "patient" ? { patientId: session.id } : {};
+  const response = await listAppointments(filters, useCache);
 
   if (!response.success || !response.data) {
     uiStore.addToast(
       "error",
       response.error?.message ?? "Não foi possível carregar seus agendamentos.",
-    )
-    renderToasts()
-    appointmentsStatus.textContent = "Status indisponível"
+    );
+    renderToasts();
+    appointmentsStatus.textContent = "Status indisponível";
     appointmentsList.innerHTML = buildAppointmentsEmptyState(
       "Não foi possível sincronizar seus agendamentos.",
       "Tente novamente em instantes.",
-    )
-    return
+    );
+    return;
   }
 
-  const appointments = response.data.appointments
+  const appointments = response.data.appointments;
   if (appointments.length === 0) {
-    appointmentsStatus.textContent = "Nenhum agendamento encontrado"
+    appointmentsStatus.textContent = "Nenhum agendamento encontrado";
     appointmentsList.innerHTML = buildAppointmentsEmptyState(
       "Você ainda não tem agendamentos.",
       "Agende sua primeira consulta.",
-    )
-    return
+    );
+    return;
   }
 
-  const now = new Date()
+  const now = new Date();
   const futureAppointments = appointments
-    .map(appointment => ({
+    .map((appointment) => ({
       ...appointment,
       dateTime: getAppointmentDateTime(appointment),
     }))
     .filter(
-      appointment =>
+      (appointment) =>
         !Number.isNaN(appointment.dateTime.getTime()) &&
         appointment.dateTime >= now,
     )
-    .sort(
-      (a, b) =>
-        a.dateTime.getTime() - b.dateTime.getTime(),
-    )
+    .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime());
 
   if (futureAppointments.length === 0) {
-    appointmentsStatus.textContent = "Nenhum agendamento futuro"
+    appointmentsStatus.textContent = "Nenhum agendamento futuro";
     appointmentsList.innerHTML = buildAppointmentsEmptyState(
       "Você ainda não tem agendamentos futuros.",
       "Agende sua próxima consulta.",
-    )
-    return
+    );
+    return;
   }
 
   // Contagem de agendamentos
-  const limitedAppointments = futureAppointments.filter(a => a.status !== 'cancelled_by_patient')
-  appointmentCountLabel!.textContent = `${limitedAppointments.length} agendamentos`
-  appointmentsStatus.textContent = buildAppointmentStatusText(limitedAppointments)
+  const limitedAppointments = futureAppointments.filter(
+    (a) => a.status !== "cancelled_by_patient",
+  );
+  appointmentCountLabel!.textContent = `${limitedAppointments.length} agendamentos`;
+  appointmentsStatus.textContent =
+    buildAppointmentStatusText(limitedAppointments);
 
   // Setup pagination
-  currentAppointmentPage = 0
-  appointmentPageSize = 4 // Limit to 4 per page
-  cachedAppointments = limitedAppointments
+  currentAppointmentPage = 0;
+  appointmentPageSize = 4; // Limit to 4 per page
+  cachedAppointments = limitedAppointments;
 
-  renderPaginatedAppointments()
+  renderPaginatedAppointments();
 }
 
-let currentAppointmentPage = 0
-let appointmentPageSize = 4
-let cachedAppointments: AppointmentSummary[] = []
+let currentAppointmentPage = 0;
+let appointmentPageSize = 4;
+let cachedAppointments: AppointmentSummary[] = [];
 
 function renderPaginatedAppointments() {
-  if (!appointmentsList) return
+  if (!appointmentsList) return;
 
-  const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
-  const start = currentAppointmentPage * appointmentPageSize
-  const end = start + appointmentPageSize
-  const pageItems = cachedAppointments.slice(start, end)
+  const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize);
+  const start = currentAppointmentPage * appointmentPageSize;
+  const end = start + appointmentPageSize;
+  const pageItems = cachedAppointments.slice(start, end);
 
   // Use a grid container for the cards
   const gridHtml = `
     <div class="appointments-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; width: 100%;">
-      ${pageItems.map(app => buildAppointmentCard(app)).join("")}
+      ${pageItems.map((app) => buildAppointmentCard(app)).join("")}
     </div>
-  `
+  `;
 
   // Pagination controls
-  let paginationHtml = ''
+  let paginationHtml = "";
   if (totalPages > 1) {
     paginationHtml = `
       <div class="pagination-controls" style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem; justify-content: center;">
         <button 
           class="pagination-btn" 
-          ${currentAppointmentPage === 0 ? 'disabled' : ''}
-          style="background: none; border: none; color: ${currentAppointmentPage === 0 ? 'var(--text-secondary)' : 'var(--primary)'}; cursor: ${currentAppointmentPage === 0 ? 'default' : 'pointer'};"
+          ${currentAppointmentPage === 0 ? "disabled" : ""}
+          style="background: none; border: none; color: ${currentAppointmentPage === 0 ? "var(--text-secondary)" : "var(--primary)"}; cursor: ${currentAppointmentPage === 0 ? "default" : "pointer"};"
           onclick="window.prevAppointmentPage()"
         >
           <span class="material-symbols-outlined">chevron_left</span>
@@ -297,119 +308,114 @@ function renderPaginatedAppointments() {
         </span>
         <button 
           class="pagination-btn" 
-          ${currentAppointmentPage >= totalPages - 1 ? 'disabled' : ''}
-          style="background: none; border: none; color: ${currentAppointmentPage >= totalPages - 1 ? 'var(--text-secondary)' : 'var(--primary)'}; cursor: ${currentAppointmentPage >= totalPages - 1 ? 'default' : 'pointer'};"
+          ${currentAppointmentPage >= totalPages - 1 ? "disabled" : ""}
+          style="background: none; border: none; color: ${currentAppointmentPage >= totalPages - 1 ? "var(--text-secondary)" : "var(--primary)"}; cursor: ${currentAppointmentPage >= totalPages - 1 ? "default" : "pointer"};"
           onclick="window.nextAppointmentPage()"
         >
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>
-    `
+    `;
   }
 
-  appointmentsList.innerHTML = gridHtml + paginationHtml
+  appointmentsList.innerHTML = gridHtml + paginationHtml;
 
   // Re-attach event listeners
-  bindAppointmentCardEvents(appointmentsList)
+  bindAppointmentCardEvents(appointmentsList);
 }
 
 // Expose pagination functions to window
-; (window as any).prevAppointmentPage = () => {
+(window as any).prevAppointmentPage = () => {
   if (currentAppointmentPage > 0) {
-    currentAppointmentPage--
-    renderPaginatedAppointments()
+    currentAppointmentPage--;
+    renderPaginatedAppointments();
   }
-}
-
-  ; (window as any).nextAppointmentPage = () => {
-    const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize)
-    if (currentAppointmentPage < totalPages - 1) {
-      currentAppointmentPage++
-      renderPaginatedAppointments()
-    }
+};
+(window as any).nextAppointmentPage = () => {
+  const totalPages = Math.ceil(cachedAppointments.length / appointmentPageSize);
+  if (currentAppointmentPage < totalPages - 1) {
+    currentAppointmentPage++;
+    renderPaginatedAppointments();
   }
+};
 
 function bindAppointmentCardEvents(container: HTMLElement) {
-  container.querySelectorAll("[data-action='cancel-appointment']").forEach(
-    button => {
-      button.addEventListener("click", async event => {
-        const target = event.currentTarget as HTMLButtonElement
-        const appointmentId = Number(target.dataset.appointmentId)
-        if (!appointmentId) return
+  container
+    .querySelectorAll("[data-action='cancel-appointment']")
+    .forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const target = event.currentTarget as HTMLButtonElement;
+        const appointmentId = Number(target.dataset.appointmentId);
+        if (!appointmentId) return;
 
-        await handleCancelAppointment(appointmentId)
-      })
-    },
-  )
+        await handleCancelAppointment(appointmentId);
+      });
+    });
 
-  container.querySelectorAll("[data-action='reschedule-appointment']").forEach(
-    button => {
-      button.addEventListener("click", async event => {
-        const target = event.currentTarget as HTMLButtonElement
-        const appointmentId = Number(target.dataset.appointmentId)
-        const professionalId = Number(target.dataset.professionalId)
-        if (!appointmentId || !professionalId) return
+  container
+    .querySelectorAll("[data-action='reschedule-appointment']")
+    .forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const target = event.currentTarget as HTMLButtonElement;
+        const appointmentId = Number(target.dataset.appointmentId);
+        const professionalId = Number(target.dataset.professionalId);
+        if (!appointmentId || !professionalId) return;
 
-        await handleRescheduleClick(appointmentId, professionalId)
-      })
-    },
-  )
+        await handleRescheduleClick(appointmentId, professionalId);
+      });
+    });
 }
 
 function renderProfessionals(professionals: ProfessionalSummary[]) {
-  if (!doctorsGrid) return
+  if (!doctorsGrid) return;
 
   if (professionals.length === 0) {
     doctorsGrid.innerHTML = buildEmptyState(
       "Nenhum profissional disponível no momento.",
-    )
-    return
+    );
+    return;
   }
 
   doctorsGrid.innerHTML = professionals
-    .map(professional => buildProfessionalCard(professional))
-    .join("")
+    .map((professional) => buildProfessionalCard(professional))
+    .join("");
 
-  doctorsGrid.querySelectorAll("[data-action='view-availability']").forEach(
-    button => {
-      button.addEventListener("click", async event => {
-        const target = event.currentTarget as HTMLButtonElement
-        const professionalId = Number(target.dataset.professionalId)
-        if (!professionalId) return
+  doctorsGrid
+    .querySelectorAll("[data-action='view-availability']")
+    .forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const target = event.currentTarget as HTMLButtonElement;
+        const professionalId = Number(target.dataset.professionalId);
+        if (!professionalId) return;
 
-        await handleAvailabilityClick(target, professionalId)
-      })
-    },
-  )
+        await handleAvailabilityClick(target, professionalId);
+      });
+    });
 }
 
 function buildProfessionalCard(professional: ProfessionalSummary) {
-  const council = professional.council ? `• ${professional.council}` : ""
+  const council = professional.council ? `• ${professional.council}` : "";
   const registrationLabel = professional.registration_number
     ? `CRM ${professional.registration_number} ${council}`.trim()
-    : "Registro a confirmar"
+    : "Registro a confirmar";
 
   return `
     <div class="professional-card">
       <div class="professional-card__top">
-        <div class="professional-card__avatar" style="background-image: url('${professional.image || ''}')">
-          ${!professional.image ? getInitials(professional.name) : ''}
+        <div class="professional-card__avatar" style="background-image: url('${professional.image || ""}')">
+          ${!professional.image ? getInitials(professional.name) : ""}
         </div>
         <div class="professional-card__info">
           <div class="professional-card__header">
             <div>
               <h3 class="professional-card__name">${professional.name}</h3>
-              <p class="professional-card__specialty">${professional.specialty}</p>
-            </div>
-            <div class="professional-card__rating">
-              <span class="material-symbols-outlined professional-card__rating-icon">star</span>
-              <span class="professional-card__rating-value">4.9</span>
+              <p class="professional-card__specialty">${formatSpecialty(professional.specialty)}</p>
             </div>
           </div>
           <p class="professional-card__crm">${registrationLabel}</p>
           <div class="professional-card__tags">
             <span class="professional-card__tag">Disponível hoje</span>
-            <span class="professional-card__tag">${professional.specialty}</span>
+            <span class="professional-card__tag">${formatSpecialty(professional.specialty)}</span>
           </div>
         </div>
       </div>
@@ -428,110 +434,106 @@ function buildProfessionalCard(professional: ProfessionalSummary) {
         </button>
       </div>
     </div>
-  `
+  `;
 }
 
-let searchDebounceTimer: number | undefined
+let searchDebounceTimer: number | undefined;
 
 function renderFilters() {
   const specialtySelect = document.getElementById(
     "header-filter-specialty",
-  ) as HTMLSelectElement | null
+  ) as HTMLSelectElement | null;
 
   if (specialtySelect) {
     specialtySelect.addEventListener("change", async () => {
-      filters.specialty = specialtySelect.value
-      await loadProfessionals()
-    })
+      filters.specialty = specialtySelect.value;
+      await loadProfessionals();
+    });
   }
 }
 
 function updateFiltersOptions(professionals: ProfessionalSummary[]) {
   const specialtySelect = document.getElementById(
     "header-filter-specialty",
-  ) as HTMLSelectElement | null
+  ) as HTMLSelectElement | null;
 
-  if (!specialtySelect) return
+  if (!specialtySelect) return;
 
   const specialties = Array.from(
-    new Set(professionals.map(item => item.specialty).filter(Boolean)),
-  )
-  specialties.sort((a, b) => a.localeCompare(b))
+    new Set(professionals.map((item) => item.specialty).filter(Boolean)),
+  );
+  specialties.sort((a, b) => a.localeCompare(b));
 
-  const currentValue = specialtySelect.value
+  const currentValue = specialtySelect.value;
   specialtySelect.innerHTML = [
-    "<option value=\"\">Todas Especialidades</option>",
+    '<option value="">Todas Especialidades</option>',
     ...specialties.map(
-      specialty =>
-        `<option value="${specialty}">${specialty}</option>`,
+      (specialty) =>
+        `<option value="${specialty}">${formatSpecialty(specialty)}</option>`,
     ),
-  ].join("")
+  ].join("");
 
-  specialtySelect.value = currentValue
+  specialtySelect.value = currentValue;
 }
 
 function bindSearchInput() {
-  if (!searchInput) return
+  if (!searchInput) return;
   searchInput.addEventListener("input", async () => {
-    filters.name = searchInput.value.trim()
+    filters.name = searchInput.value.trim();
     if (searchDebounceTimer) {
-      clearTimeout(searchDebounceTimer)
+      clearTimeout(searchDebounceTimer);
     }
     searchDebounceTimer = window.setTimeout(async () => {
-      await loadProfessionals()
-    }, 300)
-  })
+      await loadProfessionals();
+    }, 300);
+  });
 }
 
 async function handleAvailabilityClick(
   button: HTMLButtonElement,
   professionalId: number,
 ) {
-  const originalText = button.innerHTML
-  button.disabled = true
-  button.innerHTML = `<span class="material-symbols-outlined u-spin" style="font-size: 20px;">sync</span> Agendando...`
+  const originalText = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = `<span class="material-symbols-outlined u-spin" style="font-size: 20px;">sync</span> Agendando...`;
 
   const response = await getProfessionalAvailability(professionalId, {
     daysAhead: 7,
-  })
+  });
 
   if (!response.success || !response.data) {
     uiStore.addToast(
       "error",
       response.error?.message ?? "Não foi possível carregar os horários.",
-    )
-    renderToasts()
-    button.innerHTML = originalText
-    button.disabled = false
-    return
+    );
+    renderToasts();
+    button.innerHTML = originalText;
+    button.disabled = false;
+    return;
   }
 
   const futureSlots = response.data
-    .filter(slot => slot.is_available)
-    .filter(slot => {
-      const slotDate = new Date(`${slot.date}T${slot.time}`)
-      return slotDate.getTime() > Date.now()
-    })
+    .filter((slot) => slot.is_available)
+    .filter((slot) => {
+      const slotDate = new Date(`${slot.date}T${slot.time}`);
+      return slotDate.getTime() > Date.now();
+    });
   uiStore.addToast(
     "success",
     futureSlots.length
       ? `Encontramos ${futureSlots.length} horários disponíveis.`
       : "Nenhum horário disponível para os próximos dias.",
-  )
-  renderToasts()
+  );
+  renderToasts();
 
-  const professional = professionalsCache.find(p => p.id === professionalId)
-  if (!professional) return
+  const professional = professionalsCache.find((p) => p.id === professionalId);
+  if (!professional) return;
 
-  createAvailabilityModal(professional, futureSlots)
+  createAvailabilityModal(professional, futureSlots);
 
-  button.innerHTML = originalText
-  button.disabled = false
+  button.innerHTML = originalText;
+  button.disabled = false;
 }
-
-
-
-
 
 function buildEmptyState(message: string) {
   return `
@@ -540,105 +542,105 @@ function buildEmptyState(message: string) {
       <h3 class="doctors-grid__empty-title">${message}</h3>
       <p class="doctors-grid__empty-desc">Tente novamente em instantes.</p>
     </div>
-  `
+  `;
 }
 
 function hydrateSessionUser() {
-  const session = getSessionFromStorage() ?? authStore.getSession()
-  if (!session) return
+  const session = getSessionFromStorage() ?? authStore.getSession();
+  if (!session) return;
 
-  document.querySelectorAll("[data-user-name]").forEach(element => {
-    element.textContent = session.name
-  })
+  document.querySelectorAll("[data-user-name]").forEach((element) => {
+    element.textContent = session.name;
+  });
 
-  document.querySelectorAll("[data-user-initials]").forEach(element => {
-    element.textContent = getInitials(session.name)
-  })
+  document.querySelectorAll("[data-user-initials]").forEach((element) => {
+    element.textContent = getInitials(session.name);
+  });
 }
 
 function redirectToLogin() {
-  window.location.href = getBasePath() + "login.html"
+  window.location.href = getBasePath() + "login.html";
 }
 
 function getSessionFromStorage(): UserSession | null {
   try {
-    const stored = sessionStorage.getItem("medclinic-session")
-    return stored ? (JSON.parse(stored) as UserSession) : null
+    const stored = sessionStorage.getItem("medclinic-session");
+    return stored ? (JSON.parse(stored) as UserSession) : null;
   } catch (error) {
-    console.warn("Não foi possível ler a sessão armazenada.", error)
-    return null
+    console.warn("Não foi possível ler a sessão armazenada.", error);
+    return null;
   }
 }
 
 function getBasePath() {
-  return window.location.pathname.includes("/pages/") ? "" : "pages/"
+  return window.location.pathname.includes("/pages/") ? "" : "pages/";
 }
 
 function getInitials(name: string) {
   return name
     .split(" ")
     .filter(Boolean)
-    .map(part => part[0])
+    .map((part) => part[0])
     .slice(0, 2)
     .join("")
-    .toUpperCase()
+    .toUpperCase();
 }
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(value)
+  }).format(value);
 }
 
 function renderToasts() {
-  if (!toastContainer) return
-  toastContainer.innerHTML = ""
-  uiStore.getToasts().forEach(toast => {
-    const toastElement = document.createElement("div")
-    toastElement.className = `toast-item toast-item-${toast.level || 'info'}`
-    toastElement.textContent = toast.text
-    toastContainer.appendChild(toastElement)
-  })
+  if (!toastContainer) return;
+  toastContainer.innerHTML = "";
+  uiStore.getToasts().forEach((toast) => {
+    const toastElement = document.createElement("div");
+    toastElement.className = `toast-item toast-item-${toast.level || "info"}`;
+    toastElement.textContent = toast.text;
+    toastContainer.appendChild(toastElement);
+  });
 }
 
 function formatDate(date: string) {
-  const parsed = new Date(`${date}T00:00:00`)
+  const parsed = new Date(`${date}T00:00:00`);
   return parsed.toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
-  })
+  });
 }
 
 function clearFilters() {
-  filters.specialty = ""
-  filters.name = ""
+  filters.specialty = "";
+  filters.name = "";
 
-  if (searchInput) searchInput.value = ""
+  if (searchInput) searchInput.value = "";
 
   const specialtySelect = document.getElementById(
     "filter-specialty",
-  ) as HTMLSelectElement | null
+  ) as HTMLSelectElement | null;
   const nameInput = document.getElementById(
     "filter-name",
-  ) as HTMLInputElement | null
+  ) as HTMLInputElement | null;
 
-  if (specialtySelect) specialtySelect.value = ""
-  if (nameInput) nameInput.value = ""
+  if (specialtySelect) specialtySelect.value = "";
+  if (nameInput) nameInput.value = "";
 
-  loadProfessionals()
+  loadProfessionals();
 }
 function createCheckoutModal(
   professional: ProfessionalSummary,
   date: string,
   time: string,
 ) {
-  const existing = document.getElementById("checkout-modal")
-  if (existing) existing.remove()
+  const existing = document.getElementById("checkout-modal");
+  if (existing) existing.remove();
 
-  const modal = document.createElement("div")
-  modal.id = "checkout-modal"
-  modal.className = "checkout-modal-overlay"
+  const modal = document.createElement("div");
+  modal.id = "checkout-modal";
+  modal.className = "checkout-modal-overlay";
 
   modal.innerHTML = `
     <div class="checkout-modal">
@@ -656,7 +658,7 @@ function createCheckoutModal(
           </div>
           <div class="checkout-summary__info">
             <h4>${professional.name}</h4>
-            <p>${professional.specialty}</p>
+            <p>${formatSpecialty(professional.specialty)}</p>
           </div>
         </div>
 
@@ -676,10 +678,11 @@ function createCheckoutModal(
           <div class="checkout-details__divider"></div>
           <div class="checkout-details__row">
             <span class="checkout-details__total-label">Valor Total</span>
-            <span class="checkout-details__total-value">${professional.consultation_price
-      ? formatCurrency(professional.consultation_price)
-      : "A confirmar"
-    }</span>
+            <span class="checkout-details__total-value">${
+              professional.consultation_price
+                ? formatCurrency(professional.consultation_price)
+                : "A confirmar"
+            }</span>
           </div>
         </div>
 
@@ -711,30 +714,29 @@ function createCheckoutModal(
         </button>
       </div>
     </div>
-  `
+  `;
 
-  modal.querySelector("[data-action='close-checkout']")?.addEventListener(
-    "click",
-    () => {
-      modal.remove()
-    },
-  )
+  modal
+    .querySelector("[data-action='close-checkout']")
+    ?.addEventListener("click", () => {
+      modal.remove();
+    });
 
   const confirmButton = modal.querySelector(
     "[data-action='checkout-confirm']",
-  ) as HTMLButtonElement | null
+  ) as HTMLButtonElement | null;
 
   confirmButton?.addEventListener("click", async () => {
-    if (!confirmButton) return
-    const originalText = confirmButton.textContent
-    confirmButton.disabled = true
-    confirmButton.textContent = "Confirmando..."
+    if (!confirmButton) return;
+    const originalText = confirmButton.textContent;
+    confirmButton.disabled = true;
+    confirmButton.textContent = "Confirmando...";
 
     try {
-      const session = await resolveSession()
+      const session = await resolveSession();
       if (!session) {
-        redirectToLogin()
-        return
+        redirectToLogin();
+        return;
       }
 
       const response = await createAppointment({
@@ -744,108 +746,117 @@ function createCheckoutModal(
         time,
         type: "presencial",
         price: professional.consultation_price ?? 0,
-      })
+      });
 
       if (!response.success) {
         const errorMessage = response.error
           ? mapAppointmentError(response.error)
-          : "Não foi possível confirmar o agendamento."
-        uiStore.addToast("error", errorMessage)
-        renderToasts()
-        return
+          : "Não foi possível confirmar o agendamento.";
+        uiStore.addToast("error", errorMessage);
+        renderToasts();
+        return;
       }
 
       uiStore.addToast(
         "success",
         `Agendamento confirmado para ${formatDateFull(date)} às ${time}.`,
-      )
-      renderToasts()
-      modal.remove()
+      );
+      renderToasts();
+      modal.remove();
 
       // Force reload of appointments list with fresh data
-      await loadPatientAppointments(false)
+      await loadPatientAppointments(false);
 
       // Reload dashboard for patient dashboard page
-      await dashboardStore.loadData()
+      await dashboardStore.loadData();
     } finally {
-      confirmButton.disabled = false
-      confirmButton.textContent = originalText ?? "Pagar e Confirmar"
+      confirmButton.disabled = false;
+      confirmButton.textContent = originalText ?? "Pagar e Confirmar";
     }
-  })
+  });
 
-  document.body.appendChild(modal)
+  document.body.appendChild(modal);
 }
 
 async function handleCancelAppointment(appointmentId: number) {
   const confirmed = confirm(
     "Tem certeza que deseja cancelar este agendamento? Reembolsos podem variar conforme a antecedência.",
-  )
-  if (!confirmed) return
+  );
+  if (!confirmed) return;
 
-  const response = await cancelAppointment(appointmentId)
+  const response = await cancelAppointment(appointmentId);
 
   if (!response.success) {
     const errorMessage = response.error
       ? mapAppointmentError(response.error)
-      : "Não foi possível cancelar o agendamento."
-    uiStore.addToast("error", errorMessage)
-    renderToasts()
-    return
+      : "Não foi possível cancelar o agendamento.";
+    uiStore.addToast("error", errorMessage);
+    renderToasts();
+    return;
   }
 
-  const refundInfo =
-    response.data?.refund
-      ? ` Reembolso de ${response.data.refund.percentage}% (${formatCurrency(response.data.refund.amount)}) será processado.`
-      : ""
+  const refundInfo = response.data?.refund
+    ? ` Reembolso de ${response.data.refund.percentage}% (${formatCurrency(response.data.refund.amount)}) será processado.`
+    : "";
 
-  uiStore.addToast("success", `Agendamento cancelado com sucesso.${refundInfo}`)
-  renderToasts()
-  await loadPatientAppointments(false)
+  uiStore.addToast(
+    "success",
+    `Agendamento cancelado com sucesso.${refundInfo}`,
+  );
+  renderToasts();
+  await loadPatientAppointments(false);
 
   // Reload dashboard for patient dashboard page
-  await dashboardStore.loadData()
+  await dashboardStore.loadData();
 }
 
 function formatDateFull(date: string) {
-  const parsed = new Date(`${date}T12:00:00`)
+  const parsed = new Date(`${date}T12:00:00`);
   return parsed.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "2-digit",
     month: "long",
     year: "numeric",
-  })
+  });
 }
 
 function createAvailabilityModal(
   professional: ProfessionalSummary,
   availability: ProfessionalAvailabilityEntry[],
 ) {
-  const existing = document.getElementById("availability-modal")
-  if (existing) existing.remove()
+  const existing = document.getElementById("availability-modal");
+  if (existing) existing.remove();
 
   // Group slots by date
-  const slotsByDate = availability.reduce((acc, slot) => {
-    if (!acc[slot.date]) {
-      acc[slot.date] = []
-    }
-    acc[slot.date].push(slot)
-    return acc
-  }, {} as Record<string, typeof availability>)
+  const slotsByDate = availability.reduce(
+    (acc, slot) => {
+      if (!acc[slot.date]) {
+        acc[slot.date] = [];
+      }
+      acc[slot.date].push(slot);
+      return acc;
+    },
+    {} as Record<string, typeof availability>,
+  );
 
-  const modal = document.createElement("div")
-  modal.id = "availability-modal"
-  modal.className = "availability-modal-overlay"
+  const modal = document.createElement("div");
+  modal.id = "availability-modal";
+  modal.className = "availability-modal-overlay";
 
   // Generate HTML for grouped slots
   // Generate HTML for grouped slots
-  const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
+  const slotsHtml = Object.entries(slotsByDate)
+    .map(
+      ([date, slots]) => `
     <div class="slots-group">
       <h4 class="slots-date-header">
         <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">calendar_month</span>
         <span style="text-transform: capitalize;">${formatDateFull(date)}</span>
       </h4>
       <div class="slots-grid">
-        ${slots.map(slot => `
+        ${slots
+          .map(
+            (slot) => `
           <button
             class="slot-btn"
             data-action="select-slot"
@@ -854,10 +865,14 @@ function createAvailabilityModal(
           >
             <span>${slot.time}</span>
           </button>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </div>
     </div>
-  `).join("")
+  `,
+    )
+    .join("");
 
   modal.innerHTML = `
     <div class="availability-modal">
@@ -886,93 +901,103 @@ function createAvailabilityModal(
         </div>
       </div>
     </div>
-  `
+  `;
 
-  modal.querySelector("[data-action='close-availability']")?.addEventListener(
-    "click",
-    () => {
-      modal.remove()
-    },
-  )
+  modal
+    .querySelector("[data-action='close-availability']")
+    ?.addEventListener("click", () => {
+      modal.remove();
+    });
 
-  modal.querySelectorAll("[data-action='select-slot']").forEach(button => {
-    button.addEventListener("click", event => {
-      const target = event.currentTarget as HTMLButtonElement
-      const selectedDate = target.dataset.slotDate
-      const selectedTime = target.dataset.slotTime
+  modal.querySelectorAll("[data-action='select-slot']").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const target = event.currentTarget as HTMLButtonElement;
+      const selectedDate = target.dataset.slotDate;
+      const selectedTime = target.dataset.slotTime;
 
-      if (!selectedDate || !selectedTime) return
+      if (!selectedDate || !selectedTime) return;
 
-      createCheckoutModal(professional, selectedDate, selectedTime)
-      modal.remove()
-    })
-  })
+      createCheckoutModal(professional, selectedDate, selectedTime);
+      modal.remove();
+    });
+  });
 
-  document.body.appendChild(modal)
+  document.body.appendChild(modal);
 }
 
-async function handleRescheduleClick(appointmentId: number, professionalId: number) {
+async function handleRescheduleClick(
+  appointmentId: number,
+  professionalId: number,
+) {
   const response = await getProfessionalAvailability(professionalId, {
     daysAhead: 7,
-  })
+  });
 
   if (!response.success || !response.data) {
     uiStore.addToast(
       "error",
-      response.error?.message ?? "Não foi possível carregar os horários disponíveis.",
-    )
-    renderToasts()
-    return
+      response.error?.message ??
+        "Não foi possível carregar os horários disponíveis.",
+    );
+    renderToasts();
+    return;
   }
 
   const futureSlots = response.data
-    .filter(slot => slot.is_available)
-    .filter(slot => {
-      const slotDate = new Date(`${slot.date}T${slot.time}`)
-      return slotDate.getTime() > Date.now()
-    })
+    .filter((slot) => slot.is_available)
+    .filter((slot) => {
+      const slotDate = new Date(`${slot.date}T${slot.time}`);
+      return slotDate.getTime() > Date.now();
+    });
 
   if (futureSlots.length === 0) {
     uiStore.addToast(
       "error",
       "Não há horários disponíveis para reagendamento no momento.",
-    )
-    renderToasts()
-    return
+    );
+    renderToasts();
+    return;
   }
 
-  createRescheduleModal(appointmentId, futureSlots)
+  createRescheduleModal(appointmentId, futureSlots);
 }
 
 function createRescheduleModal(
   appointmentId: number,
   availability: ProfessionalAvailabilityEntry[],
 ) {
-  const existing = document.getElementById("reschedule-modal")
-  if (existing) existing.remove()
+  const existing = document.getElementById("reschedule-modal");
+  if (existing) existing.remove();
 
   // Group slots by date
-  const slotsByDate = availability.reduce((acc, slot) => {
-    if (!acc[slot.date]) {
-      acc[slot.date] = []
-    }
-    acc[slot.date].push(slot)
-    return acc
-  }, {} as Record<string, typeof availability>)
+  const slotsByDate = availability.reduce(
+    (acc, slot) => {
+      if (!acc[slot.date]) {
+        acc[slot.date] = [];
+      }
+      acc[slot.date].push(slot);
+      return acc;
+    },
+    {} as Record<string, typeof availability>,
+  );
 
-  const modal = document.createElement("div")
-  modal.id = "reschedule-modal"
-  modal.className = "availability-modal-overlay"
+  const modal = document.createElement("div");
+  modal.id = "reschedule-modal";
+  modal.className = "availability-modal-overlay";
 
   // Generate HTML for grouped slots
-  const slotsHtml = Object.entries(slotsByDate).map(([date, slots]) => `
+  const slotsHtml = Object.entries(slotsByDate)
+    .map(
+      ([date, slots]) => `
     <div class="slots-group">
       <h4 class="slots-date-header">
         <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">calendar_month</span>
         <span style="text-transform: capitalize;">${formatDateFull(date)}</span>
       </h4>
       <div class="slots-grid">
-        ${slots.map(slot => `
+        ${slots
+          .map(
+            (slot) => `
           <button
             class="slot-btn"
             data-action="select-reschedule-slot"
@@ -981,10 +1006,14 @@ function createRescheduleModal(
           >
             <span>${slot.time}</span>
           </button>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </div>
     </div>
-  `).join("")
+  `,
+    )
+    .join("");
 
   modal.innerHTML = `
     <div class="availability-modal">
@@ -1013,27 +1042,28 @@ function createRescheduleModal(
         </div>
       </div>
     </div>
-  `
+  `;
 
-  modal.querySelector("[data-action='close-reschedule']")?.addEventListener(
-    "click",
-    () => {
-      modal.remove()
-    },
-  )
+  modal
+    .querySelector("[data-action='close-reschedule']")
+    ?.addEventListener("click", () => {
+      modal.remove();
+    });
 
-  modal.querySelectorAll("[data-action='select-reschedule-slot']").forEach(button => {
-    button.addEventListener("click", async event => {
-      const target = event.currentTarget as HTMLButtonElement
-      const newDate = target.dataset.slotDate
-      const newTime = target.dataset.slotTime
-      if (!newDate || !newTime) return
+  modal
+    .querySelectorAll("[data-action='select-reschedule-slot']")
+    .forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const target = event.currentTarget as HTMLButtonElement;
+        const newDate = target.dataset.slotDate;
+        const newTime = target.dataset.slotTime;
+        if (!newDate || !newTime) return;
 
-      await handleRescheduleConfirm(appointmentId, newDate, newTime, modal)
-    })
-  })
+        await handleRescheduleConfirm(appointmentId, newDate, newTime, modal);
+      });
+    });
 
-  document.body.appendChild(modal)
+  document.body.appendChild(modal);
 }
 
 async function handleRescheduleConfirm(
@@ -1044,33 +1074,33 @@ async function handleRescheduleConfirm(
 ) {
   const confirmed = confirm(
     `Confirmar reagendamento para ${formatDateFull(newDate)} às ${newTime}?`,
-  )
-  if (!confirmed) return
+  );
+  if (!confirmed) return;
 
   const response = await rescheduleAppointment(appointmentId, {
     newDate,
     newTime,
-  })
+  });
 
   if (!response.success) {
     const errorMessage = response.error
       ? mapAppointmentError(response.error)
-      : "Não foi possível reagendar o agendamento."
-    uiStore.addToast("error", errorMessage)
-    renderToasts()
-    return
+      : "Não foi possível reagendar o agendamento.";
+    uiStore.addToast("error", errorMessage);
+    renderToasts();
+    return;
   }
 
   uiStore.addToast(
     "success",
     `Consulta reagendada com sucesso para ${formatDateFull(newDate)} às ${newTime}.`,
-  )
-  renderToasts()
-  modal.remove()
-  await loadPatientAppointments(false)
+  );
+  renderToasts();
+  modal.remove();
+  await loadPatientAppointments(false);
 
   // Reload dashboard for patient dashboard page
-  await dashboardStore.loadData()
+  await dashboardStore.loadData();
 }
 
-(window as Window & { clearFilters?: () => void }).clearFilters = clearFilters
+(window as Window & { clearFilters?: () => void }).clearFilters = clearFilters;

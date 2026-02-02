@@ -1,4 +1,4 @@
-import "../../css/pages/doctor-dashboard.css"
+import "../../css/pages/doctor-dashboard.css";
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
 import { listAppointments } from "../services/appointmentsService";
@@ -26,6 +26,7 @@ import type {
   AvailabilityInput,
   CommissionsResponse,
 } from "../types/professionals";
+import { formatSpecialty } from "../utils/formatters";
 
 const MAX_AUTOCOMPLETE_RESULTS = 6;
 let appointmentAutocompleteCache: AppointmentSummary[] = [];
@@ -149,7 +150,7 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
           <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
           <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
         </div>
-      `
+      `;
     }
     return;
   }
@@ -167,27 +168,28 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
       <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
       <div class="u-mb-15">
         <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
-        <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
+        <p class="u-text-secondary">Consulta • ${formatSpecialty(nextAppointment.specialty) || "Profissional"}</p>
       </div>
       
       <div class="u-flex u-gap-medium u-mb-20">
         <span class="u-flex u-items-center u-gap-small u-text-secondary">
           <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
         </span>
-        ${nextAppointment.room
-        ? `
+        ${
+          nextAppointment.room
+            ? `
           <span class="u-flex u-items-center u-gap-small u-text-secondary">
             <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
         `
-        : ""
-      }
+            : ""
+        }
       </div>
       
       <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
         Iniciar Atendimento
       </button>
-    `
+    `;
   }
 }
 
@@ -205,8 +207,8 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
       <li class="list-item-row u-justify-between u-items-center">
         <span class="u-text-secondary u-fs-sm">Nenhum paciente na fila</span>
       </li>
-    `
-    return
+    `;
+    return;
   }
 
   queueList.innerHTML = sortedAppointments
@@ -220,7 +222,7 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
       </li>
     `,
     )
-    .join("")
+    .join("");
 }
 
 function dedupeAppointments(appointments: AppointmentSummary[]) {
@@ -686,9 +688,9 @@ function showAvailabilityModal(professionalId: number) {
       const patientName = appointment.patient_name || "Paciente";
       button.innerHTML = `
         <span class="font-semibold text-white">${highlightMatch(
-        patientName,
-        query,
-      )}</span>
+          patientName,
+          query,
+        )}</span>
         <span class="text-xs text-slate-400">
           ${appointment.date} • ${appointment.time}
         </span>
@@ -1578,8 +1580,10 @@ function renderWeeklyGrid(
       const card = document.createElement("div");
 
       let statusClass = "agenda-event-card--scheduled";
-      if (app.status === "completed") statusClass = "agenda-event-card--completed";
-      if (app.status === "cancelled") statusClass = "agenda-event-card--cancelled";
+      if (app.status === "completed")
+        statusClass = "agenda-event-card--completed";
+      if (app.status === "cancelled")
+        statusClass = "agenda-event-card--cancelled";
 
       card.className = `agenda-event-card ${statusClass}`;
       card.style.top = `${top}px`;

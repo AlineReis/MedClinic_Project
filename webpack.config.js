@@ -10,7 +10,7 @@ module.exports = (env, argv) => {
     "patient-dashboard.html",
     "reception-dashboard.html",
     "doctor-dashboard.html",
-    "lab-dashboard.html",
+    // "lab-dashboard.html", // Removed
     "manager-dashboard.html",
     "admin-dashboard.html",
     "users.html",
@@ -31,12 +31,12 @@ module.exports = (env, argv) => {
       doctorDashboard: "./src/pages/doctorDashboard.ts",
       receptionDashboard: "./src/pages/receptionDashboard.ts",
       adminDashboard: "./src/pages/adminDashboard.ts",
-      managerDashboard: './src/pages/managerDashboard.ts',
+      managerDashboard: "./src/pages/managerDashboard.ts",
       usersPage: "./src/pages/usersPage.ts",
       agenda: "./src/pages/agenda.ts",
       dashboard: "./src/pages/dashboard.ts",
       pep: "./src/pages/pep.ts",
-      labDashboard: "./src/pages/labDashboard.ts",
+      // labDashboard: "./src/pages/labDashboard.ts",
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -147,8 +147,9 @@ module.exports = (env, argv) => {
                 ? ["receptionDashboard"]
                 : []),
               ...(page === "admin-dashboard.html" ? ["adminDashboard"] : []),
-              ...(page === 'manager-dashboard.html' ? ['managerDashboard'] : []),
-              ...(page === "lab-dashboard.html" ? ["labDashboard"] : []),
+              ...(page === "manager-dashboard.html"
+                ? ["managerDashboard"]
+                : []),
               ...(page === "users.html" ? ["usersPage"] : []),
             ],
             publicPath: "/",
