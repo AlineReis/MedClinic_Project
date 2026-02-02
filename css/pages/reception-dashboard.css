@@ -20,8 +20,6 @@
     display: flex;
   }
 }
-
-<<<<<<< HEAD
 .sidebar-header {
   height: 4rem;
   /* h-16 */
@@ -136,8 +134,6 @@
   /* red-400 */
 }
 
-=======
->>>>>>> origin/final-semantic-audit-complete
 /* 3. Main Content & Header */
 .reception-main {
   flex: 1 1 0%;
