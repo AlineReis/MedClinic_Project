@@ -371,3 +371,18 @@ export async function completeAppointment(
 
   return response;
 }
+
+export async function startAppointment(
+  appointmentId: number,
+): Promise<ApiResponse<{ message: string }>> {
+  const response = await request<{ message: string }>(
+    `/appointments/${appointmentId}/start`,
+    "POST",
+  );
+
+  if (response.success) {
+    clearAppointmentsCache();
+  }
+
+  return response;
+}
