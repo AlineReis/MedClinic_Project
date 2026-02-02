@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sidebar = new Sidebar({
     brand: {
       name: 'MedClinic',
-      icon: 'local_hospital',
+      icon: '../assets/icons/icon-plus.png',
       href: '#'
     },
     items: sidebarItems,

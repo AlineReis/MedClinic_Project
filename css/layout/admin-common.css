@@ -54,15 +54,22 @@
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background-color: var(--primary);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(25, 127, 230, 0.3);
+  box-shadow: none;
 }
 
 .brand-icon-box .material-symbols-outlined {
   color: #ffffff;
+}
+
+.brand-icon-box img {
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
 }
 
 .brand-name {
