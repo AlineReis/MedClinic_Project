@@ -467,6 +467,7 @@ function formatStatus(status: string) {
     completed: "Realizada",
     cancelled_by_patient: "Cancelada",
     cancelled_by_clinic: "Cancelada",
+    waiting: "Aguardando",
   }
 
   return map[status] ?? status

@@ -53,6 +53,10 @@
   /* slightly darker header */
 }
 
+:root[data-theme="light"] .exams-table__header {
+  background-color: #ffffff;
+}
+
 .exams-table__th {
   padding: 1rem 1.5rem;
   text-align: left;
