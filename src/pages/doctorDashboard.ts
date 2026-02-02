@@ -2,7 +2,7 @@ import "../../css/pages/doctor-dashboard.css"
 import { Navigation } from "../components/Navigation";
 import { MobileSidebar } from "../components/MobileSidebar";
 import { ToastContainer } from "../components/ToastContainer";
-import { listAppointments, startAppointment } from "../services/appointmentsService";
+import { listAppointments, startAppointment, completeAppointment } from "../services/appointmentsService";
 import { createExam, listCatalog } from "../services/examsService";
 import {
   createPrescription,
@@ -88,7 +88,14 @@ async function initDoctorDashboard() {
     const response = await startAppointment(id);
     
     if (response.success) {
-      window.location.href = `pep.html?id=${id}`;
+      uiStore.addToast("success", "Atendimento iniciado!");
+      if (btn) {
+         btn.disabled = true; // Keep disabled or change to "Finalizar" if we implement that next
+         btn.textContent = "Em Atendimento";
+         // Refresh dashboard to likely update UI
+         const user = authStore.getSession();
+         if (user?.id) loadUpcomingAppointments(user.id);
+      }
     } else {
       uiStore.addToast("error", response.error?.message || "Erro ao iniciar atendimento");
       if (btn) {
@@ -103,6 +110,40 @@ async function initDoctorDashboard() {
     if (btn) {
       btn.disabled = false;
       btn.textContent = "Iniciar Atendimento";
+    }
+  }
+};
+
+// Make handleCompleteAttendance available globally
+(window as any).handleCompleteAttendance = async (id: number) => {
+  try {
+    const btn = document.querySelector(`.btn-patient-finish`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Finalizando...";
+    }
+
+    const response = await completeAppointment(id);
+    
+    if (response.success) {
+      uiStore.addToast("success", "Atendimento finalizado!");
+      // Refresh dashboard to show next patient
+      const user = authStore.getSession();
+      if (user?.id) loadUpcomingAppointments(user.id);
+    } else {
+      uiStore.addToast("error", response.error?.message || "Erro ao finalizar atendimento");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Finalizar Atendimento";
+      }
+    }
+  } catch (error) {
+    console.error("Error completing appointment:", error);
+    uiStore.addToast("error", "Erro ao finalizar atendimento");
+    const btn = document.querySelector(`.btn-patient-finish`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Finalizar Atendimento";
     }
   }
 };
@@ -222,9 +263,19 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
           }
         </div>
         
-        <button onclick="window.handleStartAttendance(${nextAppointment.id})" class="btn-patient-start">
-          Iniciar Atendimento
-        </button>
+        ${
+          nextAppointment.status === "in_progress"
+            ? `
+            <button onclick="window.handleCompleteAttendance(${nextAppointment.id})" class="btn-patient-finish" style="background-color: var(--success); color: white; width: 100%; border: none; padding: 0.75rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">
+              Finalizar Atendimento
+            </button>
+            `
+            : `
+            <button onclick="window.handleStartAttendance(${nextAppointment.id})" class="btn-patient-start">
+              Iniciar Atendimento
+            </button>
+            `
+        }
       `;
   }
 }
