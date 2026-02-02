@@ -119,6 +119,10 @@
   align-items: center;
 }
 
+:root[data-theme="light"] .professional-card__footer {
+  background-color: #ffffff;
+}
+
 .professional-card__price {
   display: flex;
   flex-direction: column;
