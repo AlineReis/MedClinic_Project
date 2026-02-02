@@ -34,12 +34,11 @@ initTheme();
 console.log("login.ts bundle loaded")
 
 if (loginForm && emailInput && passwordInput && roleSelect) {
-  roleSelect.addEventListener("change", () => {
+   roleSelect.addEventListener("change", () => {
     applyRoleCredentials(roleSelect.value as UserRole)
   })
 
   applyRoleCredentials(roleSelect.value as UserRole)
-
   loginForm.addEventListener("submit", async event => {
     event.preventDefault()
 

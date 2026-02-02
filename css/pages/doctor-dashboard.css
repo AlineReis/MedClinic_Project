@@ -835,8 +835,8 @@
   border: 1px solid var(--border-dark);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-    color: var(--text-secondary);
-    outline: none;
+  color: var(--text-secondary);
+  outline: none;
 }
 
 .doctor-modal-textarea {

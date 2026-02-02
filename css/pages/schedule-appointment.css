@@ -196,6 +196,7 @@ select.search-input-field option {
   border: 1px solid var(--border-dark);
 }
 
+
 /* 4. Notification Panel (Refined) */
 .notification-panel {
   background: linear-gradient(135deg,
