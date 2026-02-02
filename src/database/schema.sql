@@ -213,6 +213,7 @@ CREATE TABLE IF NOT EXISTS exam_requests (
     requesting_professional_id INTEGER NOT NULL,
     exam_catalog_id INTEGER NOT NULL,
     clinical_indication TEXT NOT NULL, -- RN-09: Justificativa obrigatoria
+    urgency TEXT NOT NULL CHECK (urgency IN ('normal', 'urgent', 'critical')) DEFAULT 'normal',
     price REAL NOT NULL CHECK (price >= 0), -- Preco CONGELADO do catalogo
     status TEXT DEFAULT 'pending_payment' CHECK (status IN (
         'pending_payment',

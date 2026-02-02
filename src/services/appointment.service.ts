@@ -321,13 +321,15 @@ export class AppointmentService {
     async completeAppointment(id: number, userId: number, userRole: string): Promise<void> {
         const appointment = await this.getAppointmentById(id);
 
-        // Only the assigned professional can complete
-        if (userRole !== 'health_professional' || appointment.professional_id !== userId) {
+        // Only the assigned professional can complete, unless admin
+        const isAdmin = ['clinic_admin', 'system_admin'].includes(userRole);
+        
+        if (!isAdmin && (userRole !== 'health_professional' || appointment.professional_id !== userId)) {
             throw new ForbiddenError("Apenas o profissional responsável pode concluir a consulta.");
         }
 
-        if (appointment.status !== 'in_progress') {
-            throw new ValidationError("Apenas agendamentos 'em andamento' podem ser concluídos.", "status");
+        if (appointment.status !== 'in_progress' && !isAdmin) {
+             throw new ValidationError("Apenas agendamentos 'em andamento' podem ser concluídos.", "status");
         }
 
         await this.appointmentRepository.updateStatus(id, 'completed');
