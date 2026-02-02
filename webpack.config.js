@@ -14,7 +14,8 @@ module.exports = (env, argv) => {
     'manager-dashboard.html',
     'admin-dashboard.html',
     'users.html',
-    'financial.html'
+    'financial.html',
+    'admin-users.html'
   ];
 
   return {
@@ -32,6 +33,7 @@ module.exports = (env, argv) => {
       receptionDashboard: './src/pages/receptionDashboard.ts',
       adminDashboard: './src/pages/adminDashboard.ts',
       usersPage: './src/pages/usersPage.ts',
+      adminUsersPage: './src/pages/adminUsersPage.ts', // New separated entry
       managerDashboard: './src/pages/managerDashboard.ts',
       financialPage: './src/pages/financialPage.ts',
       teamPage: './src/pages/teamPage.ts',
@@ -143,7 +145,8 @@ module.exports = (env, argv) => {
                 ? ['managerDashboard']
                 : []),
               ...(page === 'financial.html' ? ['financialPage'] : []),
-              ...(page === 'users.html' ? ['usersPage', 'teamPage'] : [])
+              ...(page === 'users.html' ? ['usersPage', 'teamPage'] : []),
+              ...(page === 'admin-users.html' ? ['adminUsersPage'] : [])
             ],
             publicPath: '/'
           })

@@ -82,7 +82,10 @@ export async function listUsers(
   const query = buildUserQuery(filters)
   const response = await request<UsersListApiResponse>(`/users${query}`)
 
-  if (!response.success || !response.data) {
+  // Cast response to any to access 'users' field directly (Backend non-standard response)
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.users) {
     return {
       success: false,
       error: response.error || {
@@ -94,13 +97,20 @@ export async function listUsers(
   }
 
   // Map API response to domain types
-  const users = response.data.data.map(mapUserSummary)
+  // Backend returns { users: { items, ... } }
+  const backendList = rawResponse.users;
+  const users = backendList.items.map(mapUserSummary)
 
   return {
     success: true,
     data: {
       users,
-      pagination: response.data.pagination,
+      pagination: {
+        total: backendList.total,
+        page: backendList.page,
+        pageSize: backendList.pageSize,
+        totalPages: backendList.totalPages,
+      },
     },
   }
 }
@@ -121,7 +131,10 @@ export async function listUsers(
 export async function getUserById(userId: number): Promise<ApiResponse<UserDetail>> {
   const response = await request<UserDetailApiResponse>(`/users/${userId}`)
 
-  if (!response.success || !response.data) {
+  // Cast response to any because backend returns { user: ... } not inside data wrapper when using apiService
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.user) {
     return {
       success: false,
       error: response.error || {
@@ -134,7 +147,7 @@ export async function getUserById(userId: number): Promise<ApiResponse<UserDetai
 
   return {
     success: true,
-    data: mapUserDetail(response.data.user),
+    data: mapUserDetail(rawResponse.user),
   }
 }
 
@@ -150,7 +163,9 @@ export async function getUserById(userId: number): Promise<ApiResponse<UserDetai
 export async function createUser(payload: CreateUserPayload): Promise<ApiResponse<UserDetail>> {
   const response = await request<UserDetailApiResponse>('/users', 'POST', payload);
 
-  if (!response.success || !response.data) {
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.user) {
     return {
       success: false,
       error: response.error || {
@@ -163,7 +178,7 @@ export async function createUser(payload: CreateUserPayload): Promise<ApiRespons
 
   return {
     success: true,
-    data: mapUserDetail(response.data.user)
+    data: mapUserDetail(rawResponse.user)
   };
 }
 
@@ -183,7 +198,9 @@ export async function updateUser(
 ): Promise<ApiResponse<UserDetail>> {
   const response = await request<UpdateUserApiResponse>(`/users/${userId}`, "PUT", payload)
 
-  if (!response.success || !response.data) {
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.user) {
     return {
       success: false,
       error: response.error || {
@@ -196,7 +213,7 @@ export async function updateUser(
 
   return {
     success: true,
-    data: mapUserDetail(response.data.user),
+    data: mapUserDetail(rawResponse.user),
   }
 }
 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Usuários e Acessos - MedClinic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../css/base/reset.css">
+  <link rel="stylesheet" href="../css/base/variables.css">
+  <link rel="stylesheet" href="../css/base/typography.css">
+  <link rel="stylesheet" href="../css/base/utilities.css">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/layout/admin-common.css">
+  <link rel="stylesheet" href="../css/components/forms.css">
+  <link rel="stylesheet" href="../css/components/buttons.css">
+  <link rel="stylesheet" href="../css/components/modals.css">
+</head>
+
+<body class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-header">
+      <a href="#" class="admin-sidebar-brand">
+        <div class="brand-icon-box">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+        <span class="brand-name">MedClinic Team</span>
+      </a>
+    </div>
+    <nav class="admin-sidebar-nav">
+      <a class="admin-nav-item" href="manager-dashboard.html">
+        <span class="material-symbols-outlined">dashboard</span>
+        Dashboard
+      </a>
+      <a class="admin-nav-item" href="financial.html">
+        <span class="material-symbols-outlined">payments</span>
+        Financeiro
+      </a>
+      <a class="admin-nav-item active" href="admin-users.html">
+        <span class="material-symbols-outlined">group</span>
+        Equipe
+      </a>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="login.html" class="admin-logout-link">
+        <span class="material-symbols-outlined">logout</span> Sair
+      </a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <h2 class="admin-header-title">Gestão de Equipe</h2>
+
+      <div class="header-info-right">
+        <button class="btn-admin-primary">
+          <span class="material-symbols-outlined">person_add</span>
+          Novo Usuário
+        </button>
+        <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
+      </div>
+    </header>
+
+    <div class="admin-content-viewport custom-scrollbar">
+      <div class="admin-container-max admin-content-stack">
+
+        <!-- Filters -->
+        <div class="users-filters-panel">
+          <div class="search-input-wrapper">
+            <span class="material-symbols-outlined">search</span>
+            <input class="admin-input" data-search-input placeholder="Buscar por nome ou e-mail..." type="text" />
+          </div>
+          <select class="input input--sm" data-role-filter>
+            <option value="all">Todos os Níveis</option>
+            <option value="health_professional">Médico</option>
+            <option value="receptionist">Recepcionista</option>
+            <option value="lab_tech">Téc. Laboratório</option>
+            <option value="clinic_admin">Gestor</option>
+          </select>
+        </div>
+
+        <!-- Users Table -->
+        <section class="admin-table-panel">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Usuário</th>
+                <th>E-mail</th>
+                <th>Acesso</th>
+                <th>Status</th>
+                <th class="cell-actions">Ações</th>
+              </tr>
+            </thead>
+            <tbody data-users-table-body>
+              <tr>
+                <td colspan="5" class="text-center" style="padding: 2rem; color: var(--text-secondary);">Carregando
+                  equipe...</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+
+</body>
+
+</html>

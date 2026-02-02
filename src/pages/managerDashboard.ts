@@ -68,10 +68,14 @@ async function loadOperationalData() {
 }
 
 function updateTodayKPIs(appointments: any[]) {
-    const total = appointments.length;
-    const completed = appointments.filter(a => a.status === 'completed').length;
-    const pending = appointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length;
-    const inProgress = appointments.filter(a => a.status === 'in_progress').length;
+    // Filter out cancelled for statistics
+    const activeAppointments = appointments.filter(a => !a.status.includes('cancelled'));
+    
+    const total = activeAppointments.length;
+    const completed = activeAppointments.filter(a => a.status === 'completed').length;
+    const pending = activeAppointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length;
+    const inProgress = activeAppointments.filter(a => a.status === 'in_progress').length;
+
 
     setText('kpi-today-count', total.toString());
     setText('kpi-completed-count', completed.toString());

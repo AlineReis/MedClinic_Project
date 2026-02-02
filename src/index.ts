@@ -34,6 +34,7 @@ authReadyPromise.then(session => {
     "/pages/exams.html",
     "/pages/financial.html",
     "/pages/users.html",
+    "/pages/admin-users.html",
   ])
   if (session) {
     const target = roleRoutes[session.role] ?? "/"

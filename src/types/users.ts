@@ -89,8 +89,9 @@ export interface UpdateUserPayload {
 export interface CreateUserPayload {
   name: string
   email: string
-  password?: string // Optional if backend generates it or handled otherwise, but usually required
+  password?: string
   role: UserRole
+  cpf: string
   phone?: string
   // Professional fields
   specialty?: string
