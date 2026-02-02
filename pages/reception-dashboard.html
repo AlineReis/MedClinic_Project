@@ -14,23 +14,25 @@
     <link rel="stylesheet" href="../css/base/typography.css">
     <link rel="stylesheet" href="../css/base/utilities.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/pages/reception-dashboard.css">
 </head>
 
 <body class="reception-layout dashboard-body">
     <!-- Sidebar -->
+<<<<<<< HEAD
     <aside class="reception-sidebar">
         <div class="sidebar-header">
-            <img class="sidebar-logo-icon" src="../assets/icons/icon-plus.png" alt="" aria-hidden="true" width="24"
-                height="24" />
+            <img class="sidebar-logo-icon" src="../assets/icons/icon-plus.png" alt="" aria-hidden="true" width="24" height="24" />
             <h1 class="sidebar-logo-text">MedClinic</h1>
         </div>
         <nav class="sidebar-nav">
             <a class="nav-item nav-item-active" href="#">
                 <span class="material-symbols-outlined">dashboard</span> Painel
             </a>
-            <a class="nav-item" href="patients.html">
-                <span class="material-symbols-outlined">person</span> Pacientes
+            <a class="nav-item" href="agenda.html">
+                <span class="material-symbols-outlined">calendar_month</span> Agenda Geral
+            </a>
+            <a class="nav-item" href="register.html">
+                <span class="material-symbols-outlined">person_add</span> Novo Paciente
             </a>
         </nav>
         <div class="sidebar-footer">
@@ -39,7 +41,7 @@
                     <span data-user-initials>U</span>
                 </div>
                 <div class="user-info-text">
-                    <span class="user-name-text" data-user-name>Usuario</span>
+                    <span class="user-name-text" data-user-name>Usuário</span>
                     <span class="user-role-text" data-user-role>Recepcionista</span>
                 </div>
             </div>
@@ -47,6 +49,11 @@
                 <span class="material-symbols-outlined">logout</span> Sair
             </button>
         </div>
+=======
+    <!-- Sidebar -->
+    <aside class="reception-sidebar" id="sidebar-container">
+        <!-- Content injected by receptionDashboard.ts -->
+>>>>>>> origin/final-semantic-audit-complete
     </aside>
 
     <main class="reception-main">
@@ -59,10 +66,6 @@
                 <h2 class="header-title">Central de Recepção</h2>
             </div>
             <div class="right-recepcionist-menu">
-                <button id="open-new-appointment-btn" class="btn-primary"
-                    style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                    <span class="material-symbols-outlined" style="font-size: 1.25rem;">add</span> Agendar
-                </button>
                 <button class="theme-toggle" id="theme-toggle" title="Alternar tema"></button>
                 <span class="header-role-badge" data-user-role>Recepcionista</span>
             </div>
@@ -92,11 +95,7 @@
                 <section class="panel-card">
                     <div class="panel-header">
                         <h3 class="panel-title">Próximos Check-ins</h3>
-                        <button id="open-general-agenda-section-btn" class="btn-link-sm"
-                            style="display: flex; align-items: center; gap: 0.25rem;">
-                            <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_month</span> Ver
-                            Agenda
-                        </button>
+                        <button class="btn-link-sm">Ver Todos</button>
                     </div>
                     <table class="data-table">
                         <thead class="table-head">
@@ -105,230 +104,34 @@
                                 <th class="table-header-cell">Horário</th>
                                 <th class="table-header-cell">Profissional</th>
                                 <th class="table-header-cell">Status</th>
-                                <th class="table-header-cell">Check-in</th>
-                                <th class="table-header-cell">Ações</th>
+                                <th class="table-header-cell">Ação</th>
                             </tr>
                         </thead>
                         <tbody class="table-body">
-                            <!-- Injected via JS -->
+                            <tr class="table-row">
+                                <td class="table-cell cell-patient-name">Ricardo Santos</td>
+                                <td class="table-cell cell-time">14:30</td>
+                                <td class="table-cell">Dra. Camila Rodrigues</td>
+                                <td class="table-cell"><span class="status-badge status-badge-amber">AGUARDANDO</span>
+                                </td>
+                                <td class="table-cell"><button class="btn-checkin">CHECK-IN</button></td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell cell-patient-name">Maria Clara Oliveira</td>
+                                <td class="table-cell cell-time">14:45</td>
+                                <td class="table-cell">Dr. Pedro Lima</td>
+                                <td class="table-cell"><span class="status-badge status-badge-muted">PENDENTE</span>
+                                </td>
+                                <td class="table-cell"><button
+                                        class="btn-checkin btn-checkin-disabled">CHECK-IN</button></td>
+                            </tr>
                         </tbody>
                     </table>
-
-                    <!-- Pagination -->
-                    <div class="panel-header"
-                        style="border-top: 1px solid var(--border-dark); border-bottom: none; background-color: rgba(42, 52, 65, 0.1);">
-                        <button id="prev-page-btn" class="btn-link-sm" style="color: var(--text-secondary);">
-                            <span class="material-symbols-outlined">chevron_left</span>
-                        </button>
-                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Página <span
-                                id="current-page-span">1</span></span>
-                        <button id="next-page-btn" class="btn-link-sm" style="color: var(--text-secondary);">
-                            <span class="material-symbols-outlined">chevron_right</span>
-                        </button>
-                    </div>
                 </section>
             </div>
         </div>
     </main>
 
-    <!-- New Appointment Modal -->
-    <div id="new-appointment-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Novo Agendamento</h3>
-                <button class="btn-close-modal close-modal-btn">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form id="new-appointment-form" class="modal-form">
-                <div class="form-group">
-                    <label class="form-label">Paciente</label>
-                    <div style="position: relative;">
-                        <input type="text" id="patient-search" placeholder="Buscar paciente por nome..."
-                            class="form-input">
-                        <input type="hidden" name="patientId" id="selected-patient-id" required>
-                        <div id="patient-search-results" class="search-results-dropdown hidden">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Profissional</label>
-                    <select name="professionalId" required id="professional-select" class="form-select">
-                        <option value="">Selecione um profissional</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Data</label>
-                        <input type="date" name="date" required class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Hora</label>
-                        <input type="time" name="time" required readonly id="appointment-time-input" class="form-input"
-                            style="opacity: 0.5; cursor: not-allowed;">
-                    </div>
-                </div>
-
-                <!-- Availability Slots -->
-                <div id="availability-section" class="hidden">
-                    <label class="form-label" style="margin-bottom: 0.5rem;">Horários Disponíveis (50min)</label>
-                    <div id="availability-slots" class="availability-slots custom-scrollbar">
-                        <!-- Slots injected via JS -->
-                    </div>
-                    <p id="availability-message"
-                        style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Selecione uma data
-                        e profissional para ver horários.</p>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Tipo</label>
-                    <select name="type" required class="form-select">
-                        <option value="presencial">Presencial</option>
-                        <option value="online">Online</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Valor (R$)</label>
-                    <input type="number" name="price" step="0.01" placeholder="0,00" class="form-input">
-                </div>
-
-                <div class="form-row" style="margin-top: 1rem;">
-                    <button type="button" class="btn-secondary-large close-modal-btn">Cancelar</button>
-                    <button type="submit" class="btn-primary">Agendar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Reschedule Appointment Modal -->
-    <div id="reschedule-appointment-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Reagendar Consulta</h3>
-                <button class="btn-close-modal close-modal-btn">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form id="reschedule-appointment-form" class="modal-form">
-                <input type="hidden" name="appointmentId" id="reschedule-appointment-id">
-                <input type="hidden" name="professionalId" id="reschedule-professional-id">
-
-                <div class="form-group">
-                    <label class="form-label">Resumo do Agendamento</label>
-                    <div
-                        style="padding: 1rem; background-color: var(--background-dark); border-radius: 0.75rem; border: 1px solid var(--border-dark);">
-                        <p style="margin: 0; font-weight: 700;" id="reschedule-patient-name">Nome do Paciente</p>
-                        <p style="margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--text-secondary);"
-                            id="reschedule-professional-name">Profissional</p>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Nova Data</label>
-                        <input type="date" name="newDate" required class="form-input" id="reschedule-date-input">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nova Hora</label>
-                        <input type="time" name="newTime" required readonly id="reschedule-time-input"
-                            class="form-input" style="opacity: 0.5; cursor: not-allowed;">
-                    </div>
-                </div>
-
-                <!-- Availability Slots (Reschedule) -->
-                <div id="reschedule-availability-section" class="hidden">
-                    <label class="form-label" style="margin-bottom: 0.5rem;">Horários Disponíveis</label>
-                    <div id="reschedule-availability-slots" class="availability-slots custom-scrollbar">
-                        <!-- Slots injected via JS -->
-                    </div>
-                    <p id="reschedule-availability-message"
-                        style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Selecione uma data
-                        para ver horários.</p>
-                </div>
-
-                <div class="form-row" style="margin-top: 1rem;">
-                    <button type="button" class="btn-secondary-large close-modal-btn">Cancelar</button>
-                    <button type="submit" class="btn-primary">Confirmar Reagendamento</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- General Agenda Modal -->
-    <div id="general-agenda-modal" class="modal-overlay hidden">
-        <div class="modal-content modal-content-lg">
-            <div class="modal-header">
-                <h3 class="modal-title">
-                    <span class="material-symbols-outlined">calendar_month</span>
-                    Agenda Diária
-                </h3>
-                <button class="btn-close-modal close-modal-btn">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-
-            <div class="agenda-filters">
-                <div class="filter-group">
-                    <label class="form-label"
-                        style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Data</label>
-                    <input type="date" id="agenda-date-filter" class="form-input">
-                </div>
-                <div class="filter-group">
-                    <label class="form-label"
-                        style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Profissional</label>
-                    <select id="agenda-professional-filter" class="form-select">
-                        <option value="">Todos</option>
-                    </select>
-                </div>
-                <div style="display: flex; align-items: flex-end;">
-                    <button id="refresh-agenda-btn" class="btn-primary" style="height: 42px;">
-                        Atualizar
-                    </button>
-                </div>
-            </div>
-
-            <div style="flex: 1; overflow-y: auto; border: 1px solid var(--border-dark); border-radius: 0.75rem; background-color: rgba(0,0,0,0.2);"
-                class="custom-scrollbar">
-                <table class="data-table">
-                    <thead class="table-head" style="position: sticky; top: 0; z-index: 10;">
-                        <tr>
-                            <th class="table-header-cell">Horário</th>
-                            <th class="table-header-cell">Paciente</th>
-                            <th class="table-header-cell">Profissional</th>
-                            <th class="table-header-cell">Status</th>
-                            <th class="table-header-cell">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="agenda-table-body" class="table-body">
-                        <!-- Agenda items injected here -->
-                    </tbody>
-                </table>
-                <div id="agenda-empty-state" class="hidden"
-                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); padding: 2rem;">
-                    <span class="material-symbols-outlined"
-                        style="font-size: 2.5rem; margin-bottom: 0.5rem;">event_busy</span>
-                    <p>Nenhum agendamento encontrado para este filtro.</p>
-                </div>
-                <div id="agenda-loading-state" class="hidden"
-                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--primary); padding: 2rem;">
-                    <span class="material-symbols-outlined"
-                        style="font-size: 2.5rem; margin-bottom: 0.5rem; animation: spin 1s linear infinite;">sync</span>
-                    <p>Carregando agenda...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="../js/components/mobile-sidebar.js"></script>
-    <style>
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
 </body>
 
 </html>
