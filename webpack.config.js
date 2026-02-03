@@ -112,36 +112,43 @@ module.exports = (env, argv) => {
         template: "./pages/login.html",
         filename: "pages/login.html",
         chunks: ["theme", "login"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/register.html",
         filename: "pages/register.html",
         chunks: ["theme", "register"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/my-appointments.html",
         filename: "pages/my-appointments.html",
         chunks: ["theme", "myAppointments"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/exams.html",
         filename: "pages/exams.html",
         chunks: ["theme", "examsPage"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/my-exams.html",
         filename: "pages/my-exams.html",
         chunks: ["theme", "myExams"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/agenda.html",
         filename: "pages/agenda.html",
         chunks: ["theme", "agenda"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/pep.html",
         filename: "pages/pep.html",
         chunks: ["theme", "pep"],
+        publicPath: "../",
       }),
 
       // --- Geração automática baseada na lista mainPages ---
