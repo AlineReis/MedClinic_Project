@@ -2,7 +2,7 @@ import "../../css/pages/doctor-dashboard.css"
 import { Navigation } from "../components/Navigation";
 import { MobileSidebar } from "../components/MobileSidebar";
 import { ToastContainer } from "../components/ToastContainer";
-import { listAppointments } from "../services/appointmentsService";
+import { listAppointments, startAppointment } from "../services/appointmentsService";
 import { createExam, listCatalog } from "../services/examsService";
 import {
   createPrescription,
@@ -76,6 +76,37 @@ async function initDoctorDashboard() {
   setupAgendaModal(session.id);
 }
 
+// Make handleStartAttendance available globally
+(window as any).handleStartAttendance = async (id: number) => {
+  try {
+    const btn = document.querySelector(`.btn-patient-start`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Iniciando...";
+    }
+
+    const response = await startAppointment(id);
+    
+    if (response.success) {
+      window.location.href = `pep.html?id=${id}`;
+    } else {
+      uiStore.addToast("error", response.error?.message || "Erro ao iniciar atendimento");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Iniciar Atendimento";
+      }
+    }
+  } catch (error) {
+    console.error("Error starting appointment:", error);
+    uiStore.addToast("error", "Erro ao iniciar atendimento");
+    const btn = document.querySelector(`.btn-patient-start`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Iniciar Atendimento";
+    }
+  }
+};
+
 async function loadUpcomingAppointments(professionalId: number) {
   try {
     const today = new Date();
@@ -85,7 +116,7 @@ async function loadUpcomingAppointments(professionalId: number) {
     const todayResponse = await listAppointments({
       professionalId,
       date: todayStr,
-      status: "scheduled,confirmed",
+      // status: "scheduled,confirmed", // Removed strict filtering to see all and filter in frontend if needed
     });
 
     // Get all upcoming appointments
@@ -102,7 +133,7 @@ async function loadUpcomingAppointments(professionalId: number) {
     ) {
       const todayAppointments = todayResponse.data.appointments;
       const allUpcoming = upcomingResponse.data.appointments;
-
+      
       appointmentAutocompleteCache = dedupeAppointments([
         ...todayAppointments,
         ...allUpcoming,
@@ -123,26 +154,35 @@ function updateStats(
   todayAppointments: AppointmentSummary[],
   allUpcoming: AppointmentSummary[],
 ) {
-  // Count today's appointments
-  const totalToday = todayAppointments.length;
+  // Count today's appointments (excluding cancelled)
+  const cancelledStatuses = ["cancelled", "cancelled_by_patient", "cancelled_by_clinic", "no_show"];
+  const totalToday = todayAppointments.filter(a => !cancelledStatuses.includes(a.status)).length;
 
   // Count appointments by status
   const waiting = todayAppointments.filter(
-    (a) => a.status === "scheduled" || a.status === "confirmed",
+    (a) => a.status === "scheduled" || a.status === "confirmed" || a.status === "waiting" || a.status === "pending",
   ).length;
   const completed = todayAppointments.filter(
     (a) => a.status === "completed",
   ).length;
 
   // Update stat cards
-  const statsCards = document.querySelectorAll("section.grid h3");
+  const statsCards = document.querySelectorAll(".stats-grid .stats-value");
   if (statsCards[0]) statsCards[0].textContent = String(totalToday);
   if (statsCards[1]) statsCards[1].textContent = String(waiting);
   if (statsCards[2]) statsCards[2].textContent = String(completed);
 }
 
 function updateNextPatient(appointments: AppointmentSummary[]) {
-  if (appointments.length === 0) {
+  // Filter for active appointments (not completed/cancelled)
+  // We want to show the earliest appointment that is not finished yet
+  const activeStatuses = ["scheduled", "confirmed", "waiting", "in_progress", "pending"];
+  
+  const activeAppointments = appointments
+    .filter(a => activeStatuses.includes(a.status))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  if (activeAppointments.length === 0) {
     // Show empty state
     const nextPatientCard = document.querySelector(".next-patient-card");
     if (nextPatientCard) {
@@ -151,74 +191,75 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
           <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
           <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
         </div>
-      `
+      `;
     }
     return;
   }
 
-  // Sort by time and get the next one
-  const sortedAppointments = [...appointments].sort((a, b) => {
-    return a.time.localeCompare(b.time);
-  });
-
-  const nextAppointment = sortedAppointments[0];
+  const nextAppointment = activeAppointments[0];
   const nextPatientCard = document.querySelector(".next-patient-card");
 
   if (nextPatientCard) {
-    nextPatientCard.innerHTML = `
-      <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
-      <div class="u-mb-15">
-        <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
-        <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
-      </div>
-      
-      <div class="u-flex u-gap-medium u-mb-20">
-        <span class="u-flex u-items-center u-gap-small u-text-secondary">
-          <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
-        </span>
-        ${nextAppointment.room
-        ? `
-          <span class="u-flex u-items-center u-gap-small u-text-secondary">
-            <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
+      nextPatientCard.innerHTML = `
+        <span class="next-patient-badge">Próximo Paciente</span>
+        <div class="next-patient-meta">
+          <h3 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0;">${nextAppointment.patient_name || "Paciente"}</h3>
+          <p class="next-patient-status">Consulta • ${nextAppointment.specialty || "Clínico Geral"}</p>
+        </div>
+        
+        <div class="next-patient-time-loc">
+          <span class="time-loc-item">
+            <span class="material-symbols-outlined">schedule</span> ${nextAppointment.time}
           </span>
-        `
-        : ""
-      }
-      </div>
-      
-      <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
-        Iniciar Atendimento
-      </button>
-    `
+          ${
+            nextAppointment.room
+              ? `
+            <span class="time-loc-item">
+              <span class="material-symbols-outlined">location_on</span> Sala ${nextAppointment.room}
+            </span>
+          `
+              : ""
+          }
+        </div>
+        
+        <button onclick="window.handleStartAttendance(${nextAppointment.id})" class="btn-patient-start">
+          Iniciar Atendimento
+        </button>
+      `;
   }
 }
 
 function updateWaitingQueue(appointments: AppointmentSummary[]) {
-  const queueList = document.querySelector(".bg-surface-dark ul");
+  const queueList = document.querySelector(".panel-list");
   if (!queueList) return;
 
-  // Filter appointments that are waiting (after the first one)
+  // Filter appointments that are waiting (excluding the first one which is the "Next Patient")
+  // We want to show only 'scheduled' or 'confirmed' or 'waiting' appointments
+  // Note: we re-filter here to match updateNextPatient logic for consistency
+  const activeStatuses = ["scheduled", "confirmed", "waiting", "in_progress", "pending"];
+  
   const sortedAppointments = [...appointments]
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .slice(1, 5); // Show next 4 appointments
+    .filter(a => activeStatuses.includes(a.status))
+    .sort((a, b) => a.time.localeCompare(b.time));
 
-  if (sortedAppointments.length === 0) {
+  // The first one is displayed in the "Next Patient" card, so we slice from index 1
+  const queueAppointments = sortedAppointments.slice(1, 6); // Show next 5
+
+  if (queueAppointments.length === 0) {
     queueList.innerHTML = `
-      <li class="list-item-row u-justify-between u-items-center">
-        <span class="u-text-secondary u-fs-sm">Nenhum paciente na fila</span>
+      <li class="queue-patient-row" style="justify-content: center;">
+        <span class="queue-placeholder">Nenhum paciente na fila</span>
       </li>
-    `
+    `;
     return
   }
 
-  queueList.innerHTML = sortedAppointments
+  queueList.innerHTML = queueAppointments
     .map(
       (appointment) => `
-      <li class="list-item-row u-justify-between u-items-center">
-        <span class="u-fw-600">${appointment.patient_name || "Paciente"}</span>
-        <span class="badge ${appointment.status === "confirmed" ? "badge--warning" : "badge--neutral"}">
-          ${appointment.time}
-        </span>
+      <li class="queue-patient-row">
+        <span class="queue-placeholder" style="color: white;">${appointment.patient_name || "Paciente"}</span>
+        <span class="queue-time-placeholder" style="${appointment.status === "confirmed" ? "color: var(--primary);" : ""}">${appointment.time}</span>
       </li>
     `,
     )
@@ -254,10 +295,10 @@ async function loadCommissions(
     if (response.success && response.data) {
       updateCommissionsPanel(response.data);
     } else {
-      console.error("Failed to load commissions:", response.error);
+      console.warn("Failed to load commissions:", response.error || "Unknown error"); // Downgraded to warn
     }
   } catch (error) {
-    console.error("Error loading commissions:", error);
+    console.warn("Error loading commissions (service might be unavailable):", error); // Downgraded to warn
   }
 }
 
