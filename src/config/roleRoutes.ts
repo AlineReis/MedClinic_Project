@@ -13,4 +13,5 @@ export const roleRoutes: Record<UserRole, string> = {
   health_professional: `${BASE}/pages/doctor-dashboard.html`,
   clinic_admin: `${BASE}/pages/manager-dashboard.html`,
   system_admin: `${BASE}/pages/admin-dashboard.html`,
+
 };

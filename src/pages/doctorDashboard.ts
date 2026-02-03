@@ -16,7 +16,7 @@ import {
   createProfessionalAvailability,
   deleteAvailability,
   getProfessionalAvailabilityRules,
-  getProfessionalCommissions
+  getProfessionalCommissions,
 } from "../services/professionalsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -30,6 +30,7 @@ import type {
   AvailabilityInput,
   CommissionsResponse,
 } from "../types/professionals";
+import { formatSpecialty } from "../utils/formatters";
 
 const MAX_AUTOCOMPLETE_RESULTS = 6;
 const NEXT_PATIENT_STATUSES = new Set([
@@ -98,7 +99,9 @@ async function initDoctorDashboard() {
 // Make handleStartAttendance available globally
 (window as any).handleStartAttendance = async (id: number) => {
   try {
-    const btn = document.querySelector(`.btn-patient-start`) as HTMLButtonElement | null;
+    const btn = document.querySelector(
+      `.btn-patient-start`,
+    ) as HTMLButtonElement | null;
     if (btn) {
       btn.disabled = true;
       btn.textContent = "Iniciando...";
@@ -116,7 +119,10 @@ async function initDoctorDashboard() {
         if (user?.id) loadUpcomingAppointments(user.id);
       }
     } else {
-      uiStore.addToast("error", response.error?.message || "Erro ao iniciar atendimento");
+      uiStore.addToast(
+        "error",
+        response.error?.message || "Erro ao iniciar atendimento",
+      );
       if (btn) {
         btn.disabled = false;
         btn.textContent = "Iniciar Atendimento";
@@ -125,7 +131,9 @@ async function initDoctorDashboard() {
   } catch (error) {
     console.error("Error starting appointment:", error);
     uiStore.addToast("error", "Erro ao iniciar atendimento");
-    const btn = document.querySelector(`.btn-patient-start`) as HTMLButtonElement | null;
+    const btn = document.querySelector(
+      `.btn-patient-start`,
+    ) as HTMLButtonElement | null;
     if (btn) {
       btn.disabled = false;
       btn.textContent = "Iniciar Atendimento";
@@ -136,7 +144,9 @@ async function initDoctorDashboard() {
 // Make handleCompleteAttendance available globally
 (window as any).handleCompleteAttendance = async (id: number) => {
   try {
-    const btn = document.querySelector(`.btn-patient-finish`) as HTMLButtonElement | null;
+    const btn = document.querySelector(
+      `.btn-patient-finish`,
+    ) as HTMLButtonElement | null;
     if (btn) {
       btn.disabled = true;
       btn.textContent = "Finalizando...";
@@ -150,7 +160,10 @@ async function initDoctorDashboard() {
       const user = authStore.getSession();
       if (user?.id) loadUpcomingAppointments(user.id);
     } else {
-      uiStore.addToast("error", response.error?.message || "Erro ao finalizar atendimento");
+      uiStore.addToast(
+        "error",
+        response.error?.message || "Erro ao finalizar atendimento",
+      );
       if (btn) {
         btn.disabled = false;
         btn.textContent = "Finalizar Atendimento";
@@ -159,7 +172,9 @@ async function initDoctorDashboard() {
   } catch (error) {
     console.error("Error completing appointment:", error);
     uiStore.addToast("error", "Erro ao finalizar atendimento");
-    const btn = document.querySelector(`.btn-patient-finish`) as HTMLButtonElement | null;
+    const btn = document.querySelector(
+      `.btn-patient-finish`,
+    ) as HTMLButtonElement | null;
     if (btn) {
       btn.disabled = false;
       btn.textContent = "Finalizar Atendimento";
@@ -215,132 +230,85 @@ function updateStats(
   allUpcoming: AppointmentSummary[],
 ) {
   // Count today's appointments (excluding cancelled)
-  const cancelledStatuses = ["cancelled", "cancelled_by_patient", "cancelled_by_clinic", "no_show"];
-  const totalToday = todayAppointments.filter(a => !cancelledStatuses.includes(a.status)).length;
+  const cancelledStatuses = [
+    "cancelled",
+    "cancelled_by_patient",
+    "cancelled_by_clinic",
+    "no_show",
+  ];
+  const totalToday = todayAppointments.filter(
+    (a) => !cancelledStatuses.includes(a.status),
+  ).length;
 
   // Count appointments by status
   const waiting = todayAppointments.filter(
-    (a) => a.status === "waiting" || a.status === "confirmed",
+    (a) =>
+      a.status === "scheduled" ||
+      a.status === "confirmed" ||
+      a.status === "waiting" ||
+      a.status === "pending",
   ).length;
   const completed = todayAppointments.filter(
     (a) => a.status === "completed",
   ).length;
 
-  // Update stat cards (markup now lives in .stats-grid)
-  const statsValues = document.querySelectorAll(".stats-grid .stats-value");
-  if (statsValues[0]) statsValues[0].textContent = String(totalToday);
-  if (statsValues[1]) statsValues[1].textContent = String(waiting);
-  if (statsValues[2]) statsValues[2].textContent = String(completed);
+  // Update stat cards
+  const statsCards = document.querySelectorAll(".stats-grid .stats-value");
+  if (statsCards[0]) statsCards[0].textContent = String(totalToday);
+  if (statsCards[1]) statsCards[1].textContent = String(waiting);
+  if (statsCards[2]) statsCards[2].textContent = String(completed);
 }
 
 function updateNextPatient(appointments: AppointmentSummary[]) {
-  todayAppointmentsCache = [...appointments];
-
-  const nextPatientCard = document.querySelector(".next-patient-card");
-  if (!nextPatientCard) return;
-
-  const eligibleAppointments = [...appointments]
-    .filter((appointment) => NEXT_PATIENT_STATUSES.has(appointment.status))
-    .sort((a, b) => a.time.localeCompare(b.time));
-
-  const nextAppointment = eligibleAppointments[0] ?? null;
-  currentNextAppointment = nextAppointment;
-  nextAppointmentState = nextAppointment?.status === "in_progress" ? "in_progress" : "idle";
-
-  if (!nextAppointment) {
-    currentNextAppointment = null;
-    nextAppointmentState = "idle";
-    nextPatientCard.innerHTML = `
-      <div class="u-text-center u-padding-medium">
-        <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
-        <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
-      </div>
-    `;
+  if (appointments.length === 0) {
+    // Show empty state
+    const nextPatientCard = document.querySelector(".next-patient-card");
+    if (nextPatientCard) {
+      nextPatientCard.innerHTML = `
+        <div class="u-text-center u-padding-medium">
+          <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
+          <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
+        </div>
+      `;
+    }
     return;
   }
 
-  const buttonLabel = nextAppointmentState === "in_progress" ? "Finalizar Atendimento" : "Iniciar Atendimento";
+  // Sort by time and get the next one
+  const sortedAppointments = [...appointments].sort((a, b) => {
+    return a.time.localeCompare(b.time);
+  });
 
-  nextPatientCard.innerHTML = `
-    <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
-    <div class="u-mb-15">
-      <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
-      <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
-    </div>
+  const nextAppointment = sortedAppointments[0];
+  const nextPatientCard = document.querySelector(".next-patient-card");
 
-    <div class="u-flex u-gap-medium u-mb-20">
-      <span class="u-flex u-items-center u-gap-small u-text-secondary">
-        <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
-      </span>
-      ${nextAppointment.room
-      ? `
+  if (nextPatientCard) {
+    nextPatientCard.innerHTML = `
+      <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
+      <div class="u-mb-15">
+        <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
+        <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
+      </div>
+      
+      <div class="u-flex u-gap-medium u-mb-20">
+        <span class="u-flex u-items-center u-gap-small u-text-secondary">
+          <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
+        </span>
+        ${
+          nextAppointment.room
+            ? `
           <span class="u-flex u-items-center u-gap-small u-text-secondary">
             <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
         `
-      : ""
-    }
-    </div>
-
-    <button id="iniciar-atendimento" class="btn btn--primary btn--block">
-      ${buttonLabel}
-    </button>
-  `;
-
-  attachNextPatientButton(nextPatientCard);
-}
-
-function attachNextPatientButton(card: Element) {
-  const button = card.querySelector("#iniciar-atendimento") as HTMLButtonElement | null;
-  if (!button) return;
-  button.addEventListener("click", handleNextPatientAction);
-}
-
-async function handleNextPatientAction(event: Event) {
-  event.preventDefault();
-  if (!currentNextAppointment || !currentProfessionalId) return;
-
-  const button = event.currentTarget as HTMLButtonElement;
-  const appointmentId = currentNextAppointment.id;
-  const previousState = nextAppointmentState;
-  const actionLabel = previousState === "idle" ? "Iniciando" : "Finalizando";
-  button.disabled = true;
-  button.textContent = `${actionLabel}...`;
-
-  try {
-    if (previousState === "idle") {
-      const response = await startAppointment(appointmentId);
-      if (!response.success) {
-        throw new Error(response.error?.message ?? "Erro ao iniciar atendimento");
-      }
-      uiStore.addToast("success", "Atendimento iniciado com sucesso");
-      updateLocalAppointmentStatus(appointmentId, "in_progress");
-      nextAppointmentState = "in_progress";
-      updateNextPatient(todayAppointmentsCache);
-      updateWaitingQueue(todayAppointmentsCache);
-      return;
-    }
-
-    const response = await completeAppointment(appointmentId);
-    if (!response.success) {
-      throw new Error(response.error?.message ?? "Erro ao finalizar atendimento");
-    }
-    uiStore.addToast("success", "Atendimento finalizado com sucesso");
-    await loadUpcomingAppointments(currentProfessionalId);
-  } catch (error) {
-    console.error(error);
-    const message = error instanceof Error ? error.message : "Erro ao atualizar atendimento";
-    uiStore.addToast("error", message);
-    button.textContent = previousState === "idle" ? "Iniciar Atendimento" : "Finalizar Atendimento";
-  } finally {
-    button.disabled = false;
-  }
-}
-
-function updateLocalAppointmentStatus(appointmentId: number, status: string) {
-  const appointment = todayAppointmentsCache.find((item) => item.id === appointmentId);
-  if (appointment) {
-    appointment.status = status;
+            : ""
+        }
+      </div>
+      
+      <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
+        Iniciar Atendimento
+      </button>
+    `;
   }
 }
 
@@ -348,25 +316,21 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
   const queueList = document.querySelector(".panel-list");
   if (!queueList) return;
 
-  const waitingStatuses = new Set(["confirmed", "checked_in", "waiting"]);
-  console.log(appointments)
+  // Filter appointments that are waiting (after the first one)
   const sortedAppointments = [...appointments]
-    .filter((appointment) => waitingStatuses.has(appointment.status))
     .sort((a, b) => a.time.localeCompare(b.time))
-    .slice(0, 4);
+    .slice(1, 5); // Show next 4 appointments
 
-  const queueAppointments = sortedAppointments.slice(1, 6); // Show next 5
-
-  if (queueAppointments.length === 0) {
+  if (sortedAppointments.length === 0) {
     queueList.innerHTML = `
       <li class="queue-patient-row" style="justify-content: center;">
         <span class="queue-placeholder">Nenhum paciente na fila</span>
       </li>
     `;
-    return
+    return;
   }
 
-  queueList.innerHTML = queueAppointments
+  queueList.innerHTML = sortedAppointments
     .map(
       (appointment) => `
       <li class="queue-patient-row">
@@ -375,7 +339,7 @@ function updateWaitingQueue(appointments: AppointmentSummary[]) {
       </li>
     `,
     )
-    .join("")
+    .join("");
 }
 
 function dedupeAppointments(appointments: AppointmentSummary[]) {
@@ -407,10 +371,16 @@ async function loadCommissions(
     if (response.success && response.data) {
       updateCommissionsPanel(response.data);
     } else {
-      console.warn("Failed to load commissions:", response.error || "Unknown error"); // Downgraded to warn
+      console.warn(
+        "Failed to load commissions:",
+        response.error || "Unknown error",
+      ); // Downgraded to warn
     }
   } catch (error) {
-    console.warn("Error loading commissions (service might be unavailable):", error); // Downgraded to warn
+    console.warn(
+      "Error loading commissions (service might be unavailable):",
+      error,
+    ); // Downgraded to warn
   }
 }
 
@@ -841,9 +811,9 @@ function showAvailabilityModal(professionalId: number) {
       const patientName = appointment.patient_name || "Paciente";
       button.innerHTML = `
         <span class="font-semibold text-white">${highlightMatch(
-        patientName,
-        query,
-      )}</span>
+          patientName,
+          query,
+        )}</span>
         <span class="text-xs text-slate-400">
           ${appointment.date} • ${appointment.time}
         </span>
@@ -1733,8 +1703,10 @@ function renderWeeklyGrid(
       const card = document.createElement("div");
 
       let statusClass = "agenda-event-card--scheduled";
-      if (app.status === "completed") statusClass = "agenda-event-card--completed";
-      if (app.status === "cancelled") statusClass = "agenda-event-card--cancelled";
+      if (app.status === "completed")
+        statusClass = "agenda-event-card--completed";
+      if (app.status === "cancelled")
+        statusClass = "agenda-event-card--cancelled";
 
       card.className = `agenda-event-card ${statusClass}`;
       card.style.top = `${top}px`;

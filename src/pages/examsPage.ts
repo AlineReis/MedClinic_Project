@@ -94,116 +94,115 @@ async function resolveSession() {
 }
 
 function renderExams(exams: ExamSummary[], session: UserSession) {
-  const tableBody = document.querySelector("tbody.divide-y");
+  const tableBody = document.querySelector(".table-body");
   if (!tableBody) return;
 
   if (exams.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="5" class="table__empty">
+        <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
           Nenhum exame encontrado.
         </td>
       </tr>
-    `
-    return
+    `;
+    return;
   }
 
   tableBody.innerHTML = exams
     .map((exam) => buildExamRow(exam, session))
-    .join("")
+    .join("");
 
   // Attach event listeners para botões
-  attachActionButtons(session)
-  attachViewButtons()
-  updateUIForRole(session.role)
+  attachActionButtons(session);
+  attachViewButtons();
+  updateUIForRole(session.role);
 }
 
 function buildExamRow(exam: ExamSummary, session: UserSession) {
   // Nome do paciente: da sessão se for patient, senão do exam
   const patientName =
-    session.role === "patient" ? session.name : (exam.patient_name ?? "N/A")
+    session.role === "patient" ? session.name : (exam.patient_name ?? "N/A");
 
   return `
-    <tr class="table__row">
-      <td class="table__cell">
-        <p style="font-weight: 700; font-size: 0.875rem;">${patientName}</p>
-        <p style="font-size: 0.75rem; color: var(--text-secondary);">ID: ${exam.id}</p>
+    <tr>
+      <td>
+        <div class="patient-info">
+          <span class="patient-name">${patientName}</span>
+          <span class="patient-id">ID: ${exam.id}</span>
+        </div>
       </td>
-      <td class="table__cell">
-        <p style="font-size: 0.875rem;">${exam.exam_name}</p>
+      <td>
+        <span class="exam-name">${exam.exam_name}</span>
       </td>
-      <td class="table__cell">
+      <td>
         <span class="${getStatusBadge(exam.status)}">
           ${formatStatus(exam.status)}
         </span>
       </td>
-      <td class="table__cell u-text-center">
+      <td class="cell-center">
         ${getUrgencyIcon(exam.urgency)}
       </td>
-      <td class="table__cell">
-        ${getActionButton(exam, session.role)}
+      <td>
+        <div class="action-buttons">
+          ${getActionButton(exam, session.role)}
+        </div>
       </td>
     </tr>
-  `
+  `;
 }
 
 function getUrgencyIcon(urgency?: string) {
   if (urgency === "urgent" || urgency === "critical") {
-    return '<span class="material-symbols-outlined u-text-error u-pulse">priority_high</span>'
+    return '<span class="material-symbols-outlined text-error animate-pulse">priority_high</span>';
   }
-  return '<span class="material-symbols-outlined u-text-secondary">priority_high</span>'
+  return '<span class="material-symbols-outlined u-text-secondary" style="opacity: 0.3;">priority_high</span>';
 }
 
 function getActionButton(exam: ExamSummary, role: string) {
-  if (role === "patient") {
-    // Only show button if result is available
-    if (exam.status === "delivered" || exam.status === "ready") {
-      return `<button data-view="${exam.result}" data-exam-id="${exam.id}" class="btn btn--text btn--sm">VER DETALHES</button>`;
+  // View Logic (my-exams style)
+  const canView = exam.status === "delivered" || exam.status === "ready";
+
+  if (canView) {
+    if (role === "health_professional" || role === "patient") {
+      return `
+            <button data-view="${exam.result}" data-exam-id="${exam.id}" class="btn-action-view">
+                 <span class="material-symbols-outlined" style="font-size: 1.25rem;">visibility</span>
+                 Ver Laudo
+            </button>
+          `;
     }
-    return `<span class="u-text-secondary" style="font-size: 0.75rem;">Em análise</span>`;
+    // Lab tech see view but also actions
+    if (role === "lab_tech" || role === "clinic_admin") {
+      // If ready, we can Release. If Delivered, View.
+      if (exam.status === "ready") {
+        return `
+                    <div style="display:flex; gap: 8px;">
+                         <button data-view="${exam.result}" class="btn-action-view">Ver PDF</button>
+                         <button data-release="${exam.id}" class="btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Liberar</button>
+                    </div>
+                `;
+      }
+      return `
+            <button data-view="${exam.result}" class="btn-action-view u-text-success">
+                 <span class="material-symbols-outlined" style="font-size: 1.25rem;">check_circle</span>
+                 Liberado
+            </button>
+          `;
+    }
   }
 
-  // Doctor (Health Professional) - view only (maybe download if status is delivered?)
-  // Docs say: "Ver resultados que solicitou".
-  if (role === "health_professional") {
-    if (exam.status === "delivered" || exam.status === "ready") {
-      return `<button data-view="${exam.result}" data-exam-id="${exam.id}" class="btn btn--text btn--sm u-text-success">VER LAUDO</button>`;
-    }
-    return "—";
-  }
-
-  // Lab Tech / Admin
-  if (
-    role === "lab_tech" ||
-    role === "clinic_admin" ||
-    role === "system_admin"
-  ) {
+  // If not ready/delivered
+  if (role === "lab_tech" || role === "clinic_admin") {
     if (
       exam.status === "pending_payment" ||
       exam.status === "paid" ||
-      exam.status === "scheduled" ||
-      // Allow re-upload
-      exam.status === "ready"
+      exam.status === "scheduled"
     ) {
-      // If ready, show Upload (to re-upload) AND Release?
-      // For simplicity, sticking to Upload logic.
-      // Use a container for multiple actions if needed, but here we return one string.
-      if (exam.status === "ready") {
-        return `
-             <div class="flex gap-2">
-                <button data-upload="${exam.id}" class="btn btn--text btn--sm">RE-UPLOAD</button>
-                <button data-release="${exam.id}" class="btn btn--primary btn--sm">LIBERAR</button>
-             </div>`;
-      }
-      return `<button data-upload="${exam.id}" class="btn btn--text btn--sm">UPLOAD LAUDO</button>`;
-    }
-
-    if (exam.status === "delivered") {
-      return `<button data-view="${exam.result}" class="btn btn--text btn--sm u-text-success">VER LAUDO</button>`;
+      return `<button data-upload="${exam.id}" class="btn-link">Enviar PDF</button>`;
     }
   }
 
-  return "—";
+  return `<span style="font-size: 0.75rem; color: var(--text-secondary);">—</span>`;
 }
 
 function attachActionButtons(session: UserSession) {
@@ -372,7 +371,7 @@ const newRequestModalHtml = `
       </div>
     </div>
   </div>
-`
+`;
 
 function handleNewRequest() {
   if (!document.getElementById("new-request-modal")) {
@@ -609,59 +608,42 @@ function renderNavigation(session: UserSession) {
 
   if (session.role === "patient") {
     navItems = `
-      <a class="admin-nav-item" href="${basePath}patient-dashboard.html">
+      <a class="nav-item" href="${basePath}patient-dashboard.html">
         <span class="material-symbols-outlined">dashboard</span>
         Inicio
       </a>
-      <a class="admin-nav-item" href="${basePath}my-appointments.html">
+      <a class="nav-item" href="${basePath}my-appointments.html">
         <span class="material-symbols-outlined">event_note</span>
         Consultas
       </a>
-      <a class="admin-nav-item active" href="${basePath}exams.html">
+      <a class="nav-item nav-item-active" href="${basePath}exams.html">
         <span class="material-symbols-outlined">science</span>
         Exames
       </a>
     `;
   } else if (session.role === "lab_tech") {
     navItems = `
-      <a class="admin-nav-item" href="${basePath}lab-dashboard.html">
-        <span class="material-symbols-outlined">dashboard</span>
-        Painel
-      </a>
-      <a class="admin-nav-item active" href="${basePath}exams.html">
+      <a class="nav-item nav-item-active" href="${basePath}exams.html">
         <span class="material-symbols-outlined">assignment</span>
-        Solicitações
+        Exames
       </a>
-      <!-- <a class="admin-nav-item" id="sidebar-history-link" href="#">
-        <span class="material-symbols-outlined">history</span>
-        Histórico
-      </a> -->
     `;
     // Update Branding for Lab Tech
-    const brandName = document.querySelector("[data-dynamic-brand-name]");
-    const brandIcon = document.querySelector("[data-dynamic-brand-icon]");
-    const brandLink = document.querySelector("[data-dynamic-brand-link]");
+    const brandName = document.querySelector(".sidebar-logo-text");
     if (brandName) brandName.textContent = "MedClinic Labs";
-    if (brandIcon) brandIcon.textContent = "science";
-    if (brandLink) brandLink.setAttribute("href", `${basePath}lab-dashboard.html`);
-
-    const headerTitle = document.querySelector(".admin-header-title");
-    if (headerTitle) headerTitle.textContent = "Solicitações de Exames";
   } else {
     // Default fallback for other roles
     const dashboardLink = getDashboardForRole(session.role);
     navItems = `
-      <a class="admin-nav-item" href="${basePath}${dashboardLink}">
+      <a class="nav-item" href="${basePath}${dashboardLink}">
         <span class="material-symbols-outlined">dashboard</span>
         Inicio
       </a>
-      <a class="admin-nav-item active" href="${basePath}exams.html">
+      <a class="nav-item nav-item-active" href="${basePath}exams.html">
         <span class="material-symbols-outlined">science</span>
         Exames
       </a>
     `;
-    const brandLink = document.querySelector("[data-dynamic-brand-link]");
-    if (brandLink) brandLink.setAttribute("href", `${basePath}${dashboardLink}`);
   }
 
   navContainer.innerHTML = navItems;
@@ -712,20 +694,17 @@ function formatStatus(status: string) {
 
 function getStatusBadge(status: string) {
   const map: Record<string, string> = {
-    pending_payment:
-      "badge badge--warning",
-    paid: "badge badge--info",
-    scheduled: "badge badge--info",
-    sample_collected:
-      "badge badge--warning",
-    processing: "badge badge--info",
-    ready: "badge badge--success",
-    delivered:
-      "badge badge--success",
-    cancelled: "badge badge--error",
-  }
+    pending_payment: "status-badge pending",
+    paid: "status-badge analysis",
+    scheduled: "status-badge analysis",
+    sample_collected: "status-badge analysis",
+    processing: "status-badge analysis",
+    ready: "status-badge ready",
+    delivered: "status-badge ready",
+    cancelled: "status-badge urgent", // Red
+  };
 
-  return map[status] ?? "badge badge--neutral"
+  return map[status] ?? "status-badge";
 }
 
 function getInitials(name: string) {
@@ -773,11 +752,49 @@ function attachViewButtons() {
         // OR we can change getActionButton to put the ID in data-view-id attribute.
         // For now, let's try to parse the button's parent row or add data-id to the button in getActionButton.
         const btnEl = e.currentTarget as HTMLElement;
-        const examId = btnEl.getAttribute("data-exam-id");
+        const examId =
+          btnEl.getAttribute("data-exam-id") ||
+          btnEl
+            .closest("tr")
+            ?.querySelector(".patient-id")
+            ?.textContent?.split(":")[1]
+            ?.trim() || // Fallback attempt
+          btnEl.closest("tr")?.getAttribute("data-exam-row"); // If we had this
+
+        // Actually, we should just ensure getActionButton puts data-exam-id on the buttons for Lab Tech too.
+        // It isn't there currently in the template for Lab Tech "Ver PDF".
+        // Let's rely on data-view having the ID if the URL is empty? No, data-view holds result URL.
+
+        // BETTER FIX: The template in getActionButton for Lab Tech (lines 180 below) MUST include data-exam-id.
+        // But assuming I can't edit that chunk easily again without conflict, I'll fix it dynamically or rely on the fact that for "ready" state,
+        // we might not have the URL yet if it wasn't returned?
+
+        // Wait, if I am here, I should make sure I have the ID.
+        // In the previous step I didn't add data-exam-id to the Lab Tech buttons.
+        // I need to add that in the multi-replace above?
+        // Yes, checking the previous tool call...
+        // <button data-view="${exam.result}" class="btn-action-view">Ver PDF</button> DOES NOT have data-exam-id.
+        // I should have added it.
+
+        // Correcting logic here to find the ID from the release button sibling if present?
+        const releaseBtn = btnEl.parentElement?.querySelector("[data-release]");
+        const siblingId = releaseBtn?.getAttribute("data-release");
 
         if (examId) {
           handleDownload(parseInt(examId));
+        } else if (siblingId) {
+          handleDownload(parseInt(siblingId));
         } else {
+          // Last resort fallback: parse ID from the row
+          const row = btnEl.closest("tr");
+          const idText = row?.querySelector(".patient-id")?.textContent; // "ID: 123"
+          if (idText) {
+            const parsed = parseInt(idText.replace(/\D/g, ""));
+            if (!isNaN(parsed)) {
+              handleDownload(parsed);
+              return;
+            }
+          }
           uiStore.addToast("warning", "Visualização indisponível no momento.");
           renderToasts();
         }

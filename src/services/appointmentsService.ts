@@ -268,10 +268,10 @@ export async function checkInAppointment(
 export async function startAppointment(
   appointmentId: number,
 ): Promise<ApiResponse<{ message: string; appointment: AppointmentApiItem }>> {
-  const response = await request<{ message: string; appointment: AppointmentApiItem }>(
-    `/appointments/${appointmentId}/start`,
-    "POST",
-  );
+  const response = await request<{
+    message: string;
+    appointment: AppointmentApiItem;
+  }>(`/appointments/${appointmentId}/start`, "POST");
 
   if (response.success) {
     clearAppointmentsCache();
@@ -327,7 +327,7 @@ function buildAppointmentQuery(filters: AppointmentFilters) {
   }
   if (filters.status) {
     if (Array.isArray(filters.status)) {
-      filters.status.forEach(s => params.append("status", s));
+      filters.status.forEach((s) => params.append("status", s));
     } else {
       params.set("status", filters.status);
     }
@@ -375,10 +375,10 @@ export function clearAppointmentsCache(): void {
 export async function completeAppointment(
   appointmentId: number,
 ): Promise<ApiResponse<{ message: string; appointment: AppointmentApiItem }>> {
-  const response = await request<{ message: string; appointment: AppointmentApiItem }>(
-    `/appointments/${appointmentId}/complete`,
-    "POST"
-  );
+  const response = await request<{
+    message: string;
+    appointment: AppointmentApiItem;
+  }>(`/appointments/${appointmentId}/complete`, "POST");
 
   if (response.success) {
     clearAppointmentsCache();

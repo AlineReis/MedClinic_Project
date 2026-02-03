@@ -1,59 +1,65 @@
-import "../../css/pages/my-appointments.css"
-import { Navigation } from "../components/Navigation"
-import { MobileMenu } from "../components/MobileMenu"
-import { listAppointments, cancelAppointment } from "../services/appointmentsService"
-import { logout } from "../services/authService"
-import { authStore } from "../stores/authStore"
-import { uiStore } from "../stores/uiStore"
-import type { AppointmentSummary } from "../types/appointments"
-import type { UserSession } from "../types/auth"
-import { openAppointmentModal } from "./appointmentModal"
+import "../../css/pages/my-appointments.css";
+import { Navigation } from "../components/Navigation";
+import {
+  listAppointments,
+  cancelAppointment,
+} from "../services/appointmentsService";
+import { logout } from "../services/authService";
+import { authStore } from "../stores/authStore";
+import { uiStore } from "../stores/uiStore";
+import type { AppointmentSummary } from "../types/appointments";
+import type { UserSession } from "../types/auth";
+import { openAppointmentModal } from "./appointmentModal";
+import { formatSpecialty } from "../utils/formatters";
 
-const listContainer = document.getElementById("appointments-list")
-const toastContainer = document.getElementById("toast-container")
+const listContainer = document.getElementById("appointments-list");
+const toastContainer = document.getElementById("toast-container");
 
-let navigation: Navigation | null = null
+let navigation: Navigation | null = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  navigation = new Navigation()
-  new MobileMenu()
-  hydrateSessionUser()
-  loadAppointments()
+  navigation = new Navigation();
+  hydrateSessionUser();
+  loadAppointments();
 
   // Subscribe to toast updates for auto-dismiss
   uiStore.subscribe((toasts) => {
-    if (!toastContainer) return
-    toastContainer.innerHTML = toasts.map(toast => `
-      <div class="toast-item toast-item--${toast.level || 'info'}">
+    if (!toastContainer) return;
+    toastContainer.innerHTML = toasts
+      .map(
+        (toast) => `
+      <div class="toast-item toast-item--${toast.level || "info"}">
         ${toast.text}
       </div>
-    `).join('')
-  })
-})
+    `,
+      )
+      .join("");
+  });
+});
 
 async function loadAppointments() {
-  if (!listContainer) return
+  if (!listContainer) return;
 
-  const session = await resolveSession()
+  const session = await resolveSession();
   if (!session) {
-    redirectToLogin()
-    return
+    redirectToLogin();
+    return;
   }
 
-  const filters = session.role === "patient" ? { patientId: session.id } : {}
-  const response = await listAppointments(filters)
+  const filters = session.role === "patient" ? { patientId: session.id } : {};
+  const response = await listAppointments(filters);
 
   if (!response.success || !response.data) {
     uiStore.addToast(
       "error",
       response.error?.message ?? "Não foi possível carregar seus agendamentos.",
-    )
+    );
     listContainer.innerHTML = buildEmptyState(
       "Não foi possível carregar seus agendamentos.",
       "Tente novamente em instantes.",
-    )
-    renderToasts()
-    return
+    );
+    renderToasts();
+    return;
   }
 
   if (response.data.appointments.length === 0) {
@@ -61,8 +67,8 @@ async function loadAppointments() {
       "Nenhum agendamento",
       "Você ainda não tem consultas agendadas.",
       `${getBasePath()}schedule-appointment.html`,
-    )
-    return
+    );
+    return;
   }
 
   // Sort appointments: scheduled/confirmed first, then cancelled
@@ -73,40 +79,43 @@ async function loadAppointments() {
       completed: 2,
       cancelled_by_patient: 3,
       cancelled_by_clinic: 3,
-    }
+    };
 
-    const priorityA = statusPriority[a.status] || 4
-    const priorityB = statusPriority[b.status] || 4
+    const priorityA = statusPriority[a.status] || 4;
+    const priorityB = statusPriority[b.status] || 4;
 
     // If same priority, sort by date (newest first)
     if (priorityA === priorityB) {
-      const dateA = new Date(`${a.date}T${a.time}`).getTime()
-      const dateB = new Date(`${b.date}T${b.time}`).getTime()
-      return dateB - dateA
+      const dateA = new Date(`${a.date}T${a.time}`).getTime();
+      const dateB = new Date(`${b.date}T${b.time}`).getTime();
+      return dateB - dateA;
     }
 
-    return priorityA - priorityB
-  })
+    return priorityA - priorityB;
+  });
 
   listContainer.innerHTML = sortedAppointments
-    .map(appointment => buildAppointmentCard(appointment))
-    .join("")
+    .map((appointment) => buildAppointmentCard(appointment))
+    .join("");
 
   // Attach event listeners
-  attachButtonHandlers(sortedAppointments)
+  attachButtonHandlers(sortedAppointments);
 }
 
 async function resolveSession() {
-  return (getSessionFromStorage() ?? authStore.getSession()) ??
+  return (
+    getSessionFromStorage() ??
+    authStore.getSession() ??
     (await authStore.refreshSession())
+  );
 }
 
 function buildAppointmentCard(appointment: AppointmentSummary) {
-  const statusBadgeClass = getStatusBadge(appointment.status)
-  // Ensure the modifier class is generated correctly. 
+  const statusBadgeClass = getStatusBadge(appointment.status);
+  // Ensure the modifier class is generated correctly.
   // Map internal status to modifier class suffix if needed, but assuming 1:1 match based on appointment-card.css
-  const cardStatusClass = `appointment-card--${appointment.status}`
-  const canCancel = appointment.status === 'scheduled'
+  const cardStatusClass = `appointment-card--${appointment.status}`;
+  const canCancel = appointment.status === "scheduled";
 
   return `
     <article class="appointment-card ${cardStatusClass}">
@@ -114,7 +123,7 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
         <div class="appointment-card__header">
           <div>
             <h3 class="appointment-card__doctor-name">${appointment.professional_name}</h3>
-            <p class="appointment-card__specialty">${appointment.specialty}</p>
+            <p class="appointment-card__specialty">${formatSpecialty(appointment.specialty)}</p>
           </div>
           <span class="status-badge ${statusBadgeClass}">
             ${getStatusLabel(appointment.status)}
@@ -145,7 +154,9 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
           <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 4px;">info</span>
           Detalhes
         </button>
-        ${canCancel ? `
+        ${
+          canCancel
+            ? `
           <button 
             class="appointment-card__btn appointment-card__btn--cancel cancel-btn"
             data-appointment-id="${appointment.id}"
@@ -153,10 +164,12 @@ function buildAppointmentCard(appointment: AppointmentSummary) {
             <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 4px;">cancel</span>
             Cancelar
           </button>
-        ` : ""}
+        `
+            : ""
+        }
       </div>
     </article>
-  `
+  `;
 }
 
 function buildEmptyState(
@@ -170,7 +183,7 @@ function buildEmptyState(
         Agendar Agora
       </a>
     `
-    : ""
+    : "";
 
   return `
     <div class="state-container">
@@ -179,74 +192,74 @@ function buildEmptyState(
       <p class="state-container__description">${description}</p>
       ${action}
     </div>
-  `
+  `;
 }
 
 function hydrateSessionUser() {
-  const session = getSessionFromStorage() ?? authStore.getSession()
-  if (!session) return
+  const session = getSessionFromStorage() ?? authStore.getSession();
+  if (!session) return;
 
-  document.querySelectorAll("[data-user-name]").forEach(element => {
-    element.textContent = session.name
-  })
+  document.querySelectorAll("[data-user-name]").forEach((element) => {
+    element.textContent = session.name;
+  });
 
-  document.querySelectorAll("[data-user-initials]").forEach(element => {
-    element.textContent = getInitials(session.name)
-  })
+  document.querySelectorAll("[data-user-initials]").forEach((element) => {
+    element.textContent = getInitials(session.name);
+  });
 
   // Logout handler is managed by Navigation component
 }
 
 function redirectToLogin() {
-  window.location.href = getBasePath() + "login.html"
+  window.location.href = getBasePath() + "login.html";
 }
 
 function getSessionFromStorage(): UserSession | null {
   try {
-    const stored = sessionStorage.getItem("medclinic-session")
-    return stored ? (JSON.parse(stored) as UserSession) : null
+    const stored = sessionStorage.getItem("medclinic-session");
+    return stored ? (JSON.parse(stored) as UserSession) : null;
   } catch (error) {
-    console.warn("Não foi possível ler a sessão armazenada.", error)
-    return null
+    console.warn("Não foi possível ler a sessão armazenada.", error);
+    return null;
   }
 }
 
 function getBasePath() {
-  return window.location.pathname.includes("/pages/") ? "" : "pages/"
+  return window.location.pathname.includes("/pages/") ? "" : "pages/";
 }
 
 function getInitials(name: string) {
   return name
     .split(" ")
     .filter(Boolean)
-    .map(part => part[0])
+    .map((part) => part[0])
     .slice(0, 2)
     .join("")
-    .toUpperCase()
+    .toUpperCase();
 }
 
 function formatDate(value: string) {
-  if (!value) return value
+  if (!value) return value;
 
   // Create date at noon to avoid timezone issues
   // If string already has time (contains T), use it as is
   // Otherwise append T12:00:00
-  const dateStr = value.includes('T') ? value : `${value}T12:00:00`
-  const parsed = new Date(dateStr)
+  const dateStr = value.includes("T") ? value : `${value}T12:00:00`;
+  const parsed = new Date(dateStr);
 
-  if (Number.isNaN(parsed.getTime())) return value
+  if (Number.isNaN(parsed.getTime())) return value;
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(parsed)
+  }).format(parsed);
 }
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(value)
+  }).format(value);
 }
 
 function getStatusColor(status: string) {
@@ -257,8 +270,8 @@ function getStatusColor(status: string) {
     cancelled_by_patient: "activity-icon-warning",
     cancelled_by_clinic: "activity-icon-warning",
     completed: "activity-icon-info",
-  }
-  return map[status] ?? "activity-icon-neutral"
+  };
+  return map[status] ?? "activity-icon-neutral";
 }
 
 function getStatusBadge(status: string) {
@@ -270,8 +283,8 @@ function getStatusBadge(status: string) {
     cancelled_by_clinic: "status-badge--cancelled",
     completed: "status-badge--completed",
     waiting: "status-badge--scheduled",
-  }
-  return map[status] ?? ""
+  };
+  return map[status] ?? "";
 }
 
 function getStatusLabel(status: string) {
@@ -282,8 +295,8 @@ function getStatusLabel(status: string) {
     cancelled_by_patient: "Cancelado",
     cancelled_by_clinic: "Cancelado",
     waiting: "Aguardando",
-  }
-  return map[status] ?? status
+  };
+  return map[status] ?? status;
 }
 
 function getToastColor(level: string) {
@@ -293,71 +306,79 @@ function getToastColor(level: string) {
     error: "toast-item--error",
     info: "toast-item--info",
     warning: "toast-item--warning",
-  }
-  return map[level] ?? "toast-item--info"
+  };
+  return map[level] ?? "toast-item--info";
 }
 
-
 function renderToasts() {
-  if (!toastContainer) return
-  toastContainer.innerHTML = ""
-  uiStore.getToasts().forEach(toast => {
-    const toastElement = document.createElement("div")
-    toastElement.className = `toast-item toast-item--${toast.level || 'info'}`
-    toastElement.textContent = toast.text
-    toastContainer.appendChild(toastElement)
-  })
+  if (!toastContainer) return;
+  toastContainer.innerHTML = "";
+  uiStore.getToasts().forEach((toast) => {
+    const toastElement = document.createElement("div");
+    toastElement.className = `toast-item toast-item--${toast.level || "info"}`;
+    toastElement.textContent = toast.text;
+    toastContainer.appendChild(toastElement);
+  });
 }
 
 function attachButtonHandlers(appointments: AppointmentSummary[]) {
   // Details button handlers
-  document.querySelectorAll('.details-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const appointmentId = parseInt(btn.getAttribute('data-appointment-id') || '0')
+  document.querySelectorAll(".details-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const appointmentId = parseInt(
+        btn.getAttribute("data-appointment-id") || "0",
+      );
       if (appointmentId) {
-        await openAppointmentModal(appointmentId, 'details')
+        await openAppointmentModal(appointmentId, "details");
       }
-    })
-  })
+    });
+  });
 
   // Cancel button handlers
-  document.querySelectorAll('.cancel-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const appointmentId = parseInt(btn.getAttribute('data-appointment-id') || '0')
-      if (!appointmentId) return
+  document.querySelectorAll(".cancel-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const appointmentId = parseInt(
+        btn.getAttribute("data-appointment-id") || "0",
+      );
+      if (!appointmentId) return;
 
-      const appointment = appointments.find(a => a.id === appointmentId)
-      if (!appointment) return
+      const appointment = appointments.find((a) => a.id === appointmentId);
+      if (!appointment) return;
 
       const confirmed = confirm(
-        `Confirmar o cancelamento da consulta com ${appointment.professional_name} em ${formatDate(appointment.date)} às ${appointment.time}?`
-      )
+        `Confirmar o cancelamento da consulta com ${appointment.professional_name} em ${formatDate(appointment.date)} às ${appointment.time}?`,
+      );
 
-      if (!confirmed) return
+      if (!confirmed) return;
 
       // Loading state
-      const button = btn as HTMLButtonElement
-      button.disabled = true
-      button.textContent = 'Cancelando...'
+      const button = btn as HTMLButtonElement;
+      button.disabled = true;
+      button.textContent = "Cancelando...";
 
       try {
-        const result = await cancelAppointment(appointmentId, { reason: 'Cancelado pelo paciente' })
+        const result = await cancelAppointment(appointmentId, {
+          reason: "Cancelado pelo paciente",
+        });
 
         if (result.success) {
-          uiStore.addToast('success', 'Consulta cancelada com sucesso')
+          uiStore.addToast("success", "Consulta cancelada com sucesso");
           // Reload appointments
-          setTimeout(() => loadAppointments(), 1000)
+          setTimeout(() => loadAppointments(), 1000);
         } else {
-          uiStore.addToast('error', result.error?.message || 'Erro ao cancelar consulta')
-          button.disabled = false
-          button.textContent = 'Cancelar'
+          uiStore.addToast(
+            "error",
+            result.error?.message || "Erro ao cancelar consulta",
+          );
+          button.disabled = false;
+          button.textContent = "Cancelar";
         }
       } catch (error) {
-        console.error('Error canceling appointment:', error)
-        uiStore.addToast('error', 'Erro ao processar cancelamento')
-        button.disabled = false
-        button.textContent = 'Cancelar'
+        console.error("Error canceling appointment:", error);
+        uiStore.addToast("error", "Erro ao processar cancelamento");
+        button.disabled = false;
+        button.textContent = "Cancelar";
       }
-    })
-  })
+    });
+  });
 }

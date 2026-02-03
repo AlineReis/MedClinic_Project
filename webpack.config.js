@@ -12,7 +12,7 @@ module.exports = (env, argv) => {
     "patient-dashboard.html",
     "reception-dashboard.html",
     "doctor-dashboard.html",
-    "lab-dashboard.html",
+    // "lab-dashboard.html", // Removed
     "manager-dashboard.html",
     "admin-dashboard.html",
     "users.html",
@@ -41,18 +41,22 @@ module.exports = (env, argv) => {
       // Profissionais e Staff
       doctorDashboard: "./src/pages/doctorDashboard.ts",
       receptionDashboard: "./src/pages/receptionDashboard.ts",
+
       labDashboard: "./src/pages/labDashboard.ts",
       managerDashboard: "./src/pages/managerDashboard.ts",
 
       // Admin
       adminDashboard: "./src/pages/adminDashboard.ts",
+
       usersPage: "./src/pages/usersPage.ts",
       adminUsersPage: "./src/pages/adminUsersPage.ts",
       financialPage: "./src/pages/financialPage.ts",
       teamPage: "./src/pages/teamPage.ts",
 
+
       // Outros
       patients: "./src/pages/patients.ts",
+
       agenda: "./src/pages/agenda.ts",
       dashboard: "./src/pages/dashboard.ts",
       pep: "./src/pages/pep.ts",
