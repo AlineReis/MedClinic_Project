@@ -10,6 +10,7 @@ import { uiStore } from "../stores/uiStore"
 import type { UpdateUserPayload, CreateUserPayload, UserRole, UserSummary } from "../types/users"
 // Ensure Sidebar styles are loaded (optional, but good for layout)
 import "../../css/layout/admin-common.css"
+import { formatCurrency, formatSpecialty } from "../utils/formatters"
 
 let currentPage = 1;
 let currentFilters = {

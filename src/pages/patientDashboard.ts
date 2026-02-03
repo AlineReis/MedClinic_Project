@@ -21,6 +21,7 @@ import type { UserSession } from "../types/auth"
 import type { PrescriptionSummary } from "../types/prescriptions"
 import { openPrescriptionModal } from "./prescriptionModal"
 import { openAppointmentModal } from "./appointmentModal"
+import { formatSpecialty } from "../utils/formatters"
 
 const nextAppointmentContainer = document.querySelector(
   "[data-next-appointment]",
