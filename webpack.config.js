@@ -64,7 +64,7 @@ module.exports = (env, argv) => {
       clean: true,
       // Importante: "/" força o navegador a buscar assets na raiz,
       // evitando erros 404 quando o HTML está dentro de /pages/
-      publicPath: "/",
+      publicPath: "auto",
     },
 
     module: {

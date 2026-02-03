@@ -5,14 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MedClinic - Redirecionando...</title>
-  <meta http-equiv="refresh" content="0; url=pages/login.html">
   <script>
-    window.location.href = "pages/login.html";
+    const currentPath = window.location.pathname;
+    currentPath = currentPath.replace(/\/$/, "");
+    var targetUrl = currentPath + "/pages/login.html";
+    window.location.href = targetUrl;
   </script>
 </head>
 
 <body>
-  <p>Se você não for redirecionado automaticamente, <a href="pages/login.html">clique aqui</a>.</p>
+  <p>Se você não for redirecionado automaticamente, <a href="./pages/login.html">clique aqui</a>.</p>
 </body>
 
 </html>
