@@ -208,6 +208,14 @@ function renderCheckInsTable(appointments: AppointmentSummary[]) {
       // Relaxed check-in condition: also allow 'scheduled'
       const isReadyToCheckIn =
         apt.status === "confirmed" || apt.status === "scheduled";
+      if (!statusBadge.toLowerCase().includes("cancelado")) { }
+
+
+      const cancelButton = !statusBadge.toLowerCase().includes("cancelado")
+        ? `<button class="action-icon-btn u-text-error" title="Cancelar" data-cancel-btn="${apt.id}">
+              <span class="material-symbols-outlined action-icon-large">cancel</span>
+          </button>`
+        : "";
 
       return `
       <tr class="table-row" data-appointment-id="${apt.id}">
@@ -234,9 +242,7 @@ function renderCheckInsTable(appointments: AppointmentSummary[]) {
               <button class="action-icon-btn" title="Reagendar" data-reschedule-btn="${apt.id}">
                 <span class="material-symbols-outlined action-icon-large">edit_calendar</span>
               </button>
-              <button class="action-icon-btn u-text-error" title="Cancelar" data-cancel-btn="${apt.id}">
-                <span class="material-symbols-outlined action-icon-large">cancel</span>
-              </button>
+              ${cancelButton}
            </div>
         </td>
       </tr>
@@ -522,7 +528,6 @@ function setupRescheduleModal() {
   }
 
   dateInput?.addEventListener("change", updateAvailability);
-
   // Form Submit
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -536,15 +541,13 @@ function setupRescheduleModal() {
       return;
     }
 
-    uiStore.addToast("info", "Reagendando...");
-
     try {
       const response = await rescheduleAppointment(appointmentId, {
         newDate,
         newTime,
       });
       if (response.success) {
-        uiStore.addToast("success", "Agendamento reagendado com sucesso");
+        uiStore.addToast("success", "Consulta reagendada com sucesso");
         toggleModal(false);
         await loadDashboardData();
       } else {

@@ -5,6 +5,7 @@ import { ToastContainer } from "../components/ToastContainer"
 import { request } from "../services/apiService"
 import { authStore } from "../stores/authStore"
 import { uiStore } from "../stores/uiStore"
+import { generateStrongPassword } from "../utils/generateStrongPassword"
 
 new ToastContainer()
 
@@ -121,16 +122,6 @@ if (registerForm) {
             console.error(error)
         }
     })
-}
-
-function generateStrongPassword(): string {
-    const chars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
-    let password = "";
-    for (let i = 0; i < 10; i++) {
-        password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password;
 }
 
 if (document.readyState === "loading") {

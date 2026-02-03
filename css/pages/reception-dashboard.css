@@ -1056,3 +1056,18 @@
   background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
+
+.action-buttons-container {
+  display: flex;
+}
+
+.agenda-container {
+  height: 100%;
+}
+
+.agenda-empty {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  align-items: 100%;
+}

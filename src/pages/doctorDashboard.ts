@@ -30,7 +30,6 @@ import type {
   AvailabilityInput,
   CommissionsResponse,
 } from "../types/professionals";
-import { formatSpecialty } from "../utils/formatters";
 
 const MAX_AUTOCOMPLETE_RESULTS = 6;
 const NEXT_PATIENT_STATUSES = new Set([
@@ -289,22 +288,21 @@ function updateNextPatient(appointments: AppointmentSummary[]) {
         <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
         <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
       </div>
-      
+
       <div class="u-flex u-gap-medium u-mb-20">
         <span class="u-flex u-items-center u-gap-small u-text-secondary">
           <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
         </span>
-        ${
-          nextAppointment.room
-            ? `
+        ${nextAppointment.room
+        ? `
           <span class="u-flex u-items-center u-gap-small u-text-secondary">
             <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
         `
-            : ""
-        }
+        : ""
+      }
       </div>
-      
+
       <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
         Iniciar Atendimento
       </button>
@@ -811,9 +809,9 @@ function showAvailabilityModal(professionalId: number) {
       const patientName = appointment.patient_name || "Paciente";
       button.innerHTML = `
         <span class="font-semibold text-white">${highlightMatch(
-          patientName,
-          query,
-        )}</span>
+        patientName,
+        query,
+      )}</span>
         <span class="text-xs text-slate-400">
           ${appointment.date} • ${appointment.time}
         </span>
@@ -838,7 +836,6 @@ function showAvailabilityModal(professionalId: number) {
   }
 
   function selectAppointment(appointment: AppointmentSummary) {
-    console.log("a");
     if (!hiddenAppointmentInput || !hiddenPatientInput || !selectedPatientLabel)
       return;
 
@@ -973,7 +970,7 @@ function showAvailabilityModal(professionalId: number) {
       if (response.success && response.data) {
         uiStore.addToast(
           "success",
-          `${response.data.data.length} horário(s) cadastrado(s) com sucesso!`,
+          `Horário(s) cadastrado(s) com sucesso!`,
         );
         closeModal();
         // Refresh availability list (when implemented)
@@ -1007,7 +1004,6 @@ function setupExamRequest(professionalId: number) {
   if (!requestButton) return;
 
   requestButton.addEventListener("click", () => {
-    console.log("Solicitar Exame clicked", { professionalId });
     showExamRequestModal(professionalId);
   });
 }
