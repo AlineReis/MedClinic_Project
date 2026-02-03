@@ -55,6 +55,9 @@ function getEnv(): Config {
         "http://localhost:3000",
         "http://localhost:80",
         "https://localhost:443",
+        "http://desafio03.alphaedtech",
+        "https://lab.alphaedtech.org.br/server03",
+        "https://lab.alphaedtech.org.br"
       ],
   };
 }
