@@ -2,18 +2,18 @@ import "../../css/pages/reception-dashboard.css";
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
 import {
-  checkInAppointment,
-  listAppointments,
-  createAppointment,
   cancelAppointment,
+  checkInAppointment,
+  createAppointment,
+  listAppointments,
   rescheduleAppointment,
 } from "../services/appointmentsService";
+import { logout } from "../services/authService";
 import { searchPatients } from "../services/patientService";
 import {
-  listProfessionals,
   getProfessionalAvailability,
+  listProfessionals,
 } from "../services/professionalsService";
-import { logout } from "../services/authService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
 import type { AppointmentSummary } from "../types/appointments";
@@ -459,6 +459,7 @@ function setupRescheduleModal() {
 
   // Availability Logic (Similar to New Appointment)
   async function updateAvailability() {
+    console.log(dateInput)
     const professionalId = Number(professionalIdInput.value);
     const date = dateInput.value;
 
@@ -481,6 +482,14 @@ function setupRescheduleModal() {
 
     if (response.success && response.data) {
       const slots = response.data.filter((s: any) => s.is_available);
+      const uniqueSlots: typeof slots = [];
+      const seenTimes = new Set<string>();
+      slots.forEach((slot: any) => {
+        if (seenTimes.has(slot.time)) return;
+        seenTimes.add(slot.time);
+        uniqueSlots.push(slot);
+      });
+      const slotsToRender = uniqueSlots;
       if (slots.length === 0) {
         if (availabilityMessage)
           availabilityMessage.textContent =
@@ -490,7 +499,7 @@ function setupRescheduleModal() {
 
       if (availabilityMessage) availabilityMessage.classList.add("hidden");
 
-      slots.forEach((slot: any) => {
+      slotsToRender.forEach((slot: any) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "slot-btn";
@@ -609,6 +618,7 @@ function setupNewAppointmentModal(clinicId?: number) {
   const professionalSelect = document.getElementById(
     "professional-select",
   ) as HTMLSelectElement;
+  console.log(professionalSelect.value)
 
   if (!modal) return;
 
@@ -681,6 +691,7 @@ function setupNewAppointmentModal(clinicId?: number) {
         '<option value="">Selecione um profissional</option>';
       pros.forEach((p) => {
         const option = document.createElement("option");
+        option.value = String(p.id);
         const specialty = p.specialty
           ? p.specialty.charAt(0).toUpperCase() + p.specialty.slice(1)
           : "";
@@ -705,7 +716,6 @@ function setupNewAppointmentModal(clinicId?: number) {
 
   async function updateAvailability() {
     const professionalId = Number(professionalSelect.value);
-
     // Update Price
     if (professionalSelect.selectedOptions[0]) {
       const price = professionalSelect.selectedOptions[0].dataset.price;
@@ -732,14 +742,25 @@ function setupNewAppointmentModal(clinicId?: number) {
       endDate: date,
     });
 
+    console.log(response)
+    console.log({ date })
+
     if (response.success && response.data) {
-      const slots = response.data.filter((s: any) => s.is_available);
+
+      const filtered = response.data.filter((s: any) => s.date === date && s.is_available);
+
+      const slots = [
+        ...new Map(filtered.map((item: any) => [`${item.date}-${item.time}`, item])).values()
+      ];
       if (slots.length === 0) {
         if (availabilityMessage)
           availabilityMessage.textContent =
             "Nenhum horário disponível nesta data.";
         return;
       }
+
+      console.log({ slots })
+
 
       if (availabilityMessage) availabilityMessage.classList.add("hidden");
 
