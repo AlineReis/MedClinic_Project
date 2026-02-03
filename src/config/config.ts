@@ -10,6 +10,7 @@ interface Config {
   ENABLE_EMAIL: boolean;
   RESCHEDULE_FREE_WINDOW_HOURS: number;
   ALLOWED_ORIGINS: string[];
+  SEED_PASS: string;
 }
 
 function getEnv(): Config {
@@ -55,7 +56,11 @@ function getEnv(): Config {
         "http://localhost:3000",
         "http://localhost:80",
         "https://localhost:443",
+        "http://desafio03.alphaedtech",
+        "https://lab.alphaedtech.org.br/server03",
+        "https://lab.alphaedtech.org.br"
       ],
+    SEED_PASS: env.SEED_PASS as string
   };
 }
 

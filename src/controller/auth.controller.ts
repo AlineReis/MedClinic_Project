@@ -4,7 +4,7 @@ import type { AuthService } from "../services/auth.service.js";
 import { AuthError } from "../utils/errors.js";
 
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   public register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -52,7 +52,7 @@ export class AuthController {
 
   public logout = (req: Request, res: Response) => {
     res.clearCookie("token");
-    res.status(200).json({ success: true, message: "Logged out successfully" });
+    res.status(200).json({ success: true, message: "Sessão encerrada com sucesso." });
   };
 
   public getProfile = async (
@@ -64,7 +64,7 @@ export class AuthController {
       const jwtPayload = req.user;
 
       if (!jwtPayload) {
-        throw new AuthError("User not authenticated");
+        throw new AuthError("Usuário não autenticado.");
       }
 
       // Buscar perfil completo

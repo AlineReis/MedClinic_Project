@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { database } from "./config/database.js";
+import { env } from "@config/config.js";
 
-// As senhas dos usuários no seed são "password"
-
+const SEED_PASS = env.SEED_PASS
 const SALT_ROUNDS = 10;
 const TABLES_TO_CLEAR = [
   "commission_splits",
@@ -128,7 +128,7 @@ async function seedUsers(): Promise<Map<string, number>> {
   ];
 
   const insertedUsers = new Map<string, number>();
-  const pass = await hashPassword("password");
+  const pass = await hashPassword(SEED_PASS);
 
   for (const user of users) {
     const result = await database.run(

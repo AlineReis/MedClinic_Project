@@ -31,7 +31,7 @@ export class AuthError extends AppError {
   public statusCode = 401;
   public code = "AUTH_ERROR";
 
-  constructor(message: string) {
+  constructor(message = "Usuário não autenticado") {
     super(message);
   }
 }
