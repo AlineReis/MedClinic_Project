@@ -4,14 +4,14 @@ import { Request, Response, type NextFunction } from "express";
 import { ProfessionalService } from "../services/professional.service.js";
 
 export class ProfessionalController {
-  constructor(private professionalService: ProfessionalService) {}
+  constructor(private professionalService: ProfessionalService) { }
 
   public register = async (req: Request, res: Response) => {
     try {
       const { user, details, availability } = req.body;
 
       if (!user || !details) {
-        return res.status(400).json({ error: "Missing user or details data" });
+        return res.status(400).json({ error: "Dados ou detalhes do usuário ausentes." });
       }
 
       user.role = "health_professional";
@@ -66,7 +66,7 @@ export class ProfessionalController {
       );
 
       if (!professionalId || isNaN(professionalId)) {
-        return res.status(400).json({ error: "Invalid ID" });
+        return res.status(400).json({ error: "ID Inválido" });
       }
 
       const availability = await this.professionalService.getAvailability(
@@ -87,7 +87,7 @@ export class ProfessionalController {
 
       const professionalId = Number(id);
       if (!professionalId || isNaN(professionalId)) {
-        return res.status(400).json({ error: "Invalid ID" });
+        return res.status(400).json({ error: "ID Inválido" });
       }
 
       if (
@@ -97,7 +97,7 @@ export class ProfessionalController {
       ) {
         return res.status(400).json({
           error:
-            "Missing required field: availabilities (must be a non-empty array)",
+            "Campo obrigatório não encontrado: availabilities (precisa ser uma lista preenchida)",
         });
       }
 
@@ -108,7 +108,7 @@ export class ProfessionalController {
           !slot.end_time
         ) {
           return res.status(400).json({
-            error: `Item ${i}: Missing required fields: day_of_week, start_time, end_time`,
+            error: `Item ${i}: Faltam campos obrigatórios: day_of_week, start_time, end_time`,
           });
         }
       }
@@ -174,7 +174,7 @@ export class ProfessionalController {
       const availabilityId = Number(req.params.availabilityId);
 
       if (!professionalId || !availabilityId) {
-        return res.status(400).json({ error: "Invalid IDs" });
+        return res.status(400).json({ error: "IDs Inválidos" });
       }
 
       await this.professionalService.deleteAvailability(
@@ -189,7 +189,7 @@ export class ProfessionalController {
   public getAvailabilityRules = async (req: Request, res: Response) => {
     try {
       const professionalId = Number(req.params.id);
-      if (!professionalId) return res.status(400).json({ error: "Invalid ID" });
+      if (!professionalId) return res.status(400).json({ error: "ID Inválido" });
 
       const rules =
         await this.professionalService.getAvailabilityRules(professionalId);

@@ -4,7 +4,7 @@ import { AuthError, ValidationError } from "../utils/errors.js";
 import { isValidId } from "../utils/validators.js";
 
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   /*
   public getUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -31,12 +31,10 @@ export class UserController {
       const clinicId = Number(req.params.clinic_id);
       const targetUserId = Number(req.params.id);
 
-      console.log(`[UserController.getById] Request: clinicId=${clinicId}, targetUserId=${targetUserId}`);
       const requester = req.user;
-      console.log(`[UserController.getById] Requester:`, requester);
 
       if (!requester) {
-        throw new AuthError("User not authenticated");
+        throw new AuthError();
       }
 
       const user = await this.userService.getUserByIdScoped({
@@ -45,14 +43,11 @@ export class UserController {
         targetUserId,
       });
 
-      console.log(`[UserController.getById] User found:`, user?.id);
-
       return res.status(200).json({
         success: true,
         user,
       });
     } catch (error) {
-      console.error(`[UserController.getById] Error:`, error);
       return next(error);
     }
   };
@@ -109,7 +104,7 @@ export class UserController {
 
       const requester = req.user;
       if (!requester) {
-        throw new AuthError("User not authenticated");
+        throw new AuthError();
       }
 
       const user = await this.userService.updateUserScoped({
@@ -148,7 +143,7 @@ export class UserController {
 
       const requester = req.user;
       if (!requester) {
-        throw new AuthError("User not authenticated");
+        throw new AuthError();
       }
 
       await this.userService.deleteUser({
@@ -178,7 +173,7 @@ export class UserController {
 
       const requester = req.user;
       if (!requester) {
-        throw new AuthError("User not authenticated");
+        throw new AuthError();
       }
 
       const result = await this.userService.createUserByAdmin({
