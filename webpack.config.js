@@ -12,7 +12,6 @@ module.exports = (env, argv) => {
     "patient-dashboard.html",
     "reception-dashboard.html",
     "doctor-dashboard.html",
-    // "lab-dashboard.html", // Removed
     "manager-dashboard.html",
     "admin-dashboard.html",
     "users.html",
@@ -42,7 +41,6 @@ module.exports = (env, argv) => {
       doctorDashboard: "./src/pages/doctorDashboard.ts",
       receptionDashboard: "./src/pages/receptionDashboard.ts",
 
-      labDashboard: "./src/pages/labDashboard.ts",
       managerDashboard: "./src/pages/managerDashboard.ts",
 
       // Admin
@@ -111,6 +109,7 @@ module.exports = (env, argv) => {
         template: "./pages/schedule-appointment.html",
         filename: "pages/schedule-appointment.html",
         chunks: ["theme", "scheduleAppointment"],
+        publicPath: "../",
       }),
       new HtmlWebpackPlugin({
         template: "./pages/login.html",
@@ -164,7 +163,6 @@ module.exports = (env, argv) => {
         if (page === "doctor-dashboard.html") chunks.push("doctorDashboard");
         if (page === "reception-dashboard.html") chunks.push("receptionDashboard");
         if (page === "admin-dashboard.html") chunks.push("adminDashboard");
-        if (page === "lab-dashboard.html") chunks.push("labDashboard");
         if (page === "manager-dashboard.html") chunks.push("managerDashboard");
         if (page === "financial.html") chunks.push("financialPage");
         if (page === "users.html") chunks.push("usersPage", "teamPage");
