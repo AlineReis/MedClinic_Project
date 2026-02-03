@@ -19,13 +19,18 @@ const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-// In production, we use relative path "/api/v1/1" so Nginx can proxy it.
-// Locally, we point directly to localhost:3000.
-const DEFAULT_API_URL = isLocal
-  ? "http://localhost:3000/api/v1/1"
-  : "/api/v1/1";
+export const getApiUrl = () => {
+  if (isLocal) return "http://localhost:3000/api/v1/1";
 
-const BASE_URL = (CLINIC_API_HOST ?? DEFAULT_API_URL).replace(
+  // Verifica se a URL atual cont  m '/server03'
+  const prefix = window.location.pathname.includes('/server03')
+    ? '/server03'
+    : '';
+
+  return `${prefix}/api/v1/1`;
+};
+
+const BASE_URL = (CLINIC_API_HOST ?? getApiUrl()).replace(
   /\/+$/,
   "",
 );
