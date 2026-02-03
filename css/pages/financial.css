@@ -160,3 +160,89 @@
   color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
+
+/* Print Styles */
+@media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  body {
+    background-color: white !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide UI Elements */
+  .admin-sidebar,
+    .admin-header, 
+    .theme-toggle,
+    .user-badge-header,
+    .export-dropdown-wrapper,
+    .pagination-controls,
+    .financial-main-grid, /* Hide charts section for cleaner list, or keep if desired */
+    .financial-performance-grid, /* Simplify - maybe show only table? Let's show everything but clean */
+    .table-toolbar {
+    display: none !important;
+  }
+
+  /* Reset Layout for Print */
+  .admin-layout,
+  .admin-main,
+  .admin-content-viewport {
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    display: block !important;
+    position: static !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+
+  .admin-container-max {
+    max-width: 100% !important;
+    padding: 2cm !important;
+  }
+
+  /* Print Header */
+  .admin-content-stack::before {
+    content: 'Relatório Financeiro - MedClinic';
+    display: block;
+    font-size: 24pt;
+    font-weight: bold;
+    margin-bottom: 24pt;
+    color: black;
+    text-align: center;
+    border-bottom: 2px solid black;
+    padding-bottom: 12pt;
+  }
+
+  /* Table Styling for Print */
+  .admin-table-panel {
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  .admin-table {
+    color: black !important;
+    font-size: 10pt !important;
+  }
+
+  .admin-table th {
+    background-color: #f3f4f6 !important;
+    color: black !important;
+    border-bottom: 2px solid black !important;
+  }
+
+  .admin-table td {
+    border-bottom: 1px solid #ddd !important;
+    color: black !important;
+  }
+
+  .transaction-status {
+    border: 1px solid black !important;
+    color: black !important;
+    background: white !important;
+  }
+}

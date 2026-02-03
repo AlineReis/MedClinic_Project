@@ -1,35 +1,49 @@
-import "../../css/pages/patient-dashboard.css";
-import "../../css/global.css";
-import { Navigation } from "../components/Navigation";
-import { ToastContainer } from "../components/ToastContainer";
-import { authStore } from "../stores/authStore";
-import { dashboardStore } from "../stores/dashboardStore";
+import "../../css/pages/patient-dashboard.css"
+import "../../css/global.css"
+import { Navigation } from "../components/Navigation"
+import { initTheme } from "../config/theme"
+import { MobileMenu } from "../components/MobileMenu"
+import { ToastContainer } from "../components/ToastContainer"
+import { authStore } from "../stores/authStore"
+import { dashboardStore } from "../stores/dashboardStore"
 import {
   DASHBOARD_APPOINTMENTS_EVENT,
   type DashboardEventDetail,
-} from "../stores/dashboardStore";
-import { uiStore } from "../stores/uiStore";
-import type { AppointmentSummary } from "../types/appointments";
-import type { UserSession } from "../types/auth";
-import type { PrescriptionSummary } from "../types/prescriptions";
-import { openPrescriptionModal } from "./prescriptionModal";
-import { openAppointmentModal } from "./appointmentModal";
-import { formatSpecialty } from "../utils/formatters";
+} from "../stores/dashboardStore"
+import { uiStore } from "../stores/uiStore"
+import {
+  listAppointments,
+  cancelAppointment,
+} from "../services/appointmentsService"
+
+import type { AppointmentSummary } from "../types/appointments"
+import type { UserSession } from "../types/auth"
+import type { PrescriptionSummary } from "../types/prescriptions"
+import { openPrescriptionModal } from "./prescriptionModal"
+import { openAppointmentModal } from "./appointmentModal"
 
 const nextAppointmentContainer = document.querySelector(
   "[data-next-appointment]",
-);
+) as HTMLElement
 const activityList = document.querySelector(
   "[data-activity-list]",
-) as HTMLTableSectionElement | null;
+) as HTMLTableSectionElement | null
+const emptyStateContainer = document.querySelector(
+  "[data-empty-appointments]",
+) as HTMLElement
+const prescriptionsContainer = document.getElementById(
+  "prescriptions-container",
+) as HTMLElement
 
-let toastContainer: ToastContainer | null = null;
-let navigation: Navigation | null = null;
+let toastContainer: ToastContainer
+let navigation: Navigation
 
 document.addEventListener("DOMContentLoaded", () => {
-  toastContainer = new ToastContainer();
-  navigation = new Navigation();
-  hydrateSessionUser();
+  toastContainer = new ToastContainer()
+  navigation = new Navigation()
+  new MobileMenu()
+  initTheme()
+  hydrateSessionUser()
   window.addEventListener(
     DASHBOARD_APPOINTMENTS_EVENT,
     handleDashboardUpdate as EventListener,

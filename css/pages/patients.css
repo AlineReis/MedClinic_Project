@@ -4,7 +4,7 @@
 .patients-layout {
   background-color: var(--background-dark);
   color: var(--text-primary);
-  font-family: "Manrope", sans-serif;
+  font-family: 'Manrope', sans-serif;
   overflow: hidden;
   height: 100vh;
   display: flex;
@@ -14,7 +14,8 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 16rem; /* 64 * 0.25rem = 16rem */
+  width: 16rem;
+  /* 64 * 0.25rem = 16rem */
   border-right: 1px solid var(--border-dark);
   background-color: var(--surface-dark);
   height: 100%;
@@ -22,7 +23,8 @@
 
 @media (max-width: 1024px) {
   .sidebar {
-    display: none; /* hidden lg:flex */
+    display: none;
+    /* hidden lg:flex */
   }
 }
 
@@ -90,7 +92,8 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background-color: rgba(25, 127, 230, 0.2); /* primary/20 */
+  background-color: rgba(25, 127, 230, 0.2);
+  /* primary/20 */
   color: var(--primary);
   display: flex;
   align-items: center;
@@ -131,7 +134,8 @@
 }
 
 .logout-btn:hover {
-  color: #f87171; /* red-400 */
+  color: #f87171;
+  /* red-400 */
 }
 
 /* 3. Main Content */
@@ -242,7 +246,8 @@
 
 @media (min-width: 768px) {
   .search-container {
-    width: 24rem; /* w-96 */
+    width: 24rem;
+    /* w-96 */
   }
 }
 
@@ -312,7 +317,8 @@
   padding: 1rem 1.5rem;
   font-weight: 700;
   color: var(--text-secondary);
-  background-color: rgba(17, 20, 24, 0.5); /* background-dark/50 */
+  background-color: rgba(17, 20, 24, 0.5);
+  /* background-dark/50 */
   border-bottom: 1px solid var(--border-dark);
 }
 
@@ -331,7 +337,8 @@
 }
 
 .table-row:hover {
-  background-color: rgba(42, 52, 65, 0.1); /* border-dark/10 */
+  background-color: rgba(42, 52, 65, 0.1);
+  /* border-dark/10 */
 }
 
 .text-right {
@@ -403,14 +410,16 @@
 }
 
 .modal-overlay.hidden {
-  display: none !important; /* Ensure override */
+  display: none !important;
+  /* Ensure override */
 }
 
 .modal-box {
   background-color: var(--surface-dark);
   border: 1px solid var(--border-dark);
   width: 100%;
-  max-width: 32rem; /* max-w-lg */
+  max-width: 32rem;
+  /* max-w-lg */
   border-radius: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -468,7 +477,7 @@
   background-color: var(--background-dark);
   border: 1px solid var(--border-dark);
   border-radius: 0.75rem;
-  color: white;
+  color: var(--text-primary);
   outline: none;
 }
 
@@ -486,7 +495,7 @@
   background-color: var(--border-dark);
   border: 1px solid var(--border-dark);
   border-radius: 0.75rem;
-  color: white;
+  color: var(--text-primary);
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -537,6 +546,79 @@
 
 .helper-text {
   font-size: 0.75rem;
-  color: #64748b; /* slate-500 */
+  color: #64748b;
+  /* slate-500 */
   margin-top: 0.25rem;
+}
+/* 7. History List Styles */
+.history-loading,
+.history-empty {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 1rem;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  margin: 0;
+}
+
+.history-doctor {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0 0;
+}
+
+.history-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Status Badges */
+.status-badge-gray {
+  background-color: rgba(107, 114, 128, 0.2);
+  color: #9ca3af; /* gray-400 */
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.status-badge-blue {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa; /* blue-400 */
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.status-badge-amber {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #fbbf24; /* amber-400 */
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge-emerald {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34d399; /* emerald-400 */
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge-red {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #f87171; /* red-400 */
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }

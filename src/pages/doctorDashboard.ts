@@ -1,7 +1,12 @@
 import "../../css/pages/doctor-dashboard.css";
+import { MobileSidebar } from "../components/MobileSidebar";
 import { Navigation } from "../components/Navigation";
 import { ToastContainer } from "../components/ToastContainer";
-import { listAppointments } from "../services/appointmentsService";
+import {
+  completeAppointment,
+  listAppointments,
+  startAppointment,
+} from "../services/appointmentsService";
 import { createExam, listCatalog } from "../services/examsService";
 import {
   createPrescription,
@@ -10,9 +15,8 @@ import {
 import {
   createProfessionalAvailability,
   deleteAvailability,
-  getProfessionalAvailability,
   getProfessionalAvailabilityRules,
-  getProfessionalCommissions,
+  getProfessionalCommissions
 } from "../services/professionalsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -29,7 +33,21 @@ import type {
 import { formatSpecialty } from "../utils/formatters";
 
 const MAX_AUTOCOMPLETE_RESULTS = 6;
+const NEXT_PATIENT_STATUSES = new Set([
+  "scheduled",
+  "confirmed",
+  "checked_in",
+  "waiting",
+  "in_progress",
+]);
+
+type NextPatientState = "idle" | "in_progress";
+
 let appointmentAutocompleteCache: AppointmentSummary[] = [];
+let todayAppointmentsCache: AppointmentSummary[] = [];
+let currentNextAppointment: AppointmentSummary | null = null;
+let nextAppointmentState: NextPatientState = "idle";
+let currentProfessionalId: number | null = null;
 
 async function initDoctorDashboard() {
   const session = await authStore.refreshSession();
@@ -45,7 +63,10 @@ async function initDoctorDashboard() {
 
   // Initialize UI Components
   new Navigation();
+  new MobileSidebar();
   new ToastContainer();
+
+  currentProfessionalId = session.id;
 
   populateCommissionMonthOptions();
 
@@ -75,6 +96,78 @@ async function initDoctorDashboard() {
   setupAgendaModal(session.id);
 }
 
+// Make handleStartAttendance available globally
+(window as any).handleStartAttendance = async (id: number) => {
+  try {
+    const btn = document.querySelector(`.btn-patient-start`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Iniciando...";
+    }
+
+    const response = await startAppointment(id);
+
+    if (response.success) {
+      uiStore.addToast("success", "Atendimento iniciado!");
+      if (btn) {
+        btn.disabled = true; // Keep disabled or change to "Finalizar" if we implement that next
+        btn.textContent = "Em Atendimento";
+        // Refresh dashboard to likely update UI
+        const user = authStore.getSession();
+        if (user?.id) loadUpcomingAppointments(user.id);
+      }
+    } else {
+      uiStore.addToast("error", response.error?.message || "Erro ao iniciar atendimento");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Iniciar Atendimento";
+      }
+    }
+  } catch (error) {
+    console.error("Error starting appointment:", error);
+    uiStore.addToast("error", "Erro ao iniciar atendimento");
+    const btn = document.querySelector(`.btn-patient-start`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Iniciar Atendimento";
+    }
+  }
+};
+
+// Make handleCompleteAttendance available globally
+(window as any).handleCompleteAttendance = async (id: number) => {
+  try {
+    const btn = document.querySelector(`.btn-patient-finish`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Finalizando...";
+    }
+
+    const response = await completeAppointment(id);
+
+    if (response.success) {
+      uiStore.addToast("success", "Atendimento finalizado!");
+      // Refresh dashboard to show next patient
+      const user = authStore.getSession();
+      if (user?.id) loadUpcomingAppointments(user.id);
+    } else {
+      uiStore.addToast("error", response.error?.message || "Erro ao finalizar atendimento");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Finalizar Atendimento";
+      }
+    }
+  } catch (error) {
+    console.error("Error completing appointment:", error);
+    uiStore.addToast("error", "Erro ao finalizar atendimento");
+    const btn = document.querySelector(`.btn-patient-finish`) as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Finalizar Atendimento";
+    }
+  }
+};
+
 async function loadUpcomingAppointments(professionalId: number) {
   try {
     const today = new Date();
@@ -84,7 +177,7 @@ async function loadUpcomingAppointments(professionalId: number) {
     const todayResponse = await listAppointments({
       professionalId,
       date: todayStr,
-      status: "scheduled,confirmed",
+      // status: "scheduled,confirmed", // Removed strict filtering to see all and filter in frontend if needed
     });
 
     // Get all upcoming appointments
@@ -122,103 +215,164 @@ function updateStats(
   todayAppointments: AppointmentSummary[],
   allUpcoming: AppointmentSummary[],
 ) {
-  // Count today's appointments
-  const totalToday = todayAppointments.length;
+  // Count today's appointments (excluding cancelled)
+  const cancelledStatuses = ["cancelled", "cancelled_by_patient", "cancelled_by_clinic", "no_show"];
+  const totalToday = todayAppointments.filter(a => !cancelledStatuses.includes(a.status)).length;
 
   // Count appointments by status
   const waiting = todayAppointments.filter(
-    (a) => a.status === "scheduled" || a.status === "confirmed",
+    (a) => a.status === "waiting" || a.status === "confirmed",
   ).length;
   const completed = todayAppointments.filter(
     (a) => a.status === "completed",
   ).length;
 
-  // Update stat cards
-  const statsCards = document.querySelectorAll("section.grid h3");
-  if (statsCards[0]) statsCards[0].textContent = String(totalToday);
-  if (statsCards[1]) statsCards[1].textContent = String(waiting);
-  if (statsCards[2]) statsCards[2].textContent = String(completed);
+  // Update stat cards (markup now lives in .stats-grid)
+  const statsValues = document.querySelectorAll(".stats-grid .stats-value");
+  if (statsValues[0]) statsValues[0].textContent = String(totalToday);
+  if (statsValues[1]) statsValues[1].textContent = String(waiting);
+  if (statsValues[2]) statsValues[2].textContent = String(completed);
 }
 
 function updateNextPatient(appointments: AppointmentSummary[]) {
-  if (appointments.length === 0) {
-    // Show empty state
-    const nextPatientCard = document.querySelector(".next-patient-card");
-    if (nextPatientCard) {
-      nextPatientCard.innerHTML = `
-        <div class="u-text-center u-padding-medium">
-          <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
-          <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
-        </div>
-      `;
-    }
+  todayAppointmentsCache = [...appointments];
+
+  const nextPatientCard = document.querySelector(".next-patient-card");
+  if (!nextPatientCard) return;
+
+  const eligibleAppointments = [...appointments]
+    .filter((appointment) => NEXT_PATIENT_STATUSES.has(appointment.status))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const nextAppointment = eligibleAppointments[0] ?? null;
+  currentNextAppointment = nextAppointment;
+  nextAppointmentState = nextAppointment?.status === "in_progress" ? "in_progress" : "idle";
+
+  if (!nextAppointment) {
+    currentNextAppointment = null;
+    nextAppointmentState = "idle";
+    nextPatientCard.innerHTML = `
+      <div class="u-text-center u-padding-medium">
+        <span class="material-symbols-outlined u-text-secondary u-opacity-60" style="font-size: 4rem;">event_available</span>
+        <p class="u-mt-10 u-fs-lg">Nenhum paciente agendado para hoje</p>
+      </div>
+    `;
     return;
   }
 
-  // Sort by time and get the next one
-  const sortedAppointments = [...appointments].sort((a, b) => {
-    return a.time.localeCompare(b.time);
-  });
+  const buttonLabel = nextAppointmentState === "in_progress" ? "Finalizar Atendimento" : "Iniciar Atendimento";
 
-  const nextAppointment = sortedAppointments[0];
-  const nextPatientCard = document.querySelector(".next-patient-card");
+  nextPatientCard.innerHTML = `
+    <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
+    <div class="u-mb-15">
+      <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
+      <p class="u-text-secondary">Consulta • ${nextAppointment.specialty || "Profissional"}</p>
+    </div>
 
-  if (nextPatientCard) {
-    nextPatientCard.innerHTML = `
-      <span class="badge badge--primary u-mb-10">Próximo Paciente</span>
-      <div class="u-mb-15">
-        <h3 class="u-fs-xl u-fw-700">${nextAppointment.patient_name || "Paciente"}</h3>
-        <p class="u-text-secondary">Consulta • ${formatSpecialty(nextAppointment.specialty) || "Profissional"}</p>
-      </div>
-      
-      <div class="u-flex u-gap-medium u-mb-20">
-        <span class="u-flex u-items-center u-gap-small u-text-secondary">
-          <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
-        </span>
-        ${
-          nextAppointment.room
-            ? `
+    <div class="u-flex u-gap-medium u-mb-20">
+      <span class="u-flex u-items-center u-gap-small u-text-secondary">
+        <span class="material-symbols-outlined u-fs-sm">schedule</span> ${nextAppointment.time}
+      </span>
+      ${nextAppointment.room
+      ? `
           <span class="u-flex u-items-center u-gap-small u-text-secondary">
             <span class="material-symbols-outlined u-fs-sm">location_on</span> Sala ${nextAppointment.room}
           </span>
         `
-            : ""
-        }
-      </div>
-      
-      <button onclick="window.location.href='pep.html'" class="btn btn--primary btn--block">
-        Iniciar Atendimento
-      </button>
-    `;
+      : ""
+    }
+    </div>
+
+    <button id="iniciar-atendimento" class="btn btn--primary btn--block">
+      ${buttonLabel}
+    </button>
+  `;
+
+  attachNextPatientButton(nextPatientCard);
+}
+
+function attachNextPatientButton(card: Element) {
+  const button = card.querySelector("#iniciar-atendimento") as HTMLButtonElement | null;
+  if (!button) return;
+  button.addEventListener("click", handleNextPatientAction);
+}
+
+async function handleNextPatientAction(event: Event) {
+  event.preventDefault();
+  if (!currentNextAppointment || !currentProfessionalId) return;
+
+  const button = event.currentTarget as HTMLButtonElement;
+  const appointmentId = currentNextAppointment.id;
+  const previousState = nextAppointmentState;
+  const actionLabel = previousState === "idle" ? "Iniciando" : "Finalizando";
+  button.disabled = true;
+  button.textContent = `${actionLabel}...`;
+
+  try {
+    if (previousState === "idle") {
+      const response = await startAppointment(appointmentId);
+      if (!response.success) {
+        throw new Error(response.error?.message ?? "Erro ao iniciar atendimento");
+      }
+      uiStore.addToast("success", "Atendimento iniciado com sucesso");
+      updateLocalAppointmentStatus(appointmentId, "in_progress");
+      nextAppointmentState = "in_progress";
+      updateNextPatient(todayAppointmentsCache);
+      updateWaitingQueue(todayAppointmentsCache);
+      return;
+    }
+
+    const response = await completeAppointment(appointmentId);
+    if (!response.success) {
+      throw new Error(response.error?.message ?? "Erro ao finalizar atendimento");
+    }
+    uiStore.addToast("success", "Atendimento finalizado com sucesso");
+    await loadUpcomingAppointments(currentProfessionalId);
+  } catch (error) {
+    console.error(error);
+    const message = error instanceof Error ? error.message : "Erro ao atualizar atendimento";
+    uiStore.addToast("error", message);
+    button.textContent = previousState === "idle" ? "Iniciar Atendimento" : "Finalizar Atendimento";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function updateLocalAppointmentStatus(appointmentId: number, status: string) {
+  const appointment = todayAppointmentsCache.find((item) => item.id === appointmentId);
+  if (appointment) {
+    appointment.status = status;
   }
 }
 
 function updateWaitingQueue(appointments: AppointmentSummary[]) {
-  const queueList = document.querySelector(".bg-surface-dark ul");
+  const queueList = document.querySelector(".panel-list");
   if (!queueList) return;
 
-  // Filter appointments that are waiting (after the first one)
+  const waitingStatuses = new Set(["confirmed", "checked_in", "waiting"]);
+  console.log(appointments)
   const sortedAppointments = [...appointments]
+    .filter((appointment) => waitingStatuses.has(appointment.status))
     .sort((a, b) => a.time.localeCompare(b.time))
-    .slice(1, 5); // Show next 4 appointments
+    .slice(0, 4);
 
-  if (sortedAppointments.length === 0) {
+  const queueAppointments = sortedAppointments.slice(1, 6); // Show next 5
+
+  if (queueAppointments.length === 0) {
     queueList.innerHTML = `
-      <li class="list-item-row u-justify-between u-items-center">
-        <span class="u-text-secondary u-fs-sm">Nenhum paciente na fila</span>
+      <li class="queue-patient-row" style="justify-content: center;">
+        <span class="queue-placeholder">Nenhum paciente na fila</span>
       </li>
     `;
-    return;
+    return
   }
 
-  queueList.innerHTML = sortedAppointments
+  queueList.innerHTML = queueAppointments
     .map(
       (appointment) => `
-      <li class="list-item-row u-justify-between u-items-center">
-        <span class="u-fw-600">${appointment.patient_name || "Paciente"}</span>
-        <span class="badge ${appointment.status === "confirmed" ? "badge--warning" : "badge--neutral"}">
-          ${appointment.time}
-        </span>
+      <li class="queue-patient-row">
+        <span class="queue-placeholder" style="color: white;">${appointment.patient_name || "Paciente"}</span>
+        <span class="queue-time-placeholder" style="${appointment.status === "confirmed" ? "color: var(--primary);" : ""}">${appointment.time}</span>
       </li>
     `,
     )
@@ -254,10 +408,10 @@ async function loadCommissions(
     if (response.success && response.data) {
       updateCommissionsPanel(response.data);
     } else {
-      console.error("Failed to load commissions:", response.error);
+      console.warn("Failed to load commissions:", response.error || "Unknown error"); // Downgraded to warn
     }
   } catch (error) {
-    console.error("Error loading commissions:", error);
+    console.warn("Error loading commissions (service might be unavailable):", error); // Downgraded to warn
   }
 }
 
@@ -455,7 +609,7 @@ function showAvailabilityModal(professionalId: number) {
         <div style="border-top: 1px solid var(--border-dark); padding-top: 1rem;">
           <h4 class="u-fs-sm u-fw-600 u-mb-10">Adicionar Novos Horários</h4>
           <div id="availability-entries" style="display: flex; flex-direction: column; gap: 1rem;">
-            <div class="form">
+            <div class="form availability-entry">
               <div class="form__group" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; align-items: end;">
                 <div>
                   <label class="form__label">Dia da Semana</label>
@@ -746,7 +900,7 @@ function showAvailabilityModal(professionalId: number) {
     if (!entriesContainer) return;
 
     const newEntry = document.createElement("div");
-    newEntry.className = "form";
+    newEntry.className = "form availability-entry";
     newEntry.innerHTML = `
       <div class="form__group" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; align-items: end;">
         <div>

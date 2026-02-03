@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta name="theme-color" content="#00C896" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="description" content="MedClinic - Sistema de Gestão de Clínicas Médicas" />
@@ -16,7 +17,6 @@
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
   <link href="https://fonts.googleapis.com" rel="preconnect" />
 
-
   <!-- Base CSS -->
   <link rel="stylesheet" href="../css/base/reset.css">
   <link rel="stylesheet" href="../css/base/variables.css">
@@ -27,6 +27,9 @@
 </head>
 
 <body class="auth-body">
+  <button class="theme-toggle login-theme-toggle" id="theme-toggle" title="Alternar tema">
+    <span class="material-symbols-outlined">light_mode</span>
+  </button>
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">

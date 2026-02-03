@@ -191,9 +191,9 @@ function renderCheckInsTable(appointments: AppointmentSummary[]) {
   if (upcomingAppointments.length === 0) {
     tbody.innerHTML = `
       <tr class="table-row">
-        <td colspan="6" style="text-align: center; padding: 2rem;">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
-            <span class="material-symbols-outlined">check_circle</span>
+        <td colspan="6" class="table-empty-state">
+          <div class="table-empty-content">
+            <span class="material-symbols-outlined icon-medium">check_circle</span>
             <p>Nenhum check-in pendente no momento</p>
           </div>
         </td>
@@ -213,9 +213,9 @@ function renderCheckInsTable(appointments: AppointmentSummary[]) {
       <tr class="table-row" data-appointment-id="${apt.id}">
         <td class="table-cell cell-patient-name">${apt.patient_name}</td>
         <td class="table-cell cell-time">
-           <div style="display: flex; gap: 0.5rem; align-items: center;">
-             <span style="font-size: 0.75rem;">${formatDate(apt.date)}</span>
-             <span style="font-weight: 700;">${apt.time}</span>
+           <div class="checkin-time-container">
+             <span class="checkin-time-date">${formatDate(apt.date)}</span>
+             <span class="checkin-time-clock">${apt.time}</span>
            </div>
         </td>
         <td class="table-cell">${apt.professional_name}</td>
@@ -230,12 +230,12 @@ function renderCheckInsTable(appointments: AppointmentSummary[]) {
           </button>
         </td>
         <td class="table-cell">
-           <div class="u-flex u-items-center u-gap-small">
+           <div class="action-buttons-container">
               <button class="action-icon-btn" title="Reagendar" data-reschedule-btn="${apt.id}">
-                <span class="material-symbols-outlined" style="font-size: 1.25rem;">edit_calendar</span>
+                <span class="material-symbols-outlined action-icon-large">edit_calendar</span>
               </button>
               <button class="action-icon-btn u-text-error" title="Cancelar" data-cancel-btn="${apt.id}">
-                <span class="material-symbols-outlined" style="font-size: 1.25rem;">cancel</span>
+                <span class="material-symbols-outlined action-icon-large">cancel</span>
               </button>
            </div>
         </td>
@@ -558,10 +558,12 @@ function formatDate(dateString: string): string {
 
 function getStatusBadge(status: string): string {
   const badges: Record<string, { color: string; label: string }> = {
-    scheduled: { color: "muted", label: "PENDENTE" },
-    confirmed: { color: "amber", label: "AGUARDANDO" },
+    scheduled: { color: "gray", label: "PENDENTE" },
+    confirmed: { color: "blue", label: "CONFIRMADO" },
+    waiting: { color: "amber", label: "AGUARDANDO" },
     in_progress: { color: "emerald", label: "EM ATENDIMENTO" },
-    completed: { color: "blue", label: "CONCLUÍDO" },
+    completed: { color: "emerald", label: "CONCLUÍDO" },
+    cancelled: { color: "red", label: "CANCELADO" },
     cancelled_by_patient: { color: "red", label: "CANCELADO" },
     cancelled_by_clinic: { color: "red", label: "CANCELADO" },
     no_show: { color: "red", label: "AUSENTE" },
@@ -679,8 +681,11 @@ function setupNewAppointmentModal(clinicId?: number) {
         '<option value="">Selecione um profissional</option>';
       pros.forEach((p) => {
         const option = document.createElement("option");
-        option.value = String(p.id);
-        option.textContent = `${p.name} - ${p.specialty}`;
+        const specialty = p.specialty
+          ? p.specialty.charAt(0).toUpperCase() + p.specialty.slice(1)
+          : "";
+        option.textContent = `${p.name} - ${specialty}`;
+        option.dataset.price = String(p.consultation_price || 0);
         professionalSelect.appendChild(option);
       });
     }
@@ -696,9 +701,18 @@ function setupNewAppointmentModal(clinicId?: number) {
   const availabilitySection = document.getElementById("availability-section");
   const availabilitySlots = document.getElementById("availability-slots");
   const availabilityMessage = document.getElementById("availability-message");
+  const priceInput = form.querySelector("input[name='price']") as HTMLInputElement;
 
   async function updateAvailability() {
     const professionalId = Number(professionalSelect.value);
+
+    // Update Price
+    if (professionalSelect.selectedOptions[0]) {
+      const price = professionalSelect.selectedOptions[0].dataset.price;
+      if (price && priceInput) {
+        priceInput.value = price;
+      }
+    }
     const date = dateInput.value;
 
     if (!professionalId || !date) {
@@ -764,7 +778,7 @@ function setupNewAppointmentModal(clinicId?: number) {
       professionalId: Number(formData.get("professionalId")),
       date: formData.get("date") as string,
       time: formData.get("time") as string,
-      type: formData.get("type") as string,
+      type: "presencial",
       price: Number(formData.get("price")) || 0,
     };
 
@@ -883,17 +897,17 @@ function setupGeneralAgendaModal(clinicId?: number) {
           .map(
             (apt) => `
                 <tr class="table-row">
-                    <td class="table-cell" style="font-weight: 700;">${apt.time}</td>
+                    <td class="table-cell checkin-time-clock">${apt.time}</td>
                     <td class="table-cell cell-patient-name">${apt.patient_name}</td>
                     <td class="table-cell">${apt.professional_name}</td>
                     <td class="table-cell">${getStatusBadge(apt.status)}</td>
                     <td class="table-cell">
-                        <div class="u-flex u-items-center u-gap-small">
+                        <div class="action-buttons-container">
                           <button class="action-icon-btn" title="Reagendar" data-reschedule-btn="${apt.id}">
-                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">edit_calendar</span>
+                            <span class="material-symbols-outlined action-icon-large">edit_calendar</span>
                           </button>
                           <button class="action-icon-btn u-text-error" title="Cancelar" data-cancel-btn="${apt.id}">
-                             <span class="material-symbols-outlined" style="font-size: 1.25rem;">cancel</span>
+                             <span class="material-symbols-outlined action-icon-large">cancel</span>
                           </button>
                        </div>
                     </td>

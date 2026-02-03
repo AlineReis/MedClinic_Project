@@ -1,8 +1,8 @@
+
 /**
  * Mobile Sidebar Component
  * Handles sidebar toggle functionality for mobile devices in dashboard pages
  */
-
 export class MobileSidebar {
     private isOpen: boolean = false;
     private sidebar: HTMLElement | null = null;
@@ -12,7 +12,7 @@ export class MobileSidebar {
         this.init();
     }
 
-    private init(): void {
+    private init() {
         this.sidebar = document.querySelector('aside');
         if (!this.sidebar) return;
 
@@ -33,7 +33,10 @@ export class MobileSidebar {
         });
     }
 
-    private createOverlay(): void {
+    private createOverlay() {
+        // Check if exists
+        if (document.getElementById('sidebar-overlay')) return;
+
         const overlay = document.createElement('div');
         overlay.id = 'sidebar-overlay';
         overlay.className = 'sidebar-overlay';
@@ -42,7 +45,7 @@ export class MobileSidebar {
         this.overlay = overlay;
     }
 
-    public open(): void {
+    open() {
         if (!this.sidebar || !this.overlay) return;
         this.isOpen = true;
         this.sidebar.classList.add('sidebar-open');
@@ -50,7 +53,7 @@ export class MobileSidebar {
         document.body.style.overflow = 'hidden';
     }
 
-    public close(): void {
+    close() {
         if (!this.sidebar || !this.overlay) return;
         this.isOpen = false;
         this.sidebar.classList.remove('sidebar-open');
@@ -58,7 +61,7 @@ export class MobileSidebar {
         document.body.style.overflow = '';
     }
 
-    public toggle(): void {
+    toggle() {
         if (this.isOpen) {
             this.close();
         } else {

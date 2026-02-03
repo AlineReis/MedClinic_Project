@@ -10,6 +10,7 @@ import {
   getProfessionalAvailability,
   listProfessionals,
 } from "../services/professionalsService";
+import { logout } from "../services/authService"
 import { authStore } from "../stores/authStore";
 import { dashboardStore } from "../stores/dashboardStore";
 import { uiStore } from "../stores/uiStore";

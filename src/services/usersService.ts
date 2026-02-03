@@ -11,6 +11,7 @@ import type {
   UserFilters,
   PaginatedUsers,
   UpdateUserPayload,
+  CreateUserPayload,
   UserApiItem,
   UsersListApiResponse,
   UserDetailApiResponse,
@@ -79,10 +80,13 @@ function mapUserDetail(apiUser: UserApiItem): UserDetail {
 export async function listUsers(
   filters: UserFilters = {},
 ): Promise<ApiResponse<PaginatedUsers>> {
-  const query = buildUserQuery(filters);
-  const response = await request<UsersListApiResponse>(`/users${query}`);
+  const query = buildUserQuery(filters)
+  const response = await request<UsersListApiResponse>(`/users${query}`)
 
-  if (!response.success || !response.data) {
+  // Cast response to any to access 'users' field directly (Backend non-standard response)
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.users) {
     return {
       success: false,
       error: response.error || {
@@ -94,13 +98,20 @@ export async function listUsers(
   }
 
   // Map API response to domain types
-  const users = response.data.data.map(mapUserSummary);
+  // Backend returns { users: { items, ... } }
+  const backendList = rawResponse.users;
+  const users = backendList.items.map(mapUserSummary)
 
   return {
     success: true,
     data: {
       users,
-      pagination: response.data.pagination,
+      pagination: {
+        total: backendList.total,
+        page: backendList.page,
+        pageSize: backendList.pageSize,
+        totalPages: backendList.totalPages,
+      },
     },
   };
 }
@@ -118,12 +129,13 @@ export async function listUsers(
  * @param userId User ID to fetch
  * @returns User details
  */
-export async function getUserById(
-  userId: number,
-): Promise<ApiResponse<UserDetail>> {
-  const response = await request<UserDetailApiResponse>(`/users/${userId}`);
+export async function getUserById(userId: number): Promise<ApiResponse<UserDetail>> {
+  const response = await request<UserDetailApiResponse>(`/users/${userId}`)
 
-  if (!response.success || !response.data) {
+  // Cast response to any because backend returns { user: ... } not inside data wrapper when using apiService
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.user) {
     return {
       success: false,
       error: response.error || {
@@ -136,7 +148,38 @@ export async function getUserById(
 
   return {
     success: true,
-    data: mapUserDetail(response.data.user),
+    data: mapUserDetail(rawResponse.user),
+  }
+}
+
+/**
+ * Create a new user
+ * POST /users
+ *
+ * Permissions: admin only
+ *
+ * @param payload Create data
+ * @returns Created user details
+ */
+export async function createUser(payload: CreateUserPayload): Promise<ApiResponse<UserDetail>> {
+  const response = await request<UserDetailApiResponse>('/users', 'POST', payload);
+
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.user) {
+    return {
+      success: false,
+      error: response.error || {
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to create user',
+        statusCode: 500
+      }
+    };
+  }
+
+  return {
+    success: true,
+    data: mapUserDetail(rawResponse.user)
   };
 }
 
@@ -154,13 +197,11 @@ export async function updateUser(
   userId: number,
   payload: UpdateUserPayload,
 ): Promise<ApiResponse<UserDetail>> {
-  const response = await request<UpdateUserApiResponse>(
-    `/users/${userId}`,
-    "PUT",
-    payload,
-  );
+  const response = await request<UpdateUserApiResponse>(`/users/${userId}`, "PUT", payload)
 
-  if (!response.success || !response.data) {
+  const rawResponse = response as any;
+
+  if (!rawResponse.success || !rawResponse.user) {
     return {
       success: false,
       error: response.error || {
@@ -173,8 +214,8 @@ export async function updateUser(
 
   return {
     success: true,
-    data: mapUserDetail(response.data.user),
-  };
+    data: mapUserDetail(rawResponse.user),
+  }
 }
 
 /**

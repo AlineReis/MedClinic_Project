@@ -25,7 +25,13 @@ const DEFAULT_API_URL = isLocal
   ? "http://localhost:3000/api/v1/1"
   : "/api/v1/1";
 
-const BASE_URL = (CLINIC_API_HOST ?? DEFAULT_API_URL).replace(/\/+$/, "");
+const BASE_URL = (CLINIC_API_HOST ?? DEFAULT_API_URL).replace(
+  /\/+$/,
+  "",
+);
+
+// Safety patch: Ensure we have the clinic ID (temp fix for environment issues)
+const FINAL_BASE_URL = BASE_URL.endsWith('/api/v1') ? `${BASE_URL}/1` : BASE_URL;
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
@@ -47,7 +53,7 @@ export async function request<T>(
   try {
     const isFormData = body instanceof FormData;
 
-    const response = await fetch(`${BASE_URL}${path}`, {
+    const response = await fetch(`${FINAL_BASE_URL}${path}`, {
       method,
       credentials: "include",
       headers: isFormData ? { Accept: "application/json" } : DEFAULT_HEADERS,
