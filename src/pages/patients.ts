@@ -11,6 +11,7 @@ import {
 } from "../services/patientService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
+import { generateStrongPassword } from "../utils/generateStrongPassword";
 
 let toastContainer: ToastContainer | null = null;
 let navigation: Navigation | null = null;
@@ -413,16 +414,6 @@ async function openModal(id: number | null = null) {
 
   modal.classList.remove("hidden");
   // modal.classList.add("flex"); // Removed Tailwind dependency
-}
-
-function generateStrongPassword(): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
-  let password = "";
-  for (let i = 0; i < 10; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
 }
 
 function getStatusBadge(status: string) {
