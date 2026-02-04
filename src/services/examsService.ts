@@ -152,3 +152,11 @@ export async function releaseExamResult(examId: number) {
     "POST",
   );
 }
+
+// Feature: Enviar resultado por email
+export async function sendExamResultEmail(examId: number) {
+  return await request<{ success: boolean; message: string }>(
+    `/exams/${examId}/email`,
+    "POST",
+  );
+}

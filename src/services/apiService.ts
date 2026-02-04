@@ -23,20 +23,19 @@ export const getApiUrl = () => {
   if (isLocal) return "http://localhost:3000/api/v1/1";
 
   // Verifica se a URL atual cont  m '/server03'
-  const prefix = window.location.pathname.includes('/server03')
-    ? '/server03'
-    : '';
+  const prefix = window.location.pathname.includes("/server03")
+    ? "/server03"
+    : "";
 
   return `${prefix}/api/v1/1`;
 };
 
-const BASE_URL = (CLINIC_API_HOST ?? getApiUrl()).replace(
-  /\/+$/,
-  "",
-);
+const BASE_URL = (CLINIC_API_HOST ?? getApiUrl()).replace(/\/+$/, "");
 
 // Safety patch: Ensure we have the clinic ID (temp fix for environment issues)
-const FINAL_BASE_URL = BASE_URL.endsWith('/api/v1') ? `${BASE_URL}/1` : BASE_URL;
+const FINAL_BASE_URL = BASE_URL.endsWith("/api/v1")
+  ? `${BASE_URL}/1`
+  : BASE_URL;
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
@@ -74,7 +73,7 @@ export async function request<T>(
     const payload = await parseResponse<T>(response);
 
     if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         unauthorizedHandler?.();
       }
       const errorMessage = payload.error?.message ?? "Erro inesperado";

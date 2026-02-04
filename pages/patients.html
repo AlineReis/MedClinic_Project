@@ -142,19 +142,16 @@
                 </div>
 
                 <div id="password-section" class="form-group">
-                    <label class="form-label">Senha de Acesso</label>
-                    <div class="password-input-group">
-                        <input type="text" id="generated-password" name="password" readonly
-                            placeholder="Clique em gerar..." class="form-input u-text-center"
-                            style="font-family: monospace;">
-                        <button type="button" id="generate-password-btn" class="btn-secondary">
-                            Gerar
-                        </button>
-                        <button type="button" id="copy-password-btn" class="btn-icon">
-                            <span class="material-symbols-outlined u-fs-sm">content_copy</span>
-                        </button>
+                    <label class="form-label">Acesso do Paciente</label>
+                    <div class="info-box"
+                        style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <p class="u-text-secondary u-fs-sm">
+                            <span class="material-symbols-outlined"
+                                style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.25rem;">forward_to_inbox</span>
+                            As credenciais de acesso serão geradas automaticamente e enviadas para o email do paciente
+                            ao salvar.
+                        </p>
                     </div>
-                    <p class="helper-text">Gere a senha e informe ao paciente.</p>
                 </div>
 
                 <div class="grid-2-cols">

@@ -7,7 +7,7 @@ import {
   getPatient,
   searchPatients,
   updatePatient,
-  type PatientSummary
+  type PatientSummary,
 } from "../services/patientService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -130,7 +130,7 @@ function renderPatients(patients: PatientSummary[]) {
       (p) => `
       <tr class="table-row">
         <td class="font-medium">${p.name}</td>
-        <td class="text-secondary">${p.cpf || "-"}</td>
+        <td class="text-secondary">${p.cpf ? maskCpf(p.cpf) : "-"}</td>
         <td class="text-secondary">${p.email}</td>
         <td class="text-secondary">${p.phone || "-"}</td>
         <td class="text-right">
@@ -203,25 +203,7 @@ function setupModal() {
     if (e.target === modal) toggleModal(false);
   });
 
-  // Password Logic
-  const passwordSection = document.getElementById("password-section");
-  const passwordInput = document.getElementById(
-    "generated-password",
-  ) as HTMLInputElement;
-  const generateBtn = document.getElementById("generate-password-btn");
-  const copyBtn = document.getElementById("copy-password-btn");
-
-  generateBtn?.addEventListener("click", () => {
-    const pwd = generateStrongPassword();
-    if (passwordInput) passwordInput.value = pwd;
-  });
-
-  copyBtn?.addEventListener("click", () => {
-    if (passwordInput && passwordInput.value) {
-      navigator.clipboard.writeText(passwordInput.value);
-      uiStore.addToast("success", "Senha copiada!");
-    }
-  });
+  // Password Logic Removed (Backend handles email)
 
   // Masking
   const cpfInput = document.getElementById("patient-cpf") as HTMLInputElement;
@@ -257,8 +239,6 @@ function setupModal() {
     const cleanCpf = (formData.get("cpf") as string).replace(/\D/g, "");
     const phone = formData.get("phone") as string;
 
-    const password = formData.get("password") as string;
-
     // Construct payload with only necessary fields
     const payload: any = {
       name: formData.get("name") as string,
@@ -267,9 +247,7 @@ function setupModal() {
       phone: phone,
     };
 
-    if (password && password.trim() !== "") {
-      payload.password = password;
-    }
+    // Password logic removed - handled by backend email
 
     uiStore.addToast("info", "Salvando...");
 
@@ -405,10 +383,6 @@ async function openModal(id: number | null = null) {
     if (historySection) historySection.classList.add("hidden");
     if (passwordSection) {
       passwordSection.classList.remove("hidden");
-      // Auto generate on open new? Or let user click? Let user click to be explicit.
-      (
-        document.getElementById("generated-password") as HTMLInputElement
-      ).value = "";
     }
   }
 
@@ -435,6 +409,15 @@ function getStatusBadge(status: string) {
       label: status.toUpperCase(),
     }
   );
+}
+
+function maskCpf(cpf: string) {
+  // Assume generic format or just mask everything except last 2 and some middle?
+  // User asked: "aparecer apenas alguns digitos ... para poder diferenciar"
+  // Example: ***.***.456-**
+  const clean = cpf.replace(/\D/g, "");
+  if (clean.length !== 11) return cpf;
+  return `***.***.${clean.slice(6, 9)}-${clean.slice(9, 11)}`;
 }
 
 if (document.readyState === "loading") {
