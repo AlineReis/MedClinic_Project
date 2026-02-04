@@ -7,6 +7,7 @@ import {
   type UserRole,
   type UserWithoutPassword,
 } from "../models/user.js";
+import { getWelcomeEmailHtml } from "../utils/email-templates.js";
 import {
   AuthError,
   ForbiddenError,
@@ -14,8 +15,7 @@ import {
   ValidationError,
 } from "../utils/errors.js";
 import * as Validators from "../utils/validators.js";
-import { IEmailService, EmailPayload } from "./email.service.js";
-import { getWelcomeEmailHtml } from "../utils/email-templates.js";
+import { IEmailService } from "./email.service.js";
 
 // Representa o usuário que fez a requisição (extraído do token JWT) - From backend-main
 type RequesterUser = {
@@ -41,6 +41,7 @@ export type GetUserInput = {
   targetUserId: number;
 };
 
+import { generateStrongPassword } from "utils/generateStrongPassword.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 
 export class UserService {
@@ -48,7 +49,7 @@ export class UserService {
     private readonly userRepository: IUserRepository,
     private readonly appointmentRepository: AppointmentRepository,
     private readonly emailService: IEmailService,
-  ) {}
+  ) { }
 
   async registerPatient(
     userData: User,
@@ -467,13 +468,8 @@ export class UserService {
 
     if (!password) {
       // Generate random password: 8 chars, uppercase, lowercase, numbers
-      const chars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      generatedPassword = Array.from(
-        { length: 12 },
-        () => chars[Math.floor(Math.random() * chars.length)],
-      ).join("");
-      password = generatedPassword;
+      password = generateStrongPassword()
+      generatedPassword = password
     }
 
     // Validate password

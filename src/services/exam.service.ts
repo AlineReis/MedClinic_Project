@@ -1,18 +1,18 @@
-import { ExamRepository } from "../repository/exam.repository.js";
-import { AppointmentRepository } from "../repository/appointment.repository.js";
+import path from "path";
+import { fileURLToPath } from "url";
 import {
   CreateExamRequestPayload,
   ExamCatalog,
   ExamRequest,
 } from "../models/exam.js";
+import { AppointmentRepository } from "../repository/appointment.repository.js";
+import { ExamRepository } from "../repository/exam.repository.js";
 import {
+  ForbiddenError,
   NotFoundError,
   ValidationError,
-  ForbiddenError,
 } from "../utils/errors.js";
 import { DefaultEmailService, IEmailService } from "./email.service.js";
-import path from "path";
-import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -303,6 +303,7 @@ export class ExamService {
     // `createRequest` uses `appointmentRepository.findById(payload.appointment_id)`.
     // ExamRequest has `appointment_id`.
 
+    console.log('1')
     const appointment = await this.appointmentRepository.findById(
       request.appointment_id,
     );
@@ -340,10 +341,10 @@ export class ExamService {
       const filePath = request.result_file_url.startsWith("http")
         ? request.result_file_url
         : path.join(
-            __dirname,
-            "../../",
-            request.result_file_url.replace(/^\//, ""),
-          );
+          __dirname,
+          "../../",
+          request.result_file_url.replace(/^\//, ""),
+        );
 
       attachments.push({
         filename: `Exame_${request.id}.pdf`,

@@ -34,7 +34,7 @@ export const getAppointmentEmailHtml = (
   const cancelLink = props.cancelLink;
   const confirmLink = props.confirmLink;
 
-  // Colors based on MediLux dashboard
+  // Colors based on MedClinic dashboard
   const primaryColor = "#3B82F6";
   const secondaryColor = "#1E293B";
   const textGray = "#64748B";
@@ -53,12 +53,12 @@ export const getAppointmentEmailHtml = (
   </style>
 </head>
 <body style="background-color: ${bgLight}; margin: 0; padding: 40px 0;">
-  
+
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: ${white}; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
     <!-- Header -->
     <tr>
       <td style="padding: 32px 40px; border-bottom: 1px solid #E2E8F0;">
-        <h2 style="margin: 0; color: ${primaryColor}; font-size: 24px; font-weight: 700;">✚ MediLux</h2>
+        <h2 style="margin: 0; color: ${primaryColor}; font-size: 24px; font-weight: 700;">✚ MedClinic</h2>
       </td>
     </tr>
 
@@ -167,7 +167,7 @@ export const getWelcomeEmailHtml = (
   <table width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
     <tr>
       <td style="text-align: center; padding-bottom: 24px;">
-        <h2 style="color: ${primaryColor}; margin: 0;">Bem-vindo(a) à MediLux</h2>
+        <h2 style="color: ${primaryColor}; margin: 0;">Bem-vindo(a) à MedClinic</h2>
       </td>
     </tr>
     <tr>
@@ -175,7 +175,7 @@ export const getWelcomeEmailHtml = (
         <p>Olá, <strong>${safeName}</strong>!</p>
         <p>Seu cadastro foi realizado com sucesso como <strong>${roleLabel}</strong>.</p>
         <p>Abaixo estão suas credenciais de acesso temporário:</p>
-        
+
         <div style="background-color: #EFF6FF; border-left: 4px solid ${primaryColor}; padding: 16px; margin: 24px 0; border-radius: 4px;">
           <p style="margin: 0 0 8px; font-size: 14px; color: #64748B;">Sua senha temporária:</p>
           <div style="font-family: monospace; font-size: 24px; font-weight: bold; color: #1E293B; letter-spacing: 1px;">
@@ -188,7 +188,7 @@ export const getWelcomeEmailHtml = (
     </tr>
     <tr>
       <td style="text-align: center; padding-top: 32px; border-top: 1px solid #E2E8F0; margin-top: 32px;">
-        <a href="http://localhost:8081/login.html" style="background-color: ${primaryColor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">Acessar Sistema</a>
+        <a href="https://lab.alphaedtech.org.br/server03/pages/login.html" style="background-color: ${primaryColor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">Acessar Sistema</a>
       </td>
     </tr>
   </table>

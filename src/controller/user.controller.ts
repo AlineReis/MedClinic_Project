@@ -4,7 +4,7 @@ import { AuthError, ValidationError } from "../utils/errors.js";
 import { isValidId } from "../utils/validators.js";
 
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   /*
   public getUser = async (req: Request, res: Response, next: NextFunction) => {

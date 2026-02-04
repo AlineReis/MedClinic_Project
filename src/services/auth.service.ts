@@ -17,7 +17,7 @@ import {
 } from "../utils/validators.js";
 
 export class AuthService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(private readonly userRepository: IUserRepository) { }
   // ... (rest of methods) keep them if possible or replace block
 
   public async registerPatient(input: CreateUserPayload): Promise<AuthResult> {

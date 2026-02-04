@@ -26,7 +26,7 @@ async function main() {
     subject: "Recuperação de Senha - Teste",
     html: getPasswordResetEmailHtml(
       "Usuário Teste",
-      "https://medilux.com/reset?token=123",
+      "https://medclinic.com/reset?token=123",
     ),
   });
 

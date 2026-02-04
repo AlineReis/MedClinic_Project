@@ -4,7 +4,7 @@ interface Config {
   NODE_ENV: "development" | "production" | "test";
   PORT: number;
   JWT_SECRET: string;
-  RESEND_API_KEY?: string; // @deprecated Switch to Nodemailer
+  // RESEND_API_KEY?: string; // @deprecated Switch to Nodemailer
   SMTP_HOST: string;
   SMTP_PORT: number;
   SMTP_USER: string;
@@ -47,12 +47,12 @@ function getEnv(): Config {
     NODE_ENV,
     PORT: parseInt(env.PORT || "3000", 10),
     JWT_SECRET: env.JWT_SECRET as string,
-    RESEND_API_KEY: env.RESEND_API_KEY || "", // Deprecated
+    // RESEND_API_KEY: env.RESEND_API_KEY || "", // Deprecated
     SMTP_HOST: env.SMTP_HOST || "smtp.gmail.com",
     SMTP_PORT: parseInt(env.SMTP_PORT || "587", 10),
     SMTP_USER: env.SMTP_USER || "",
     SMTP_PASS: env.SMTP_PASS || "",
-    EMAIL_FROM: env.EMAIL_FROM || "no-reply@medilux.com",
+    EMAIL_FROM: env.EMAIL_FROM || "no-reply@medclinic.com",
     EMAIL_TO: env.EMAIL_TO || "", // Útil para testes ou fallbacks
     ENABLE_EMAIL: env.ENABLE_EMAIL === "true", // Flag para controlar envio
 
@@ -64,15 +64,15 @@ function getEnv(): Config {
     ALLOWED_ORIGINS: env.ALLOWED_ORIGINS
       ? env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
       : [
-          "http://localhost:8081",
-          "http://localhost:8080",
-          "http://localhost:3000",
-          "http://localhost:80",
-          "https://localhost:443",
-          "http://desafio03.alphaedtech",
-          "https://lab.alphaedtech.org.br/server03",
-          "https://lab.alphaedtech.org.br",
-        ],
+        "http://localhost:8081",
+        "http://localhost:8080",
+        "http://localhost:3000",
+        "http://localhost:80",
+        "https://localhost:443",
+        "http://desafio03.alphaedtech",
+        "https://lab.alphaedtech.org.br/server03",
+        "https://lab.alphaedtech.org.br",
+      ],
     SEED_PASS: env.SEED_PASS as string,
   };
 }

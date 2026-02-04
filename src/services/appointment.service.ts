@@ -1,196 +1,196 @@
 import { env } from "@config/config.js";
-import { isMinimumHoursInFuture, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours, isNotSunday, isValid50MinuteSlot } from "utils/validators.js";
+import { isMinimumHoursInFuture, isNotSunday, isValid50MinuteSlot, isValidDate, isValidTime, isWithinDayRange, isWithinMinimumHours } from "utils/validators.js";
 import { Appointment, AppointmentFilters, PaginatedResult, PaginationParams, type RescheduleAppointmentInput } from "../models/appointment.js";
 import { AuthResult } from "../models/user.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
 import { AvailabilityRepository } from "../repository/availability.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
-import { PaymentMockService } from "./payment-mock.service.js";
-import { ResendEmailService } from "./email.service.js";
 import { getAppointmentEmailHtml } from "../utils/email-templates.js";
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../utils/errors.js";
+import { type IEmailService } from "./email.service.js";
+import { PaymentMockService } from "./payment-mock.service.js";
 
 export class AppointmentService {
-    constructor(
-        private appointmentRepository: AppointmentRepository,
-        private availabilityRepository: AvailabilityRepository,
-        private userRepository: UserRepository,
-        private paymentMockService: PaymentMockService,
-        private emailService: ResendEmailService
-    ) { }
+  constructor(
+    private appointmentRepository: AppointmentRepository,
+    private availabilityRepository: AvailabilityRepository,
+    private userRepository: UserRepository,
+    private paymentMockService: PaymentMockService,
+    private emailService: IEmailService
+  ) { }
 
-    async scheduleAppointment(data: Appointment, cardDetails?: any): Promise<{ id: number, invoice?: any, payment_status?: string, message?: string }> {
-        // ... (validations remain the same) ...
-        // Validar existência do paciente
-        const patient = await this.userRepository.findById(data.patient_id);
-        if (!patient) throw new NotFoundError("Paciente não encontrado.");
+  async scheduleAppointment(data: Appointment, cardDetails?: any): Promise<{ id: number, invoice?: any, payment_status?: string, message?: string }> {
+    // ... (validations remain the same) ...
+    // Validar existência do paciente
+    const patient = await this.userRepository.findById(data.patient_id);
+    if (!patient) throw new NotFoundError("Paciente não encontrado.");
 
-        // Validar existência do profissional
-        const professional = await this.userRepository.findById(data.professional_id);
-        if (!professional) throw new NotFoundError("Profissional não encontrado.");
-        if (professional.role !== 'health_professional') throw new ValidationError("O usuário informado não é um profissional de saúde.", "professional");
+    // Validar existência do profissional
+    const professional = await this.userRepository.findById(data.professional_id);
+    if (!professional) throw new NotFoundError("Profissional não encontrado.");
+    if (professional.role !== 'health_professional') throw new ValidationError("O usuário informado não é um profissional de saúde.", "professional");
 
-        // RN-Phase4: Validate no appointments on Sunday
-        if (!isNotSunday(data.date)) {
-            throw new ValidationError("Agendamentos não podem ser feitos aos domingos.", "date");
-        }
-
-        // RN-Phase4: Validate 50-minute time slots
-        if (!isValid50MinuteSlot(data.time)) {
-            throw new ValidationError("O horário deve estar em intervalos de 50 minutos (ex: 09:00, 09:50, 10:40).", "time");
-        }
-
-        // Validar data no futuro
-        const appointmentDateTime = new Date(`${data.date}T${data.time}`);
-        if (appointmentDateTime < new Date()) throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
-
-        // RN-01: Disponibilidade
-        const dayOfWeek = appointmentDateTime.getDay();
-        const availabilities = await this.availabilityRepository.findByProfessionalId(data.professional_id);
-        const dailyAvailability = availabilities.filter(a => a.day_of_week === dayOfWeek);
-
-        if (dailyAvailability.length === 0) throw new ValidationError("O profissional não atende neste dia da semana.", "availability");
-
-        const isWithinSlot = dailyAvailability.some(slot => data.time >= slot.start_time && data.time < slot.end_time);
-        if (!isWithinSlot) throw new ValidationError("O horário escolhido está fora do expediente do profissional.", "availability");
-
-        // RN-02: 2h antecedência
-        if (data.type === 'presencial') {
-            const diffInMs = appointmentDateTime.getTime() - new Date().getTime();
-            if (diffInMs < 2 * 60 * 60 * 1000) throw new ValidationError("Agendamentos presenciais devem ser feitos com no mínimo 2 horas de antecedência.", "date");
-        }
-
-        // RN-03: 90 dias
-        const diffInMsGeneric = appointmentDateTime.getTime() - new Date().getTime();
-        if (diffInMsGeneric > 90 * 24 * 60 * 60 * 1000) throw new ValidationError("Não é possível agendar consultas com mais de 90 dias de antecedência.", "date");
-
-        // RN-04: Conflito
-        const hasConflict = await this.appointmentRepository.checkConflict(data.patient_id, data.professional_id, data.date);
-        if (hasConflict) throw new ValidationError("O paciente já possui uma consulta agendada com este profissional nesta data.", "conflict");
-
-        // Criar agendamento (Status scheduled, Payment pending defaults logic in Repo)
-        const appointmentId = await this.appointmentRepository.create(data);
-
-        // Enviar Email de Confirmação (Assíncrono - não trava o response)
-        // TODO: Mover para um Queue no futuro
-        if (patient && patient.email) {
-            const emailHtml = getAppointmentEmailHtml({
-                patientName: patient.name,
-                doctorName: professional.name, // Assumindo que professional tem name
-                date: data.date,
-                time: data.time,
-                type: data.type,
-                cancelLink: `https://medilux.com/appointments/${appointmentId}`, // Mock
-                confirmLink: `https://medilux.com/confirm?id=${appointmentId}`   // Mock
-            });
-
-            this.emailService.send({
-                to: patient.email,
-                subject: "Confirmação de Agendamento - MediLux 🏥",
-                html: emailHtml
-            }).catch(err => console.error("❌ Erro ao enviar email de confirmação:", err));
-        }
-
-        // Process Payment if card details provided
-        if (cardDetails) {
-            const paymentResult = await this.paymentMockService.processAppointmentPayment(appointmentId, cardDetails);
-            
-            return {
-                id: appointmentId,
-                invoice: paymentResult.invoice,
-                payment_status: paymentResult.success ? 'paid' : 'failed',
-                message: paymentResult.message
-            };
-        }
-
-        return { id: appointmentId, message: "Agendado com sucesso (Pagamento pendente)" };
+    // RN-Phase4: Validate no appointments on Sunday
+    if (!isNotSunday(data.date)) {
+      throw new ValidationError("Agendamentos não podem ser feitos aos domingos.", "date");
     }
 
-    async getAppointmentById(id: number): Promise<Appointment> {
-        const appointment = await this.appointmentRepository.findById(id);
-        if (!appointment) {
-            throw new NotFoundError("Agendamento não encontrado.");
-        }
-        return appointment;
+    // RN-Phase4: Validate 50-minute time slots
+    if (!isValid50MinuteSlot(data.time)) {
+      throw new ValidationError("O horário deve estar em intervalos de 50 minutos (ex: 09:00, 09:50, 10:40).", "time");
     }
 
-    async getPatientAppointments(patientId: number): Promise<Appointment[]> {
-        return this.appointmentRepository.findByPatientId(patientId);
+    // Validar data no futuro
+    const appointmentDateTime = new Date(`${data.date}T${data.time}`);
+    if (appointmentDateTime < new Date()) throw new ValidationError("O agendamento deve ser para uma data futura.", "date");
+
+    // RN-01: Disponibilidade
+    const dayOfWeek = appointmentDateTime.getDay();
+    const availabilities = await this.availabilityRepository.findByProfessionalId(data.professional_id);
+    const dailyAvailability = availabilities.filter(a => a.day_of_week === dayOfWeek);
+
+    if (dailyAvailability.length === 0) throw new ValidationError("O profissional não atende neste dia da semana.", "availability");
+
+    const isWithinSlot = dailyAvailability.some(slot => data.time >= slot.start_time && data.time < slot.end_time);
+    if (!isWithinSlot) throw new ValidationError("O horário escolhido está fora do expediente do profissional.", "availability");
+
+    // RN-02: 2h antecedência
+    if (data.type === 'presencial') {
+      const diffInMs = appointmentDateTime.getTime() - new Date().getTime();
+      if (diffInMs < 2 * 60 * 60 * 1000) throw new ValidationError("Agendamentos presenciais devem ser feitos com no mínimo 2 horas de antecedência.", "date");
     }
 
-    async getProfessionalAgenda(professionalId: number, date?: string): Promise<Appointment[]> {
-        return this.appointmentRepository.findByProfessionalId(professionalId, date);
+    // RN-03: 90 dias
+    const diffInMsGeneric = appointmentDateTime.getTime() - new Date().getTime();
+    if (diffInMsGeneric > 90 * 24 * 60 * 60 * 1000) throw new ValidationError("Não é possível agendar consultas com mais de 90 dias de antecedência.", "date");
+
+    // RN-04: Conflito
+    const hasConflict = await this.appointmentRepository.checkConflict(data.patient_id, data.professional_id, data.date);
+    if (hasConflict) throw new ValidationError("O paciente já possui uma consulta agendada com este profissional nesta data.", "conflict");
+
+    // Criar agendamento (Status scheduled, Payment pending defaults logic in Repo)
+    const appointmentId = await this.appointmentRepository.create(data);
+
+    // Enviar Email de Confirmação (Assíncrono - não trava o response)
+    // TODO: Mover para um Queue no futuro
+    if (patient && patient.email) {
+      const emailHtml = getAppointmentEmailHtml({
+        patientName: patient.name,
+        doctorName: professional.name, // Assumindo que professional tem name
+        date: data.date,
+        time: data.time,
+        type: data.type,
+        cancelLink: `https://medclinic.com/appointments/${appointmentId}`, // Mock
+        confirmLink: `https://medclinic.com/confirm?id=${appointmentId}`   // Mock
+      });
+
+      this.emailService.send({
+        to: patient.email,
+        subject: "Confirmação de Agendamento - MedClinic 🏥",
+        html: emailHtml
+      }).catch(err => console.error("❌ Erro ao enviar email de confirmação:", err));
     }
 
-    async listAppointments(
-        filters: AppointmentFilters,
-        pagination: PaginationParams,
-        user: AuthResult
-    ): Promise<PaginatedResult<Appointment>> {
+    // Process Payment if card details provided
+    if (cardDetails) {
+      const paymentResult = await this.paymentMockService.processAppointmentPayment(appointmentId, cardDetails);
 
-        // RBAC Enforcements no Service Layer (Camada extra de seguranca)
-        if (user.role === 'patient') {
-            // Paciente SO pode ver seus proprios
-            if (filters.patient_id && filters.patient_id !== user.id) {
-                throw new ForbiddenError("Pacientes podem apenas visualizar seus próprios agendamentos.");
-            }
-            // Força o ID do paciente
-            filters.patient_id = user.id;
-        }
-
-        if (user.role === 'health_professional') {
-            // Profissional SO pode ver sua propria agenda
-            if (filters.professional_id && filters.professional_id !== user.id) {
-                throw new ForbiddenError("Profissionais podem apenas visualizar sua própria agenda.");
-            }
-            // Força o ID do profissional
-            filters.professional_id = user.id;
-        }
-
-        // Se nao for admin/recepcao, nao pode ver tudo.
-        // Logica acima ja restringe, mas bom garantir.
-
-        return this.appointmentRepository.findAll(filters, pagination);
+      return {
+        id: appointmentId,
+        invoice: paymentResult.invoice,
+        payment_status: paymentResult.success ? 'paid' : 'failed',
+        message: paymentResult.message
+      };
     }
 
-    async confirmAppointment(id: number): Promise<void> {
-        const appointment = await this.getAppointmentById(id);
+    return { id: appointmentId, message: "Agendado com sucesso (Pagamento pendente)" };
+  }
 
-        if (appointment.status !== 'scheduled' && appointment.status !== 'rescheduled') {
-            throw new ValidationError("Apenas agendamentos 'agendados' ou 'reagendados' podem ser confirmados.", "status");
-        }
+  async getAppointmentById(id: number): Promise<Appointment> {
+    const appointment = await this.appointmentRepository.findById(id);
+    if (!appointment) {
+      throw new NotFoundError("Agendamento não encontrado.");
+    }
+    return appointment;
+  }
 
-        await this.appointmentRepository.updateStatus(id, 'confirmed');
+  async getPatientAppointments(patientId: number): Promise<Appointment[]> {
+    return this.appointmentRepository.findByPatientId(patientId);
+  }
+
+  async getProfessionalAgenda(professionalId: number, date?: string): Promise<Appointment[]> {
+    return this.appointmentRepository.findByProfessionalId(professionalId, date);
+  }
+
+  async listAppointments(
+    filters: AppointmentFilters,
+    pagination: PaginationParams,
+    user: AuthResult
+  ): Promise<PaginatedResult<Appointment>> {
+
+    // RBAC Enforcements no Service Layer (Camada extra de seguranca)
+    if (user.role === 'patient') {
+      // Paciente SO pode ver seus proprios
+      if (filters.patient_id && filters.patient_id !== user.id) {
+        throw new ForbiddenError("Pacientes podem apenas visualizar seus próprios agendamentos.");
+      }
+      // Força o ID do paciente
+      filters.patient_id = user.id;
     }
 
-    async cancelAppointment(id: number, reason: string, cancelledById: number): Promise<{ message: string, refundDetails?: any }> {
-        const appointment = await this.getAppointmentById(id);
-
-        if (['cancelled_by_patient', 'cancelled_by_clinic', 'completed'].includes(appointment.status || '')) {
-            throw new ValidationError("Este agendamento já está cancelado ou concluído.", "status");
-        }
-
-        await this.appointmentRepository.cancel(id, reason, cancelledById);
-
-        // Process Refund Automatically if Paid
-        if (appointment.payment_status === 'paid') {
-            const refundResult = await this.paymentMockService.processRefund(id);
-            return {
-                message: "Consulta cancelada com sucesso.",
-                refundDetails: refundResult
-            };
-        }
-
-        return { message: "Consulta cancelada com sucesso." };
+    if (user.role === 'health_professional') {
+      // Profissional SO pode ver sua propria agenda
+      if (filters.professional_id && filters.professional_id !== user.id) {
+        throw new ForbiddenError("Profissionais podem apenas visualizar sua própria agenda.");
+      }
+      // Força o ID do profissional
+      filters.professional_id = user.id;
     }
 
-    async updatePaymentStatus(id: number, status: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'partially_refunded'): Promise<void> {
-        const appointment = await this.getAppointmentById(id);
-        // Pode adicionar regras de transição aqui
-        await this.appointmentRepository.updatePaymentStatus(id, status);
+    // Se nao for admin/recepcao, nao pode ver tudo.
+    // Logica acima ja restringe, mas bom garantir.
+
+    return this.appointmentRepository.findAll(filters, pagination);
+  }
+
+  async confirmAppointment(id: number): Promise<void> {
+    const appointment = await this.getAppointmentById(id);
+
+    if (appointment.status !== 'scheduled' && appointment.status !== 'rescheduled') {
+      throw new ValidationError("Apenas agendamentos 'agendados' ou 'reagendados' podem ser confirmados.", "status");
     }
 
-	  public async reschedule(
+    await this.appointmentRepository.updateStatus(id, 'confirmed');
+  }
+
+  async cancelAppointment(id: number, reason: string, cancelledById: number): Promise<{ message: string, refundDetails?: any }> {
+    const appointment = await this.getAppointmentById(id);
+
+    if (['cancelled_by_patient', 'cancelled_by_clinic', 'completed'].includes(appointment.status || '')) {
+      throw new ValidationError("Este agendamento já está cancelado ou concluído.", "status");
+    }
+
+    await this.appointmentRepository.cancel(id, reason, cancelledById);
+
+    // Process Refund Automatically if Paid
+    if (appointment.payment_status === 'paid') {
+      const refundResult = await this.paymentMockService.processRefund(id);
+      return {
+        message: "Consulta cancelada com sucesso.",
+        refundDetails: refundResult
+      };
+    }
+
+    return { message: "Consulta cancelada com sucesso." };
+  }
+
+  async updatePaymentStatus(id: number, status: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'partially_refunded'): Promise<void> {
+    const appointment = await this.getAppointmentById(id);
+    // Pode adicionar regras de transição aqui
+    await this.appointmentRepository.updatePaymentStatus(id, status);
+  }
+
+  public async reschedule(
     input: RescheduleAppointmentInput,
   ): Promise<Appointment> {
     const { requesterId, requesterRole, appointmentId, newDate, newTime } =
@@ -275,88 +275,88 @@ export class AppointmentService {
     };
   }
 
-    /**
-     * Phase 5: Check-in appointment (receptionist only)
-     * scheduled/confirmed → waiting
-     */
-    async checkinAppointment(id: number, userId: number, userRole: string): Promise<void> {
-        const appointment = await this.getAppointmentById(id);
+  /**
+   * Phase 5: Check-in appointment (receptionist only)
+   * scheduled/confirmed → waiting
+   */
+  async checkinAppointment(id: number, userId: number, userRole: string): Promise<void> {
+    const appointment = await this.getAppointmentById(id);
 
-        // Only receptionist or admins can check-in
-        if (!['receptionist', 'clinic_admin', 'system_admin'].includes(userRole)) {
-            throw new ForbiddenError("Apenas recepcionistas ou administradores podem fazer check-in.");
-        }
-
-        if (!['scheduled', 'confirmed'].includes(appointment.status || '')) {
-            throw new ValidationError("Apenas agendamentos 'agendados' ou 'confirmados' podem fazer check-in.", "status");
-        }
-
-        await this.appointmentRepository.updateStatus(id, 'waiting');
+    // Only receptionist or admins can check-in
+    if (!['receptionist', 'clinic_admin', 'system_admin'].includes(userRole)) {
+      throw new ForbiddenError("Apenas recepcionistas ou administradores podem fazer check-in.");
     }
 
-    /**
-     * Phase 5: Start appointment (health_professional only)
-     * waiting → in_progress
-     */
-    async startAppointment(id: number, userId: number, userRole: string): Promise<void> {
-        const appointment = await this.getAppointmentById(id);
-
-        // Only the assigned professional can start
-        if (userRole !== 'health_professional' || appointment.professional_id !== userId) {
-            throw new ForbiddenError("Apenas o profissional responsável pode iniciar a consulta.");
-        }
-
-        if (appointment.status !== 'waiting') {
-            throw new ValidationError("Apenas agendamentos 'aguardando' podem ser iniciados.", "status");
-        }
-
-        await this.appointmentRepository.updateStatus(id, 'in_progress');
+    if (!['scheduled', 'confirmed'].includes(appointment.status || '')) {
+      throw new ValidationError("Apenas agendamentos 'agendados' ou 'confirmados' podem fazer check-in.", "status");
     }
 
-    /**
-     * Phase 5: Complete appointment (health_professional only)
-     * in_progress → completed
-     * RN-27: Activates commission splits (pending_completion → pending)
-     */
-    async completeAppointment(id: number, userId: number, userRole: string): Promise<void> {
-        const appointment = await this.getAppointmentById(id);
+    await this.appointmentRepository.updateStatus(id, 'waiting');
+  }
 
-        // Only the assigned professional can complete, unless admin
-        const isAdmin = ['clinic_admin', 'system_admin'].includes(userRole);
-        
-        if (!isAdmin && (userRole !== 'health_professional' || appointment.professional_id !== userId)) {
-            throw new ForbiddenError("Apenas o profissional responsável pode concluir a consulta.");
-        }
+  /**
+   * Phase 5: Start appointment (health_professional only)
+   * waiting → in_progress
+   */
+  async startAppointment(id: number, userId: number, userRole: string): Promise<void> {
+    const appointment = await this.getAppointmentById(id);
 
-        if (appointment.status !== 'in_progress' && !isAdmin) {
-             throw new ValidationError("Apenas agendamentos 'em andamento' podem ser concluídos.", "status");
-        }
-
-        await this.appointmentRepository.updateStatus(id, 'completed');
-
-        // RN-27: Activate commission splits after appointment completion
-        // This will be implemented when commission activation logic is added
-        // For now, we just complete the appointment
+    // Only the assigned professional can start
+    if (userRole !== 'health_professional' || appointment.professional_id !== userId) {
+      throw new ForbiddenError("Apenas o profissional responsável pode iniciar a consulta.");
     }
 
-    /**
-     * Phase 5: Mark appointment as no-show (receptionist only)
-     * scheduled/confirmed → no_show
-     * RN-24: No refund for no-show
-     */
-    async markNoShow(id: number, userId: number, userRole: string): Promise<void> {
-        const appointment = await this.getAppointmentById(id);
-
-        // Only receptionist or admins can mark no-show
-        if (!['receptionist', 'clinic_admin', 'system_admin'].includes(userRole)) {
-            throw new ForbiddenError("Apenas recepcionistas ou administradores podem marcar falta.");
-        }
-
-        if (!['scheduled', 'confirmed', 'waiting'].includes(appointment.status || '')) {
-            throw new ValidationError("Apenas agendamentos 'agendados', 'confirmados' ou 'aguardando' podem ser marcados como falta.", "status");
-        }
-
-        await this.appointmentRepository.updateStatus(id, 'no_show');
-        // RN-24: No refund is processed for no-show
+    if (appointment.status !== 'waiting') {
+      throw new ValidationError("Apenas agendamentos 'aguardando' podem ser iniciados.", "status");
     }
+
+    await this.appointmentRepository.updateStatus(id, 'in_progress');
+  }
+
+  /**
+   * Phase 5: Complete appointment (health_professional only)
+   * in_progress → completed
+   * RN-27: Activates commission splits (pending_completion → pending)
+   */
+  async completeAppointment(id: number, userId: number, userRole: string): Promise<void> {
+    const appointment = await this.getAppointmentById(id);
+
+    // Only the assigned professional can complete, unless admin
+    const isAdmin = ['clinic_admin', 'system_admin'].includes(userRole);
+
+    if (!isAdmin && (userRole !== 'health_professional' || appointment.professional_id !== userId)) {
+      throw new ForbiddenError("Apenas o profissional responsável pode concluir a consulta.");
+    }
+
+    if (appointment.status !== 'in_progress' && !isAdmin) {
+      throw new ValidationError("Apenas agendamentos 'em andamento' podem ser concluídos.", "status");
+    }
+
+    await this.appointmentRepository.updateStatus(id, 'completed');
+
+    // RN-27: Activate commission splits after appointment completion
+    // This will be implemented when commission activation logic is added
+    // For now, we just complete the appointment
+  }
+
+  /**
+   * Phase 5: Mark appointment as no-show (receptionist only)
+   * scheduled/confirmed → no_show
+   * RN-24: No refund for no-show
+   */
+  async markNoShow(id: number, userId: number, userRole: string): Promise<void> {
+    const appointment = await this.getAppointmentById(id);
+
+    // Only receptionist or admins can mark no-show
+    if (!['receptionist', 'clinic_admin', 'system_admin'].includes(userRole)) {
+      throw new ForbiddenError("Apenas recepcionistas ou administradores podem marcar falta.");
+    }
+
+    if (!['scheduled', 'confirmed', 'waiting'].includes(appointment.status || '')) {
+      throw new ValidationError("Apenas agendamentos 'agendados', 'confirmados' ou 'aguardando' podem ser marcados como falta.", "status");
+    }
+
+    await this.appointmentRepository.updateStatus(id, 'no_show');
+    // RN-24: No refund is processed for no-show
+  }
 }
