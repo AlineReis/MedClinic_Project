@@ -416,7 +416,6 @@
 
 .modal-box {
   background-color: var(--surface-dark);
-  border: 1px solid var(--border-dark);
   width: 100%;
   max-width: 32rem;
   /* max-w-lg */
@@ -550,6 +549,7 @@
   /* slate-500 */
   margin-top: 0.25rem;
 }
+
 /* 7. History List Styles */
 .history-loading,
 .history-empty {
@@ -595,30 +595,35 @@
 /* Status Badges */
 .status-badge-gray {
   background-color: rgba(107, 114, 128, 0.2);
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
+  /* gray-400 */
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .status-badge-blue {
   background-color: rgba(59, 130, 246, 0.2);
-  color: #60a5fa; /* blue-400 */
+  color: #60a5fa;
+  /* blue-400 */
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .status-badge-amber {
   background-color: rgba(245, 158, 11, 0.2);
-  color: #fbbf24; /* amber-400 */
+  color: #fbbf24;
+  /* amber-400 */
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .status-badge-emerald {
   background-color: rgba(16, 185, 129, 0.2);
-  color: #34d399; /* emerald-400 */
+  color: #34d399;
+  /* emerald-400 */
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .status-badge-red {
   background-color: rgba(239, 68, 68, 0.2);
-  color: #f87171; /* red-400 */
+  color: #f87171;
+  /* red-400 */
   border: 1px solid rgba(239, 68, 68, 0.3);
 }

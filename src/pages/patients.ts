@@ -311,7 +311,6 @@ async function openModal(id: number | null = null) {
   if (id) {
     if (title) title.textContent = "Editar Paciente";
     if (passwordSection) passwordSection.classList.add("hidden");
-    uiStore.addToast("info", "Carregando dados...");
 
     // Fetch user details
     // We can use getPatient or find in currentPatients list if sufficient
