@@ -19,7 +19,8 @@
 
 /* 1. Admin Sidebar */
 .admin-sidebar {
-  width: 16rem; /* w-64 */
+  width: 16rem;
+  /* w-64 */
   background-color: var(--surface-dark);
   border-right: 1px solid var(--border-dark);
   display: flex;
@@ -29,7 +30,8 @@
 }
 
 .admin-sidebar-header {
-  height: 4.5rem; /* h-18 approx */
+  height: 4.5rem;
+  /* h-18 approx */
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
@@ -258,7 +260,7 @@
   font-size: 1rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
-  color: #ffffff;
+  color: var(--text-secondary);
 }
 
 .panel-section-title--compact {
@@ -300,9 +302,11 @@
 .u-text-right {
   text-align: right;
 }
+
 .u-text-left {
   text-align: left;
 }
+
 .u-text-center {
   text-align: center;
 }
@@ -310,9 +314,11 @@
 .u-text-secondary {
   color: var(--text-secondary);
 }
+
 .u-text-primary {
   color: var(--primary);
 }
+
 .u-text-emerald {
   color: #10b981;
 }
@@ -320,6 +326,7 @@
 .u-fw-600 {
   font-weight: 600;
 }
+
 .u-fw-700 {
   font-weight: 700;
 }
@@ -327,12 +334,15 @@
 .u-fs-xs {
   font-size: 0.625rem;
 }
+
 .u-fs-sm {
   font-size: 0.75rem;
 }
+
 .u-fs-md {
   font-size: 0.875rem;
 }
+
 .u-fs-lg {
   font-size: 1rem;
 }
@@ -340,19 +350,24 @@
 .u-flex {
   display: flex;
 }
+
 .u-flex-column {
   display: flex;
   flex-direction: column;
 }
+
 .u-items-center {
   align-items: center;
 }
+
 .u-justify-between {
   justify-content: space-between;
 }
+
 .u-gap-medium {
   gap: 1rem;
 }
+
 .u-gap-large {
   gap: 1.5rem;
 }
@@ -391,10 +406,12 @@
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -415,9 +432,11 @@
 .alert-title--error {
   color: #ef4444;
 }
+
 .u-text-red {
   color: #f87171;
 }
+
 .u-text-amber {
   color: #f59e0b;
 }
@@ -444,12 +463,15 @@
 .u-mb-05 {
   margin-bottom: 0.5rem;
 }
+
 .u-mb-10 {
   margin-bottom: 1rem;
 }
+
 .u-mb-15 {
   margin-bottom: 1.5rem;
 }
+
 .u-mb-20 {
   margin-bottom: 2rem;
 }
@@ -457,6 +479,7 @@
 .u-padding-medium {
   padding: 0.75rem 1rem;
 }
+
 .u-padding-large {
   padding: 1.5rem;
 }
@@ -466,9 +489,11 @@
   align-items: center;
   justify-content: center;
 }
+
 .u-h-full {
   height: 100%;
 }
+
 .u-spin {
   animation: u-spin 2s linear infinite;
 }
@@ -476,6 +501,7 @@
 .u-fs-18 {
   font-size: 1.125rem;
 }
+
 .u-fs-36 {
   font-size: 2.25rem;
 }
@@ -484,6 +510,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -513,6 +540,7 @@
   padding-left: 2rem;
   padding-right: 2rem;
 }
+
 /* 11. Dashboard Specific Components */
 .chart-viewport-box {
   display: flex;
@@ -531,11 +559,9 @@
 }
 
 .chart-bar-primary {
-  background: linear-gradient(
-    180deg,
-    var(--primary) 0%,
-    rgba(25, 127, 230, 0.6) 100%
-  );
+  background: linear-gradient(180deg,
+      var(--primary) 0%,
+      rgba(25, 127, 230, 0.6) 100%);
   opacity: 0.8;
 }
 

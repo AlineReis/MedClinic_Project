@@ -79,6 +79,7 @@
   background-color: var(--primary);
   border-radius: 0.125rem 0.125rem 0 0;
 }
+
 .bar-primary-light {
   width: 0.75rem;
   background-color: rgba(25, 127, 230, 0.4);
@@ -86,7 +87,8 @@
 }
 
 .split-rules-panel {
-  background-color: #0f172a; /* Custom dark slate */
+  background-color: var(--surface-dark);
+  /* Custom dark slate */
   padding: 1.5rem;
   border-radius: 1rem;
   display: flex;
@@ -109,6 +111,7 @@
   font-size: 0.75rem;
   font-weight: 500;
 }
+
 .split-rule-value {
   font-size: 1.125rem;
   font-weight: 700;
@@ -125,10 +128,12 @@
   color: #10b981;
   background-color: rgba(16, 185, 129, 0.1);
 }
+
 .status-waiting {
   color: #f59e0b;
   background-color: rgba(245, 158, 11, 0.1);
 }
+
 .financial-main-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -167,21 +172,25 @@
     margin: 0;
     size: auto;
   }
+
   body {
     background-color: white !important;
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Hide UI Elements */
   .admin-sidebar,
-    .admin-header, 
-    .theme-toggle,
-    .user-badge-header,
-    .export-dropdown-wrapper,
-    .pagination-controls,
-    .financial-main-grid, /* Hide charts section for cleaner list, or keep if desired */
-    .financial-performance-grid, /* Simplify - maybe show only table? Let's show everything but clean */
-    .table-toolbar {
+  .admin-header,
+  .theme-toggle,
+  .user-badge-header,
+  .export-dropdown-wrapper,
+  .pagination-controls,
+  .financial-main-grid,
+  /* Hide charts section for cleaner list, or keep if desired */
+  .financial-performance-grid,
+  /* Simplify - maybe show only table? Let's show everything but clean */
+  .table-toolbar {
     display: none !important;
   }
 
