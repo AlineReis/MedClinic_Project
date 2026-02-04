@@ -132,7 +132,7 @@ function renderPatients(patients: PatientSummary[]) {
         <td class="font-medium">${p.name}</td>
         <td class="text-secondary">${p.cpf ? maskCpf(p.cpf) : "-"}</td>
         <td class="text-secondary">${p.email}</td>
-        <td class="text-secondary">${p.phone || "-"}</td>
+        <td class="text-secondary">${phoneMask(p.phone as string) || "-"}</td>
         <td class="text-right">
           <button class="edit-btn btn-icon-action" data-id="${p.id}" title="Editar">
             <span class="material-symbols-outlined" style="font-size: 1.25rem;">edit</span>
@@ -214,19 +214,16 @@ function setupModal() {
   if (cpfInput) {
     cpfInput.addEventListener("input", (e) => {
       let v = (e.target as HTMLInputElement).value.replace(/\D/g, "");
-      v = v.replace(/(\d{3})(\d)/, "$1.$2");
-      v = v.replace(/(\d{3})(\d)/, "$1.$2");
-      v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-      (e.target as HTMLInputElement).value = v;
+      const cpf = cpfMask(v);
+      (e.target as HTMLInputElement).value = cpf;
     });
   }
 
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
-      let v = (e.target as HTMLInputElement).value.replace(/\D/g, "");
-      v = v.replace(/^(\d{2})(\d)/, "($1) $2");
-      v = v.replace(/(\d{5})(\d)/, "$1-$2");
-      (e.target as HTMLInputElement).value = v;
+      let v = (e.target as HTMLInputElement).value;
+      let phone = phoneMask(v);
+      (e.target as HTMLInputElement).value = phone;
     });
   }
 
@@ -248,8 +245,6 @@ function setupModal() {
     };
 
     // Password logic removed - handled by backend email
-
-    uiStore.addToast("info", "Salvando...");
 
     let response;
     if (id) {
@@ -273,6 +268,17 @@ function setupModal() {
   });
 }
 
+function cpfMask(cpf: string): string {
+  return cpf.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+}
+
+function phoneMask(phone: string): string {
+  return phone
+    .replace(/\D/g, "")
+    .replace(/^(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
+}
+
 async function openModal(id: number | null = null) {
   const modal = document.getElementById("patient-modal");
   const form = document.getElementById("patient-form") as HTMLFormElement;
@@ -289,7 +295,6 @@ async function openModal(id: number | null = null) {
   if (id) {
     if (title) title.textContent = "Editar Paciente";
     if (passwordSection) passwordSection.classList.add("hidden");
-    uiStore.addToast("info", "Carregando dados...");
 
     // Fetch user details
     // We can use getPatient or find in currentPatients list if sufficient
@@ -307,17 +312,13 @@ async function openModal(id: number | null = null) {
       // Mask CPF
       // assuming backend returns clean CPF
       if (p.cpf) {
-        let v = p.cpf.replace(/\D/g, "");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        let v = cpfMask(p.cpf);
         (document.getElementById("patient-cpf") as HTMLInputElement).value = v;
       }
 
       // Phone is usually returned formatted if we sent it formatted, but check
       if (p.phone) {
-        (document.getElementById("patient-phone") as HTMLInputElement).value =
-          p.phone;
+        (document.getElementById("patient-phone") as HTMLInputElement).value = phoneMask(p.phone)
       }
 
       // Load History

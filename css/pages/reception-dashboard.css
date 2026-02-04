@@ -688,19 +688,6 @@
   gap: 1rem;
 }
 
-/* Agenda Modal Specifics */
-.agenda-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: var(--background-dark);
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-dark);
-  margin-bottom: 1rem;
-  flex-shrink: 0;
-}
-
 .filter-group {
   flex: 1;
   min-width: 200px;
@@ -916,6 +903,7 @@
 /* Agenda Modal Specifics */
 .agenda-filters {
   display: flex;
+  align-items: end;
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem;
