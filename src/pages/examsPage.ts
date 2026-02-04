@@ -345,18 +345,15 @@ async function handleDownload(examId: number) {
 
 async function handleSendEmail(examId: number) {
   uiStore.addToast("info", "Enviando resultado por email...");
-  renderToasts();
 
   const response = await sendExamResultEmail(examId);
   if (response.success) {
     uiStore.addToast("success", "Email enviado com sucesso!");
-    renderToasts();
   } else {
     uiStore.addToast(
       "error",
       response.error?.message ?? "Erro ao enviar email",
     );
-    renderToasts();
   }
 }
 
