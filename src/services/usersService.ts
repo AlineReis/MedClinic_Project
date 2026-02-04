@@ -3,20 +3,20 @@
  * Handles GET /users and GET /users/:id endpoints
  */
 
-import { request } from "./apiService";
-import type { ApiResponse } from "./apiService";
 import type {
-  UserSummary,
-  UserDetail,
-  UserFilters,
-  PaginatedUsers,
-  UpdateUserPayload,
   CreateUserPayload,
-  UserApiItem,
-  UsersListApiResponse,
-  UserDetailApiResponse,
+  PaginatedUsers,
   UpdateUserApiResponse,
+  UpdateUserPayload,
+  UserApiItem,
+  UserDetail,
+  UserDetailApiResponse,
+  UserFilters,
+  UsersListApiResponse,
+  UserSummary,
 } from "../types/users";
+import type { ApiResponse } from "./apiService";
+import { request } from "./apiService";
 
 /**
  * Build query string from user filters
@@ -47,13 +47,13 @@ function mapUserSummary(apiUser: UserApiItem): UserSummary {
     created_at: apiUser.created_at,
     professional_details: apiUser.professional_details
       ? {
-          specialty: apiUser.professional_details.specialty,
-          registration_number: apiUser.professional_details.registration_number,
-          council: apiUser.professional_details.council,
-          consultation_price: apiUser.professional_details.consultation_price,
-          commission_percentage:
-            apiUser.professional_details.commission_percentage,
-        }
+        specialty: apiUser.professional_details.specialty,
+        registration_number: apiUser.professional_details.registration_number,
+        council: apiUser.professional_details.council,
+        consultation_price: apiUser.professional_details.consultation_price,
+        commission_percentage:
+          apiUser.professional_details.commission_percentage,
+      }
       : undefined,
   };
 }
@@ -91,7 +91,7 @@ export async function listUsers(
       success: false,
       error: response.error || {
         code: "UNKNOWN_ERROR",
-        message: "Failed to fetch users",
+        message: "Falha ao buscar usuários",
         statusCode: 500,
       },
     };
@@ -140,7 +140,7 @@ export async function getUserById(userId: number): Promise<ApiResponse<UserDetai
       success: false,
       error: response.error || {
         code: "UNKNOWN_ERROR",
-        message: "Failed to fetch user",
+        message: "Falha ao buscar usuários",
         statusCode: 500,
       },
     };
@@ -171,7 +171,7 @@ export async function createUser(payload: CreateUserPayload): Promise<ApiRespons
       success: false,
       error: response.error || {
         code: 'UNKNOWN_ERROR',
-        message: 'Failed to create user',
+        message: 'Falha ao criar usuário',
         statusCode: 500
       }
     };
@@ -206,7 +206,7 @@ export async function updateUser(
       success: false,
       error: response.error || {
         code: "UNKNOWN_ERROR",
-        message: "Failed to update user",
+        message: "Falha ao atualizar usuário",
         statusCode: 500,
       },
     };

@@ -1,5 +1,5 @@
-import { request, type ApiResponse } from "./apiService";
 import { authStore } from "../stores/authStore";
+import { request, type ApiResponse } from "./apiService";
 
 export interface CreatePatientPayload {
   name: string;
@@ -29,7 +29,7 @@ export async function createPatient(
       success: false,
       error: {
         code: "SESSION_ERROR",
-        message: "Clinic ID missing from session",
+        message: "Não foi possível identificar a clínica. Por favor, faça login novamente.",
         statusCode: 400,
       },
     };
@@ -47,7 +47,7 @@ export async function createPatient(
       success: false,
       error: {
         code: "UNKNOWN_ERROR",
-        message: error.response?.data?.message || "Failed to create patient",
+        message: error.response?.data?.message || "Falha ao criar o paciente.",
         statusCode: 500,
       },
     };
@@ -83,7 +83,7 @@ export async function searchPatients(
     success: false,
     error: response.error || {
       code: "FETCH_ERROR",
-      message: "Failed to fetch patients",
+      message: "Falha ao buscar pacientes.",
       statusCode: 500,
     },
   };
@@ -96,7 +96,7 @@ export async function getPatient(
   if (!session?.clinic_id) {
     return {
       success: false,
-      error: { code: "SESSION_ERROR", message: "No session", statusCode: 401 },
+      error: { code: "SESSION_ERROR", message: "Nenhuma sessão ativa", statusCode: 401 },
     };
   }
 

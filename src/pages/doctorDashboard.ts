@@ -371,7 +371,7 @@ async function loadCommissions(
     } else {
       console.warn(
         "Failed to load commissions:",
-        response.error || "Unknown error",
+        response.error || "Erro desconhecido",
       ); // Downgraded to warn
     }
   } catch (error) {
