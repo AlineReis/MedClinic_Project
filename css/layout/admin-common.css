@@ -105,7 +105,7 @@
 
 .admin-nav-item:hover {
   background-color: var(--background-dark);
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .admin-nav-item.active {
