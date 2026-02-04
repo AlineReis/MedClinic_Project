@@ -14,6 +14,8 @@ import {
   ValidationError,
 } from "../utils/errors.js";
 import * as Validators from "../utils/validators.js";
+import { IEmailService, EmailPayload } from "./email.service.js";
+import { getWelcomeEmailHtml } from "../utils/email-templates.js";
 
 // Representa o usuário que fez a requisição (extraído do token JWT) - From backend-main
 type RequesterUser = {
@@ -45,7 +47,8 @@ export class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly appointmentRepository: AppointmentRepository,
-  ) { }
+    private readonly emailService: IEmailService,
+  ) {}
 
   async registerPatient(
     userData: User,
@@ -505,9 +508,18 @@ export class UserService {
 
     const { password: _, ...userWithoutPassword } = user;
 
+    // Send email with generated password
+    if (generatedPassword) {
+      await this.emailService.send({
+        to: user.email,
+        subject: "Bem-vindo à MedClinic - Suas Credenciais",
+        html: getWelcomeEmailHtml(user.name, user.role, generatedPassword),
+      });
+    }
+
     return {
       user: userWithoutPassword,
-      generatedPassword,
+      // generatedPassword // Removed to prevent frontend exposure
     };
   }
 }

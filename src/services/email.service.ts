@@ -1,43 +1,107 @@
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { env } from "../config/config.js";
+
+export interface EmailAttachment {
+  filename: string;
+  content?: Buffer | string;
+  path?: string;
+  contentType?: string;
+  encoding?: string;
+}
 
 export interface EmailPayload {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface IEmailService {
   send(payload: EmailPayload): Promise<void>;
 }
 
+export class NodemailerEmailService implements IEmailService {
+  private transporter: nodemailer.Transporter;
+
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: env.SMTP_PORT === 465, // true para 465, false para outras
+      auth: {
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
+      },
+    });
+  }
+
+  async send(payload: EmailPayload): Promise<void> {
+    if (!env.ENABLE_EMAIL) {
+      console.log(
+        `📪 Email (Nodemailer) simulado para ${payload.to}: ${payload.subject}`,
+      );
+      return;
+    }
+
+    if (!env.SMTP_USER || !env.SMTP_PASS) {
+      console.warn(
+        "⚠️  Credenciais SMTP não configuradas. Email não enviado:",
+        payload.subject,
+      );
+      return;
+    }
+
+    try {
+      const info = await this.transporter.sendMail({
+        from: env.EMAIL_FROM, // sender address
+        to: payload.to, // list of receivers
+        subject: payload.subject, // Subject line
+        text: payload.text, // plain text body
+        html: payload.html, // html body
+        attachments: payload.attachments,
+      });
+
+      console.log(`📧 Email enviado com sucesso! MessageId: ${info.messageId}`);
+    } catch (error) {
+      console.error("❌ Falha no envio de email (Nodemailer):", error);
+      // Não lançar erro para não quebrar fluxo do usuário, apenas logar.
+    }
+  }
+}
+
+/**
+ * @deprecated Service using Resend API.
+ * Replaced by NodemailerEmailService due to free tier limitations (requires domain).
+ */
 export class ResendEmailService implements IEmailService {
   private resend: Resend;
   private fromEmail: string;
 
   constructor() {
-    this.resend = new Resend(env.RESEND_API_KEY); 
-    this.fromEmail = env.EMAIL_FROM; 
+    this.resend = new Resend(env.RESEND_API_KEY);
+    this.fromEmail = env.EMAIL_FROM;
   }
 
   async send(payload: EmailPayload): Promise<void> {
     if (!env.ENABLE_EMAIL) {
-      console.log(`📪 Email simulado para ${payload.to}: ${payload.subject}`);
+      console.log(
+        `📪 Email (Resend) simulado para ${payload.to}: ${payload.subject}`,
+      );
       return;
     }
 
+    // Adaptação: Resend não suporta attachments da mesma forma simples sem processamento extra as vezes,
+    // mas aqui ignoramos attachments pois esta classe está deprecated.
+
+    // ... [Original Logic preserved below] ...
     if (!env.RESEND_API_KEY) {
-      console.warn("⚠️  RESEND_API_KEY não configurada. Email não enviado:", payload.subject);
-      return; 
+      console.warn("⚠️  RESEND_API_KEY não configurada.");
+      return;
     }
 
-    // Trap Logic: Se EMAIL_TO estiver definido, ignora o destinatário original
     const recipient = env.EMAIL_TO || payload.to;
-    
-    if (env.EMAIL_TO) {
-      console.log(`🪤 Email TRAPPED/REDIRECTED. Original: ${payload.to} -> Enviando para: ${env.EMAIL_TO}`);
-    }
 
     try {
       const data = await this.resend.emails.send({
@@ -48,17 +112,13 @@ export class ResendEmailService implements IEmailService {
         text: payload.text,
       });
 
-      if (data.error) {
-        console.error("❌ Erro ao enviar email (Resend API):", data.error);
-        throw new Error(`Resend Error: ${data.error.message}`);
-      }
-
-      console.log(`📧 Email enviado com sucesso! ID: ${data.data?.id}`);
+      if (data.error) throw new Error(data.error.message);
+      console.log(`📧 Email enviado (Resend)! ID: ${data.data?.id}`);
     } catch (error) {
-      console.error("❌ Falha crítica no envio de email:", error);
-      // Em produção, talvez você não queira derrubar a requisição se o email falhar.
-      // Depende da criticidade (ex: recuperar senha TEM que enviar).
-      // Aqui vamos logar e não dar throw para não travar o fluxo do usuário.
+      console.error("❌ Falha Resend:", error);
     }
   }
 }
+
+// Export default service based on preference
+export const DefaultEmailService = NodemailerEmailService;
