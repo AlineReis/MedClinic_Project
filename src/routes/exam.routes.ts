@@ -54,5 +54,6 @@ examRoutes.post(
   examController.uploadResult,
 );
 examRoutes.post("/:id/release-result", examController.releaseResult);
+examRoutes.post("/:id/email", examController.sendResultEmail);
 
 export { examRoutes };

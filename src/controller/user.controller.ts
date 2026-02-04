@@ -72,7 +72,9 @@ export class UserController {
         clinicId,
         requester,
         filters: {
-          role: (req.query.role === "all" ? undefined : req.query.role) as string | undefined,
+          role: (req.query.role === "all" ? undefined : req.query.role) as
+            | string
+            | undefined,
           search: search as string,
           page: page ? Number(page) : 1, // Converte string para número
           pageSize: pageSize ? Number(pageSize) : 10, // Converte string para número
@@ -192,9 +194,8 @@ export class UserController {
       return res.status(201).json({
         success: true,
         user: result.user,
-        message: result.generatedPassword
-          ? `Usuário criado com sucesso. Senha gerada: ${result.generatedPassword}`
-          : "Usuário criado com sucesso.",
+        message:
+          "Usuário criado com sucesso. As credenciais foram enviadas para o email cadastrado.",
       });
     } catch (error) {
       return next(error);

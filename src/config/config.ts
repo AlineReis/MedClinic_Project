@@ -4,7 +4,11 @@ interface Config {
   NODE_ENV: "development" | "production" | "test";
   PORT: number;
   JWT_SECRET: string;
-  RESEND_API_KEY: string;
+  // RESEND_API_KEY?: string; // @deprecated Switch to Nodemailer
+  SMTP_HOST: string;
+  SMTP_PORT: number;
+  SMTP_USER: string;
+  SMTP_PASS: string;
   EMAIL_FROM: string;
   EMAIL_TO: string;
   ENABLE_EMAIL: boolean;
@@ -15,11 +19,16 @@ interface Config {
 
 function getEnv(): Config {
   const env = process.env;
-  const NODE_ENV = (env.NODE_ENV as "development" | "production" | "test") || "development";
+  const NODE_ENV =
+    (env.NODE_ENV as "development" | "production" | "test") || "development";
 
-  // JWT e RESEND (se usar) são críticos
-  // const requiredEnvs: Array<keyof NodeJS.ProcessEnv> = ["JWT_SECRET", "RESEND_API_KEY"];
-  const requiredEnvs: Array<keyof NodeJS.ProcessEnv> = ["JWT_SECRET", "RESEND_API_KEY"];
+  // JWT e credenciais de email são críticos
+  // Agora usando SMTP para Nodemailer
+  const requiredEnvs: Array<keyof NodeJS.ProcessEnv> = [
+    "JWT_SECRET",
+    // "SMTP_USER", // Opcionais para permitir modo mock
+    // "SMTP_PASS",
+  ];
 
   // Só exigir RESCHEDULE_FREE_WINDOW_HOURS fora de test
   if (NODE_ENV !== "test") {
@@ -38,8 +47,12 @@ function getEnv(): Config {
     NODE_ENV,
     PORT: parseInt(env.PORT || "3000", 10),
     JWT_SECRET: env.JWT_SECRET as string,
-    RESEND_API_KEY: env.RESEND_API_KEY || "", // Opcional por padrão
-    EMAIL_FROM: env.EMAIL_FROM || "onboarding@resend.dev",
+    // RESEND_API_KEY: env.RESEND_API_KEY || "", // Deprecated
+    SMTP_HOST: env.SMTP_HOST || "smtp.gmail.com",
+    SMTP_PORT: parseInt(env.SMTP_PORT || "587", 10),
+    SMTP_USER: env.SMTP_USER || "",
+    SMTP_PASS: env.SMTP_PASS || "",
+    EMAIL_FROM: env.EMAIL_FROM || "no-reply@medclinic.com",
     EMAIL_TO: env.EMAIL_TO || "", // Útil para testes ou fallbacks
     ENABLE_EMAIL: env.ENABLE_EMAIL === "true", // Flag para controlar envio
 
@@ -58,9 +71,9 @@ function getEnv(): Config {
         "https://localhost:443",
         "http://desafio03.alphaedtech",
         "https://lab.alphaedtech.org.br/server03",
-        "https://lab.alphaedtech.org.br"
+        "https://lab.alphaedtech.org.br",
       ],
-    SEED_PASS: env.SEED_PASS as string
+    SEED_PASS: env.SEED_PASS as string,
   };
 }
 

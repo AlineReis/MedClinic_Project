@@ -59,7 +59,11 @@ export class ExamController {
       console.error("Exam Creation Error:", error); // Debugging 500 error
       return res.status(500).json({
         success: false,
-        error: { message: "Erro interno ao processar solicitação: " + (error.message || "Unknown") },
+        error: {
+          message:
+            "Erro interno ao processar solicitação: " +
+            (error.message || "Unknown"),
+        },
       });
     }
   };
@@ -199,6 +203,32 @@ export class ExamController {
       if (error.name === "ValidationError")
         return res.status(400).json({ error: error.message });
       return res.status(500).json({ error: "Erro ao liberar resultado." });
+    }
+  };
+
+  /**
+   * Feature: Send exam result by email
+   * POST /exams/:id/email
+   */
+  public sendResultEmail = async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const examId = parseInt(req.params.id);
+
+    try {
+      await this.examService.sendExamResultEmail(examId, user);
+      return res.json({
+        success: true,
+        message: "Resultado enviado por email com sucesso.",
+      });
+    } catch (error: any) {
+      if (error.name === "ForbiddenError")
+        return res.status(403).json({ error: error.message });
+      if (error.name === "NotFoundError")
+        return res.status(404).json({ error: error.message });
+      if (error.name === "ValidationError")
+        return res.status(400).json({ error: error.message });
+      console.error("Email API Failed:", error);
+      return res.status(500).json({ error: "Erro ao enviar email." });
     }
   };
 }

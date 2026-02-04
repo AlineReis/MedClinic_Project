@@ -2,12 +2,12 @@ import { AvailabilityRepository } from "@repositories/availability.repository.js
 import { Router } from "express";
 import { AppointmentController } from "../controller/appointment.controller.js";
 import { AppointmentRepository } from "../repository/appointment.repository.js";
-import { TransactionRepository } from "../repository/transaction.repository.js";
 import { CommissionSplitRepository } from "../repository/commission-split.repository.js";
+import { TransactionRepository } from "../repository/transaction.repository.js";
 import { UserRepository } from "../repository/user.repository.js";
-import { PaymentMockService } from "../services/payment-mock.service.js";
 import { AppointmentService } from "../services/appointment.service.js";
-import { ResendEmailService } from "../services/email.service.js";
+import { NodemailerEmailService } from "../services/email.service.js";
+import { PaymentMockService } from "../services/payment-mock.service.js";
 
 const router = Router();
 
@@ -23,7 +23,7 @@ const paymentMockService = new PaymentMockService(
   commissionSplitRepository,
   appointmentRepository,
 );
-const emailService = new ResendEmailService();
+const emailService = new NodemailerEmailService();
 
 const appointmentService = new AppointmentService(
   appointmentRepository,

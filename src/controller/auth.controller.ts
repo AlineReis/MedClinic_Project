@@ -10,7 +10,9 @@ export class AuthController {
     try {
       const input = req.body as CreateUserPayload;
 
+      console.log(1)
       const user = await this.authService.registerPatient(input);
+      console.log('authController', user)
 
       return res.status(201).json({
         success: true,
