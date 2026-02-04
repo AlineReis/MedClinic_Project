@@ -7,6 +7,7 @@ import {
   listExams,
   releaseExamResult,
   uploadExamResult,
+  sendExamResultEmail,
 } from "../services/examsService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
@@ -200,6 +201,16 @@ function getActionButton(exam: ExamSummary, role: string) {
     }
   }
 
+  // If released, allow sending email (resending)
+  if (exam.status === "delivered") {
+    return `
+        <div style="display:flex; gap: 8px;">
+            <button data-view="${exam.result}" data-exam-id="${exam.id}" class="btn-action-view">Ver</button>
+            <button data-email="${exam.id}" class="btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Email</button>
+        </div>
+     `;
+  }
+
   return `<span style="font-size: 0.75rem; color: var(--text-secondary);">—</span>`;
 }
 
@@ -235,7 +246,23 @@ function attachActionButtons(session: UserSession) {
         await handleDownload(examId);
       });
     });
+
+    // Email buttons (for all roles that can see them)
+    // Actually need to move this out if other roles see it.
+    // But currently only delivered shows it above (Wait, I added it for all?).
+    // getActionButton logic for "delivered" overrides previous logic.
+    // Let's make sure we attach listeners for everyone.
   }
+
+  // Common listeners (Email)
+  document.querySelectorAll("[data-email]").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      const examId = parseInt(
+        (e.currentTarget as HTMLElement).getAttribute("data-email")!,
+      );
+      await handleSendEmail(examId);
+    });
+  });
 
   // Dynamic button injection removed to avoid duplicates with static HTML
   // if (session.role === "health_professional") { ... }
@@ -313,6 +340,20 @@ async function handleDownload(examId: number) {
   } catch (error) {
     console.error("Download error:", error);
     uiStore.addToast("error", "Erro ao processar download.");
+  }
+}
+
+async function handleSendEmail(examId: number) {
+  uiStore.addToast("info", "Enviando resultado por email...");
+
+  const response = await sendExamResultEmail(examId);
+  if (response.success) {
+    uiStore.addToast("success", "Email enviado com sucesso!");
+  } else {
+    uiStore.addToast(
+      "error",
+      response.error?.message ?? "Erro ao enviar email",
+    );
   }
 }
 

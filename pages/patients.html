@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="dark" lang="pt-BR">
+<html class="dark" lang="pt-BR">
 
 <head>
     <meta charset="utf-8" />
@@ -20,33 +20,39 @@
     <link rel="stylesheet" href="../css/base/utilities.css">
 
     <link rel="stylesheet" href="../css/global.css">
+    <!-- NEW: Shared Reception Layout -->
+    <link rel="stylesheet" href="../css/layout/reception-layout.css">
     <link rel="stylesheet" href="../css/pages/patients.css">
 </head>
 
-<body class="patients-layout">
+<body class="reception-layout">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="reception-sidebar">
         <div class="sidebar-header">
-            <span class="material-symbols-outlined brand-icon">local_hospital</span>
-            <h1 class="brand-text">MedClinic</h1>
+            <img class="sidebar-logo-icon" src="../assets/icons/icon-plus.png" alt="" aria-hidden="true" width="24"
+                height="24" />
+            <h1 class="sidebar-logo-text">MedClinic</h1>
         </div>
         <nav class="sidebar-nav">
-            <a class="nav-link" href="reception-dashboard.html">
+            <a class="nav-item" href="reception-dashboard.html">
                 <span class="material-symbols-outlined">dashboard</span> Painel
             </a>
-            <a class="nav-link active" href="patients.html">
+            <a class="nav-item nav-item-active" href="patients.html">
                 <span class="material-symbols-outlined">person</span> Pacientes
+            </a>
+            <a class="nav-item" href="register.html">
+                <span class="material-symbols-outlined">login</span> Registrar Paciente
             </a>
         </nav>
         <div class="sidebar-footer">
-            <div class="user-profile">
-                <div class="user-avatar">
+            <div class="user-profile-preview">
+                <div class="user-avatar-sm">
                     <span data-user-initials>U</span>
                 </div>
-                <div class="user-info">
-                    <span class="user-name" data-user-name>Usuario</span>
-                    <span class="user-role" data-user-role>Recepcionista</span>
+                <div class="user-info-text">
+                    <span class="user-name-text" data-user-name>Usuario</span>
+                    <span class="user-role-text" data-user-role>Recepcionista</span>
                 </div>
             </div>
             <button data-logout-button class="logout-btn">
@@ -56,29 +62,27 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <header class="top-bar">
-            <div class="page-title-area">
+    <main class="reception-main">
+        <header class="main-header">
+            <div class="header-left">
                 <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Abrir menu">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                <h2 class="page-title">Gerenciar Pacientes</h2>
+                <h2 class="header-title">Gerenciar Pacientes</h2>
             </div>
             <div class="u-flex u-items-center u-gap-medium">
                 <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
-                    <span class="material-symbols-outlined">light_mode</span>
                 </button>
-                <span class="header-role-badge" data-user-role>Recepcionista</span>
             </div>
         </header>
 
         <div class="content-scroll custom-scrollbar">
 
-            <!-- Actions Bar -->
+            <!-- Actions Bar (Retaining some specific styles or updating) -->
             <div class="actions-bar">
                 <div class="search-container">
                     <span class="material-symbols-outlined search-icon">search</span>
-                    <input type="text" id="search-input" placeholder="Buscar por nome ou CPF..." class="search-input">
+                    <input type="text" id="search-input" placeholder="Buscar por nome..." class="search-input">
                 </div>
 
                 <button id="add-patient-btn" class="btn-primary">
@@ -125,8 +129,8 @@
     </main>
 
     <!-- Patient Modal (Create/Edit) -->
-    <div id="patient-modal" class="modal-overlay hidden"> <!-- Start hidden using global utility or local override -->
-        <div class="modal-box">
+    <div id="patient-modal" class="modal-overlay hidden">
+        <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="modal-title">Novo Paciente</h3>
                 <button class="close-modal-btn">
@@ -134,7 +138,7 @@
                 </button>
             </div>
 
-            <form id="patient-form" class="modal-body">
+            <form id="patient-form" class="modal-form">
                 <input type="hidden" name="id" id="patient-id">
 
                 <div class="form-group">
@@ -150,22 +154,19 @@
                 </div>
 
                 <div id="password-section" class="form-group">
-                    <label class="form-label">Senha de Acesso</label>
-                    <div class="password-input-group">
-                        <input type="text" id="generated-password" name="password" readonly
-                            placeholder="Clique em gerar..." class="form-input u-text-center"
-                            style="font-family: monospace;">
-                        <button type="button" id="generate-password-btn" class="btn-secondary">
-                            Gerar
-                        </button>
-                        <button type="button" id="copy-password-btn" class="btn-icon">
-                            <span class="material-symbols-outlined u-fs-sm">content_copy</span>
-                        </button>
+                    <label class="form-label">Acesso do Paciente</label>
+                    <div class="info-box"
+                        style="padding: 1rem; background: var(--border-dark); border-radius: 0.5rem; border: 1px solid var(--border-dark);">
+                        <p class="u-text-secondary u-fs-sm">
+                            <span class="material-symbols-outlined"
+                                style="vertical-align: middle; font-size: 1.1rem; margin-right: 0.25rem;">forward_to_inbox</span>
+                            As credenciais de acesso serão geradas automaticamente e enviadas para o email do paciente
+                            ao salvar.
+                        </p>
                     </div>
-                    <p class="helper-text">Gere a senha e informe ao paciente.</p>
                 </div>
 
-                <div class="grid-2-cols">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                         <label class="form-label">CPF</label>
                         <input type="text" name="cpf" id="patient-cpf" required placeholder="000.000.000-00"
@@ -180,7 +181,6 @@
 
                 <!-- History Section (Visible only on Edit) -->
                 <div id="history-section" class="hidden u-margin-0 icon-top-border">
-                    <!-- Need to handle hidden logic -->
                     <div class="u-flex u-justify-between u-items-center u-mb-05">
                         <h4 class="u-fw-700 u-fs-sm u-text-secondary">Histórico de Agendamentos</h4>
                     </div>
