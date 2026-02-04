@@ -38,18 +38,21 @@ export class NodemailerEmailService implements IEmailService {
   }
 
   async send(payload: EmailPayload): Promise<void> {
-    if (!env.ENABLE_EMAIL) {
-      console.log(
-        `📪 Email (Nodemailer) simulado para ${payload.to}: ${payload.subject}`,
-      );
-      return;
-    }
+    const isMockMode = !env.ENABLE_EMAIL || !env.SMTP_USER || !env.SMTP_PASS;
 
-    if (!env.SMTP_USER || !env.SMTP_PASS) {
-      console.warn(
-        "⚠️  Credenciais SMTP não configuradas. Email não enviado:",
-        payload.subject,
-      );
+    if (isMockMode) {
+      console.log("\n" + "=".repeat(40));
+      console.log("📪 [MOCK EMAIL] Envio Simulado");
+      console.log("=".repeat(40));
+      console.log(`Para:    ${payload.to}`);
+      console.log(`Assunto: ${payload.subject}`);
+      console.log("----- Conteúdo (Texto) -----");
+      console.log(payload.text || "(Sem versão texto)");
+      console.log("----------------------------");
+      if (payload.html) {
+        console.log("(Conteúdo HTML omitido no log para clareza)");
+      }
+      console.log("=".repeat(40) + "\n");
       return;
     }
 

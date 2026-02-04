@@ -26,8 +26,8 @@ function getEnv(): Config {
   // Agora usando SMTP para Nodemailer
   const requiredEnvs: Array<keyof NodeJS.ProcessEnv> = [
     "JWT_SECRET",
-    "SMTP_USER",
-    "SMTP_PASS",
+    // "SMTP_USER", // Opcionais para permitir modo mock
+    // "SMTP_PASS",
   ];
 
   // Só exigir RESCHEDULE_FREE_WINDOW_HOURS fora de test
@@ -37,19 +37,9 @@ function getEnv(): Config {
 
   for (const key of requiredEnvs) {
     if (!env[key]) {
-      // Aviso amigável se faltar configurações de email em dev, mas erro em produção
-      if (
-        (key === "SMTP_USER" || key === "SMTP_PASS") &&
-        NODE_ENV === "development"
-      ) {
-        console.warn(
-          `⚠️  Aviso: Variável ${key} não definida. O envio de emails falhará.`,
-        );
-      } else {
-        throw new Error(
-          `❌ Erro de Configuração: Variável ${key} não definida no .env`,
-        );
-      }
+      throw new Error(
+        `❌ Erro de Configuração: Variável ${key} não definida no .env`,
+      );
     }
   }
 
