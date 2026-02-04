@@ -4,7 +4,8 @@
 .doctor-sidebar {
   display: none;
   flex-direction: column;
-  width: 16rem; /* w-64 */
+  width: 16rem;
+  /* w-64 */
   border-right: 1px solid var(--border-dark);
   background-color: var(--surface-dark);
   height: 100%;
@@ -17,7 +18,8 @@
 }
 
 .sidebar-header {
-  height: 4rem; /* h-16 */
+  height: 4rem;
+  /* h-16 */
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
@@ -83,7 +85,8 @@
 }
 
 .logout-btn:hover {
-  color: #f87171; /* red-400 */
+  color: #f87171;
+  /* red-400 */
 }
 
 /* 3. Main Content & Header */
@@ -95,7 +98,8 @@
 }
 
 .main-header {
-  height: auto; /* Let content dictate height or use padding */
+  height: auto;
+  /* Let content dictate height or use padding */
   min-height: 4rem;
   background-color: var(--surface-dark);
   border-bottom: 1px solid var(--border-dark);
@@ -530,7 +534,8 @@
 }
 
 .doctor-modal--large {
-  max-width: 72rem; /* 6xl */
+  max-width: 72rem;
+  /* 6xl */
   max-height: 85vh;
   height: 85vh;
   padding: 0;
@@ -592,7 +597,7 @@
   padding: 0 0.5rem;
   min-width: 12.5rem;
   text-align: center;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .btn-agenda-today {
@@ -622,21 +627,24 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-dark);
-  background-color: #0d1116; /* Dark background per design */
+  background-color: var(--surface-dark);
+  /* Dark background per design */
   z-index: 10;
   position: sticky;
   left: 0;
 }
 
 .agenda-time-slot-label {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* border-border-dark/50 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  /* border-border-dark/50 */
   color: var(--text-secondary);
   font-size: 0.75rem;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 0.25rem;
-  height: 80px; /* SLOT_HEIGHT */
+  height: 80px;
+  /* SLOT_HEIGHT */
 }
 
 .agenda-days-wrapper {
@@ -647,7 +655,8 @@
 
 .agenda-day-column {
   flex-shrink: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.05); /* border-border-dark/50 */
+  border-right: 1px solid var(--border-dark);
+  /* border-border-dark/50 */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -657,9 +666,10 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #0d1116;
+  background-color: var(--surface-dark);
   border-bottom: 1px solid var(--border-dark);
-  height: 50px; /* HEADER_HEIGHT */
+  height: 50px;
+  /* HEADER_HEIGHT */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -670,7 +680,8 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   font-weight: 700;
-  color: #94a3b8; /* slate-400 */
+  color: #94a3b8;
+  /* slate-400 */
 }
 
 .agenda-day-number {
@@ -685,10 +696,12 @@
 }
 
 .agenda-grid-line {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03); /* border-border-dark/30 */
+  border-bottom: 1px solid var(--border-dark);
+  /* border-border-dark/30 */
   width: 100%;
   position: absolute;
-  height: 80px; /* SLOT_HEIGHT */
+  height: 80px;
+  /* SLOT_HEIGHT */
 }
 
 .agenda-event-card {
@@ -710,9 +723,11 @@
 }
 
 .agenda-event-card--scheduled {
-  background-color: rgba(25, 127, 230, 0.2); /* primary/20 */
+  background-color: rgba(25, 127, 230, 0.2);
+  /* primary/20 */
   border-color: rgba(25, 127, 230, 0.4);
-  color: #bfdbfe; /* primary-100/blue-200 ish */
+  color: #bfdbfe;
+  /* primary-100/blue-200 ish */
 }
 
 .agenda-event-card--completed {
@@ -914,17 +929,23 @@
 }
 
 .btn-modal-save--exam {
-  background-color: #059669; /* emerald-600 */
+  background-color: #059669;
+  /* emerald-600 */
 }
+
 .btn-modal-save--exam:hover {
-  background-color: #047857; /* emerald-700 */
+  background-color: #047857;
+  /* emerald-700 */
 }
 
 .btn-modal-save--presc {
-  background-color: #9333ea; /* purple-600 */
+  background-color: #9333ea;
+  /* purple-600 */
 }
+
 .btn-modal-save--presc:hover {
-  background-color: #7e22ce; /* purple-700 */
+  background-color: #7e22ce;
+  /* purple-700 */
 }
 
 /* Dynamic List Items (Commissions, Prescriptions, Queue) */

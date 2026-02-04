@@ -94,6 +94,9 @@
 }
 
 .toast-item__close {
+  align-self: end;
+  position: bottom;
+  margin-bottom: -2px;
   background: none;
   border: none;
   color: inherit;

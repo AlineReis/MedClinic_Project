@@ -130,9 +130,9 @@ function renderPatients(patients: PatientSummary[]) {
       (p) => `
       <tr class="table-row">
         <td class="font-medium">${p.name}</td>
-        <td class="text-secondary">${p.cpf || "-"}</td>
+        <td class="text-secondary">${cpfMask(p.cpf as string) || "-"}</td>
         <td class="text-secondary">${p.email}</td>
-        <td class="text-secondary">${p.phone || "-"}</td>
+        <td class="text-secondary">${phoneMask(p.phone as string) || "-"}</td>
         <td class="text-right">
           <button class="edit-btn btn-icon-action" data-id="${p.id}" title="Editar">
             <span class="material-symbols-outlined" style="font-size: 1.25rem;">edit</span>
@@ -232,19 +232,16 @@ function setupModal() {
   if (cpfInput) {
     cpfInput.addEventListener("input", (e) => {
       let v = (e.target as HTMLInputElement).value.replace(/\D/g, "");
-      v = v.replace(/(\d{3})(\d)/, "$1.$2");
-      v = v.replace(/(\d{3})(\d)/, "$1.$2");
-      v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-      (e.target as HTMLInputElement).value = v;
+      const cpf = cpfMask(v);
+      (e.target as HTMLInputElement).value = cpf;
     });
   }
 
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
-      let v = (e.target as HTMLInputElement).value.replace(/\D/g, "");
-      v = v.replace(/^(\d{2})(\d)/, "($1) $2");
-      v = v.replace(/(\d{5})(\d)/, "$1-$2");
-      (e.target as HTMLInputElement).value = v;
+      let v = (e.target as HTMLInputElement).value;
+      let phone = phoneMask(v);
+      (e.target as HTMLInputElement).value = phone;
     });
   }
 
@@ -271,8 +268,6 @@ function setupModal() {
       payload.password = password;
     }
 
-    uiStore.addToast("info", "Salvando...");
-
     let response;
     if (id) {
       // Update: Do not send role (causes 403)
@@ -293,6 +288,17 @@ function setupModal() {
       uiStore.addToast("error", response.error?.message || "Erro ao salvar");
     }
   });
+}
+
+function cpfMask(cpf: string): string {
+  return cpf.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+}
+
+function phoneMask(phone: string): string {
+  return phone
+    .replace(/\D/g, "")
+    .replace(/^(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
 }
 
 async function openModal(id: number | null = null) {
@@ -328,17 +334,13 @@ async function openModal(id: number | null = null) {
       // Mask CPF
       // assuming backend returns clean CPF
       if (p.cpf) {
-        let v = p.cpf.replace(/\D/g, "");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        let v = cpfMask(p.cpf);
         (document.getElementById("patient-cpf") as HTMLInputElement).value = v;
       }
 
       // Phone is usually returned formatted if we sent it formatted, but check
       if (p.phone) {
-        (document.getElementById("patient-phone") as HTMLInputElement).value =
-          p.phone;
+        (document.getElementById("patient-phone") as HTMLInputElement).value = phoneMask(p.phone)
       }
 
       // Load History
