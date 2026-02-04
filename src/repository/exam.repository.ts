@@ -43,7 +43,13 @@ export class ExamRepository {
   }
 
   async findRequestById(id: number): Promise<ExamRequest | null> {
-    const sql = `SELECT * FROM exam_requests WHERE id = ?`;
+    const sql = `
+      SELECT er.*, ec.name as exam_name, u.name as patient_name
+      FROM exam_requests er
+      JOIN exam_catalog ec ON er.exam_catalog_id = ec.id
+      JOIN users u ON er.patient_id = u.id
+      WHERE er.id = ?
+    `;
     return await database.queryOne<ExamRequest>(sql, [id]);
   }
 
