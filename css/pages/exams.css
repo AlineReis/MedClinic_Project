@@ -82,6 +82,7 @@
   background-color: var(--primary);
   color: #ffffff;
 }
+
 .nav-item-active:hover {
   background-color: var(--primary);
 }
@@ -89,7 +90,7 @@
 .sidebar-footer {
   padding: 1.5rem;
   border-top: 1px solid var(--border-dark);
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: var(--surface-dark);
 }
 
 .user-profile-preview {
@@ -122,7 +123,7 @@
 .user-name-text {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

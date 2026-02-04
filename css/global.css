@@ -93,6 +93,7 @@
 
 .toast-item {
   display: flex;
+  align-items: center;
   gap: 4px;
   pointer-events: auto;
   border-radius: 0.5rem;

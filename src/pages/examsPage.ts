@@ -13,7 +13,6 @@ import { uiStore } from "../stores/uiStore";
 import type { UserSession } from "../types/auth";
 import type { ExamSummary } from "../types/exams";
 
-const toastContainer = document.getElementById("toast-container");
 let currentView: "all" | "history" = "all";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -70,7 +69,6 @@ async function loadExams() {
       "error",
       response.error?.message ?? "Não foi possível carregar os exames.",
     );
-    renderToasts();
     return;
   }
 
@@ -252,16 +250,13 @@ async function handleUpload(examId: number) {
     if (!file) return;
 
     uiStore.addToast("info", "Enviando laudo...");
-    renderToasts();
 
     const response = await uploadExamResult(examId, file);
     if (response.success) {
       uiStore.addToast("success", "Laudo enviado com sucesso!");
-      renderToasts();
       loadExams(); // Recarregar
     } else {
       uiStore.addToast("error", response.error?.message ?? "Erro ao enviar");
-      renderToasts();
     }
   };
   input.click();
@@ -269,16 +264,13 @@ async function handleUpload(examId: number) {
 
 async function handleRelease(examId: number) {
   uiStore.addToast("info", "Liberando resultado...");
-  renderToasts();
 
   const response = await releaseExamResult(examId);
   if (response.success) {
     uiStore.addToast("success", "Resultado liberado!");
-    renderToasts();
     loadExams();
   } else {
     uiStore.addToast("error", response.error?.message ?? "Erro ao liberar");
-    renderToasts();
   }
 }
 
@@ -289,7 +281,6 @@ async function handleDownload(examId: number) {
 
   try {
     uiStore.addToast("info", "Obtendo link do laudo...");
-    renderToasts();
 
     // Fetch the JSON response first
     const response = await fetch(downloadEndpoint, {
@@ -323,7 +314,6 @@ async function handleDownload(examId: number) {
     console.error("Download error:", error);
     uiStore.addToast("error", "Erro ao processar download.");
   }
-  renderToasts();
 }
 
 const newRequestModalHtml = `
@@ -436,7 +426,6 @@ function setupModalListeners() {
     }
 
     uiStore.addToast("info", "Criando solicitação...");
-    renderToasts();
 
     const response = await createExam({
       appointment_id: appointmentId,
@@ -448,7 +437,6 @@ function setupModalListeners() {
 
     if (response.success) {
       uiStore.addToast("success", "Exame solicitado com sucesso!");
-      renderToasts();
       closeModal();
       loadExams();
     } else {
@@ -456,7 +444,6 @@ function setupModalListeners() {
         "error",
         response.error?.message ?? "Erro ao solicitar exame",
       );
-      renderToasts();
     }
   });
 }
@@ -717,17 +704,6 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-function renderToasts() {
-  if (!toastContainer) return;
-  toastContainer.innerHTML = "";
-  uiStore.getToasts().forEach((toast) => {
-    const toastElement = document.createElement("div");
-    toastElement.className =
-      "rounded-lg px-4 py-2 text-sm shadow-lg border border-border-dark bg-surface-dark";
-    toastElement.textContent = toast.text;
-    toastContainer.appendChild(toastElement);
-  });
-}
 function attachViewButtons() {
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -796,7 +772,6 @@ function attachViewButtons() {
             }
           }
           uiStore.addToast("warning", "Visualização indisponível no momento.");
-          renderToasts();
         }
       }
     });
