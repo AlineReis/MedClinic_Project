@@ -5,8 +5,7 @@ import { handleError } from "../services/apiService";
 import { login as authLogin } from "../services/authService";
 import { authStore } from "../stores/authStore";
 import { uiStore } from "../stores/uiStore";
-import type { UserRole, UserSession } from "../types/auth";
-
+import type { UserSession } from "../types/auth";
 const loginForm = document.getElementById(
   "login-form",
 ) as HTMLFormElement | null;
@@ -15,19 +14,17 @@ const emailInput = document.getElementById("email") as HTMLInputElement | null;
 const passwordInput = document.getElementById(
   "password",
 ) as HTMLInputElement | null;
-const roleSelect = document.getElementById("role") as HTMLSelectElement | null;
 
 initTheme();
 
 console.log("login.ts bundle loaded");
 
-if (loginForm && emailInput && passwordInput && roleSelect) {
+if (loginForm && emailInput && passwordInput) {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
-    const role = roleSelect.value as UserRole;
 
     if (!email || !password) {
       uiStore.addToast("warning", "Preencha email e senha para continuar.");
@@ -36,7 +33,7 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
     }
 
     try {
-      const response = await authLogin({ email, password, role });
+      const response = await authLogin({ email, password });
       const loginUser =
         response.data?.user ??
         (response as typeof response & { user?: UserSession }).user;
@@ -63,44 +60,43 @@ if (loginForm && emailInput && passwordInput && roleSelect) {
       renderToasts();
     }
   });
-}
+  async function handleSuccessfulLogin(
+    user: UserSession,
+  ): Promise<UserSession | null> {
+    authStore.setSession(user);
+    const validatedSession = await authStore.refreshSession();
 
-async function handleSuccessfulLogin(
-  user: UserSession,
-): Promise<UserSession | null> {
-  authStore.setSession(user);
-  const validatedSession = await authStore.refreshSession();
+    if (!validatedSession) {
+      authStore.clearSession();
+      uiStore.addToast(
+        "error",
+        "Não foi possível validar o token JWT recebido. Por favor, tente novamente.",
+      );
+      renderToasts();
+      return null;
+    }
 
-  if (!validatedSession) {
-    authStore.clearSession();
-    uiStore.addToast(
-      "error",
-      "Não foi possível validar o token JWT recebido. Por favor, tente novamente.",
-    );
-    renderToasts();
-    return null;
+    persistSession(validatedSession);
+    return validatedSession;
   }
 
-  persistSession(validatedSession);
-  return validatedSession;
-}
-
-function persistSession(session: UserSession) {
-  try {
-    sessionStorage.setItem("medclinic-session", JSON.stringify(session));
-  } catch (error) {
-    console.warn("Não foi possível gravar a sessão localmente.", error);
+  function persistSession(session: UserSession) {
+    try {
+      sessionStorage.setItem("medclinic-session", JSON.stringify(session));
+    } catch (error) {
+      console.warn("Não foi possível gravar a sessão localmente.", error);
+    }
   }
-}
 
-function renderToasts() {
-  if (!toastContainer) return;
-  toastContainer.innerHTML = "";
+  function renderToasts() {
+    if (!toastContainer) return;
+    toastContainer.innerHTML = "";
 
-  uiStore.getToasts().forEach((toast) => {
-    const toastElement = document.createElement("div");
-    toastElement.className = `toast-item toast-item-${toast.level || "info"}`;
-    toastElement.textContent = toast.text;
-    toastContainer.appendChild(toastElement);
-  });
+    uiStore.getToasts().forEach((toast) => {
+      const toastElement = document.createElement("div");
+      toastElement.className = `toast-item toast-item-${toast.level || "info"}`;
+      toastElement.textContent = toast.text;
+      toastContainer.appendChild(toastElement);
+    });
+  }
 }

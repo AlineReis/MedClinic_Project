@@ -19,7 +19,7 @@ export interface UserSession {
 export interface LoginPayload {
   email: string;
   password: string;
-  role: UserRole;
+  role?: UserRole;
 }
 
 export interface RegisterPayload {
