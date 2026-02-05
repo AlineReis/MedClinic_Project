@@ -14,15 +14,9 @@ export interface ApiResponse<T> {
   error?: ApiError;
 }
 
-// Determines if we are running locally or in production
-const isLocal =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
-
+// Determina o ambiente (Local ou Nginx/Alpha)
 export const getApiUrl = () => {
-  if (isLocal) return "http://localhost:3000/api/v1/1";
-
-  // Verifica se a URL atual cont  m '/server03'
+  // Se a URL contém '/server03', precisamos manter esse prefixo
   const prefix = window.location.pathname.includes("/server03")
     ? "/server03"
     : "";
@@ -32,10 +26,11 @@ export const getApiUrl = () => {
 
 const BASE_URL = (CLINIC_API_HOST ?? getApiUrl()).replace(/\/+$/, "");
 
-// Safety patch: Ensure we have the clinic ID (temp fix for environment issues)
+// Garante o ID da clínica no final (ajuste de ambiente)
 const FINAL_BASE_URL = BASE_URL.endsWith("/api/v1")
   ? `${BASE_URL}/1`
   : BASE_URL;
+
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
@@ -65,17 +60,25 @@ export async function request<T>(
     });
 
     if (response.status === 204) {
-      return {
-        success: true,
-      } as ApiResponse<T>;
+      return { success: true } as ApiResponse<T>;
     }
 
     const payload = await parseResponse<T>(response);
 
     if (!response.ok) {
       if (response.status === 401) {
+        // 1. Limpa o estado na Store (dispara o toast de erro)
         unauthorizedHandler?.();
+
+        // 2. Resolve o redirecionamento com o prefixo dinâmico
+        const base = window.location.pathname.includes('/server03') ? '/server03' : '';
+        
+        // Pequeno delay para o usuário conseguir ler o Toast antes de ser redirecionado
+        setTimeout(() => {
+          window.location.href = `${base}/pages/login.html`;
+        }, 1500);
       }
+
       const errorMessage = payload.error?.message ?? "Erro inesperado";
       return {
         success: false,
@@ -109,21 +112,12 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
 
   const json = await response.json();
 
-  // Backend may return raw data (arrays or objects) without {success, data} wrapper
-  // Detect and wrap them
   if (Array.isArray(json)) {
-    return {
-      success: true,
-      data: json as T,
-    };
+    return { success: true, data: json as T };
   }
 
-  // If it's a plain object without a 'success' field, it's raw data from backend
   if (json && typeof json === "object" && !("success" in json)) {
-    return {
-      success: true,
-      data: json as T,
-    };
+    return { success: true, data: json as T };
   }
 
   return json as ApiResponse<T>;

@@ -25,15 +25,15 @@ authReadyPromise.then((session) => {
   console.log("[auth] session resolved", session);
   const currentPath = window.location.pathname || "";
   const isRoot = currentPath.endsWith("/index.html") || currentPath === "/";
-  const loginPath = "/pages/login.html";
+  const loginPath = "/server03/pages/login.html";
   const allowWhileAuthenticated = new Set([
-    "/pages/schedule-appointment.html",
-    "/pages/my-appointments.html",
-    "/pages/exams.html",
-    "/pages/financial.html",
-    "/pages/users.html",
-    "/pages/admin-users.html",
-    "/pages/patients.html",
+    "/server03/pages/schedule-appointment.html",
+    "/server03/pages/my-appointments.html",
+    "/server03/pages/exams.html",
+    "/server03/pages/financial.html",
+    "/server03/pages/users.html",
+    "/server03/pages/admin-users.html",
+    "/server03/pages/patients.html",
   ])
   if (session) {
     const target = roleRoutes[session.role] ?? "/";

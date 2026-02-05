@@ -1,5 +1,5 @@
 import { onUnauthorized } from "../services/apiService"
-import { profile } from "../services/authService"
+import { profile, logout as apiLogout } from "../services/authService"
 import type { UserSession } from "../types/auth"
 import { uiStore } from "./uiStore"
 
@@ -94,6 +94,17 @@ class AuthStore {
     this.publish()
   }
 
+  // Novo método para logout explícito (chame este método no seu botão de sair)
+  async logout() {
+    try {
+      await apiLogout()
+    } catch (error) {
+      console.error("Erro ao deslogar no servidor:", error)
+    } finally {
+      this.handleUnauthorized()
+    }
+  }
+
   private setChecking(value: boolean) {
     this.state = { ...this.state, isCheckingAuth: value }
     this.publish()
@@ -129,6 +140,14 @@ class AuthStore {
   private handleUnauthorized() {
     this.clearSession()
     uiStore.addToast("warning", "Sua sessão expirou. Faça login novamente.")
+
+    // Logica para não perder o prefixo do servidor (Alpha/WSL)
+    const base = window.location.pathname.includes('/server03') ? '/server03' : ''
+    
+    // Evita loop se já estiver na página de login
+    if (!window.location.pathname.includes('/login.html')) {
+        window.location.href = `${base}/pages/login.html`
+    }
   }
 
   private delay(ms: number) {

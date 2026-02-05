@@ -8,26 +8,16 @@ export class Navigation {
     this.initUserInitials();
   }
 
-  private initLogout() {
-    const logoutBtns = document.querySelectorAll("[data-logout-button], .logout-btn, .admin-logout-link");
-    logoutBtns.forEach((btn) => {
-      btn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        
-        try {
-          // Fire and forget logout request or await it - keeping logic but removing confirm
-          await request("/auth/logout", "POST");
-          
-          authStore.clearSession();
-          window.location.href = "/pages/login.html";
-        } catch (error) {
-           // Even if API fails, clear local session
-           authStore.clearSession();
-           window.location.href = "/pages/login.html";
-        }
-      });
+private initLogout() {
+  const logoutBtns = document.querySelectorAll("[data-logout-button], .logout-btn, .admin-logout-link");
+  logoutBtns.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      // Chama o método centralizado que já tem o BASE_PATH e o Toast
+      await authStore.logout(); 
     });
-  }
+  });
+}
 
   private initUserInitials() {
     const userEls = document.querySelectorAll("[data-user-initials]");
