@@ -36,16 +36,40 @@ authReadyPromise.then((session) => {
     "/pages/patients.html",
   ])
   if (session) {
-    const target = roleRoutes[session.role] ?? "/";
-    console.log("[auth] role target", target, "current", currentPath);
-    if (isRoot || currentPath === loginPath) {
-      window.location.href = target;
+    const basePath = window.location.pathname.startsWith('/server03') ? '/server03' : '';
+
+    const rawTarget = roleRoutes[session.role] ?? "/";
+
+    let finalTarget = rawTarget;
+    if (basePath && !finalTarget.startsWith(basePath)) {
+      finalTarget = basePath + finalTarget;
+    }
+
+
+    const isAtLogin = currentPath.endsWith(loginPath) || currentPath.endsWith('login.html');
+    const isAtRoot = isRoot || currentPath === basePath + "/" || currentPath === basePath;
+
+    if (isAtRoot || isAtLogin) {
+      console.log("[auth] Redirecionando da raiz/login para:", finalTarget);
+      window.location.href = finalTarget;
       return;
     }
-    if (currentPath !== target && !allowWhileAuthenticated.has(currentPath)) {
-      window.location.href = target;
-      return;
+
+    const alreadyAtTarget = currentPath.includes(finalTarget);
+
+    if (!alreadyAtTarget) {
+      const normalizedPath = currentPath.replace(basePath, "");
+
+      const isAllowed = allowWhileAuthenticated.has(normalizedPath) ||
+        allowWhileAuthenticated.has(currentPath);
+
+      if (!isAllowed) {
+        console.log("[auth] Rota n  o permitida. Redirecionando para:", finalTarget);
+        window.location.href = finalTarget;
+        return;
+      }
     }
+
     const shouldLoadAppointments = [
       "patient",
       "receptionist",
@@ -56,9 +80,16 @@ authReadyPromise.then((session) => {
       console.log("[dashboard] loading appointments for session", session);
       dashboardStore.loadAppointmentsForSession(session);
     }
+
   } else if (!currentPath.endsWith(loginPath)) {
-    console.log("[auth] no session, redirecting to login");
-    window.location.href = loginPath;
+    const basePath = window.location.pathname.startsWith('/server03') ? '/server03' : '';
+    let finalLoginPath = loginPath;
+
+    if (basePath && !finalLoginPath.startsWith(basePath)) {
+      finalLoginPath = basePath + finalLoginPath;
+    }
+
+    window.location.href = finalLoginPath;
     return;
   }
 

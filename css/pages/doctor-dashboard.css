@@ -726,7 +726,7 @@
   background-color: rgba(25, 127, 230, 0.2);
   /* primary/20 */
   border-color: rgba(25, 127, 230, 0.4);
-  color: #bfdbfe;
+  color: var(--text-primary);
   /* primary-100/blue-200 ish */
 }
 
